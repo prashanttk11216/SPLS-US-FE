@@ -1,0 +1,16 @@
+.broker-dashboard {
+    background-color: $light-gray;
+    min-height: 100vh;
+  
+    .dashboard-wrapper {
+      display: flex;
+      height: calc(100vh - 90px); // Adjust based on header height
+  
+      .main-content {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+      }
+    }
+  }
+  

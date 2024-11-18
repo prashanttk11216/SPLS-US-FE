@@ -1,0 +1,16 @@
+import { UserRole } from "../enums/UserRole";
+
+export interface User {
+    _id: string; 
+    firstName: string;
+    lastName: string;
+    email: string;
+    contactNumber: string;
+    role?: UserRole;
+    company?: string;
+    accessLevel?: 'full' | 'limited'; // Only applicable for broker users
+    isVerified?: boolean;
+    isDeleted?: boolean;
+    createdAt?: Date | null;
+    updatedAt?: Date | null;
+}
