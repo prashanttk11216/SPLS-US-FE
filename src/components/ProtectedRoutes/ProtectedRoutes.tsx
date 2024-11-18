@@ -3,13 +3,13 @@ import { Navigate, Outlet } from "react-router-dom";
 import { setUser } from "../../features/user/userSlice";
 import { RootState } from "../../store/store";
 import { getAuthTokenFromStorage, getUserDataInStorage } from "../../utils/authHelplers";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 const ProtectedRoutes: React.FC = () => {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user);
   const token = getAuthTokenFromStorage(); // Retrieve token from local storage or cookies
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const initializeUser = () => {
@@ -26,7 +26,7 @@ const ProtectedRoutes: React.FC = () => {
           }
         }
       }
-      setIsLoading(false); // Indicate loading is complete
+      // setIsLoading(false); // Indicate loading is complete
     };
 
     initializeUser();

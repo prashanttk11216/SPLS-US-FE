@@ -1,8 +1,7 @@
 import { publicApi } from "../../api/axios";
-import { UserRole } from "../../enums/UserRole";
 import { ForgotPasswordForm } from "../../pages/Auth/Forgot/ForgotPassword";
 import { LoginForm } from "../../pages/Auth/Login/Login";
-import { SignupForm } from "../../pages/Auth/Signup/Signup";
+import { createUserForm } from "../../pages/Auth/Signup/Signup";
 import { ApiResponse } from "../../types/responseTypes";
 import { handleResponse } from "../../utils/apiHelpers";
 import { handleAxiosError } from "../../utils/errorHandler";
@@ -18,7 +17,7 @@ export const login = async (data: LoginForm): Promise<ApiResponse> => {
 };
 
 // Signup request - public API (no token needed)
-export const signup = async (data: SignupForm): Promise<ApiResponse> => {
+export const signup = async (data: createUserForm): Promise<ApiResponse> => {
   try {
     const response = await publicApi.post<ApiResponse>("/user/create", data);
     return handleResponse(response);

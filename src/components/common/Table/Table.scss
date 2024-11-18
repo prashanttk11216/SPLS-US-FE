@@ -1,6 +1,8 @@
 .table-wrapper {
     width: 100%;
-    overflow-x: auto;
+    min-height: 200px;
+    height: auto;
+    margin-bottom: 20px;
     border-radius: 5px;
   
     .common-table {

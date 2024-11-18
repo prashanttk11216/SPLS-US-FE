@@ -1,4 +1,5 @@
 import axiosApi from "../../api/axios";
+import { createUserForm } from "../../pages/Auth/Signup/Signup";
 import { ApiResponse } from "../../types/responseTypes";
 import { handleResponse } from "../../utils/apiHelpers";
 import { handleAxiosError } from "../../utils/errorHandler";
@@ -14,15 +15,34 @@ interface EditUserData {
 
 // Fetch user details by ID or filter by role - Private API (requires Authorization token)
 export const getUsers = async (
-  userId?: string,
   role?: string
 ): Promise<ApiResponse> => {
   try {
     // Construct endpoint based on presence of userId and/or role
-    let endpoint = userId ? `/user/${userId}` : "/user";
+    let endpoint = "/user";
 
     // Add role as a query parameter if provided and no userId is specified
-    if (!userId && role) {
+    if (role) {
+      endpoint += `?role=${role}`;
+    }
+
+    const response = await axiosApi.get(endpoint);
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "Failed to retrieve user details");
+  }
+};
+
+export const getUserById = async (
+  userId: string,
+  role?: string
+): Promise<ApiResponse> => {
+  try {
+    // Construct endpoint based on presence of userId and/or role
+    let endpoint = `/user/${userId}`;
+
+    // Add role as a query parameter if provided and no userId is specified
+    if (role) {
       endpoint += `?role=${role}`;
     }
 
@@ -39,6 +59,15 @@ export const getUserProfile = async (): Promise<ApiResponse> => {
     return handleResponse(response);
   } catch (error) {
     return handleAxiosError(error, "Failed to retrieve user details");
+  }
+};
+
+export const createUser = async (data: createUserForm): Promise<ApiResponse> => {
+  try {
+    const response = await axiosApi.post<ApiResponse>("/user/create?isAdmin=true", data);
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "Signup failed");
   }
 };
 

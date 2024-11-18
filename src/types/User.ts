@@ -10,7 +10,9 @@ export interface User {
     company?: string;
     accessLevel?: 'full' | 'limited'; // Only applicable for broker users
     isVerified?: boolean;
+    isActive?: boolean;
     isDeleted?: boolean;
+    avatarUrl?: string;
     createdAt?: Date | null;
     updatedAt?: Date | null;
 }

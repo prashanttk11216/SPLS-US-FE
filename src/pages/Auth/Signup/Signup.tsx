@@ -9,13 +9,12 @@ import { signup } from "../../../services/auth/authService";
 import { VALIDATION_MESSAGES } from "../../../constants/messages";
 import { REGEX_PATTERNS } from "../../../constants/patterns";
 import MenWithBox from "../../../assets/images/menWithBox.svg";
-import Select from "../../../components/common/SelectInput/SelectInput";
 
 interface SignupProps {
   role?: UserRole | null;
 }
 
-export type SignupForm = {
+export type createUserForm = {
   firstName: string;
   lastName: string;
   company: string;
@@ -33,9 +32,9 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
     handleSubmit,
     formState: { errors, isValid },
     watch,
-  } = useForm<SignupForm>({ mode: "onBlur" });
+  } = useForm<createUserForm>({ mode: "onBlur" });
 
-  const submit = async (data: SignupForm) => {
+  const submit = async (data: createUserForm) => {
     try {
       // Set default role based on props
       if (role === UserRole.CARRIER) {

@@ -1,8 +1,58 @@
+import React, { useState, useEffect, useCallback } from "react";
 import Avatar from "../../../../../components/common/Avatar/Avatar";
 import Table from "../../../../../components/common/Table/Table";
-import PlusIcon from '../../../../../assets/icons/plus.svg'
+import PlusIcon from "../../../../../assets/icons/plus.svg";
+import {
+  deleteUser,
+  getUserById,
+  getUsers,
+} from "../../../../../services/user/userService";
+import { toast } from "react-toastify";
+import { UserRole } from "../../../../../enums/UserRole";
+import { User } from "../../../../../types/User";
+import Loading from "../../../../../components/common/Loading/Loading";
+import CreateOrEditCustomer from "../CreateOrEditCustomer/CreateOrEditCustomer";
+import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
+import "./CustomerList.scss";
 
-const CustomerList = () => {
+const CustomerList: React.FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [customerToEdit, setCustomerToEdit] = useState<Partial<User> | null>(null);
+  const [customers, setCustomers] = useState<User[]>([]);
+
+  const {
+    fetchData: fetchCustomers,
+    fetchDataById: fetchCustomer,
+    deleteDataById: deleteCustomer,
+    loading,
+    error,
+  } = useFetchData<any>({
+    fetchDataService: getUsers,
+    fetchByIdService: getUserById,
+    deleteDataService: deleteUser,
+  });
+
+  // Fetch customers data
+  const fetchCustomersData = useCallback(async () => {
+    try {
+      const result = await fetchCustomers(UserRole.CUSTOMER);
+      if (result.success) {
+        setCustomers(result.data);
+      } else {
+        toast.error(result.message || "Failed to fetch customers.");
+      }
+    } catch (err) {
+      toast.error("Error fetching customer data.");
+    }
+  }, [fetchCustomers]);
+
+  // Use a single fetch on initial render
+  useEffect(() => {
+    console.log("Log....");
+    fetchCustomersData();
+  }, [fetchCustomers]);
+
   const columns = [
     { key: "name", label: "Name", width: "40%" },
     { key: "email", label: "Email" },
@@ -12,243 +62,101 @@ const CustomerList = () => {
     { key: "actions", label: "Actions", isAction: true },
   ];
 
-  const data = [
-    {
-      name: (
-        <div className="d-flex align-items-center">
-          <div className="avatar_wrapper me-2">
-            <Avatar  firstName="Avi" lastName="Patel" email="avi@gmail.com" size={35}/>
-          </div>
-          <div className="name">Avi Patel</div>
-        </div>
-      ),
-      email: "avi@gmail.com",
-      contact: "+91 1234567890",
-      company: "ABC",
-      status: "Active",
-    },
-    {
-      name: (
-        <div className="d-flex align-items-center">
-          <div className="avatar_wrapper me-2">
-            <Avatar  firstName="Avi" lastName="Patel" email="avi@gmail.com" size={35}/>
-          </div>
-          <div className="name">Avi Patel</div>
-        </div>
-      ),
-      email: "avi@gmail.com",
-      contact: "+91 1234567890",
-      company: "ABC",
-      status: "Active",
-    },
-    {
-      name: (
-        <div className="d-flex align-items-center">
-          <div className="avatar_wrapper me-2">
-            <Avatar  firstName="Avi" lastName="Patel" email="avi@gmail.com" size={35}/>
-          </div>
-          <div className="name">Avi Patel</div>
-        </div>
-      ),
-      email: "avi@gmail.com",
-      contact: "+91 1234567890",
-      company: "ABC",
-      status: "Active",
-    },
-    {
-      name: (
-        <div className="d-flex align-items-center">
-          <div className="avatar_wrapper me-2">
-            <Avatar  firstName="Avi" lastName="Patel" email="avi@gmail.com" size={35}/>
-          </div>
-          <div className="name">Avi Patel</div>
-        </div>
-      ),
-      email: "avi@gmail.com",
-      contact: "+91 1234567890",
-      company: "ABC",
-      status: "Active",
-    },
-    {
-      name: (
-        <div className="d-flex align-items-center">
-          <div className="avatar_wrapper me-2">
-            <Avatar  firstName="Avi" lastName="Patel" email="avi@gmail.com" size={35}/>
-          </div>
-          <div className="name">Avi Patel</div>
-        </div>
-      ),
-      email: "avi@gmail.com",
-      contact: "+91 1234567890",
-      company: "ABC",
-      status: "Active",
-    },
-    {
-      name: (
-        <div className="d-flex align-items-center">
-          <div className="avatar_wrapper me-2">
-            <Avatar  firstName="Avi" lastName="Patel" email="avi@gmail.com" size={35}/>
-          </div>
-          <div className="name">Avi Patel</div>
-        </div>
-      ),
-      email: "avi@gmail.com",
-      contact: "+91 1234567890",
-      company: "ABC",
-      status: "Active",
-    },
-    {
-      name: (
-        <div className="d-flex align-items-center">
-          <div className="avatar_wrapper me-2">
-            <Avatar  firstName="Avi" lastName="Patel" email="avi@gmail.com" size={35}/>
-          </div>
-          <div className="name">Avi Patel</div>
-        </div>
-      ),
-      email: "avi@gmail.com",
-      contact: "+91 1234567890",
-      company: "ABC",
-      status: "Active",
-    },
-    {
-      name: (
-        <div className="d-flex align-items-center">
-          <div className="avatar_wrapper me-2">
-            <Avatar  firstName="Avi" lastName="Patel" email="avi@gmail.com" size={35}/>
-          </div>
-          <div className="name">Avi Patel</div>
-        </div>
-      ),
-      email: "avi@gmail.com",
-      contact: "+91 1234567890",
-      company: "ABC",
-      status: "Active",
-    },
-    {
-      name: (
-        <div className="d-flex align-items-center">
-          <div className="avatar_wrapper me-2">
-            <Avatar  firstName="Avi" lastName="Patel" email="avi@gmail.com" size={35}/>
-          </div>
-          <div className="name">Avi Patel</div>
-        </div>
-      ),
-      email: "avi@gmail.com",
-      contact: "+91 1234567890",
-      company: "ABC",
-      status: "Active",
-    },
-    {
-      name: (
-        <div className="d-flex align-items-center">
-          <div className="avatar_wrapper me-2">
-            <Avatar  firstName="Avi" lastName="Patel" email="avi@gmail.com" size={35}/>
-          </div>
-          <div className="name">Avi Patel</div>
-        </div>
-      ),
-      email: "avi@gmail.com",
-      contact: "+91 1234567890",
-      company: "ABC",
-      status: "Active",
-    },
-    {
-      name: (
-        <div className="d-flex align-items-center">
-          <div className="avatar_wrapper me-2">
-            <Avatar  firstName="Avi" lastName="Patel" email="avi@gmail.com" size={35}/>
-          </div>
-          <div className="name">Avi Patel</div>
-        </div>
-      ),
-      email: "avi@gmail.com",
-      contact: "+91 1234567890",
-      company: "ABC",
-      status: "Active",
-    },
-    {
-      name: (
-        <div className="d-flex align-items-center">
-          <div className="avatar_wrapper me-2">
-            <Avatar  firstName="Avi" lastName="Patel" email="avi@gmail.com" size={35}/>
-          </div>
-          <div className="name">Avi Patel</div>
-        </div>
-      ),
-      email: "avi@gmail.com",
-      contact: "+91 1234567890",
-      company: "ABC",
-      status: "Active",
-    },
-    {
-      name: (
-        <div className="d-flex align-items-center">
-          <div className="avatar_wrapper me-2">
-            <Avatar  firstName="Avi" lastName="Patel" email="avi@gmail.com" size={35}/>
-          </div>
-          <div className="name">Avi Patel</div>
-        </div>
-      ),
-      email: "avi@gmail.com",
-      contact: "+91 1234567890",
-      company: "ABC",
-      status: "Active",
-    },
-    {
-      name: (
-        <div className="d-flex align-items-center">
-          <div className="avatar_wrapper me-2">
-            <Avatar  firstName="Avi" lastName="Patel" email="avi@gmail.com" size={35}/>
-          </div>
-          <div className="name">Avi Patel</div>
-        </div>
-      ),
-      email: "avi@gmail.com",
-      contact: "+91 1234567890",
-      company: "ABC",
-      status: "Active",
-    },
-  ];
+  const handleActionClick = async (action: string, row: Record<string, any>) => {
+    if (action === "Edit") {
+      try {
+        const customerData = await fetchCustomer(row._id);
+        openEditModal(customerData.data);
+      } catch (err) {
+        toast.error("Failed to fetch customer details for editing.");
+      }
+    }
+    if (action === "Delete") {
+      try {
+        const result = await deleteCustomer(row._id);
+        if (result.success) {
+          toast.success(result.message);
+          fetchCustomersData();
+        }
+      } catch (err) {
+        toast.error("Failed to delete customer.");
+      }
+    }
+  };
 
-  const handleActionClick = (action: string, row: Record<string, any>) => {
-    console.log(`Action "${action}" clicked for row:`, row);
+  const getRowData = () => {
+    return customers.map((customer) => ({
+      _id: customer._id,
+      name: (
+        <div className="d-flex align-items-center">
+          <div className="avatar_wrapper me-2">
+            <Avatar
+              avatarUrl={customer.avatarUrl}
+              firstName={customer.firstName}
+              lastName={customer.lastName}
+              email={customer.email}
+              size={35}
+            />
+          </div>
+          <div className="name">{`${customer.firstName} ${customer.lastName}`}</div>
+        </div>
+      ),
+      email: customer.email,
+      contact: customer.contactNumber || "N/A",
+      company: customer.company || "N/A",
+      status: customer.isActive ? "Active" : "Inactive",
+    }));
+  };
+
+  const openCreateModal = () => {
+    setIsEditing(false);
+    setCustomerToEdit(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (customerData: Partial<User>) => {
+    setIsEditing(true);
+    setCustomerToEdit(customerData);
+    setIsModalOpen(true);
   };
 
   return (
     <div className="customers-list-wrapper">
       <h2 className="fw-bolder">Customers</h2>
       <div className="d-flex align-items-center my-3">
-
-        <button className="btn btn-accent d-flex align-items-center ms-auto" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal">
-          <img src={PlusIcon} height={16} width={16} className="me-2"/>
+        <button
+          className="btn btn-accent d-flex align-items-center ms-auto"
+          type="button"
+          onClick={openCreateModal}
+        >
+          <img src={PlusIcon} height={16} width={16} className="me-2" />
           Create
-          </button>
+        </button>
       </div>
-      <Table
-        columns={columns}
-        data={data}
-        actions={["Edit", "Delete", "View"]}
-        onActionClick={handleActionClick}
-      />
 
-<div className="modal fade" id="exampleModal" tabIndex={-1} aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div className="modal-dialog">
-    <div className="modal-content">
-      <div className="modal-header">
-        <h5 className="modal-title" id="exampleModalLabel">Modal title</h5>
-        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div className="modal-body">
-        ...
-      </div>
-      <div className="modal-footer">
-        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" className="btn btn-primary">Save changes</button>
-      </div>
-    </div>
-  </div>
-</div>
+      {loading ? (
+        <Loading />
+      ) : error ? (
+        <div className="text-danger">{error}</div>
+      ) : (
+        <Table
+          columns={columns}
+          rows={getRowData()}
+          data={customers}
+          actions={["Edit", "Delete"]}
+          onActionClick={handleActionClick}
+        />
+      )}
+
+      <CreateOrEditCustomer
+        isModalOpen={isModalOpen}
+        setIsModalOpen={(value: boolean) => {
+          setIsModalOpen(value);
+          if (!value) fetchCustomersData(); // Refresh customers after modal close
+        }}
+        isEditing={isEditing}
+        customerData={customerToEdit}
+      />
     </div>
   );
 };

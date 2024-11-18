@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import { FC } from "react";
 import "./Table.scss";
 import EllipsisVertical from "../../../assets/icons/ellipsisVertical.svg"
 
@@ -11,12 +11,13 @@ interface Column {
 
 interface TableProps {
   columns: Column[]; // List of column definitions
-  data: Record<string, any>[]; // List of row data
+  rows: Record<string, any>[]; // List of row data
+  data: Record<string, any>[]; // List of data
   onActionClick?: (action: string, row: Record<string, any>) => void; // Callback for action clicks
   actions?: string[]; // Action names for the dropdown menu
 }
 
-const Table: FC<TableProps> = ({ columns, data, onActionClick, actions }) => {
+const Table: FC<TableProps> = ({ columns, rows, data, onActionClick, actions }) => {
   return (
     <div className="table-wrapper">
       <table className="common-table">
@@ -34,7 +35,7 @@ const Table: FC<TableProps> = ({ columns, data, onActionClick, actions }) => {
           </tr>
         </thead>
         <tbody>
-          {data.map((row, rowIndex) => (
+          {rows.map((row, rowIndex) => (
             <tr key={rowIndex}>
               {columns.map((column) => (
                 <td key={`${rowIndex}-${column.key}`}>
@@ -57,7 +58,7 @@ const Table: FC<TableProps> = ({ columns, data, onActionClick, actions }) => {
                           <li key={index}>
                             <button
                               className="dropdown-item"
-                              onClick={() => onActionClick && onActionClick(action, row)}
+                              onClick={() => onActionClick && onActionClick(action, data[rowIndex])}
                             >
                               {action}
                             </button>
@@ -72,7 +73,7 @@ const Table: FC<TableProps> = ({ columns, data, onActionClick, actions }) => {
               ))}
             </tr>
           ))}
-          {data.length === 0 && (
+          {rows.length === 0 && (
             <tr className="no-record-found">
               <td colSpan={columns.length} className="text-center">
                 No Records Found
