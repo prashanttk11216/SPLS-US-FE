@@ -1,6 +1,6 @@
 import "./Header.scss";
 import Logo from "../../assets/images/Logo.svg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Avatar from "../common/Avatar/Avatar";
 import User from "../../assets/icons/user.svg";
 import SignOutIcon from "../../assets/icons/signOut.svg"
@@ -10,6 +10,7 @@ import { RootState } from "../../store/store";
 import { useDispatch, useSelector } from "react-redux";
 import { clearStorage } from "../../utils/authHelplers";
 import { resetUser } from "../../features/user/userSlice";
+import { UserRole } from "../../enums/UserRole";
 
 
 interface HeaderProps {}
@@ -17,10 +18,13 @@ interface HeaderProps {}
 const Header: React.FC<HeaderProps> = () => {
     const user = useSelector((state: RootState) => state.user);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
-    const logout = () => {
+    const logout = (role: UserRole) => {
         clearStorage();
         dispatch(resetUser());
+        let url = role == UserRole.BROKER_USER ? "/login?role=broker" : "/login"
+        navigate(url);
     };
   return (
     <>
@@ -62,7 +66,7 @@ const Header: React.FC<HeaderProps> = () => {
                 <hr className="dropdown-divider" />
               </li>
               <li>
-              <a className="dropdown-item d-flex align-items-center"  role="button" onClick={logout}>
+              <a className="dropdown-item d-flex align-items-center"  role="button" onClick={()=>logout(user.role!)}>
                   <span className="me-3">
                     <img src={SignOutIcon} />
                   </span>{" "}

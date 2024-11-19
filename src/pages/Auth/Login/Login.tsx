@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -18,14 +18,24 @@ import { REGEX_PATTERNS } from "../../../constants/patterns";
 import { UserRole } from "../../../enums/UserRole";
 import MenWithBox from "../../../assets/images/menWithBox.svg";
 
+interface LoginProps {
+  role?: UserRole | null;
+}
+
 export type LoginForm = {
-  email: string;
+  email?: string;
+  employeeId?: string;
   password: string;
 };
 
-const Login: React.FC = () => {
+const Login: React.FC<LoginProps> = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const role = searchParams.get("role");
+
+  const userRole = role === "broker" ? UserRole.BROKER_USER : undefined;
+
 
   const {
     register,
@@ -73,27 +83,45 @@ const Login: React.FC = () => {
         </div>
         <div className="col-12 col-lg-6">
           <div className="login-form mx-auto">
-          <h2 className="fw-bolder text-center mb-5">Login</h2>
+            <h2 className="fw-bolder text-center mb-5">Login</h2>
             <form onSubmit={handleSubmit(submitForm)} noValidate>
               <div className="row">
-                {/* Email Input */}
-                <div className="col-12">
-                  <Input
-                    label="Email"
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="name@example.com"
-                    register={register}
-                    errors={errors}
-                    validationMessages={{
-                      required: VALIDATION_MESSAGES.emailRequired,
-                      pattern: VALIDATION_MESSAGES.emailInvalid,
-                    }}
-                    pattern={REGEX_PATTERNS.email}
-                    required
-                  />
-                </div>
+                {/* Employee Id Input for Broker User */}
+                {userRole === UserRole.BROKER_USER ? (
+                  <div className="col-12">
+                    <Input
+                      label="Employee Id"
+                      type="text"
+                      id="employeeId"
+                      name="employeeId"
+                      placeholder="Enter Employee Id"
+                      register={register}
+                      errors={errors}
+                      validationMessages={{
+                        required: VALIDATION_MESSAGES.employeeIdRequired,
+                      }}
+                      required
+                    />
+                  </div>
+                ) : (
+                  <div className="col-12">
+                    <Input
+                      label="Email"
+                      type="email"
+                      id="email"
+                      name="email"
+                      placeholder="name@example.com"
+                      register={register}
+                      errors={errors}
+                      validationMessages={{
+                        required: VALIDATION_MESSAGES.emailRequired,
+                        pattern: VALIDATION_MESSAGES.emailInvalid,
+                      }}
+                      pattern={REGEX_PATTERNS.email}
+                      required
+                    />
+                  </div>
+                )}
 
                 {/* Password Input */}
                 <div className="col-12">
@@ -122,34 +150,34 @@ const Login: React.FC = () => {
                   </Link>
                 </div>
 
-               
-
-
                 {/* Submit Button */}
                 <div className="col-12 mb-1 text-center">
-                    <button
-                      type="submit"
-                      className="btn btn-sky-blue text-white w-100 fw-bold"
-                      disabled={!isValid}
-                    >
-                      Login
-                    </button>
-                  </div>
+                  <button
+                    type="submit"
+                    className="btn btn-sky-blue text-white w-100 fw-bold"
+                    disabled={!isValid}
+                  >
+                    Login
+                  </button>
+                </div>
+                {userRole !== UserRole.BROKER_USER && (
+                  <>
+                    <div className="col-12 text-center mt-2 mb-3">
+                      <span className="fw-bold">OR</span>
+                    </div>
 
-                  <div className="col-12 text-center mt-2 mb-3">
-                    <span className="fw-bold">OR</span>
-                  </div>
-
-                  {/* Sign Up Link */}
-                  <div className="col-12 mb-1 text-center fw-bolder">
-                    <span>Don't have an account?</span>{" "}
-                    <Link
-                      className="text-sky-blue text-decoration-none"
-                      to="/signup"
-                    >
-                      Sign up
-                    </Link>
-                  </div>
+                    {/* Sign Up Link */}
+                    <div className="col-12 mb-1 text-center fw-bolder">
+                      <span>Don't have an account?</span>{" "}
+                      <Link
+                        className="text-sky-blue text-decoration-none"
+                        to="/signup"
+                      >
+                        Sign up
+                      </Link>
+                    </div>
+                  </>
+                )}
               </div>
             </form>
           </div>

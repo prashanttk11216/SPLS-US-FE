@@ -88,7 +88,7 @@ export const routes = createBrowserRouter([
   {
     path: "login",
     element: <Login />,
-  },
+  },    
   {
     path: "signup",
     element: <Signup role={UserRole.CUSTOMER} />, // Pass the role to the Signup component
