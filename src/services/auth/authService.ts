@@ -2,6 +2,7 @@ import { publicApi } from "../../api/axios";
 import { ForgotPasswordForm } from "../../pages/Auth/Forgot/ForgotPassword";
 import { LoginForm } from "../../pages/Auth/Login/Login";
 import { createUserForm } from "../../pages/Auth/Signup/Signup";
+import { verifyUserForm } from "../../pages/Auth/VerifyUser/VerifyUser";
 import { ApiResponse } from "../../types/responseTypes";
 import { handleResponse } from "../../utils/apiHelpers";
 import { handleAxiosError } from "../../utils/errorHandler";
@@ -47,5 +48,15 @@ export const resetPassword = async (
     return handleResponse(response);
   } catch (error) {
     return handleAxiosError(error, "Password reset failed");
+  }
+};
+
+// verify User - public API (no token needed)
+export const verifyUser = async (data: verifyUserForm): Promise<ApiResponse> => {
+  try {
+    const response = await publicApi.post<ApiResponse>("/otp/verify", data);
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "Verification failed");
   }
 };

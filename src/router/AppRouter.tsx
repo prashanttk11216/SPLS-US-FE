@@ -17,6 +17,7 @@ import BrokerLayout from "../pages/modules/Broker/BrokerLayout/BrokerLayout";
 import CustomerLayout from "../pages/modules/Customer/CustomerLayout/CustomerLayout";
 import CarrierLayout from "../pages/modules/Carrier/CarrierLayout/CarrierLayout";
 import BrokerUserList from "../pages/modules/Broker/BrokerUser/BrokerUserList/BrokerUserList";
+import VerifyUser from "../pages/Auth/VerifyUser/VerifyUser";
 
 // Define the routes using createBrowserRouter
 export const routes = createBrowserRouter([
@@ -106,6 +107,10 @@ export const routes = createBrowserRouter([
   {
     path: "forgot",
     element: <ForgotPassword />,
+  },
+  {
+    path: "verify",
+    element: <VerifyUser />,
   },
   { path: "*", element: <PageNotFound /> },
 ]);

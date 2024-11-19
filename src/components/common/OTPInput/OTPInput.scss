@@ -1,0 +1,22 @@
+.otp-input {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  
+    input {
+      width: 48px;
+      height: 48px;
+      text-align: center;
+      font-size: 18px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      outline: none;
+  
+      &:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+      }
+    }
+  }
+  

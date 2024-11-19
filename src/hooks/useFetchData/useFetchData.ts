@@ -3,11 +3,11 @@ import { toast } from "react-toastify";
 import { ApiResponse } from "../../types/responseTypes";
 
 interface UseFetchDataProps<T, U = T> {
-  fetchDataService?: (params?: any) => Promise<ApiResponse>;
-  fetchByIdService?: (id: string) => Promise<ApiResponse>;
-  createDataService?: (data: U) => Promise<ApiResponse>;
-  updateDataService?: (id: string, data: T) => Promise<ApiResponse>;
-  deleteDataService?: (id: string) => Promise<ApiResponse>;
+  fetchDataService?: (params?: any) => Promise<ApiResponse<T[]>>;
+  fetchByIdService?: (id: string) => Promise<ApiResponse<T>>;
+  createDataService?: (data: U) => Promise<ApiResponse<T>>;
+  updateDataService?: (id: string, data: T) => Promise<ApiResponse<T>>;
+  deleteDataService?: (id: string) => Promise<ApiResponse<null>>;
 }
 
 const useFetchData = <T, U = T>({
@@ -20,11 +20,23 @@ const useFetchData = <T, U = T>({
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
-  const fetchData = useCallback(async (params?: any) => {
+  const handleError = (err: any, fallbackMessage: string): ApiResponse => {
+    const errorMessage = err.message || fallbackMessage;
+    console.error(errorMessage);
+    setError(errorMessage);
+    toast.error(errorMessage);
+    return {
+      success: false,
+      code: 500, // Default error code (can be adjusted based on the API)
+      message: errorMessage,
+      data: null,
+      meta: {},
+    };
+  };
+
+  const fetchData = useCallback(async (params?: any): Promise<ApiResponse<T[]>> => {
     if (!fetchDataService) {
-      setError("fetchDataService is not defined");
-      toast.error("fetchDataService is not defined");
-      return { success: false, message: "Service not available", data: [] };
+      return handleError(null, "fetchDataService is not defined");
     }
     setLoading(true);
     setError("");
@@ -34,21 +46,16 @@ const useFetchData = <T, U = T>({
         throw new Error(result.message || "Failed to fetch data");
       }
       return result;
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || "An unexpected error occurred");
-      toast.error(err.message || "An unexpected error occurred");
-      return { success: false, message: err.message, data: [] };
+    } catch (err) {
+      return handleError(err, "Failed to fetch data");
     } finally {
       setLoading(false);
     }
   }, [fetchDataService]);
 
-  const fetchDataById = useCallback(async (id: string) => {
+  const fetchDataById = useCallback(async (id: string): Promise<ApiResponse<T>> => {
     if (!fetchByIdService) {
-      setError("fetchByIdService is not defined");
-      toast.error("fetchByIdService is not defined");
-      return { success: false, message: "Service not available", data: null };
+      return handleError(null, "fetchByIdService is not defined");
     }
     setLoading(true);
     setError("");
@@ -58,21 +65,16 @@ const useFetchData = <T, U = T>({
         throw new Error(result.message || "Failed to fetch data by id");
       }
       return result;
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || "An unexpected error occurred");
-      toast.error(err.message || "An unexpected error occurred");
-      return { success: false, message: err.message, data: null };
+    } catch (err) {
+      return handleError(err, "Failed to fetch data by id");
     } finally {
       setLoading(false);
     }
   }, [fetchByIdService]);
 
-  const createData = useCallback(async (data: U) => {
+  const createData = useCallback(async (data: U): Promise<ApiResponse<T>> => {
     if (!createDataService) {
-      setError("createDataService is not defined");
-      toast.error("createDataService is not defined");
-      return { success: false, message: "Service not available" };
+      return handleError(null, "createDataService is not defined");
     }
     setLoading(true);
     setError("");
@@ -82,21 +84,16 @@ const useFetchData = <T, U = T>({
         throw new Error(result.message || "Failed to create data");
       }
       return result;
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || "An unexpected error occurred");
-      toast.error(err.message || "An unexpected error occurred");
-      return { success: false, message: err.message };
+    } catch (err) {
+      return handleError(err, "Failed to create data");
     } finally {
       setLoading(false);
     }
   }, [createDataService]);
 
-  const updateData = useCallback(async (id: string, data: T) => {
+  const updateData = useCallback(async (id: string, data: T): Promise<ApiResponse<T>> => {
     if (!updateDataService) {
-      setError("updateDataService is not defined");
-      toast.error("updateDataService is not defined");
-      return { success: false, message: "Service not available" };
+      return handleError(null, "updateDataService is not defined");
     }
     setLoading(true);
     setError("");
@@ -106,21 +103,16 @@ const useFetchData = <T, U = T>({
         throw new Error(result.message || "Failed to update data");
       }
       return result;
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || "An unexpected error occurred");
-      toast.error(err.message || "An unexpected error occurred");
-      return { success: false, message: err.message };
+    } catch (err) {
+      return handleError(err, "Failed to update data");
     } finally {
       setLoading(false);
     }
   }, [updateDataService]);
 
-  const deleteDataById = useCallback(async (id: string) => {
+  const deleteDataById = useCallback(async (id: string): Promise<ApiResponse<null>> => {
     if (!deleteDataService) {
-      setError("deleteDataService is not defined");
-      toast.error("deleteDataService is not defined");
-      return { success: false, message: "Service not available" };
+      return handleError(null, "deleteDataService is not defined");
     }
     setLoading(true);
     setError("");
@@ -130,11 +122,8 @@ const useFetchData = <T, U = T>({
         throw new Error(result.message || "Failed to delete data");
       }
       return result;
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || "An unexpected error occurred");
-      toast.error(err.message || "An unexpected error occurred");
-      return { success: false, message: err.message };
+    } catch (err) {
+      return handleError(err, "Failed to delete data");
     } finally {
       setLoading(false);
     }

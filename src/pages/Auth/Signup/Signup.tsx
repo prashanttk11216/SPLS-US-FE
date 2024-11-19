@@ -51,7 +51,7 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
       // Display appropriate success/error messages
       if (result.success) {
         toast.success(result.message);
-        navigate("/login");
+        navigate(`/verify?email=${encodeURIComponent(data.email)}`);
       } else {
         toast.error(result.message);
       }
@@ -71,7 +71,7 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
       {/* Main container for centering form */}
       <div className="container vh-100 d-flex align-items-center justify-content-center">
         <div className="row align-items-center">
-          <div className="d-none d-lg-block col-lg-6 ">
+          <div className="d-none d-lg-block col-lg-6">
             <img src={MenWithBox} />
           </div>
           <div className="col-12 col-lg-6">
