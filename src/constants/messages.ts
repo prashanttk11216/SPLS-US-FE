@@ -11,6 +11,7 @@ export const VALIDATION_MESSAGES = {
     lastNameRequired: "Last Name is required",
     contactNumberRequired: "Contact Number is required",
     firstNameRequired: "First Name is required",
+    employeeIdRequired: "Employee Id is required",
   };
   
   export const ERROR_MESSAGES = {

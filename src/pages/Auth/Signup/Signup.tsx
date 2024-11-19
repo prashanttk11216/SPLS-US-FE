@@ -23,6 +23,7 @@ export type createUserForm = {
   password: string;
   confirmPassword: string;
   role: UserRole;
+  employeeId?: string;
 };
 
 const Signup: React.FC<SignupProps> = ({ role }) => {

@@ -16,6 +16,7 @@ import CarrierList from "../pages/modules/Broker/Carrier/CarrierList/CarrierList
 import BrokerLayout from "../pages/modules/Broker/BrokerLayout/BrokerLayout";
 import CustomerLayout from "../pages/modules/Customer/CustomerLayout/CustomerLayout";
 import CarrierLayout from "../pages/modules/Carrier/CarrierLayout/CarrierLayout";
+import BrokerUserList from "../pages/modules/Broker/BrokerUser/BrokerUserList/BrokerUserList";
 
 // Define the routes using createBrowserRouter
 export const routes = createBrowserRouter([
@@ -63,6 +64,10 @@ export const routes = createBrowserRouter([
           {
             path: "carriers", // Matches /broker
             element: <CarrierList />,
+          },
+          {
+            path: "broker-users", // Matches /broker
+            element: <BrokerUserList />,
           },
         ],
       },

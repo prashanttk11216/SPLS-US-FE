@@ -11,7 +11,7 @@ const menuItems = [
   { name: "Dashboard", icon: HomeIcon, path: "/broker" },
   { name: "Customers", icon: UsersIcon, path: "/broker/customers" },
   { name: "Carriers", icon: CarrierIcon, path: "/broker/carriers" },
-  { name: "Brokers", icon: BrokerIcon, path: "/broker/brokers" },
+  { name: "Brokers", icon: BrokerIcon, path: "/broker/broker-users" },
 ];
 
 const BrokerLayout = () => {

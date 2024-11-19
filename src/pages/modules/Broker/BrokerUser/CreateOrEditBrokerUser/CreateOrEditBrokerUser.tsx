@@ -7,23 +7,25 @@ import { createUserForm } from "../../../../Auth/Signup/Signup";
 import { useForm } from "react-hook-form";
 import { UserRole } from "../../../../../enums/UserRole";
 import { toast } from "react-toastify";
-import { createUser, editUser } from "../../../../../services/user/userService";
+import { createBroker, editUser } from "../../../../../services/user/userService";
 import { User } from "../../../../../types/User";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import Loading from "../../../../../components/common/Loading/Loading";
 
-interface CreateOrEditCustomerProps {
+interface CreateOrEditBrokerUserProps {
   isModalOpen: boolean; // Controls modal visibility
   setIsModalOpen: (value: boolean) => void; // Setter for modal visibility
-  isEditing: boolean; // Indicates if editing an existing customer
-  customerData?: Partial<User> | null; // Pre-filled data for editing
+  isEditing: boolean; // Indicates if editing an existing BrokerUser
+  brokerUserData?: Partial<User> | null; // Pre-filled data for editing
+  closeModal: () => void;
 }
 
-const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
+const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
   isModalOpen,
   setIsModalOpen,
   isEditing,
-  customerData,
+  brokerUserData,
+  closeModal
 }) => {
   const {
     register,
@@ -33,38 +35,38 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
     reset,
   } = useForm<createUserForm>({
     mode: "onBlur",
-    defaultValues: customerData || {}, // Pre-fill form when editing
+    defaultValues: brokerUserData || {}, // Pre-fill form when editing
   });
 
   const {
-    createData: createCustomer,
-    updateData: updateCustomer,
+    createData: createBrokerUser,
+    updateData: updateBrokerUser,
     loading,
     error,
   } = useFetchData<any>({
-    createDataService: createUser,
+    createDataService: createBroker,
     updateDataService: editUser,
   });
 
   /**
-   * Handles form submission for creating or editing a customer.
+   * Handles form submission for creating or editing a BrokerUser.
    * @param data - Form data
    */
   const submit = async (data: createUserForm) => {
     try {
       let result;
-      if (isEditing && customerData?._id) {
-        // Update customer if editing
-        result = await updateCustomer(customerData._id, data);
+      if (isEditing && brokerUserData?._id) {
+        // Update Broker if editing
+        result = await updateBrokerUser(brokerUserData._id, data);
       } else {
-        // Create customer with role assigned
-        data.role = UserRole.CUSTOMER;
-        result = await createCustomer(data);
+        // Create Broker User with role assigned
+        data.role = UserRole.BROKER_USER;
+        result = await createBrokerUser(data);
       }
 
       if (result.success) {
         toast.success(
-          isEditing ? "Customer updated successfully." : "Customer created successfully."
+          isEditing ? "Broker User updated successfully." : "Broker User created successfully."
         );
         setIsModalOpen(false);
       } else {
@@ -87,12 +89,13 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
   // Reset form state or pre-fill values when modal opens/closes
   useEffect(() => {
     if (isModalOpen) {
-      if (isEditing && customerData) {
+      if (isEditing && brokerUserData) {
         // Pre-fill form when editing
-        reset(customerData);
+        reset(brokerUserData);
       } else {
         // Clear form when creating
         reset({
+          employeeId: "",
           firstName: "",
           lastName: "",
           contactNumber: "",
@@ -103,13 +106,14 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
         });
       }
     }
-  }, [isModalOpen, reset, isEditing, customerData]);
+  }, [isModalOpen, reset, isEditing, brokerUserData]);
+  
 
   return (
     <Modal
       isOpen={isModalOpen}
-      onClose={() => setIsModalOpen(false)}
-      title={isEditing ? "Edit Customer" : "Create Customer"}
+      onClose={closeModal}
+      title={isEditing ? "Edit Broker User" : "Create Broker User"}
       size="lg"
       isCentered
       backdropClose
@@ -127,6 +131,20 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
       {/* Form for creating/editing customer */}
       <form onSubmit={handleSubmit(submit)}>
         <div className="row mb-3">
+          {/* EMP ID */}
+        <div className="col-12 col-md-6">
+            <Input
+              label="Employee ID"
+              type="text"
+              id="employeeId"
+              name="employeeId"
+              placeholder="Enter Employee Id"
+              register={register}
+              errors={errors}
+              errorMessage={VALIDATION_MESSAGES.employeeIdRequired}
+              required
+            />
+          </div>
           {/* First Name */}
           <div className="col-12 col-md-6">
             <Input
@@ -141,6 +159,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
               required
             />
           </div>
+          
 
           {/* Last Name */}
           <div className="col-12 col-md-6">
@@ -233,7 +252,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
           )}
 
           {/* Company Name */}
-          <div className="col-12">
+          <div className="col-6">
             <Input
               label="Company Name"
               type="text"
@@ -252,7 +271,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
             <button
               className="btn btn-secondary me-3"
               type="button"
-              onClick={() => setIsModalOpen(false)}
+              onClick={closeModal}
             >
               Close
             </button>
@@ -270,4 +289,4 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
   );
 };
 
-export default CreateOrEditCustomer;
+export default CreateOrEditBrokerUser;

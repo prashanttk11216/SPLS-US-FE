@@ -71,6 +71,15 @@ export const createUser = async (data: createUserForm): Promise<ApiResponse> => 
   }
 };
 
+export const createBroker = async (data: createUserForm): Promise<ApiResponse> => {
+  try {
+    const response = await axiosApi.post<ApiResponse>("/user/create/broker-user", data);
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "Signup failed");
+  }
+};
+
 export const editUser = async (
   userId: string,
   data: EditUserData
