@@ -17,6 +17,7 @@ interface CreateOrEditCarrierProps {
   setIsModalOpen: (value: boolean) => void; // Setter for modal visibility
   isEditing: boolean; // Indicates if editing an existing customer
   carrierData?: Partial<User> | null; // Pre-filled data for editing
+  closeModal: () => void;
 }
 
 const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
@@ -24,6 +25,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
   setIsModalOpen,
   isEditing,
   carrierData,
+  closeModal
 }) => {
   const {
     register,
@@ -110,7 +112,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
   return (
     <Modal
       isOpen={isModalOpen}
-      onClose={() => setIsModalOpen(false)}
+      onClose={closeModal}
       title={isEditing ? "Edit Carrier" : "Create Carrier"}
       size="lg"
       isCentered
@@ -255,8 +257,8 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
             <button
               className="btn btn-secondary me-3"
               type="button"
-              onClick={() => setIsModalOpen(false)}
-            >
+              onClick={closeModal}
+              >
               Close
             </button>
             <button

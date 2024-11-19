@@ -20,7 +20,7 @@ const CarrierList: React.FC = () => {
   const [carrierToEdit, setCarrierToEdit] = useState<Partial<User> | null>(
     null
   );
-  const [customers, setCustomers] = useState<User[]>([]);
+  const [carriers, setCarriers] = useState<User[]>([]);
 
   const {
     fetchData: fetchCarriers,
@@ -40,7 +40,7 @@ const CarrierList: React.FC = () => {
     try {
       const result = await fetchCarriers(UserRole.CARRIER);
       if (result.success) {
-        setCustomers(result.data);
+        setCarriers(result.data);
       } else {
         toast.error(result.message || "Failed to fetch carrier.");
       }
@@ -91,7 +91,7 @@ const CarrierList: React.FC = () => {
   };
 
   const getRowData = () => {
-    return customers.map((carrier) => ({
+    return carriers.map((carrier) => ({
       _id: carrier._id,
       name: (
         <div className="d-flex align-items-center">
@@ -127,8 +127,13 @@ const CarrierList: React.FC = () => {
     setIsModalOpen(true);
   };
 
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setCarrierToEdit(null); // Clear form data on modal close
+  };
+
   return (
-    <div className="customers-list-wrapper">
+    <div className="carriers-list-wrapper">
       <h2 className="fw-bolder">Carrier List</h2>
       <div className="d-flex align-items-center my-3">
         <button
@@ -149,7 +154,7 @@ const CarrierList: React.FC = () => {
         <Table
           columns={columns}
           rows={getRowData()}
-          data={customers}
+          data={carriers}
           actions={["Edit", "Delete"]}
           onActionClick={handleActionClick}
         />
@@ -159,10 +164,11 @@ const CarrierList: React.FC = () => {
         isModalOpen={isModalOpen}
         setIsModalOpen={(value: boolean) => {
           setIsModalOpen(value);
-          if (!value) fetchCarrierData(); // Refresh customers after modal close
+          if (!value) fetchCarrierData(); // Refresh carriers after modal close
         }}
         isEditing={isEditing}
         carrierData={carrierToEdit}
+        closeModal={closeModal}
       />
     </div>
   );
