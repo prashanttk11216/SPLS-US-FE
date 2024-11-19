@@ -24,6 +24,7 @@ export type createUserForm = {
   confirmPassword: string;
   role: UserRole;
   employeeId?: string;
+  brokerId: string;
 };
 
 const Signup: React.FC<SignupProps> = ({ role }) => {
@@ -43,7 +44,7 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
       } else if (role === UserRole.CUSTOMER) {
         data.role = UserRole.CUSTOMER;
       }
-
+      data.brokerId = "672b1afe59aeb9920f06690e";
       // Call signup service
       const result = await signup(data);
 

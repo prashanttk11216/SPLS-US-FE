@@ -14,11 +14,16 @@ import Loading from "../../../../../components/common/Loading/Loading";
 import CreateOrEditCustomer from "../CreateOrEditCustomer/CreateOrEditCustomer";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import "./CustomerList.scss";
+import { RootState } from "../../../../../store/store";
+import { useSelector } from "react-redux";
 
 const CustomerList: React.FC = () => {
+  const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [customerToEdit, setCustomerToEdit] = useState<Partial<User> | null>(null);
+  const [customerToEdit, setCustomerToEdit] = useState<Partial<User> | null>(
+    null
+  );
   const [customers, setCustomers] = useState<User[]>([]);
 
   const {
@@ -35,8 +40,14 @@ const CustomerList: React.FC = () => {
 
   // Fetch customers data
   const fetchCustomersData = useCallback(async () => {
+    if (!user || !user._id) return; // Wait for user data
     try {
-      const result = await fetchCustomers(UserRole.CUSTOMER);
+      let query = `?role=${UserRole.CUSTOMER}`;
+      if (user.role === UserRole.BROKER_USER) {
+        query += `&brokerId=${user._id}`;
+      }
+
+      const result = await fetchCustomers(query);
       if (result.success) {
         setCustomers(result.data);
       } else {
@@ -45,13 +56,14 @@ const CustomerList: React.FC = () => {
     } catch (err) {
       toast.error("Error fetching customer data.");
     }
-  }, [fetchCustomers]);
+  }, [fetchCustomers, user]);
 
-  // Use a single fetch on initial render
+  // Trigger fetch when user is populated
   useEffect(() => {
-    console.log("Log....");
-    fetchCustomersData();
-  }, [fetchCustomers]);
+    if (user && user._id) {
+      fetchCustomersData();
+    }
+  }, [fetchCustomersData, user]);
 
   const columns = [
     { key: "name", label: "Name", width: "40%" },
@@ -62,7 +74,10 @@ const CustomerList: React.FC = () => {
     { key: "actions", label: "Actions", isAction: true },
   ];
 
-  const handleActionClick = async (action: string, row: Record<string, any>) => {
+  const handleActionClick = async (
+    action: string,
+    row: Record<string, any>
+  ) => {
     if (action === "Edit") {
       try {
         const customerData = await fetchCustomer(row._id);

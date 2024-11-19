@@ -6,15 +6,25 @@ import CarrierIcon from "../../../../assets/icons/carrier.svg";
 import BrokerIcon from "../../../../assets/icons/broker.svg";
 import { Outlet } from "react-router-dom";
 import "./BrokerLayout.scss";
-
-const menuItems = [
-  { name: "Dashboard", icon: HomeIcon, path: "/broker" },
-  { name: "Customers", icon: UsersIcon, path: "/broker/customers" },
-  { name: "Carriers", icon: CarrierIcon, path: "/broker/carriers" },
-  { name: "Brokers", icon: BrokerIcon, path: "/broker/broker-users" },
-];
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../store/store";
 
 const BrokerLayout = () => {
+  const user = useSelector((state: RootState) => state.user);
+
+  // Dynamically determine visibility based on user's role
+  const menuItems = [
+    { name: "Dashboard", icon: HomeIcon, path: "/broker", isVisible: true },
+    { name: "Customers", icon: UsersIcon, path: "/broker/customers", isVisible: true },
+    { name: "Carriers", icon: CarrierIcon, path: "/broker/carriers", isVisible: true },
+    { 
+      name: "Brokers", 
+      icon: BrokerIcon, 
+      path: "/broker/broker-users", 
+      isVisible: user.role === "broker_admin" // Visible only to broker_admin
+    },
+  ];
+
   return (
     <div className="broker-dashboard">
       <Header />

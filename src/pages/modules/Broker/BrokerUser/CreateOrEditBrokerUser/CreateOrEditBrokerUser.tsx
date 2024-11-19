@@ -11,6 +11,8 @@ import { createBroker, editUser } from "../../../../../services/user/userService
 import { User } from "../../../../../types/User";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import Loading from "../../../../../components/common/Loading/Loading";
+import { RootState } from "../../../../../store/store";
+import { useSelector } from "react-redux";
 
 interface CreateOrEditBrokerUserProps {
   isModalOpen: boolean; // Controls modal visibility
@@ -27,6 +29,8 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
   brokerUserData,
   closeModal
 }) => {
+  const user = useSelector((state: RootState) => state.user);
+
   const {
     register,
     handleSubmit,
@@ -61,6 +65,7 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
       } else {
         // Create Broker User with role assigned
         data.role = UserRole.BROKER_USER;
+        data.brokerId = user._id;
         result = await createBrokerUser(data);
       }
 

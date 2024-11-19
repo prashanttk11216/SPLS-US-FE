@@ -14,8 +14,11 @@ import Loading from "../../../../../components/common/Loading/Loading";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import "./BrokerUserList.scss";
 import CreateOrEditBrokerUser from "../CreateOrEditBrokerUser/CreateOrEditBrokerUser";
+import { RootState } from "../../../../../store/store";
+import { useSelector } from "react-redux";
 
 const BrokerUserList: React.FC = () => {
+  const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [brokerUserData, setBrokerUserData] = useState<Partial<User> | null>(
@@ -37,8 +40,13 @@ const BrokerUserList: React.FC = () => {
 
   // Fetch Broker User data
   const fetchBrokerUsersData = useCallback(async () => {
+    if (!user || !user._id) return; // Wait for user data
     try {
-      const result = await fetchBrokerUsers(UserRole.BROKER_USER);
+      let query = `?role=${UserRole.BROKER_USER}`;
+      if (user.role === UserRole.BROKER_USER) {
+        query += `&brokerId=${user._id}`;
+      }
+      const result = await fetchBrokerUsers(query);
       if (result.success) {
         setBrokerUsers(result.data);
       } else {
@@ -47,12 +55,14 @@ const BrokerUserList: React.FC = () => {
     } catch (err) {
       toast.error("Error fetching Broker data.");
     }
-  }, [fetchBrokerUsers]);
+  }, [fetchBrokerUsers, user]);
 
   // Use a single fetch on initial render
   useEffect(() => {
-    fetchBrokerUsersData();
-  }, [fetchBrokerUsersData]);
+    if (user && user._id) {
+      fetchBrokerUsersData();
+    }
+  }, [fetchBrokerUsersData, user]);
 
   const columns = [
     { key: "name", label: "Name", width: "30%" },

@@ -15,16 +15,11 @@ interface EditUserData {
 
 // Fetch user details by ID or filter by role - Private API (requires Authorization token)
 export const getUsers = async (
-  role?: string
+  query?: string
 ): Promise<ApiResponse> => {
   try {
     // Construct endpoint based on presence of userId and/or role
-    let endpoint = "/user";
-
-    // Add role as a query parameter if provided and no userId is specified
-    if (role) {
-      endpoint += `?role=${role}`;
-    }
+    let endpoint = "/user" + query;
 
     const response = await axiosApi.get(endpoint);
     return handleResponse(response);

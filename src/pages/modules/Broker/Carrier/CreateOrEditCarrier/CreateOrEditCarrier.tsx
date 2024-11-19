@@ -11,6 +11,8 @@ import Input from "../../../../../components/common/Input/Input";
 import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
 import { REGEX_PATTERNS } from "../../../../../constants/patterns";
 import { useForm } from "react-hook-form";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../../store/store";
 
 interface CreateOrEditCarrierProps {
   isModalOpen: boolean; // Controls modal visibility
@@ -27,6 +29,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
   carrierData,
   closeModal
 }) => {
+  const user = useSelector((state: RootState) => state.user);
   const {
     register,
     handleSubmit,
@@ -61,6 +64,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
       } else {
         // Create carrier with role assigned
         data.role = UserRole.CARRIER;
+        data.brokerId = user._id;
         result = await createCarrier(data);
       }
 

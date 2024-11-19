@@ -9,7 +9,8 @@ interface MenuItem {
   name: string;
   icon?: string;
   path: string;
-  subMenu?: { name: string; path: string; icon?: string }[];
+  isVisible: boolean; // Add visibility flag
+  subMenu?: { name: string; path: string; icon?: string; isVisible: boolean }[];
 }
 
 interface SidebarProps {
@@ -32,68 +33,67 @@ const Sidebar: React.FC<SidebarProps> = ({ menuItems }) => {
   return (
     <div className="sidebar">
       <ul className="sidebar-menu">
-        {menuItems.map((item, index) => {
-          // Check if the current URL matches the main item or any of its submenus
-          const isActiveMain = location.pathname === item.path;
-          const isActiveSubMenu = item.subMenu?.some(
-            (subItem) => subItem.path === location.pathname
-          );
-          const isMenuOpen = openSubMenus.includes(item.path);
+        {menuItems
+          .filter((item) => item.isVisible) // Only render visible menu items
+          .map((item, index) => {
+            // Check if the current URL matches the main item or any of its submenus
+            const isActiveMain = location.pathname === item.path;
+            const isActiveSubMenu = item.subMenu?.some(
+              (subItem) => subItem.path === location.pathname
+            );
+            const isMenuOpen = openSubMenus.includes(item.path);
 
-          return (
-            <li
-              key={index}
-              className={`menu-item ${isActiveMain || isActiveSubMenu ? "active" : ""}`}
-            >
-              <div
-                className="menu-item-main"
-                onClick={() => item.subMenu && toggleSubMenu(item.path)}
+            return (
+              <li
+                key={index}
+                className={`menu-item ${isActiveMain || isActiveSubMenu ? "active" : ""}`}
               >
-                <Link
-                  to={item.path}
-                  className={`text-decoration-none w-100 ${isActiveMain ? "active-main" : ""}`}
+                <div
+                  className="menu-item-main"
+                  onClick={() => item.subMenu && toggleSubMenu(item.path)}
                 >
-                  {item.icon && <img src={item.icon} alt={`${item.name} icon`} />}
-                  <span>{item.name}</span>
-                </Link>
+                  <Link
+                    to={item.path}
+                    className={`text-decoration-none w-100 ${isActiveMain ? "active-main" : ""}`}
+                  >
+                    {item.icon && <img src={item.icon} alt={`${item.name} icon`} />}
+                    <span>{item.name}</span>
+                  </Link>
+                  {item.subMenu && (
+                    <span className={`submenu-icon`}>
+                      <img src={isMenuOpen ? ArrowDownIcon : ArrowUpIcon} alt="Toggle submenu" />
+                    </span>
+                  )}
+                </div>
                 {item.subMenu && isMenuOpen && (
-                  <span className={`submenu-icon`}>
-                    <img src={ArrowDownIcon} alt="Arrow down" />
-                  </span>
+                  <ul className="submenu">
+                    {item.subMenu
+                      .filter((subItem) => subItem.isVisible) // Only render visible submenus
+                      .map((subItem, subIndex) => (
+                        <li
+                          key={subIndex}
+                          className={`submenu-item ${
+                            location.pathname === subItem.path ? "active-submenu" : ""
+                          }`}
+                        >
+                          <Link
+                            to={subItem.path}
+                            className={`text-decoration-none w-100 ${
+                              location.pathname === subItem.path ? "active-submenu" : ""
+                            }`}
+                          >
+                            {subItem.icon && (
+                              <img src={subItem.icon} alt={`${subItem.name} icon`} />
+                            )}
+                            <span>{subItem.name}</span>
+                          </Link>
+                        </li>
+                      ))}
+                  </ul>
                 )}
-                 {item.subMenu && !isMenuOpen && (
-                  <span className={`submenu-icon`}>
-                    <img src={ArrowUpIcon} alt="Arrow down" />
-                  </span>
-                )}
-              </div>
-              {item.subMenu && isMenuOpen && (
-                <ul className="submenu">
-                  {item.subMenu.map((subItem, subIndex) => (
-                    <li
-                      key={subIndex}
-                      className={`submenu-item ${
-                        location.pathname === subItem.path ? "active-submenu" : ""
-                      }`}
-                    >
-                      <Link
-                        to={subItem.path}
-                        className={`text-decoration-none w-100 ${
-                          location.pathname === subItem.path ? "active-submenu" : ""
-                        }`}
-                      >
-                        {subItem.icon && (
-                          <img src={subItem.icon} alt={`${subItem.name} icon`} />
-                        )}
-                        <span>{subItem.name}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          );
-        })}
+              </li>
+            );
+          })}
       </ul>
     </div>
   );

@@ -11,6 +11,8 @@ import { createUser, editUser } from "../../../../../services/user/userService";
 import { User } from "../../../../../types/User";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import Loading from "../../../../../components/common/Loading/Loading";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../../store/store";
 
 interface CreateOrEditCustomerProps {
   isModalOpen: boolean; // Controls modal visibility
@@ -25,6 +27,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
   isEditing,
   customerData,
 }) => {
+  const user = useSelector((state: RootState) => state.user);
   const {
     register,
     handleSubmit,
@@ -59,6 +62,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
       } else {
         // Create customer with role assigned
         data.role = UserRole.CUSTOMER;
+        data.brokerId = user._id;
         result = await createCustomer(data);
       }
 

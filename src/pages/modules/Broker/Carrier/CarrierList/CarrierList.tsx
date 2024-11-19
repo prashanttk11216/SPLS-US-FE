@@ -13,8 +13,11 @@ import { User } from "../../../../../types/User";
 import Table from "../../../../../components/common/Table/Table";
 import CreateOrEditCarrier from "../CreateOrEditCarrier/CreateOrEditCarrier";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
+import { RootState } from "../../../../../store/store";
+import { useSelector } from "react-redux";
 
 const CarrierList: React.FC = () => {
+  const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [carrierToEdit, setCarrierToEdit] = useState<Partial<User> | null>(
@@ -37,8 +40,13 @@ const CarrierList: React.FC = () => {
   //fetch Carrier data
 
   const fetchCarrierData = useCallback(async () => {
+    if (!user || !user._id) return; // Wait for user data
     try {
-      const result = await fetchCarriers(UserRole.CARRIER);
+      let query = `?role=${UserRole.CARRIER}`;
+      if (user.role === UserRole.BROKER_USER) {
+        query += `&brokerId=${user._id}`;
+      }
+      const result = await fetchCarriers(query);
       if (result.success) {
         setCarriers(result.data);
       } else {
@@ -47,14 +55,15 @@ const CarrierList: React.FC = () => {
     } catch (err) {
       toast.error("Error fetching carrier data.");
     }
-  }, [fetchCarriers]);
+  }, [fetchCarriers, user]);
 
   // Use a single fetch on initial render
 
   useEffect(() => {
-    console.log("Log....");
-    fetchCarrierData();
-  }, [fetchCarrier]);
+    if (user && user._id) {
+      fetchCarrierData();
+    }
+  }, [fetchCarrier, user]);
 
   const columns = [
     { key: "name", label: "Name", width: "40%" },
