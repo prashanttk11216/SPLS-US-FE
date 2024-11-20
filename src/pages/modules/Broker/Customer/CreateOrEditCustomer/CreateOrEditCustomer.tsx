@@ -4,7 +4,7 @@ import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
 import Input from "../../../../../components/common/Input/Input";
 import { REGEX_PATTERNS } from "../../../../../constants/patterns";
 import { createUserForm } from "../../../../Auth/Signup/Signup";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { UserRole } from "../../../../../enums/UserRole";
 import { toast } from "react-toastify";
 import { createUser, editUser } from "../../../../../services/user/userService";
@@ -13,6 +13,8 @@ import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import Loading from "../../../../../components/common/Loading/Loading";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../../store/store";
+import { PhoneInput } from "react-international-phone";
+import { validatePhoneNumber } from "../../../../../utils/phoneValidate";
 
 interface CreateOrEditCustomerProps {
   isModalOpen: boolean; // Controls modal visibility
@@ -31,6 +33,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isValid },
     watch,
     reset,
@@ -162,17 +165,37 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
           </div>
 
           {/* Contact Number */}
+
           <div className="col-12 col-md-6">
-            <Input
-              label="Contact Number"
-              type="text"
-              id="contactNumber"
+            <label className="form-label text-dark-blue">
+              Contact Number{"*"}
+            </label>
+            <Controller
               name="contactNumber"
-              placeholder="Enter Contact Number"
-              register={register}
-              errors={errors}
-              errorMessage={VALIDATION_MESSAGES.contactNumberRequired}
-              required
+              control={control}
+              rules={{
+                required: VALIDATION_MESSAGES.contactNumberRequired,
+                validate: validatePhoneNumber,
+              }}
+              render={({ field }) => (
+                <>
+                  <PhoneInput
+                    {...field}
+                    defaultCountry="us"
+                    required
+                    className={errors.contactNumber ? "phone-is-invalid" : ""}
+                    inputClassName={`w-100 phone-input form-control ${
+                      errors.contactNumber ? "is-invalid" : ""
+                    }`}
+                    onChange={(phone) => field.onChange(phone)}
+                  />
+                  {errors.contactNumber && (
+                    <div className="text-danger">
+                      {errors.contactNumber.message}
+                    </div>
+                  )}
+                </>
+              )}
             />
           </div>
 

@@ -10,9 +10,11 @@ import Loading from "../../../../../components/common/Loading/Loading";
 import Input from "../../../../../components/common/Input/Input";
 import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
 import { REGEX_PATTERNS } from "../../../../../constants/patterns";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../../store/store";
+import { PhoneInput } from "react-international-phone";
+import { validatePhoneNumber } from "../../../../../utils/phoneValidate";
 
 interface CreateOrEditCarrierProps {
   isModalOpen: boolean; // Controls modal visibility
@@ -33,6 +35,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isValid },
     watch,
     reset,
@@ -167,17 +170,37 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
           </div>
 
           {/* Contact Number */}
+
           <div className="col-12 col-md-6">
-            <Input
-              label="Contact Number"
-              type="text"
-              id="contactNumber"
+            <label className="form-label text-dark-blue">
+              Contact Number{"*"}
+            </label>
+            <Controller
               name="contactNumber"
-              placeholder="Enter Contact Number"
-              register={register}
-              errors={errors}
-              errorMessage={VALIDATION_MESSAGES.contactNumberRequired}
-              required
+              control={control}
+              rules={{
+                required: VALIDATION_MESSAGES.contactNumberRequired,
+                validate: validatePhoneNumber,
+              }}
+              render={({ field }) => (
+                <>
+                  <PhoneInput
+                    {...field}
+                    defaultCountry="us"
+                    required
+                    className={errors.contactNumber ? "phone-is-invalid" : ""}
+                    inputClassName={`w-100 phone-input form-control ${
+                      errors.contactNumber ? "is-invalid" : ""
+                    }`}
+                    onChange={(phone) => field.onChange(phone)}
+                  />
+                  {errors.contactNumber && (
+                    <div className="text-danger">
+                      {errors.contactNumber.message}
+                    </div>
+                  )}
+                </>
+              )}
             />
           </div>
 
@@ -262,7 +285,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
               className="btn btn-secondary me-3"
               type="button"
               onClick={closeModal}
-              >
+            >
               Close
             </button>
             <button
