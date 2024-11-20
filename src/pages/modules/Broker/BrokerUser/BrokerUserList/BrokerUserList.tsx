@@ -6,6 +6,7 @@ import {
   deleteUser,
   getUserById,
   getUsers,
+  toggleActiveStatus,
 } from "../../../../../services/user/userService";
 import { toast } from "react-toastify";
 import { UserRole } from "../../../../../enums/UserRole";
@@ -21,26 +22,18 @@ const BrokerUserList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [brokerUserData, setBrokerUserData] = useState<Partial<User> | null>(
-    null
-  ); // Use specific state for editing data
+  const [brokerUserData, setBrokerUserData] = useState<Partial<User> | null>(null);
   const [brokerUsers, setBrokerUsers] = useState<User[]>([]);
 
-  const {
-    fetchData: fetchBrokerUsers,
-    fetchDataById: fetchBrokerUser,
-    deleteDataById: deleteBrokerUser,
-    loading,
-    error,
-  } = useFetchData<any>({
-    fetchDataService: getUsers,
-    fetchByIdService: getUserById,
-    deleteDataService: deleteUser,
-  });
+  const { fetchData: fetchBrokerUsers, deleteDataById: deleteBrokerUser, updateData: updateStatus, loading } =
+    useFetchData<any>({
+      fetchDataService: getUsers,
+      deleteDataService: deleteUser,
+      updateDataService: toggleActiveStatus
+    });
 
-  // Fetch Broker User data
   const fetchBrokerUsersData = useCallback(async () => {
-    if (!user || !user._id) return; // Wait for user data
+    if (!user || !user._id) return;
     try {
       let query = `?role=${UserRole.BROKER_USER}`;
       if (user.role === UserRole.BROKER_USER) {
@@ -48,7 +41,7 @@ const BrokerUserList: React.FC = () => {
       }
       const result = await fetchBrokerUsers(query);
       if (result.success) {
-        setBrokerUsers(result.data);
+        setBrokerUsers(result.data as User[]);
       } else {
         toast.error(result.message || "Failed to fetch Broker Users.");
       }
@@ -57,12 +50,77 @@ const BrokerUserList: React.FC = () => {
     }
   }, [fetchBrokerUsers, user]);
 
-  // Use a single fetch on initial render
   useEffect(() => {
     if (user && user._id) {
       fetchBrokerUsersData();
     }
   }, [fetchBrokerUsersData, user]);
+
+  const openCreateModal = () => {
+    setIsEditing(false);
+    setBrokerUserData(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (data: Partial<User>) => {
+    setIsEditing(true);
+    setBrokerUserData(data);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setBrokerUserData(null);
+  };
+
+  const handleAction = async (action: string, row: Record<string, any>) => {
+    switch (action) {
+      case "Edit":
+        try {
+          const brokerData = await getUserById(row._id);
+          openEditModal(brokerData.data);
+        } catch {
+          toast.error("Failed to fetch user details for editing.");
+        }
+        break;
+      case "Delete":
+        try {
+          const result = await deleteBrokerUser(row._id);
+          if (result.success) {
+            toast.success(result.message);
+            fetchBrokerUsersData();
+          }
+        } catch {
+          toast.error("Failed to delete user.");
+        }
+        break;
+      case "Activate":
+      case "Deactivate":
+        try {
+          const result = await updateStatus(row._id, {});
+          if (result.success) {
+            toast.success(result.message);
+            fetchBrokerUsersData();
+          }
+        } catch {
+          toast.error(`Failed to ${action.toLowerCase()} user.`);
+        }
+        break;
+      default:
+        toast.info(`Action "${action}" is not yet implemented.`);
+    }
+  };
+
+  const getActionsForBroker = (broker: User): string[] => {
+    const actions = ["Edit"];
+    if (broker.isActive) {
+      actions.push("Deactivate");
+    } else {
+      actions.push("Activate");
+    }
+    actions.push("Delete");
+    return actions;
+  };
 
   const columns = [
     { key: "name", label: "Name", width: "30%" },
@@ -73,31 +131,6 @@ const BrokerUserList: React.FC = () => {
     { key: "status", label: "Status" },
     { key: "actions", label: "Actions", isAction: true },
   ];
-
-  const handleActionClick = async (
-    action: string,
-    row: Record<string, any>
-  ) => {
-    if (action === "Edit") {
-      try {
-        const customerData = await fetchBrokerUser(row._id);
-        openEditModal(customerData.data);
-      } catch (err) {
-        toast.error("Failed to fetch customer details for editing.");
-      }
-    }
-    if (action === "Delete") {
-      try {
-        const result = await deleteBrokerUser(row._id);
-        if (result.success) {
-          toast.success(result.message);
-          fetchBrokerUsersData();
-        }
-      } catch (err) {
-        toast.error("Failed to delete customer.");
-      }
-    }
-  };
 
   const getRowData = () => {
     return brokerUsers.map((broker) => ({
@@ -121,24 +154,8 @@ const BrokerUserList: React.FC = () => {
       contact: broker.contactNumber || "N/A",
       company: broker.company || "N/A",
       status: broker.isActive ? "Active" : "Inactive",
+      actions: getActionsForBroker(broker),
     }));
-  };
-
-  const openCreateModal = () => {
-    setIsEditing(false);
-    setBrokerUserData(null); // Reset form data for create
-    setIsModalOpen(true);
-  };
-
-  const openEditModal = (data: Partial<User>) => {
-    setIsEditing(true);
-    setBrokerUserData(data); // Set data for edit
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setBrokerUserData(null); // Clear form data on modal close
   };
 
   return (
@@ -157,15 +174,12 @@ const BrokerUserList: React.FC = () => {
 
       {loading ? (
         <Loading />
-      ) : error ? (
-        <div className="text-danger">{error}</div>
       ) : (
         <Table
           columns={columns}
           rows={getRowData()}
           data={brokerUsers}
-          actions={["Edit", "Delete"]}
-          onActionClick={handleActionClick}
+          onActionClick={handleAction}
         />
       )}
 
@@ -174,7 +188,7 @@ const BrokerUserList: React.FC = () => {
         closeModal={closeModal}
         setIsModalOpen={(value: boolean) => {
           setIsModalOpen(value);
-          if (!value) fetchBrokerUsersData(); // Refresh customers after modal close
+          if (!value) fetchBrokerUsersData();
         }}
         isEditing={isEditing}
         brokerUserData={brokerUserData}

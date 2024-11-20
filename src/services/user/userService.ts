@@ -87,6 +87,16 @@ export const editUser = async (
   }
 };
 
+export const toggleActiveStatus = async (
+  userId: string): Promise<ApiResponse> => {
+  try {
+    const response = await axiosApi.patch(`/user/${userId}/toggle-active`);
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "Failed to update user Status");
+  }
+};
+
 export const deleteUser = async (userId: string): Promise<ApiResponse> => {
   try {
     const response = await axiosApi.delete(`/user/${userId}`);

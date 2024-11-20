@@ -65,16 +65,17 @@ const VerifyUser: React.FC = () => {
         </div>
         <div className="col-12 col-lg-6">
           <div className="verify-user-form mx-auto w-75">
-            <h2 className="fw-bolder text-center mb-5">Verify Account</h2>
+            <h2 className="fw-bolder text-center mb-2">Verify Account</h2>
+            <p className="text-dark-gray-2">We will send you a <b>One Time Password</b> on your phone number</p>
             <form onSubmit={handleSubmit(handleOtpSubmit)} noValidate>
               <div className="row">
                 {/* OTP Input */}
-                <div className="col-12 mb-4">
+                <div className="col-12 mb-5">
                   <OTPInput size={6} onSubmit={handleOtpChange} />
                 </div>
 
                 {/* Verify Button */}
-                <div className="col-12 text-center">
+                <div className="col-12 text-center mb-2">
                   <button
                     type="submit"
                     className="btn btn-sky-blue text-white w-75 fw-bold"
@@ -83,6 +84,7 @@ const VerifyUser: React.FC = () => {
                     {loading ? "Verifying..." : "Verify"}
                   </button>
                 </div>
+                <div className="fw-bold text-center resend-otp">Didn't get the verification OTP? <span className="pe-auto text-sky-blue">Resend again</span></div>
               </div>
             </form>
           </div>

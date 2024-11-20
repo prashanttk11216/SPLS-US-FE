@@ -7,6 +7,7 @@ import {
   deleteUser,
   getUserById,
   getUsers,
+  toggleActiveStatus,
 } from "../../../../../services/user/userService";
 import Avatar from "../../../../../components/common/Avatar/Avatar";
 import { User } from "../../../../../types/User";
@@ -29,12 +30,14 @@ const CarrierList: React.FC = () => {
     fetchData: fetchCarriers,
     fetchDataById: fetchCarrier,
     deleteDataById: deleteCarrier,
+    updateData: updateStatus,
     loading,
     error,
   } = useFetchData<any>({
     fetchDataService: getUsers,
     fetchByIdService: getUserById,
     deleteDataService: deleteUser,
+    updateDataService: toggleActiveStatus
   });
 
   //fetch Carrier data
@@ -48,7 +51,7 @@ const CarrierList: React.FC = () => {
       }
       const result = await fetchCarriers(query);
       if (result.success) {
-        setCarriers(result.data);
+        setCarriers(result.data as User[]);
       } else {
         toast.error(result.message || "Failed to fetch carrier.");
       }
@@ -74,17 +77,12 @@ const CarrierList: React.FC = () => {
     { key: "actions", label: "Actions", isAction: true },
   ];
 
-  const handleActionClick = async (
+  const handleAction = async (
     action: string,
     row: Record<string, any>
   ) => {
     if (action === "Edit") {
-      try {
-        const carrierData = await fetchCarrier(row._id);
-        openEditModal(carrierData.data);
-      } catch (err) {
-        toast.error("Failed to fetch customer details for editing.");
-      }
+      
     }
     if (action === "Delete") {
       try {
@@ -97,7 +95,55 @@ const CarrierList: React.FC = () => {
         toast.error("Failed to delete customer.");
       }
     }
+
+    switch (action) {
+      case "Edit":
+        try {
+          const carrierData = await fetchCarrier(row._id);
+          openEditModal(carrierData.data);
+        } catch (err) {
+          toast.error("Failed to fetch customer details for editing.");
+        }
+        break;
+      case "Delete":
+        try {
+          const result = await deleteCarrier(row._id);
+          if (result.success) {
+            toast.success(result.message);
+            fetchCarrierData();
+          }
+        } catch (err) {
+          toast.error("Failed to delete customer.");
+        }
+        break;
+      case "Activate":
+      case "Deactivate":
+        try {
+          const result = await updateStatus(row._id, {});
+          if (result.success) {
+            toast.success(result.message);
+            fetchCarrierData();
+          }
+        } catch {
+          toast.error(`Failed to ${action.toLowerCase()} user.`);
+        }
+        break;
+      default:
+        toast.info(`Action "${action}" is not yet implemented.`);
+    }
   };
+
+  const getActionsForCarrier = (carrier: User): string[] => {
+    const actions = ["Edit"];
+    if (carrier.isActive) {
+      actions.push("Deactivate");
+    } else {
+      actions.push("Activate");
+    }
+    actions.push("Delete");
+    return actions;
+  };
+  
 
   const getRowData = () => {
     return carriers.map((carrier) => ({
@@ -120,6 +166,7 @@ const CarrierList: React.FC = () => {
       contact: carrier.contactNumber || "N/A",
       company: carrier.company || "N/A",
       status: carrier.isActive ? "Active" : "Inactive",
+      actions: getActionsForCarrier(carrier)
     }));
   };
 
@@ -164,8 +211,7 @@ const CarrierList: React.FC = () => {
           columns={columns}
           rows={getRowData()}
           data={carriers}
-          actions={["Edit", "Delete"]}
-          onActionClick={handleActionClick}
+          onActionClick={handleAction}
         />
       )}
 

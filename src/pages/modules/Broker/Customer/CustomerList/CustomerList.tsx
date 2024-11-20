@@ -6,6 +6,7 @@ import {
   deleteUser,
   getUserById,
   getUsers,
+  toggleActiveStatus,
 } from "../../../../../services/user/userService";
 import { toast } from "react-toastify";
 import { UserRole } from "../../../../../enums/UserRole";
@@ -30,12 +31,14 @@ const CustomerList: React.FC = () => {
     fetchData: fetchCustomers,
     fetchDataById: fetchCustomer,
     deleteDataById: deleteCustomer,
+    updateData: updateStatus,
     loading,
     error,
   } = useFetchData<any>({
     fetchDataService: getUsers,
     fetchByIdService: getUserById,
     deleteDataService: deleteUser,
+    updateDataService: toggleActiveStatus
   });
 
   // Fetch customers data
@@ -49,7 +52,7 @@ const CustomerList: React.FC = () => {
 
       const result = await fetchCustomers(query);
       if (result.success) {
-        setCustomers(result.data);
+        setCustomers(result.data as User[]);
       } else {
         toast.error(result.message || "Failed to fetch customers.");
       }
@@ -74,29 +77,53 @@ const CustomerList: React.FC = () => {
     { key: "actions", label: "Actions", isAction: true },
   ];
 
-  const handleActionClick = async (
-    action: string,
-    row: Record<string, any>
-  ) => {
-    if (action === "Edit") {
-      try {
-        const customerData = await fetchCustomer(row._id);
-        openEditModal(customerData.data);
-      } catch (err) {
-        toast.error("Failed to fetch customer details for editing.");
-      }
-    }
-    if (action === "Delete") {
-      try {
-        const result = await deleteCustomer(row._id);
-        if (result.success) {
-          toast.success(result.message);
-          fetchCustomersData();
+  const handleAction = async (action: string, row: Record<string, any>) => {
+    switch (action) {
+      case "Edit":
+        try {
+          const customerData = await fetchCustomer(row._id);
+          openEditModal(customerData.data);
+        } catch (err) {
+          toast.error("Failed to fetch customer details for editing.");
         }
-      } catch (err) {
-        toast.error("Failed to delete customer.");
-      }
+        break;
+      case "Delete":
+        try {
+          const result = await deleteCustomer(row._id);
+          if (result.success) {
+            toast.success(result.message);
+            fetchCustomersData();
+          }
+        } catch (err) {
+          toast.error("Failed to delete customer.");
+        }
+        break;
+      case "Activate":
+      case "Deactivate":
+        try {
+          const result = await updateStatus(row._id, {});
+          if (result.success) {
+            toast.success(result.message);
+            fetchCustomersData();
+          }
+        } catch {
+          toast.error(`Failed to ${action.toLowerCase()} user.`);
+        }
+        break;
+      default:
+        toast.info(`Action "${action}" is not yet implemented.`);
     }
+  };
+
+  const getActionsForCustomer = (broker: User): string[] => {
+    const actions = ["Edit"];
+    if (broker.isActive) {
+      actions.push("Deactivate");
+    } else {
+      actions.push("Activate");
+    }
+    actions.push("Delete");
+    return actions;
   };
 
   const getRowData = () => {
@@ -120,6 +147,7 @@ const CustomerList: React.FC = () => {
       contact: customer.contactNumber || "N/A",
       company: customer.company || "N/A",
       status: customer.isActive ? "Active" : "Inactive",
+      actions: getActionsForCustomer(customer),
     }));
   };
 
@@ -158,8 +186,7 @@ const CustomerList: React.FC = () => {
           columns={columns}
           rows={getRowData()}
           data={customers}
-          actions={["Edit", "Delete"]}
-          onActionClick={handleActionClick}
+          onActionClick={handleAction}
         />
       )}
 

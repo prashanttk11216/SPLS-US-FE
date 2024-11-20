@@ -1,12 +1,12 @@
-import { FC } from "react";
+import React, { FC } from "react";
 import "./Table.scss";
-import EllipsisVertical from "../../../assets/icons/ellipsisVertical.svg"
+import EllipsisVertical from "../../../assets/icons/ellipsisVertical.svg";
 
 interface Column {
-  key: string; // Unique identifier for the column
-  label: string; // Display label for the column
-  width?: string; // Optional width for the column
-  isAction?: boolean; // Flag for action columns
+  key: string;
+  label: string;
+  width?: string;
+  isAction?: boolean;
 }
 
 interface TableProps {
@@ -17,7 +17,7 @@ interface TableProps {
   actions?: string[]; // Action names for the dropdown menu
 }
 
-const Table: FC<TableProps> = ({ columns, rows, data, onActionClick, actions }) => {
+const Table: FC<TableProps> = ({ columns, rows, data , onActionClick }) => {
   return (
     <div className="table-wrapper">
       <table className="common-table">
@@ -39,8 +39,7 @@ const Table: FC<TableProps> = ({ columns, rows, data, onActionClick, actions }) 
             <tr key={rowIndex}>
               {columns.map((column) => (
                 <td key={`${rowIndex}-${column.key}`}>
-                  {column.isAction && actions ? (
-                    // Bootstrap dropdown for actions
+                  {column.isAction && row.actions ? (
                     <div className="dropdown text-center">
                       <a
                         role="button"
@@ -48,13 +47,13 @@ const Table: FC<TableProps> = ({ columns, rows, data, onActionClick, actions }) 
                         data-bs-toggle="dropdown"
                         aria-expanded="false"
                       >
-                        <img src={EllipsisVertical}  height={20} width={20}/>
+                        <img src={EllipsisVertical} height={20} width={20} />
                       </a>
                       <ul
                         className="dropdown-menu"
                         aria-labelledby={`dropdown-${rowIndex}`}
                       >
-                        {actions.map((action, index) => (
+                        {row.actions.map((action: string, index: number) => (
                           <li key={index}>
                             <button
                               className="dropdown-item"
@@ -76,7 +75,7 @@ const Table: FC<TableProps> = ({ columns, rows, data, onActionClick, actions }) 
           {rows.length === 0 && (
             <tr className="no-record-found">
               <td colSpan={columns.length} className="text-center">
-                No Records Found
+                No records found
               </td>
             </tr>
           )}
