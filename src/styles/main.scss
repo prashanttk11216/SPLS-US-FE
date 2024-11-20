@@ -23,5 +23,7 @@ $theme-colors: map-merge($theme-colors, $custom-colors);
 // Import Core Bootstrap File
 @import 'vendor/bootstrap';
 
+@import './global.scss';
+
 
 
