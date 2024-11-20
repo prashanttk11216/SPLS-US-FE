@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { UserRole } from "../../../../enums/UserRole";
 import { VALIDATION_MESSAGES } from "../../../../constants/messages";
 import { REGEX_PATTERNS } from "../../../../constants/patterns";
@@ -8,6 +8,8 @@ import { getUserProfile } from "../../../../services/user/userService";
 import { RootState } from "../../../../store/store";
 import { useSelector } from "react-redux";
 import ProfileAvatar from "../../../../components/ProfileAvatar/ProfileAvatar";
+import { PhoneInput } from "react-international-phone";
+import { validatePhoneNumber } from "../../../../utils/phoneValidate";
 
 export type ProfileForm = {
   firstName: string;
@@ -27,6 +29,7 @@ const Profile: React.FC = () => {
   const {
     register,
     handleSubmit,
+    control,
     reset,
     formState: { errors, isValid },
   } = useForm<ProfileForm>({ mode: "onBlur" });
@@ -94,17 +97,37 @@ const Profile: React.FC = () => {
             </div>
 
             {/* Contact Number Input */}
-            <div className="col-12 col-md-6 mb-1">
-              <Input
-                label="Contact Number"
-                type="text"
-                id="contactNumber"
+
+            <div className="col-12 col-md-6">
+              <label className="form-label text-dark-blue">
+                Contact Number{"*"}
+              </label>
+              <Controller
                 name="contactNumber"
-                placeholder="Enter Contact Number"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.contactNumberRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.contactNumberRequired,
+                  validate: validatePhoneNumber,
+                }}
+                render={({ field }) => (
+                  <>
+                    <PhoneInput
+                      {...field}
+                      defaultCountry="us"
+                      required
+                      className={errors.contactNumber ? "phone-is-invalid" : ""}
+                      inputClassName={`w-100 phone-input form-control ${
+                        errors.contactNumber ? "is-invalid" : ""
+                      }`}
+                      onChange={(phone) => field.onChange(phone)}
+                    />
+                    {errors.contactNumber && (
+                      <div className="text-danger">
+                        {errors.contactNumber.message}
+                      </div>
+                    )}
+                  </>
+                )}
               />
             </div>
 
