@@ -71,8 +71,8 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
       if (result.success) {
         toast.success(
           isEditing
-            ? "Customer updated successfully."
-            : "Customer created successfully."
+            ? "Carrier updated successfully."
+            : "Carrier created successfully."
         );
         setIsModalOpen(false);
       } else {
