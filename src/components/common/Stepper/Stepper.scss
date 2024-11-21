@@ -5,7 +5,7 @@
     &-horizontal {
       .stepper-header {
         display: flex;
-        justify-content: space-between;
+        justify-content: space-around;
         align-items: center;
       }
     }
@@ -32,14 +32,14 @@
       position: relative;
   
       &.active .stepper-indicator {
-        background-color: #007bff;
-        color: #fff;
+        background-color: $accent-color;
+        color: $white;
         transform: scale(1.2);
       }
   
       &.completed .stepper-indicator {
         background-color: #28a745;
-        color: #fff;
+        color: $white;
       }
   
       .stepper-label {
@@ -74,47 +74,19 @@
       margin-bottom: 20px;
       padding: 16px;
       transition: opacity 0.3s ease;
-    }
-  
-    .stepper-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-  
-      .btn {
-        padding: 10px 16px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        background: #007bff;
-        color: #fff;
-        transition: background-color 0.3s ease;
-  
-        &:hover {
-          background: #0056b3;
-        }
-  
-        &.btn-reset {
-          background: #ffc107;
-  
-          &:hover {
-            background: #e0a800;
-          }
-        }
-  
-        &.btn-complete {
-          background: #28a745;
-  
-          &:hover {
-            background: #218838;
-          }
-        }
-  
-        &:disabled {
-          background: #ccc;
-          cursor: not-allowed;
-        }
+
+      .step-content {
+        display: none; // Hide all step content by default
+      }
+      
+      .step-content.visible {
+        display: block; // Only display the active step's content
+      }
+      
+      .step-content.hidden {
+        display: none; // Explicitly ensure hidden steps are not visible
       }
     }
   }
+  
   
