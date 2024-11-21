@@ -27,12 +27,10 @@ const BrokerUserList: React.FC = () => {
     null
   );
   const [brokerUsers, setBrokerUsers] = useState<User[]>([]);
+  const [totalItems, setTotalItems] = useState<number>(0);
 
-  const [itemsPerPage, setItemsPerPage] = useState<number>(() => {
-    const storedItemsPerPage = localStorage.getItem("itemsPerPage");
-    return storedItemsPerPage ? Number(storedItemsPerPage) : 10;
-  });
-
+  // Default items per page set to 10
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   const {
@@ -56,6 +54,7 @@ const BrokerUserList: React.FC = () => {
       const result = await fetchBrokerUsers(query);
       if (result.success) {
         setBrokerUsers(result.data as User[]);
+        setTotalItems(result.meta.totalItems);
       } else {
         toast.error(result.message || "Failed to fetch Broker Users.");
       }
@@ -68,7 +67,7 @@ const BrokerUserList: React.FC = () => {
     if (user && user._id) {
       fetchBrokerUsersData();
     }
-  }, [fetchBrokerUsersData, user]);
+  }, [fetchBrokerUsersData, user, currentPage, itemsPerPage]);
 
   const openCreateModal = () => {
     setIsEditing(false);
@@ -147,21 +146,12 @@ const BrokerUserList: React.FC = () => {
   ];
 
   const handleItemsPerPageChange = (newItemsPerPage: number) => {
-    // console.log("Selected itemsPerPage:", newItemsPerPage);
     setItemsPerPage(newItemsPerPage);
-    setCurrentPage(1);
-    localStorage.setItem("itemsPerPage", newItemsPerPage.toString()); // Reset to the first page when items per page changes
-  };
-
-  const getPaginatedData = () => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    console.log(`Fetching items from ${startIndex} to ${endIndex}`);
-    return brokerUsers.slice(startIndex, endIndex);
+    setCurrentPage(1); // Reset to first page when items per page changes
   };
 
   const getRowData = () => {
-    return getPaginatedData().map((broker) => ({
+    return brokerUsers.map((broker) => ({
       _id: broker._id,
       name: (
         <div className="d-flex align-items-center">
@@ -186,12 +176,16 @@ const BrokerUserList: React.FC = () => {
     }));
   };
 
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
   useEffect(() => {
-    const totalPages = Math.ceil(brokerUsers.length / itemsPerPage);
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
     if (currentPage > totalPages) {
-      setCurrentPage(Math.max(totalPages, 1)); // Ensure valid page
+      setCurrentPage(Math.max(totalPages, 1));
     }
-  }, [brokerUsers, currentPage, itemsPerPage]);
+  }, [totalItems, currentPage, itemsPerPage]);
 
   return (
     <div className="customers-list-wrapper">
@@ -219,10 +213,10 @@ const BrokerUserList: React.FC = () => {
           />
           <div className="pagination-container">
             <Pagination
-              totalItems={brokerUsers.length}
+              totalItems={totalItems}
               itemsPerPage={itemsPerPage}
               currentPage={currentPage}
-              onPageChange={setCurrentPage}
+              onPageChange={handlePageChange}
               onItemsPerPageChange={handleItemsPerPageChange}
             />
           </div>

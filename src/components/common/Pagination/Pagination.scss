@@ -1,22 +1,22 @@
-input,
-button,
-select,
-optgroup,
-textarea {
-  margin: 0;
-  font-family: inherit;
-  font-size: inherit;
-  line-height: inherit;
-  margin: 2px !important;
-  padding: 5px 15px;
-  border-radius: 5px;
-}
-
 .pagination-wrapper {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 20px;
+
+  input,
+  button,
+  select,
+  optgroup,
+  textarea {
+    margin: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    margin: 2px !important;
+    padding: 5px 15px;
+    border-radius: 5px;
+  }
 }
 
 .page-size-selector {
