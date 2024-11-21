@@ -9,7 +9,7 @@ export const VALIDATION_MESSAGES = {
     passwordsNotMatch: "Passwords do not match",
     roleRequired: "Please select a role",
     lastNameRequired: "Last Name is required",
-    contactNumberRequired: "Contact Number is required",
+    primaryNumberRequired: "Primary Number is required",
     firstNameRequired: "First Name is required",
     employeeIdRequired: "Employee Id is required",
   };

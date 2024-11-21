@@ -106,7 +106,7 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
           employeeId: "",
           firstName: "",
           lastName: "",
-          contactNumber: "",
+          primaryNumber: "",
           email: "",
           password: "",
           confirmPassword: "",
@@ -184,17 +184,17 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
             />
           </div>
 
-          {/* Contact Number */}
+          {/* Primary Number */}
 
           <div className="col-12 col-md-6">
             <label className="form-label text-dark-blue">
-              Contact Number{"*"}
+              Primary Number{"*"}
             </label>
             <Controller
-              name="contactNumber"
+              name="primaryNumber"
               control={control}
               rules={{
-                required: VALIDATION_MESSAGES.contactNumberRequired,
+                required: VALIDATION_MESSAGES.primaryNumberRequired,
                 validate: validatePhoneNumber,
               }}
               render={({ field }) => (
@@ -203,15 +203,15 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
                     {...field}
                     defaultCountry="us"
                     required
-                    className={errors.contactNumber ? "phone-is-invalid" : ""}
+                    className={errors.primaryNumber ? "phone-is-invalid" : ""}
                     inputClassName={`w-100 phone-input form-control ${
-                      errors.contactNumber ? "is-invalid" : ""
+                      errors.primaryNumber ? "is-invalid" : ""
                     }`}
                     onChange={(phone) => field.onChange(phone)}
                   />
-                  {errors.contactNumber && (
+                  {errors.primaryNumber && (
                     <div className="text-danger">
-                      {errors.contactNumber.message}
+                      {errors.primaryNumber.message}
                     </div>
                   )}
                 </>

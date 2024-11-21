@@ -179,7 +179,7 @@ const BrokerUserList: React.FC = () => {
       ),
       employeeId: broker.employeeId,
       email: broker.email,
-      contact: broker.contactNumber || "N/A",
+      contact: broker.primaryNumber || "N/A",
       company: broker.company || "N/A",
       status: broker.isActive ? "Active" : "Inactive",
       actions: getActionsForBroker(broker),

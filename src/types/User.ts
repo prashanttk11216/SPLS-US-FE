@@ -6,7 +6,7 @@ export interface User {
     firstName: string;
     lastName: string;
     email: string;
-    contactNumber: string;
+    primaryNumber: string;
     role?: UserRole;
     company?: string;
     accessLevel?: 'full' | 'limited'; // Only applicable for broker users

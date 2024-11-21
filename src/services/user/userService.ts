@@ -9,7 +9,7 @@ interface EditUserData {
   firstName?: string;
   lastName?: string;
   email?: string;
-  contactNumber?: string;
+  primaryNumber?: string;
   // Add any other editable fields as needed
 }
 

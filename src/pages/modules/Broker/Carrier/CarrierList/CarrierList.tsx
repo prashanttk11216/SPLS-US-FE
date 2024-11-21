@@ -186,7 +186,7 @@ const CarrierList: React.FC = () => {
         </div>
       ),
       email: carrier.email,
-      contact: carrier.contactNumber || "N/A",
+      contact: carrier.primaryNumber || "N/A",
       company: carrier.company || "N/A",
       status: carrier.isActive ? "Active" : "Inactive",
       actions: getActionsForCarrier(carrier)

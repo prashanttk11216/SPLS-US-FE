@@ -166,7 +166,7 @@ const CustomerList: React.FC = () => {
         </div>
       ),
       email: customer.email,
-      contact: customer.contactNumber || "N/A",
+      contact: customer.primaryNumber || "N/A",
       company: customer.company || "N/A",
       status: customer.isActive ? "Active" : "Inactive",
       actions: getActionsForCustomer(customer),
