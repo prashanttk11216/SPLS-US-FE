@@ -17,6 +17,7 @@ import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import "./CustomerList.scss";
 import { RootState } from "../../../../../store/store";
 import { useSelector } from "react-redux";
+import Pagination from "../../../../../components/common/Pagination/Pagination";
 
 const CustomerList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -26,6 +27,13 @@ const CustomerList: React.FC = () => {
     null
   );
   const [customers, setCustomers] = useState<User[]>([]);
+
+  const [itemsPerPage, setItemsPerPage] = useState<number>(() => {
+    const storedItemsPerPage = localStorage.getItem("itemsPerPage");
+    return storedItemsPerPage ? Number(storedItemsPerPage) : 10;
+  });
+
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   const {
     fetchData: fetchCustomers,
@@ -38,14 +46,14 @@ const CustomerList: React.FC = () => {
     fetchDataService: getUsers,
     fetchByIdService: getUserById,
     deleteDataService: deleteUser,
-    updateDataService: toggleActiveStatus
+    updateDataService: toggleActiveStatus,
   });
 
   // Fetch customers data
   const fetchCustomersData = useCallback(async () => {
     if (!user || !user._id) return; // Wait for user data
     try {
-      let query = `?role=${UserRole.CUSTOMER}`;
+      let query = `?role=${UserRole.CUSTOMER}&page=${currentPage}&limit=${itemsPerPage}`;
       if (user.role === UserRole.BROKER_USER) {
         query += `&brokerId=${user._id}`;
       }
@@ -59,7 +67,7 @@ const CustomerList: React.FC = () => {
     } catch (err) {
       toast.error("Error fetching customer data.");
     }
-  }, [fetchCustomers, user]);
+  }, [fetchCustomers, user, currentPage, itemsPerPage]);
 
   // Trigger fetch when user is populated
   useEffect(() => {
@@ -126,8 +134,22 @@ const CustomerList: React.FC = () => {
     return actions;
   };
 
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    // console.log("Selected itemsPerPage:", newItemsPerPage);
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+    localStorage.setItem("itemsPerPage", newItemsPerPage.toString()); // Reset to the first page when items per page changes
+  };
+
+  const getPaginatedData = () => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    // console.log(`Fetching items from ${startIndex} to ${endIndex}`);
+    return customers.slice(startIndex, endIndex);
+  };
+
   const getRowData = () => {
-    return customers.map((customer) => ({
+    return getPaginatedData().map((customer) => ({
       _id: customer._id,
       name: (
         <div className="d-flex align-items-center">
@@ -163,6 +185,13 @@ const CustomerList: React.FC = () => {
     setIsModalOpen(true);
   };
 
+  useEffect(() => {
+    const totalPages = Math.ceil(customers.length / itemsPerPage);
+    if (currentPage > totalPages) {
+      setCurrentPage(Math.max(totalPages, 1)); // Ensure valid page
+    }
+  }, [customers, currentPage, itemsPerPage]);
+
   return (
     <div className="customers-list-wrapper">
       <h2 className="fw-bolder">Customers</h2>
@@ -182,12 +211,23 @@ const CustomerList: React.FC = () => {
       ) : error ? (
         <div className="text-danger">{error}</div>
       ) : (
-        <Table
-          columns={columns}
-          rows={getRowData()}
-          data={customers}
-          onActionClick={handleAction}
-        />
+        <>
+          <Table
+            columns={columns}
+            rows={getRowData()}
+            data={customers}
+            onActionClick={handleAction}
+          />
+          <div className="pagination-container">
+            <Pagination
+              totalItems={customers.length}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
+          </div>
+        </>
       )}
 
       <CreateOrEditCustomer

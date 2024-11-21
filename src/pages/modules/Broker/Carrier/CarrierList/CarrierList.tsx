@@ -16,6 +16,7 @@ import CreateOrEditCarrier from "../CreateOrEditCarrier/CreateOrEditCarrier";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import { RootState } from "../../../../../store/store";
 import { useSelector } from "react-redux";
+import Pagination from "../../../../../components/common/Pagination/Pagination";
 
 const CarrierList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -25,6 +26,13 @@ const CarrierList: React.FC = () => {
     null
   );
   const [carriers, setCarriers] = useState<User[]>([]);
+
+  const [itemsPerPage, setItemsPerPage] = useState<number>(() => {
+    const storedItemsPerPage = localStorage.getItem("itemsPerPage");
+    return storedItemsPerPage ? Number(storedItemsPerPage) : 10;
+  });
+
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   const {
     fetchData: fetchCarriers,
@@ -45,7 +53,7 @@ const CarrierList: React.FC = () => {
   const fetchCarrierData = useCallback(async () => {
     if (!user || !user._id) return; // Wait for user data
     try {
-      let query = `?role=${UserRole.CARRIER}`;
+      let query = `?role=${UserRole.CARRIER}&page=${currentPage}&limit=${itemsPerPage}`;
       if (user.role === UserRole.BROKER_USER) {
         query += `&brokerId=${user._id}`;
       }
@@ -58,7 +66,7 @@ const CarrierList: React.FC = () => {
     } catch (err) {
       toast.error("Error fetching carrier data.");
     }
-  }, [fetchCarriers, user]);
+  }, [fetchCarriers, user, currentPage, itemsPerPage]);
 
   // Use a single fetch on initial render
 
@@ -143,10 +151,25 @@ const CarrierList: React.FC = () => {
     actions.push("Delete");
     return actions;
   };
+
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    // console.log("Selected itemsPerPage:", newItemsPerPage);
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+    localStorage.setItem("itemsPerPage", newItemsPerPage.toString()); // Reset to the first page when items per page changes
+  };
+
+  const getPaginatedData = () => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    console.log(`Fetching items from ${startIndex} to ${endIndex}`);
+    return carriers.slice(startIndex, endIndex);
+  };
   
 
   const getRowData = () => {
-    return carriers.map((carrier) => ({
+    return getPaginatedData().map((carrier) => ({
       _id: carrier._id,
       name: (
         <div className="d-flex align-items-center">
@@ -169,6 +192,7 @@ const CarrierList: React.FC = () => {
       actions: getActionsForCarrier(carrier)
     }));
   };
+  
 
 
   const openCreateModal = () => {
@@ -187,6 +211,13 @@ const CarrierList: React.FC = () => {
     setIsModalOpen(false);
     setCarrierToEdit(null); // Clear form data on modal close
   };
+
+  useEffect(() => {
+    const totalPages = Math.ceil(carriers.length / itemsPerPage);
+    if (currentPage > totalPages) {
+      setCurrentPage(Math.max(totalPages, 1)); // Ensure valid page
+    }
+  }, [carriers, currentPage, itemsPerPage]);
 
   return (
     <div className="carriers-list-wrapper">
@@ -207,12 +238,23 @@ const CarrierList: React.FC = () => {
       ) : error ? (
         <div className="text-danger">{error}</div>
       ) : (
+        <>
         <Table
           columns={columns}
           rows={getRowData()}
           data={carriers}
           onActionClick={handleAction}
         />
+        <div className="pagination-container">
+            <Pagination
+              totalItems={carriers.length}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
+          </div>
+        </>
       )}
 
       <CreateOrEditCarrier

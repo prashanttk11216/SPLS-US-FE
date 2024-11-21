@@ -17,25 +17,39 @@ import "./BrokerUserList.scss";
 import CreateOrEditBrokerUser from "../CreateOrEditBrokerUser/CreateOrEditBrokerUser";
 import { RootState } from "../../../../../store/store";
 import { useSelector } from "react-redux";
+import Pagination from "../../../../../components/common/Pagination/Pagination";
 
 const BrokerUserList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [brokerUserData, setBrokerUserData] = useState<Partial<User> | null>(null);
+  const [brokerUserData, setBrokerUserData] = useState<Partial<User> | null>(
+    null
+  );
   const [brokerUsers, setBrokerUsers] = useState<User[]>([]);
 
-  const { fetchData: fetchBrokerUsers, deleteDataById: deleteBrokerUser, updateData: updateStatus, loading } =
-    useFetchData<any>({
-      fetchDataService: getUsers,
-      deleteDataService: deleteUser,
-      updateDataService: toggleActiveStatus
-    });
+  const [itemsPerPage, setItemsPerPage] = useState<number>(() => {
+    const storedItemsPerPage = localStorage.getItem("itemsPerPage");
+    return storedItemsPerPage ? Number(storedItemsPerPage) : 10;
+  });
+
+  const [currentPage, setCurrentPage] = useState<number>(1);
+
+  const {
+    fetchData: fetchBrokerUsers,
+    deleteDataById: deleteBrokerUser,
+    updateData: updateStatus,
+    loading,
+  } = useFetchData<any>({
+    fetchDataService: getUsers,
+    deleteDataService: deleteUser,
+    updateDataService: toggleActiveStatus,
+  });
 
   const fetchBrokerUsersData = useCallback(async () => {
     if (!user || !user._id) return;
     try {
-      let query = `?role=${UserRole.BROKER_USER}`;
+      let query = `?role=${UserRole.BROKER_USER}&page=${currentPage}&limit=${itemsPerPage}`;
       if (user.role === UserRole.BROKER_USER) {
         query += `&brokerId=${user._id}`;
       }
@@ -48,7 +62,7 @@ const BrokerUserList: React.FC = () => {
     } catch (err) {
       toast.error("Error fetching Broker data.");
     }
-  }, [fetchBrokerUsers, user]);
+  }, [fetchBrokerUsers, user, currentPage, itemsPerPage]);
 
   useEffect(() => {
     if (user && user._id) {
@@ -132,8 +146,22 @@ const BrokerUserList: React.FC = () => {
     { key: "actions", label: "Actions", isAction: true },
   ];
 
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    // console.log("Selected itemsPerPage:", newItemsPerPage);
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+    localStorage.setItem("itemsPerPage", newItemsPerPage.toString()); // Reset to the first page when items per page changes
+  };
+
+  const getPaginatedData = () => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    console.log(`Fetching items from ${startIndex} to ${endIndex}`);
+    return brokerUsers.slice(startIndex, endIndex);
+  };
+
   const getRowData = () => {
-    return brokerUsers.map((broker) => ({
+    return getPaginatedData().map((broker) => ({
       _id: broker._id,
       name: (
         <div className="d-flex align-items-center">
@@ -158,6 +186,13 @@ const BrokerUserList: React.FC = () => {
     }));
   };
 
+  useEffect(() => {
+    const totalPages = Math.ceil(brokerUsers.length / itemsPerPage);
+    if (currentPage > totalPages) {
+      setCurrentPage(Math.max(totalPages, 1)); // Ensure valid page
+    }
+  }, [brokerUsers, currentPage, itemsPerPage]);
+
   return (
     <div className="customers-list-wrapper">
       <h2 className="fw-bolder">Broker Users</h2>
@@ -175,12 +210,23 @@ const BrokerUserList: React.FC = () => {
       {loading ? (
         <Loading />
       ) : (
-        <Table
-          columns={columns}
-          rows={getRowData()}
-          data={brokerUsers}
-          onActionClick={handleAction}
-        />
+        <>
+          <Table
+            columns={columns}
+            rows={getRowData()}
+            data={brokerUsers}
+            onActionClick={handleAction}
+          />
+          <div className="pagination-container">
+            <Pagination
+              totalItems={brokerUsers.length}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
+          </div>
+        </>
       )}
 
       <CreateOrEditBrokerUser
