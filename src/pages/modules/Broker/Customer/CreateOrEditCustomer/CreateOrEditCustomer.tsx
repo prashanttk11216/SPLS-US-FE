@@ -21,6 +21,7 @@ interface CreateOrEditCustomerProps {
   setIsModalOpen: (value: boolean) => void; // Setter for modal visibility
   isEditing: boolean; // Indicates if editing an existing customer
   customerData?: Partial<User> | null; // Pre-filled data for editing
+  closeModal: () => void;
 }
 
 const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
@@ -28,6 +29,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
   setIsModalOpen,
   isEditing,
   customerData,
+  closeModal
 }) => {
   const user = useSelector((state: RootState) => state.user);
   const {
@@ -115,7 +117,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
   return (
     <Modal
       isOpen={isModalOpen}
-      onClose={() => setIsModalOpen(false)}
+      onClose={closeModal}
       title={isEditing ? "Edit Customer" : "Create Customer"}
       size="lg"
       isCentered

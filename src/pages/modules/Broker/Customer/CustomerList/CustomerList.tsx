@@ -192,6 +192,11 @@ const CustomerList: React.FC = () => {
     }
   }, [customers, currentPage, itemsPerPage]);
 
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setCustomerToEdit(null); // Clear form data on modal close
+  };
+
   return (
     <div className="customers-list-wrapper">
       <h2 className="fw-bolder">Customers</h2>
@@ -236,6 +241,7 @@ const CustomerList: React.FC = () => {
           setIsModalOpen(value);
           if (!value) fetchCustomersData(); // Refresh customers after modal close
         }}
+        closeModal={closeModal}
         isEditing={isEditing}
         customerData={customerToEdit}
       />
