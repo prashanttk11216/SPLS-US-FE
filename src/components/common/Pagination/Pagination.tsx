@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./Pagination.scss";
 
 interface PaginationProps {
@@ -16,7 +16,24 @@ const Pagination: React.FC<PaginationProps> = ({
   onPageChange,
   onItemsPerPageChange,
 }) => {
+  const [inputPage, setInputPage] = useState(currentPage); // Local state for the input field
   const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  useEffect(() => {
+    setInputPage(currentPage); // Sync input with currentPage whenever it changes
+  }, [currentPage]);
+
+  const handlePageInput = (value: number) => {
+    setInputPage(value); // Update the input field's state
+  };
+
+  const jumpToPage = (value: number) => {
+    if (value >= 1 && value <= totalPages) {
+      onPageChange(value); // Trigger the parent function to change the page
+    } else {
+      setInputPage(currentPage); // Reset input if invalid
+    }
+  };
 
   useEffect(() => {
     if (currentPage > totalPages) {
@@ -26,12 +43,14 @@ const Pagination: React.FC<PaginationProps> = ({
 
   const handlePageClick = (page: number) => {
     if (page >= 1 && page <= totalPages) {
-        console.log(`Changing to page: ${page}`); // Debug log
-        onPageChange(page); // Ensure this updates `currentPage` in the parent
+      console.log(`Changing to page: ${page}`); // Debug log
+      onPageChange(page); // Ensure this updates `currentPage` in the parent
     }
-};
+  };
 
-  const handleItemsPerPageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleItemsPerPageChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const newItemsPerPage = Number(event.target.value);
     onItemsPerPageChange(newItemsPerPage);
     onPageChange(1); // Reset to the first page when items per page changes
@@ -70,33 +89,41 @@ const Pagination: React.FC<PaginationProps> = ({
   //   return pages;
   // };
 
-
   const getPageNumbers = () => {
     const maxButtons = 5;
     if (isNaN(totalPages) || totalPages <= 0) return [];
 
     const pages: (number | string)[] = [];
     if (totalPages <= maxButtons) {
-        for (let i = 1; i <= totalPages; i++) {
-            pages.push(i);
-        }
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
     } else {
-        if (currentPage <= 3) {
-            pages.push(1, 2, 3, "...", totalPages);
-        } else if (currentPage >= totalPages - 2) {
-            pages.push(1, "...", totalPages - 2, totalPages - 1, totalPages);
-        } else {
-            pages.push(1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages);
-        }
+      if (currentPage <= 3) {
+        pages.push(1, 2, 3, "...", totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1, "...", totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(
+          1,
+          "...",
+          currentPage - 1,
+          currentPage,
+          currentPage + 1,
+          "...",
+          totalPages
+        );
+      }
     }
     return pages;
-};
-
+  };
 
   const handleEllipsisClick = (ellipsisPosition: string) => {
     const jumpPages = 3; // Number of pages to jump
     if (ellipsisPosition === "left") {
-      handlePageClick(currentPage - jumpPages > 0 ? currentPage - jumpPages : 1);
+      handlePageClick(
+        currentPage - jumpPages > 0 ? currentPage - jumpPages : 1
+      );
     } else if (ellipsisPosition === "right") {
       handlePageClick(
         currentPage + jumpPages <= totalPages
@@ -105,6 +132,12 @@ const Pagination: React.FC<PaginationProps> = ({
       );
     }
   };
+  // const handlePageChangeInput = (value: number, jump: boolean = false) => {
+  //   if (value < 1 || value > totalPages) return; // Prevent invalid page numbers
+  //   if (jump) {
+  //     onPageChange(value); // Update to the new page when user presses Enter
+  //   }
+  // };
 
   return (
     <div className="pagination-wrapper">
@@ -117,6 +150,7 @@ const Pagination: React.FC<PaginationProps> = ({
           id="itemsPerPage"
           value={itemsPerPage}
           onChange={handleItemsPerPageChange}
+          style={{ width: "70px", height: "34px" }}
         >
           <option value={10}>10</option>
           <option value={25}>25</option>
@@ -137,7 +171,7 @@ const Pagination: React.FC<PaginationProps> = ({
 
         {getPageNumbers().map((page, index) => {
           if (page === "...") {
-            const ellipsisPosition = index === 1 ? "left" : "right"; 
+            const ellipsisPosition = index === 1 ? "left" : "right";
             return (
               <button
                 key={index}
@@ -171,8 +205,28 @@ const Pagination: React.FC<PaginationProps> = ({
       </div>
 
       {/* Right: Page status */}
-      <div className="page-status text-end">
+
+      {/* <div className="page-status text-end">
         Page {currentPage} of {totalPages}
+      </div> */}
+
+      <div className="page-status text-end">
+        Page
+        <input
+          type="number"
+          className="page-input"
+          min={1}
+          max={totalPages}
+          value={inputPage}
+          onChange={(e) => handlePageInput(Number(e.target.value))}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              jumpToPage(Number(e.currentTarget.value));
+            }
+          }}
+          style={{ width: "60px", height: "34px" }}
+        />
+        of {totalPages}
       </div>
     </div>
   );
