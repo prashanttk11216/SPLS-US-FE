@@ -18,6 +18,7 @@ import { validatePhoneNumber } from "../../../../../utils/phoneValidate";
 import Stepper, {
   Step,
 } from "../../../../../components/common/Stepper/Stepper";
+import CheckboxField from "../../../../../components/common/CheckboxField/CheckboxField";
 
 interface CreateOrEditCustomerProps {
   isModalOpen: boolean; // Controls modal visibility
@@ -37,6 +38,11 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
   const user = useSelector((state: RootState) => state.user);
   const [activeStep, setActiveStep] = useState(0); // Tracks current step
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [sameAsMailing, setSameAsMailing] = useState(false);
+
+  const handleSameAsMailingChange = (e: any) => {
+    setSameAsMailing(e.target.checked);
+  };
   const {
     register,
     handleSubmit,
@@ -118,23 +124,39 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
           password: "",
           confirmPassword: "",
           company: "",
+
+          // Primary address
+          address: "",
+          addressLine2: "",
+          addressLine3: "",
+          country: "",
+          state: "",
+          city: "",
+          zip: "",
+
+          // Billing-specific fields (only for customers)
+          billingAddress: "",
+          billingAddressLine2: "",
+          billingAddressLine3: "",
+          billingCountry: "",
+          billingState: "",
+          billingCity: "",
+          billingZip: "",
         });
       }
     }
   }, [isModalOpen, reset, isEditing, customerData]);
-  
 
   const nextStep = async () => {
     const stepFields = steps[activeStep].fields || [];
     const isValidStep = await trigger(stepFields);
     if (isValidStep) {
-        setCompletedSteps((prev) => [...prev, activeStep]);
-        setActiveStep((prev) => prev + 1);
+      setCompletedSteps((prev) => [...prev, activeStep]);
+      setActiveStep((prev) => prev + 1);
     } else {
-        toast.error('Please correct the errors before proceeding.');
+      toast.error("Please correct the errors before proceeding.");
     }
-};
-
+  };
 
   const prevStep = () => {
     // setCompletedSteps((prev) => prev.filter((step) => step !== activeStep - 1)); // Optionally remove completion status for the previous step
@@ -235,58 +257,9 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                 disabled={isEditing} // Disable email during editing
               />
             </div>
-          </div>
-        </>
-      ),
-      fields: ['firstName', 'lastName', 'primaryNumber', 'email']
-    },
-    {
-      label: "Security",
-      content: (
-        <>
-          <div className="row">
-            {/* Password (only for creating) */}
-            {!isEditing && (
-              <>
-                <div className="col-12 col-md-6">
-                  <Input
-                    label="Password"
-                    type="password"
-                    id="password"
-                    name="password"
-                    placeholder="Enter Password"
-                    register={register}
-                    errors={errors}
-                    validationMessages={{
-                      required: VALIDATION_MESSAGES.passwordRequired,
-                      pattern: VALIDATION_MESSAGES.passwordPattern,
-                    }}
-                    pattern={REGEX_PATTERNS.password}
-                    required
-                  />
-                </div>
-
-                <div className="col-12 col-md-6">
-                  <Input
-                    label="Confirm Password"
-                    type="password"
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    placeholder="Confirm Password"
-                    register={register}
-                    errors={errors}
-                    validationMessages={{
-                      required: VALIDATION_MESSAGES.confirmPasswordRequired,
-                    }}
-                    validateFun={validatePassword}
-                    required
-                  />
-                </div>
-              </>
-            )}
 
             {/* Company Name */}
-            <div className="col-12">
+            <div className="col-12 col-md-6">
               <Input
                 label="Company Name"
                 type="text"
@@ -300,14 +273,294 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
           </div>
         </>
       ),
-      fields: ['password', 'confirmPassword']
-    }
+      fields: ["firstName", "lastName", "primaryNumber", "email"],
+    },
+    {
+      label: "Mailing Address",
+      content: (
+        <>
+          {/* Mailing Address Section */}
+          <div className="row">
+            {/* Address */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="Address"
+                type="text"
+                id="address"
+                name="address"
+                placeholder="Enter Address"
+                register={register}
+                errors={errors}
+                errorMessage={VALIDATION_MESSAGES.addressRequired}
+                required
+              />
+            </div>
+            {/* Address Line 2 */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="Address Line 2"
+                type="text"
+                id="addressLine2"
+                name="addressLine2"
+                placeholder="Enter Address Line 2"
+                register={register}
+                errors={errors}
+              />
+            </div>
+            {/* Address Line 3 */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="Address Line 3"
+                type="text"
+                id="addressLine3"
+                name="addressLine3"
+                placeholder="Enter Address Line 3"
+                register={register}
+                errors={errors}
+              />
+            </div>
+            {/* Country */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="Country"
+                type="text"
+                id="country"
+                name="country"
+                placeholder="Enter Country"
+                register={register}
+                errors={errors}
+                errorMessage={VALIDATION_MESSAGES.countryRequired}
+                required
+              />
+            </div>
+            {/* State */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="State"
+                type="text"
+                id="state"
+                name="state"
+                placeholder="Enter State"
+                register={register}
+                errors={errors}
+                errorMessage={VALIDATION_MESSAGES.stateRequired}
+                required
+              />
+            </div>
+            {/* City */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="City"
+                type="text"
+                id="city"
+                name="city"
+                placeholder="Enter City"
+                register={register}
+                errors={errors}
+                errorMessage={VALIDATION_MESSAGES.cityRequired}
+                required
+              />
+            </div>
+            {/* Zip */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="Zip"
+                type="text"
+                id="zip"
+                name="zip"
+                placeholder="Enter Zip"
+                register={register}
+                errors={errors}
+                errorMessage={VALIDATION_MESSAGES.zipRequired}
+                required
+              />
+            </div>
+          </div>
+        </>
+      ),
+      fields: [
+        "address", // Primary address (optional for non-customers)
+        "country",
+        "state",
+        "city",
+        "zip",
+      ],
+    },
+    {
+      label: "Billing Address",
+      content: (
+        <>
+          {/* Billing Address Section */}
+          <div className="d-flex align-items-center mb-3">
+            <CheckboxField
+              label="Same as Mailing Address"
+              id="sameAsMailing"
+              name="sameAsMailing"
+              onChange={handleSameAsMailingChange}
+              register={register}
+              errors={errors}
+            />
+          </div>
+          <div className="row">
+            {/* Billing Address */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="Billing Address"
+                type="text"
+                id="billingAddress"
+                name="billingAddress"
+                placeholder="Enter Primary Billing Address"
+                register={register}
+                errors={errors}
+                errorMessage={VALIDATION_MESSAGES.addressRequired}
+                required
+              />
+            </div>
+            {/* Billing Address Line 2 */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="Billing Address Line 2"
+                type="text"
+                id="billingAddressLine2"
+                name="billingAddressLine2"
+                placeholder="Enter Additional Address Info"
+                register={register}
+                errors={errors}
+              />
+            </div>
+            {/* Billing Address Line 3 */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="Billing Address Line 3"
+                type="text"
+                id="billingAddressLine3"
+                name="billingAddressLine3"
+                placeholder="Enter Additional Address Info"
+                register={register}
+                errors={errors}
+              />
+            </div>
+            {/* Country */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="Country"
+                type="text"
+                id="billingCountry"
+                name="billingCountry"
+                placeholder="Enter Country Name"
+                register={register}
+                errors={errors}
+                errorMessage={VALIDATION_MESSAGES.countryRequired}
+                required
+              />
+            </div>
+            {/* State */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="State"
+                type="text"
+                id="billingState"
+                name="billingState"
+                placeholder="Enter State Name"
+                register={register}
+                errors={errors}
+                errorMessage={VALIDATION_MESSAGES.stateRequired}
+                required
+              />
+            </div>
+            {/* City */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="City"
+                type="text"
+                id="billingCity"
+                name="billingCity"
+                placeholder="Enter City Name"
+                register={register}
+                errors={errors}
+                errorMessage={VALIDATION_MESSAGES.cityRequired}
+                required
+              />
+            </div>
+            {/* Zip Code */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="Zip Code"
+                type="text"
+                id="billingZip"
+                name="billingZip"
+                placeholder="Enter Zip Code"
+                register={register}
+                errors={errors}
+                errorMessage={VALIDATION_MESSAGES.zipRequired}
+                required
+              />
+            </div>
+          </div>
+        </>
+      ),
+      fields: [
+        // Billing-specific fields (only for customers)
+        "billingAddress",
+        "billingCountry",
+        "billingState",
+        "billingCity",
+        "billingZip",
+      ],
+    },
+    {
+      label: "Security",
+      content: (
+        <>
+          <div className="row">
+            {/* Password (only for creating) */}
+            <>
+              <div className="col-12 col-md-6">
+                <Input
+                  label="Password"
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Enter Password"
+                  register={register}
+                  errors={errors}
+                  validationMessages={{
+                    required: VALIDATION_MESSAGES.passwordRequired,
+                    pattern: VALIDATION_MESSAGES.passwordPattern,
+                  }}
+                  pattern={REGEX_PATTERNS.password}
+                  required
+                />
+              </div>
+
+              <div className="col-12 col-md-6">
+                <Input
+                  label="Confirm Password"
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  placeholder="Confirm Password"
+                  register={register}
+                  errors={errors}
+                  validationMessages={{
+                    required: VALIDATION_MESSAGES.confirmPasswordRequired,
+                  }}
+                  validateFun={validatePassword}
+                  required
+                />
+              </div>
+            </>
+          </div>
+        </>
+      ),
+      fields: ["password", "confirmPassword"],
+    },
   ];
 
   return (
     <Modal
       isOpen={isModalOpen}
-      onClose={()=> {
+      onClose={() => {
         resetSteps();
         closeModal();
       }}
@@ -328,45 +581,45 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
       )}
 
       {/* Form for creating/editing customer */}
-        <Stepper
-          steps={steps}
-          activeStep={activeStep}
-          setActiveStep={setActiveStep}
-          completedSteps={completedSteps}
-          linear
-        />
-        <div className="row">
-          <div className="col-6 text-start">
-            <button
-              className="btn btn-secondary"
-              type="button"
-              onClick={prevStep}
-              disabled={activeStep === 0}
-            >
-              Previous
-            </button>
-          </div>
-          <div className="col-6 text-end">
-            {activeStep < steps.length - 1 ? (
-              <button
-                className="btn btn-primary"
-                type="button"
-                onClick={nextStep}
-              >
-                Next
-              </button>
-            ) : (
-              <button
-                className="btn btn-accent"
-                type="submit"
-                disabled={!isValid || loading}
-                onClick={handleSubmit(submit)}
-              >
-                {isEditing ? "Update" : "Create"}
-              </button>
-            )}
-          </div>
+      <Stepper
+        steps={steps}
+        activeStep={activeStep}
+        setActiveStep={setActiveStep}
+        completedSteps={completedSteps}
+        linear
+      />
+      <div className="row">
+        <div className="col-6 text-start">
+          <button
+            className="btn btn-secondary"
+            type="button"
+            onClick={prevStep}
+            disabled={activeStep === 0}
+          >
+            Previous
+          </button>
         </div>
+        <div className="col-6 text-end">
+          {activeStep < steps.length - 1 ? (
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={nextStep}
+            >
+              Next
+            </button>
+          ) : (
+            <button
+              className="btn btn-accent"
+              type="submit"
+              disabled={!isValid || loading}
+              onClick={handleSubmit(submit)}
+            >
+              {isEditing ? "Update" : "Create"}
+            </button>
+          )}
+        </div>
+      </div>
     </Modal>
   );
 };

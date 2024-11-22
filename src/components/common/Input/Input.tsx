@@ -76,7 +76,7 @@ const Input: React.FC<InputProps> = ({
   }
 
   return (
-    <div className="mb-3">
+    <div className="mb-2">
       <label htmlFor={id} className="form-label text-dark-blue">
         {label}{required && "*"}
       </label>
