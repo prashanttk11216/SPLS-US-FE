@@ -22,16 +22,12 @@ const CarrierList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [carrierToEdit, setCarrierToEdit] = useState<Partial<User> | null>(
-    null
-  );
+  const [carrierToEdit, setCarrierToEdit] = useState<Partial<User> | null>(null);
   const [carriers, setCarriers] = useState<User[]>([]);
+  const [totalItems, setTotalItems] = useState<number>(0);
 
-  const [itemsPerPage, setItemsPerPage] = useState<number>(() => {
-    const storedItemsPerPage = localStorage.getItem("itemsPerPage");
-    return storedItemsPerPage ? Number(storedItemsPerPage) : 10;
-  });
-
+  // Default items per page set to 10
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   const {
@@ -45,11 +41,10 @@ const CarrierList: React.FC = () => {
     fetchDataService: getUsers,
     fetchByIdService: getUserById,
     deleteDataService: deleteUser,
-    updateDataService: toggleActiveStatus
+    updateDataService: toggleActiveStatus,
   });
 
-  //fetch Carrier data
-
+  // Fetch Carrier data
   const fetchCarrierData = useCallback(async () => {
     if (!user || !user._id) return; // Wait for user data
     try {
@@ -58,23 +53,23 @@ const CarrierList: React.FC = () => {
         query += `&brokerId=${user._id}`;
       }
       const result = await fetchCarriers(query);
-      if (result.success) {
-        setCarriers(result.data as User[]);
+      if (result.success && result.data) {
+        setCarriers(result.data);
+        setTotalItems(result.meta.totalItems);
       } else {
-        toast.error(result.message || "Failed to fetch carrier.");
+        toast.error(result.message || "Failed to fetch carriers.");
       }
     } catch (err) {
       toast.error("Error fetching carrier data.");
     }
   }, [fetchCarriers, user, currentPage, itemsPerPage]);
 
-  // Use a single fetch on initial render
-
+  // Use a single fetch on initial render and when currentPage, itemsPerPage, or user changes
   useEffect(() => {
     if (user && user._id) {
       fetchCarrierData();
     }
-  }, [fetchCarrier, user]);
+  }, [fetchCarrierData, user, currentPage, itemsPerPage]);
 
   const columns = [
     { key: "name", label: "Name", width: "40%" },
@@ -85,25 +80,7 @@ const CarrierList: React.FC = () => {
     { key: "actions", label: "Actions", isAction: true },
   ];
 
-  const handleAction = async (
-    action: string,
-    row: Record<string, any>
-  ) => {
-    if (action === "Edit") {
-      
-    }
-    if (action === "Delete") {
-      try {
-        const result = await deleteCarrier(row._id);
-        if (result.success) {
-          toast.success(result.message);
-          fetchCarrierData();
-        }
-      } catch (err) {
-        toast.error("Failed to delete customer.");
-      }
-    }
-
+  const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
       case "Edit":
         try {
@@ -152,24 +129,13 @@ const CarrierList: React.FC = () => {
     return actions;
   };
 
-
   const handleItemsPerPageChange = (newItemsPerPage: number) => {
-    // console.log("Selected itemsPerPage:", newItemsPerPage);
     setItemsPerPage(newItemsPerPage);
-    setCurrentPage(1);
-    localStorage.setItem("itemsPerPage", newItemsPerPage.toString()); // Reset to the first page when items per page changes
+    setCurrentPage(1); // Reset to first page when items per page changes
   };
-
-  const getPaginatedData = () => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    console.log(`Fetching items from ${startIndex} to ${endIndex}`);
-    return carriers.slice(startIndex, endIndex);
-  };
-  
 
   const getRowData = () => {
-    return getPaginatedData().map((carrier) => ({
+    return carriers.map((carrier) => ({
       _id: carrier._id,
       name: (
         <div className="d-flex align-items-center">
@@ -189,11 +155,9 @@ const CarrierList: React.FC = () => {
       contact: carrier.primaryNumber || "N/A",
       company: carrier.company || "N/A",
       status: carrier.isActive ? "Active" : "Inactive",
-      actions: getActionsForCarrier(carrier)
+      actions: getActionsForCarrier(carrier),
     }));
   };
-  
-
 
   const openCreateModal = () => {
     setIsEditing(false);
@@ -212,12 +176,16 @@ const CarrierList: React.FC = () => {
     setCarrierToEdit(null); // Clear form data on modal close
   };
 
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
   useEffect(() => {
-    const totalPages = Math.ceil(carriers.length / itemsPerPage);
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
     if (currentPage > totalPages) {
-      setCurrentPage(Math.max(totalPages, 1)); // Ensure valid page
+      setCurrentPage(Math.max(totalPages, 1));
     }
-  }, [carriers, currentPage, itemsPerPage]);
+  }, [totalItems, currentPage, itemsPerPage]);
 
   return (
     <div className="carriers-list-wrapper">
@@ -239,18 +207,18 @@ const CarrierList: React.FC = () => {
         <div className="text-danger">{error}</div>
       ) : (
         <>
-        <Table
-          columns={columns}
-          rows={getRowData()}
-          data={carriers}
-          onActionClick={handleAction}
-        />
-        <div className="pagination-container">
+          <Table
+            columns={columns}
+            rows={getRowData()}
+            data={carriers}
+            onActionClick={handleAction}
+          />
+          <div className="pagination-container">
             <Pagination
-              totalItems={carriers.length}
+              totalItems={totalItems}
               itemsPerPage={itemsPerPage}
               currentPage={currentPage}
-              onPageChange={setCurrentPage}
+              onPageChange={handlePageChange}
               onItemsPerPageChange={handleItemsPerPageChange}
             />
           </div>

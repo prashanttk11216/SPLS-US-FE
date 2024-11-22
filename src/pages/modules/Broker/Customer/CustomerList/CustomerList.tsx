@@ -27,12 +27,10 @@ const CustomerList: React.FC = () => {
     null
   );
   const [customers, setCustomers] = useState<User[]>([]);
+  const [totalItems, setTotalItems] = useState<number>(0);
 
-  const [itemsPerPage, setItemsPerPage] = useState<number>(() => {
-    const storedItemsPerPage = localStorage.getItem("itemsPerPage");
-    return storedItemsPerPage ? Number(storedItemsPerPage) : 10;
-  });
-
+  // Default items per page set to 10
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   const {
@@ -61,6 +59,7 @@ const CustomerList: React.FC = () => {
       const result = await fetchCustomers(query);
       if (result.success) {
         setCustomers(result.data as User[]);
+        setTotalItems(result.meta.totalItems);
       } else {
         toast.error(result.message || "Failed to fetch customers.");
       }
@@ -74,7 +73,7 @@ const CustomerList: React.FC = () => {
     if (user && user._id) {
       fetchCustomersData();
     }
-  }, [fetchCustomersData, user]);
+  }, [fetchCustomersData, user, currentPage, itemsPerPage]);
 
   const columns = [
     { key: "name", label: "Name", width: "40%" },
@@ -135,21 +134,12 @@ const CustomerList: React.FC = () => {
   };
 
   const handleItemsPerPageChange = (newItemsPerPage: number) => {
-    // console.log("Selected itemsPerPage:", newItemsPerPage);
     setItemsPerPage(newItemsPerPage);
-    setCurrentPage(1);
-    localStorage.setItem("itemsPerPage", newItemsPerPage.toString()); // Reset to the first page when items per page changes
-  };
-
-  const getPaginatedData = () => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    // console.log(`Fetching items from ${startIndex} to ${endIndex}`);
-    return customers.slice(startIndex, endIndex);
+    setCurrentPage(1); // Reset to first page when items per page changes
   };
 
   const getRowData = () => {
-    return getPaginatedData().map((customer) => ({
+    return customers.map((customer) => ({
       _id: customer._id,
       name: (
         <div className="d-flex align-items-center">
@@ -185,12 +175,16 @@ const CustomerList: React.FC = () => {
     setIsModalOpen(true);
   };
 
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
   useEffect(() => {
-    const totalPages = Math.ceil(customers.length / itemsPerPage);
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
     if (currentPage > totalPages) {
-      setCurrentPage(Math.max(totalPages, 1)); // Ensure valid page
+      setCurrentPage(Math.max(totalPages, 1));
     }
-  }, [customers, currentPage, itemsPerPage]);
+  }, [totalItems, currentPage, itemsPerPage]);
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -225,10 +219,10 @@ const CustomerList: React.FC = () => {
           />
           <div className="pagination-container">
             <Pagination
-              totalItems={customers.length}
+              totalItems={totalItems}
               itemsPerPage={itemsPerPage}
               currentPage={currentPage}
-              onPageChange={setCurrentPage}
+              onPageChange={handlePageChange}
               onItemsPerPageChange={handleItemsPerPageChange}
             />
           </div>
