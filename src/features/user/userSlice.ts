@@ -6,10 +6,10 @@ const initialState: User = {
   firstName: '',
   lastName: '',
   email: '',
-  contactNumber: '',
+  primaryNumber: '',
+  employeeId: '',
   role: undefined,
   company: undefined,
-  accessLevel: undefined,
   isVerified: false,
   isDeleted: false,
   createdAt: null,
@@ -25,10 +25,10 @@ export const userSlice = createSlice({
       state.firstName = action.payload.firstName;
       state.lastName = action.payload.lastName;
       state.email = action.payload.email;
-      state.contactNumber = action.payload.contactNumber;
+      state.primaryNumber = action.payload.primaryNumber;
       state.role = action.payload.role ?? state.role;
       state.company = action.payload.company ?? state.company;
-      state.accessLevel = action.payload.accessLevel ?? state.accessLevel;
+      state.employeeId = action.payload.employeeId;
       state.isVerified = action.payload.isVerified ?? state.isVerified;
       state.isDeleted = action.payload.isDeleted ?? state.isDeleted;
       state.createdAt = action.payload.createdAt ?? state.createdAt;

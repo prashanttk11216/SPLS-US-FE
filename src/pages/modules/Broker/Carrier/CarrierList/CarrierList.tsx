@@ -20,7 +20,7 @@ import Pagination from "../../../../../components/common/Pagination/Pagination";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import closeLogo from "../../../../../assets/icons/closeLogo.svg";
 import FilterShape from "../../../../../assets/icons/Filter.svg";
-import "./CarrierList.scss"
+import "./CarrierList.scss";
 
 const CarrierList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -222,7 +222,7 @@ const CarrierList: React.FC = () => {
           </div>
         ),
         email: carrier.email,
-        contact: carrier.contactNumber || "N/A",
+        contact: carrier.primaryNumber || "N/A",
         company: carrier.company || "N/A",
         status: carrier.isActive ? "Active" : "Inactive",
         actions: getActionsForCarrier(carrier),
@@ -272,7 +272,7 @@ const CarrierList: React.FC = () => {
     <div className="carriers-list-wrapper">
       <h2 className="fw-bolder">Carrier List</h2>
       <div className="d-flex align-items-center my-3">
-      <div className="status-filter-radio-group" id="ActiveInactiveradio">
+        <div className="status-filter-radio-group" id="ActiveInactiveradio">
           <label>
             All
             <input
@@ -423,8 +423,8 @@ const CarrierList: React.FC = () => {
           </ul>
         </div>
 
-          {/* Search Bar */}
-          <div className="searchbar-container ms-4">
+        {/* Search Bar */}
+        <div className="searchbar-container ms-4">
           <SearchBar onSearch={handleSearch} />
         </div>
 

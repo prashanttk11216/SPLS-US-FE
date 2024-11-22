@@ -15,7 +15,7 @@
   
   // Modal dialog styles
   .modal-dialog {
-    background: white;
+    background: $white;
     border-radius: 8px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s ease-in-out;
@@ -45,13 +45,15 @@
   .modal-content {
     position: relative;
     padding: 20px;
+    max-height: 80vh;
+      overflow-y: auto;
   
     .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 10px 20px;
-      border-bottom: 1px solid #dee2e6;
+      border-bottom: 1px solid $light-gray;
   
       .modal-title {
         font-size: 1.25rem;
@@ -82,7 +84,7 @@
       display: flex;
       justify-content: flex-end;
       padding: 10px 20px;
-      border-top: 1px solid #dee2e6;
+      border-top: 1px solid $light-gray;
   
       .btn {
         margin-left: 10px;

@@ -223,7 +223,7 @@ const CustomerList: React.FC = () => {
           </div>
         ),
         email: customer.email,
-        contact: customer.contactNumber || "N/A",
+        contact: customer.primaryNumber || "N/A",
         company: customer.company || "N/A",
         status: customer.isActive ? "Active" : "Inactive",
         actions: getActionsForCustomer(customer),
@@ -267,212 +267,217 @@ const CustomerList: React.FC = () => {
     console.log("Debounced search query:", query);
     setSearchQuery(query);
     // Trigger API call or filtering logic here
-  };
+    const closeModal = () => {
+      setIsModalOpen(false);
+      setCustomerToEdit(null); // Clear form data on modal close
+    };
 
-  return (
-    <div className="customers-list-wrapper">
-      <h2 className="fw-bolder">Customer Overview</h2>
-      <div className="d-flex align-items-center my-3">
-        <div className="status-filter-radio-group" id="ActiveInactiveradio">
-          <label>
-            All
-            <input
-              type="radio"
-              name="statusFilter"
-              value="All"
-              checked={statusFilter === "All"}
-              onChange={() => setStatusFilter("All")}
-            />
-          </label>
-          <label>
-            Active
-            <input
-              type="radio"
-              name="statusFilter"
-              value="Active"
-              checked={statusFilter === "Active"}
-              onChange={() => setStatusFilter("Active")}
-            />
-          </label>
-          <label>
-            Inactive
-            <input
-              type="radio"
-              name="statusFilter"
-              value="Inactive"
-              checked={statusFilter === "Inactive"}
-              onChange={() => setStatusFilter("Inactive")}
-            />
-          </label>
-        </div>
+    return (
+      <div className="customers-list-wrapper">
+        <h2 className="fw-bolder">Customer Overview</h2>
+        <div className="d-flex align-items-center my-3">
+          <div className="status-filter-radio-group" id="ActiveInactiveradio">
+            <label>
+              All
+              <input
+                type="radio"
+                name="statusFilter"
+                value="All"
+                checked={statusFilter === "All"}
+                onChange={() => setStatusFilter("All")}
+              />
+            </label>
+            <label>
+              Active
+              <input
+                type="radio"
+                name="statusFilter"
+                value="Active"
+                checked={statusFilter === "Active"}
+                onChange={() => setStatusFilter("Active")}
+              />
+            </label>
+            <label>
+              Inactive
+              <input
+                type="radio"
+                name="statusFilter"
+                value="Inactive"
+                checked={statusFilter === "Inactive"}
+                onChange={() => setStatusFilter("Inactive")}
+              />
+            </label>
+          </div>
 
-        {/* Filter Dropdown */}
-        <div className="dropdown ms-3">
-          <button
-            className="btn btn-outline-primary dropdown-toggle"
-            type="button"
-            id="sortDropdown"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <img src={FilterShape} alt="FilterShape" height={20} width={20} />
-            <span
-              style={{
-                fontSize: "17px",
-                margin: "6px",
-                lineHeight: "16.94px",
-              }}
+          {/* Filter Dropdown */}
+          <div className="dropdown ms-3">
+            <button
+              className="btn btn-outline-primary dropdown-toggle"
+              type="button"
+              id="sortDropdown"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
             >
-              Filter
-            </span>
-            {/* Filter: {sortFilter === "default" ? "Default" : sortFilter} */}
-          </button>
-          <ul
-            className="dropdown-menu mt-3"
-            aria-labelledby="sortDropdown"
-            id="filterList"
-            style={{ width: "224px" }}
-          >
-            <div className="d-flex justify-content-between align-items-center">
+              <img src={FilterShape} alt="FilterShape" height={20} width={20} />
               <span
                 style={{
-                  marginLeft: "10px",
-                  marginTop: "10px",
-                  fontWeight: "600",
+                  fontSize: "17px",
+                  margin: "6px",
+                  lineHeight: "16.94px",
                 }}
               >
-                Sort by:
+                Filter
               </span>
-              <img
-                src={closeLogo}
-                alt="Close"
-                onClick={handleCloseDropdown}
-                style={{
-                  width: "11px",
-                  height: "13px",
-                  marginRight: "8px",
-                  marginTop: "-15px",
-                  cursor: "pointer",
-                }}
+              {/* Filter: {sortFilter === "default" ? "Default" : sortFilter} */}
+            </button>
+            <ul
+              className="dropdown-menu mt-3"
+              aria-labelledby="sortDropdown"
+              id="filterList"
+              style={{ width: "224px" }}
+            >
+              <div className="d-flex justify-content-between align-items-center">
+                <span
+                  style={{
+                    marginLeft: "10px",
+                    marginTop: "10px",
+                    fontWeight: "600",
+                  }}
+                >
+                  Sort by:
+                </span>
+                <img
+                  src={closeLogo}
+                  alt="Close"
+                  onClick={handleCloseDropdown}
+                  style={{
+                    width: "11px",
+                    height: "13px",
+                    marginRight: "8px",
+                    marginTop: "-15px",
+                    cursor: "pointer",
+                  }}
+                />
+              </div>
+              <li>
+                <label className="filter-label d-flex align-items-center w-100">
+                  <span className="filter-text">Default</span>
+                  <input
+                    type="radio"
+                    name="sortFilter"
+                    value="default"
+                    checked={sortFilter === "default"}
+                    onChange={handleSortFilterChange}
+                    className="ms-auto me-4"
+                  />
+                </label>
+              </li>
+              <li>
+                <label className="filter-label d-flex align-items-center w-100">
+                  <span className="filter-text">First Name</span>
+                  <input
+                    type="radio"
+                    name="sortFilter"
+                    value="firstName"
+                    checked={sortFilter === "firstName"}
+                    onChange={handleSortFilterChange}
+                    className="ms-auto me-4"
+                  />
+                </label>
+              </li>
+              <li>
+                <label className="filter-label d-flex align-items-center w-100">
+                  <span className="filter-text">Last Name</span>
+                  <input
+                    type="radio"
+                    name="sortFilter"
+                    value="lastName"
+                    checked={sortFilter === "lastName"}
+                    onChange={handleSortFilterChange}
+                    className="ms-auto me-4"
+                  />
+                </label>
+              </li>
+              <li>
+                <label className="filter-label d-flex align-items-center w-100">
+                  <span>Due Date</span>
+                  <input
+                    type="radio"
+                    name="sortFilter"
+                    value="dueDate"
+                    checked={sortFilter === "dueDate"}
+                    onChange={handleSortFilterChange}
+                    className="ms-auto me-4"
+                  />
+                </label>
+              </li>
+              <li>
+                <label className="filter-label d-flex align-items-center w-100">
+                  <span className="filter-text">Last Login</span>
+                  <input
+                    type="radio"
+                    name="sortFilter"
+                    value="lastLogin"
+                    checked={sortFilter === "lastLogin"}
+                    onChange={handleSortFilterChange}
+                    className="ms-auto me-4"
+                  />
+                </label>
+              </li>
+            </ul>
+          </div>
+
+          {/* Search Bar */}
+          <div className="searchbar-container ms-4">
+            <SearchBar onSearch={handleSearch} />
+          </div>
+
+          <button
+            className="btn btn-accent d-flex align-items-center ms-auto"
+            type="button"
+            onClick={openCreateModal}
+          >
+            <img src={PlusIcon} height={16} width={16} className="me-2" />
+            Create
+          </button>
+        </div>
+
+        {loading ? (
+          <Loading />
+        ) : error ? (
+          <div className="text-danger">{error}</div>
+        ) : (
+          <>
+            <Table
+              columns={columns}
+              rows={getRowData()}
+              data={customers}
+              onActionClick={handleAction}
+            />
+            <div className="pagination-container">
+              <Pagination
+                totalItems={totalItems}
+                itemsPerPage={itemsPerPage}
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
+                onItemsPerPageChange={handleItemsPerPageChange}
               />
             </div>
-            <li>
-              <label className="filter-label d-flex align-items-center w-100">
-                <span className="filter-text">Default</span>
-                <input
-                  type="radio"
-                  name="sortFilter"
-                  value="default"
-                  checked={sortFilter === "default"}
-                  onChange={handleSortFilterChange}
-                  className="ms-auto me-4"
-                />
-              </label>
-            </li>
-            <li>
-              <label className="filter-label d-flex align-items-center w-100">
-                <span className="filter-text">First Name</span>
-                <input
-                  type="radio"
-                  name="sortFilter"
-                  value="firstName"
-                  checked={sortFilter === "firstName"}
-                  onChange={handleSortFilterChange}
-                  className="ms-auto me-4"
-                />
-              </label>
-            </li>
-            <li>
-              <label className="filter-label d-flex align-items-center w-100">
-                <span className="filter-text">Last Name</span>
-                <input
-                  type="radio"
-                  name="sortFilter"
-                  value="lastName"
-                  checked={sortFilter === "lastName"}
-                  onChange={handleSortFilterChange}
-                  className="ms-auto me-4"
-                />
-              </label>
-            </li>
-            <li>
-              <label className="filter-label d-flex align-items-center w-100">
-                <span>Due Date</span>
-                <input
-                  type="radio"
-                  name="sortFilter"
-                  value="dueDate"
-                  checked={sortFilter === "dueDate"}
-                  onChange={handleSortFilterChange}
-                  className="ms-auto me-4"
-                />
-              </label>
-            </li>
-            <li>
-              <label className="filter-label d-flex align-items-center w-100">
-                <span className="filter-text">Last Login</span>
-                <input
-                  type="radio"
-                  name="sortFilter"
-                  value="lastLogin"
-                  checked={sortFilter === "lastLogin"}
-                  onChange={handleSortFilterChange}
-                  className="ms-auto me-4"
-                />
-              </label>
-            </li>
-          </ul>
-        </div>
+          </>
+        )}
 
-        {/* Search Bar */}
-        <div className="searchbar-container ms-4">
-          <SearchBar onSearch={handleSearch} />
-        </div>
-
-        <button
-          className="btn btn-accent d-flex align-items-center ms-auto"
-          type="button"
-          onClick={openCreateModal}
-        >
-          <img src={PlusIcon} height={16} width={16} className="me-2" />
-          Create
-        </button>
+        <CreateOrEditCustomer
+          isModalOpen={isModalOpen}
+          setIsModalOpen={(value: boolean) => {
+            setIsModalOpen(value);
+            if (!value) fetchCustomersData(); // Refresh customers after modal close
+          }}
+          closeModal={closeModal}
+          isEditing={isEditing}
+          customerData={customerToEdit}
+        />
       </div>
-
-      {loading ? (
-        <Loading />
-      ) : error ? (
-        <div className="text-danger">{error}</div>
-      ) : (
-        <>
-          <Table
-            columns={columns}
-            rows={getRowData()}
-            data={customers}
-            onActionClick={handleAction}
-          />
-          <div className="pagination-container">
-            <Pagination
-              totalItems={totalItems}
-              itemsPerPage={itemsPerPage}
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
-              onItemsPerPageChange={handleItemsPerPageChange}
-            />
-          </div>
-        </>
-      )}
-
-      <CreateOrEditCustomer
-        isModalOpen={isModalOpen}
-        setIsModalOpen={(value: boolean) => {
-          setIsModalOpen(value);
-          if (!value) fetchCustomersData(); // Refresh customers after modal close
-        }}
-        isEditing={isEditing}
-        customerData={customerToEdit}
-      />
-    </div>
-  );
+    );
+  };
 };
 export default CustomerList;

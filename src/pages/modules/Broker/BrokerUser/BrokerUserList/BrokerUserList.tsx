@@ -233,14 +233,14 @@ const BrokerUserList: React.FC = () => {
             </div>
             <div className="name">{`${broker.firstName} ${broker.lastName}`}</div>
           </div>
-        ),
-        employeeId: broker.employeeId,
-        email: broker.email,
-        contact: broker.contactNumber || "N/A",
-        company: broker.company || "N/A",
-        status: broker.isActive ? "Active" : "Inactive",
-        actions: getActionsForBroker(broker),
-      }));
+      ),
+      employeeId: broker.employeeId,
+      email: broker.email,
+      contact: broker.primaryNumber || "N/A",
+      company: broker.company || "N/A",
+      status: broker.isActive ? "Active" : "Inactive",
+      actions: getActionsForBroker(broker),
+    }));
   };
 
   const handlePageChange = (newPage: number) => {
