@@ -35,12 +35,7 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
   const user = useSelector((state: RootState) => state.user);
   const [activeStep, setActiveStep] = useState(0); // Tracks current step
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
-  const [sameAsMailing, setSameAsMailing] = useState(false);
-
-  const handleSameAsMailingChange = (e: any) => {
-    setSameAsMailing(e.target.checked);
-  };
-
+ 
   const {
     register,
     handleSubmit,

@@ -38,17 +38,16 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
   const user = useSelector((state: RootState) => state.user);
   const [activeStep, setActiveStep] = useState(0); // Tracks current step
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
-  const [sameAsMailing, setSameAsMailing] = useState(false);
 
-  const handleSameAsMailingChange = (e: any) => {
-    setSameAsMailing(e.target.checked);
-  };
+  
   const {
     register,
     handleSubmit,
     control,
     formState: { errors, isValid },
     watch,
+    setValue,
+    getValues,
     reset,
     trigger,
   } = useForm<createUserForm>({
@@ -146,6 +145,29 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
       }
     }
   }, [isModalOpen, reset, isEditing, customerData]);
+
+  const handleSameAsMailingChange = async (e: any) => {
+    if(e.target.checked) {
+      const values = getValues();
+      setValue("billingAddress", values.address);
+      setValue("billingAddressLine2", values.addressLine2);
+      setValue("billingAddressLine3", values.addressLine3);
+      setValue("billingCountry", values.country);
+      setValue("billingState", values.state);
+      setValue("billingCity", values.city);
+      setValue("billingZip", values.zip);
+      await trigger(['billingAddress','billingCountry','billingState','billingCity','billingZip']);
+    }else {
+      // Clear billing address fields if unchecked
+      setValue("billingAddress", "");
+      setValue("billingAddressLine2", "");
+      setValue("billingAddressLine3", "");
+      setValue("billingCountry", "");
+      setValue("billingState", "");
+      setValue("billingCity", "");
+      setValue("billingZip", "");
+    }
+  };
 
   const nextStep = async () => {
     const stepFields = steps[activeStep].fields || [];

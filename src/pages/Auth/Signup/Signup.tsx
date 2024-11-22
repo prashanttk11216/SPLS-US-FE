@@ -56,7 +56,6 @@ export type createUserForm = {
 const Signup: React.FC<SignupProps> = ({ role }) => {
   const [activeStep, setActiveStep] = useState(0); // Tracks current step
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
-  const [sameAsMailing, setSameAsMailing] = useState(false);
 
   const navigate = useNavigate();
   const {
@@ -64,13 +63,12 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
     handleSubmit,
     control,
     formState: { errors, isValid },
+    setValue,
+    getValues,
     watch,
     trigger,
   } = useForm<createUserForm>({ mode: "onBlur" });
 
-  const handleSameAsMailingChange = (e: any) => {
-    setSameAsMailing(e.target.checked);
-  };
 
   const submit = async (data: createUserForm) => {
     try {
@@ -99,6 +97,29 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
 
   const validatePassword = (val: string) => {
     return watch("password") === val || "Passwords do not match";
+  };
+
+  const handleSameAsMailingChange = async (e: any) => {
+    if(e.target.checked) {
+      const values = getValues();
+      setValue("billingAddress", values.address);
+      setValue("billingAddressLine2", values.addressLine2);
+      setValue("billingAddressLine3", values.addressLine3);
+      setValue("billingCountry", values.country);
+      setValue("billingState", values.state);
+      setValue("billingCity", values.city);
+      setValue("billingZip", values.zip);
+      await trigger(['billingAddress','billingCountry','billingState','billingCity','billingZip']);
+    }else {
+      // Clear billing address fields if unchecked
+      setValue("billingAddress", "");
+      setValue("billingAddressLine2", "");
+      setValue("billingAddressLine3", "");
+      setValue("billingCountry", "");
+      setValue("billingState", "");
+      setValue("billingCity", "");
+      setValue("billingZip", "");
+    }
   };
 
   const steps: Step[] = [
@@ -492,6 +513,8 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
       fields: ["password", "confirmPassword"],
     },
   ];
+
+  
 
   const nextStep = async () => {
     const stepFields = steps[activeStep].fields || [];
