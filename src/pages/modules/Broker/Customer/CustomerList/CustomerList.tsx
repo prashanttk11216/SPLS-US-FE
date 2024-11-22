@@ -241,6 +241,10 @@ const CustomerList: React.FC = () => {
     setCustomerToEdit(customerData);
     setIsModalOpen(true);
   };
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setCustomerToEdit(null); // Clear form data on modal close
+  }
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
@@ -267,10 +271,8 @@ const CustomerList: React.FC = () => {
     console.log("Debounced search query:", query);
     setSearchQuery(query);
     // Trigger API call or filtering logic here
-    const closeModal = () => {
-      setIsModalOpen(false);
-      setCustomerToEdit(null); // Clear form data on modal close
     };
+    
 
     return (
       <div className="customers-list-wrapper">
@@ -429,7 +431,7 @@ const CustomerList: React.FC = () => {
 
           {/* Search Bar */}
           <div className="searchbar-container ms-4">
-            <SearchBar onSearch={handleSearch} />
+          <SearchBar onSearch={handleSearch} />
           </div>
 
           <button
@@ -479,5 +481,5 @@ const CustomerList: React.FC = () => {
       </div>
     );
   };
-};
+
 export default CustomerList;
