@@ -286,7 +286,6 @@ const BrokerUserList: React.FC = () => {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setCurrentPage(1); // Reset to the first page when a new search is made
   };
 
   const clearAllFilters = () => {
