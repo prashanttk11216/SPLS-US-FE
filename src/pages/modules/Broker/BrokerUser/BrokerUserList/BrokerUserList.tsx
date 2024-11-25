@@ -62,7 +62,12 @@ const BrokerUserList: React.FC = () => {
   const fetchBrokerUsersData = useCallback(async () => {
     if (!user || !user._id) return;
     try {
-      let query = `?role=${UserRole.BROKER_USER}&page=${currentPage}&limit=${itemsPerPage}&search=${searchQuery}`;
+      let query = `?role=${UserRole.BROKER_USER}&page=${currentPage}&limit=${itemsPerPage}`;
+
+      //Search Functionality
+      if (searchQuery) {
+        query += `&search=${encodeURIComponent(searchQuery)}`;
+      }
       // Append `isActive` filter based on `statusFilter`
       if (statusFilter === "Active") {
         query += `&isActive=true`;
@@ -233,14 +238,14 @@ const BrokerUserList: React.FC = () => {
             </div>
             <div className="name">{`${broker.firstName} ${broker.lastName}`}</div>
           </div>
-      ),
-      employeeId: broker.employeeId,
-      email: broker.email,
-      contact: broker.primaryNumber || "N/A",
-      company: broker.company || "N/A",
-      status: broker.isActive ? "Active" : "Inactive",
-      actions: getActionsForBroker(broker),
-    }));
+        ),
+        employeeId: broker.employeeId,
+        email: broker.email,
+        contact: broker.primaryNumber || "N/A",
+        company: broker.company || "N/A",
+        status: broker.isActive ? "Active" : "Inactive",
+        actions: getActionsForBroker(broker),
+      }));
   };
 
   const handlePageChange = (newPage: number) => {
@@ -260,19 +265,24 @@ const BrokerUserList: React.FC = () => {
   };
 
   const handleSearch = (query: string) => {
-    console.log("Debounced search query:", query);
     setSearchQuery(query);
-    // Trigger API call or filtering logic here
+    setCurrentPage(1); // Reset to the first page when a new search is made
+  };
+
+  const clearAllFilters = () => {
+    setStatusFilter("All");
+    setSortFilter("default");
   };
 
   return (
-    <div className="customers-list-wrapper">
+    <div className="broker-list-wrapper">
       <h2 className="fw-bolder">Broker Users</h2>
       <div className="d-flex align-items-center my-3">
-        <div className="status-filter-radio-group" id="ActiveInactiveradio">
+        {/* <div className="status-filter-radio-group form-check" id="ActiveInactiveradio">
           <label>
             All
             <input
+            className="form-check-input"
               type="radio"
               name="statusFilter"
               value="All"
@@ -283,6 +293,7 @@ const BrokerUserList: React.FC = () => {
           <label>
             Active
             <input
+            className="form-check-input"
               type="radio"
               name="statusFilter"
               value="Active"
@@ -293,6 +304,7 @@ const BrokerUserList: React.FC = () => {
           <label>
             Inactive
             <input
+            className="form-check-input"
               type="radio"
               name="statusFilter"
               value="Inactive"
@@ -300,10 +312,10 @@ const BrokerUserList: React.FC = () => {
               onChange={() => setStatusFilter("Inactive")}
             />
           </label>
-        </div>
+        </div> */}
 
         {/* Filter Dropdown */}
-        <div className="dropdown ms-3">
+        <div className="dropdown">
           <button
             className="btn btn-outline-primary dropdown-toggle"
             type="button"
@@ -329,15 +341,14 @@ const BrokerUserList: React.FC = () => {
             id="filterList"
             style={{ width: "224px" }}
           >
-            <div className="d-flex justify-content-between align-items-center">
+            <div className="d-flex justify-content-between align-items-center form-check">
               <span
                 style={{
-                  marginLeft: "10px",
                   marginTop: "10px",
                   fontWeight: "600",
                 }}
               >
-                Sort by:
+                Filter by Status:
               </span>
               <img
                 src={closeLogo}
@@ -352,8 +363,58 @@ const BrokerUserList: React.FC = () => {
                 }}
               />
             </div>
+            {/* Active/Inactive Filters */}
             <li>
-              <label className="filter-label d-flex align-items-center w-100">
+              <label className="filter-label d-flex align-items-center w-100 form-check">
+                <span className="filter-text">Active</span>
+                <input
+                  type="radio"
+                  name="statusFilter"
+                  value="Active"
+                  checked={statusFilter === "Active"}
+                  onChange={() => setStatusFilter("Active")}
+                  className="ms-auto me-4 form-check-input"
+                />
+              </label>
+            </li>
+            <li>
+              <label className="filter-label d-flex align-items-center w-100 form-check">
+                <span className="filter-text">Inactive</span>
+                <input
+                  type="radio"
+                  name="statusFilter"
+                  value="Inactive"
+                  checked={statusFilter === "Inactive"}
+                  onChange={() => setStatusFilter("Inactive")}
+                  className="ms-auto me-4 form-check-input"
+                />
+              </label>
+            </li>
+
+            <div className="d-flex justify-content-between align-items-center form-check">
+              <span
+                style={{
+                  marginTop: "10px",
+                  fontWeight: "600",
+                }}
+              >
+                Sort by:
+              </span>
+              {/* <img
+                src={closeLogo}
+                alt="Close"
+                onClick={handleCloseDropdown}
+                style={{
+                  width: "11px",
+                  height: "13px",
+                  marginRight: "8px",
+                  marginTop: "-15px",
+                  cursor: "pointer",
+                }}
+              /> */}
+            </div>
+            <li>
+              <label className="filter-label d-flex align-items-center w-100 form-check">
                 <span className="filter-text">Default</span>
                 <input
                   type="radio"
@@ -361,12 +422,12 @@ const BrokerUserList: React.FC = () => {
                   value="default"
                   checked={sortFilter === "default"}
                   onChange={handleSortFilterChange}
-                  className="ms-auto me-4"
+                  className="ms-auto me-4 form-check-input"
                 />
               </label>
             </li>
             <li>
-              <label className="filter-label d-flex align-items-center w-100">
+              <label className="filter-label d-flex align-items-center w-100 form-check">
                 <span className="filter-text">First Name</span>
                 <input
                   type="radio"
@@ -374,12 +435,12 @@ const BrokerUserList: React.FC = () => {
                   value="firstName"
                   checked={sortFilter === "firstName"}
                   onChange={handleSortFilterChange}
-                  className="ms-auto me-4"
+                  className="ms-auto me-4 form-check-input"
                 />
               </label>
             </li>
             <li>
-              <label className="filter-label d-flex align-items-center w-100">
+              <label className="filter-label d-flex align-items-center w-100 form-check">
                 <span className="filter-text">Last Name</span>
                 <input
                   type="radio"
@@ -387,12 +448,12 @@ const BrokerUserList: React.FC = () => {
                   value="lastName"
                   checked={sortFilter === "lastName"}
                   onChange={handleSortFilterChange}
-                  className="ms-auto me-4"
+                  className="ms-auto me-4 form-check-input"
                 />
               </label>
             </li>
             <li>
-              <label className="filter-label d-flex align-items-center w-100">
+              <label className="filter-label d-flex align-items-center w-100 form-check">
                 <span>Due Date</span>
                 <input
                   type="radio"
@@ -400,12 +461,12 @@ const BrokerUserList: React.FC = () => {
                   value="dueDate"
                   checked={sortFilter === "dueDate"}
                   onChange={handleSortFilterChange}
-                  className="ms-auto me-4"
+                  className="ms-auto me-4 form-check-input"
                 />
               </label>
             </li>
             <li>
-              <label className="filter-label d-flex align-items-center w-100">
+              <label className="filter-label d-flex align-items-center w-100 form-check">
                 <span className="filter-text">Last Login</span>
                 <input
                   type="radio"
@@ -413,9 +474,19 @@ const BrokerUserList: React.FC = () => {
                   value="lastLogin"
                   checked={sortFilter === "lastLogin"}
                   onChange={handleSortFilterChange}
-                  className="ms-auto me-4"
+                  className="ms-auto me-4 form-check-input"
                 />
               </label>
+            </li>
+            <div className="dropdown-divider"></div>
+            {/* Clear Filter Button */}
+            <li className="text-center mt-2">
+              <button
+                className="btn btn-sm btn-secondary"
+                onClick={clearAllFilters}
+              >
+                Clear Filters
+              </button>
             </li>
           </ul>
         </div>

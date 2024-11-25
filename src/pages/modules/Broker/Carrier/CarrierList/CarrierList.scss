@@ -1,76 +1,78 @@
 .carriers-list-wrapper {
-    .dropdown-toggle::after {
-        display: none;
-      }
-    
-      .status-filter-radio-group {
-        display: flex;
-        gap: 15px;
-        align-items: center;
-    
-        label {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-          font-size: 17px;
-          cursor: pointer;
-    
-          input[type="radio"] {
-            margin: 0;
-            cursor: pointer;
-          }
-        }
-      }
-    
-      .status-filter-radio-group input[type="radio"] {
-        height: 15px;
-        width: 15px;
-      }
-    
-      //   Filter Radio Buttons
-    
-      .dropdown-menu input[type="radio"] {
-        appearance: none;
-        -webkit-appearance: none;
+  .form-check-input:checked {
+    background-color: #6d5bd0;
+    border: 1.5px #6d5bd0;
+  }
+  .dropdown-toggle::after {
+    display: none;
+  }
+
+  .status-filter-radio-group {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 17px;
+      cursor: pointer;
+
+      input[type="radio"] {
         margin: 0;
         cursor: pointer;
       }
-    
-      /* Custom radio button style */
-      .dropdown-menu input[type="radio"]::before {
-        content: "";
-        display: inline-block;
-        width: 15px;
-        height: 15px;
-        border: 2px solid #6d5bd0; /* Border color */
-        border-radius: 50%; /* Makes it round */
-        background-color: #ffffff;
-        box-sizing: border-box;
-      }
-    
-      /* Checked state styling */
-      .dropdown-menu input[type="radio"]:checked::before {
-        background-color: #007bff; /* Fill color when selected */
-        border-color: #007bff; /* Border matches fill color */
-      }
-    
-      #filterList label {
-        color: #6e7191;
-        margin-left: 10px !important;
-        margin: 2px;
-        cursor: pointer;
-      }
-    
-      #sortDropdown {
-        background-color: #ffffff;
-        color: #2a4459;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        height: 40px;
-        width: 88px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 5px;
-      }
+    }
+  }
+
+  .status-filter-radio-group input[type="radio"] {
+    height: 16px;
+    width: 16px;
+    border-color: #6D5BD0;
+  }
+
+  .filter-label input[type="radio"] {
+    height: 15px;
+    width: 15px;
+    border-color: #6D5BD0;
+  }
+
+  /*  Filter Radio Buttons */
+
+  .dropdown-menu input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0;
+    cursor: pointer;
+  }
+
+  /* Custom radio button style */
+  .dropdown-menu input[type="radio"]::before {
+    content: "";
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border: 1.5px #6d5bd0;
+    box-sizing: border-box;
+  }
+
+  #filterList label {
+    color: #6e7191;
+    margin: 2px;
+    cursor: pointer;
+  }
+
+  #sortDropdown {
+    background-color: #ffffff;
+    color: #2a4459;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    height: 40px;
+    width: 88px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+  }
 }

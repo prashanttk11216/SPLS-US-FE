@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./Pagination.scss";
 import Select from "../SelectInput/SelectInput";
 
@@ -19,6 +19,7 @@ const Pagination: React.FC<PaginationProps> = ({
 }) => {
   const [inputPage, setInputPage] = useState(currentPage); // Local state for the input field
   const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null); // Timer for debouncing
 
   useEffect(() => {
     setInputPage(currentPage); // Sync input with currentPage whenever it changes
@@ -26,27 +27,20 @@ const Pagination: React.FC<PaginationProps> = ({
 
   const handlePageInput = (value: number) => {
     setInputPage(value); // Update the input field's state
-  };
 
-  const jumpToPage = (value: number) => {
-    if (value >= 1 && value <= totalPages) {
-      onPageChange(value); // Trigger the parent function to change the page
-    } else {
-      setInputPage(currentPage); // Reset input if invalid
+    // Clear the existing timer
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
     }
-  };
 
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      onPageChange(Math.max(totalPages, 1));
-    }
-  }, [totalItems, itemsPerPage, totalPages, currentPage, onPageChange]);
-
-  const handlePageClick = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      console.log(`Changing to page: ${page}`); // Debug log
-      onPageChange(page); // Ensure this updates `currentPage` in the parent
-    }
+    // Set a new timer to delay the navigation
+    debounceTimer.current = setTimeout(() => {
+      if (value >= 1 && value <= totalPages) {
+        onPageChange(value); // Trigger the parent function to change the page
+      } else {
+        setInputPage(currentPage); // Reset input if invalid
+      }
+    }, 1000);
   };
 
   const handleItemsPerPageChange = (
@@ -56,39 +50,6 @@ const Pagination: React.FC<PaginationProps> = ({
     onItemsPerPageChange(newItemsPerPage);
     onPageChange(1); // Reset to the first page when items per page changes
   };
-
-  // const getPageNumbers = () => {
-  //   const maxButtons = 5; // Number of visible buttons before showing "..."
-  //   const pages: (number | string)[] = [];
-
-  //   if (totalPages <= maxButtons) {
-  //     // Show all pages if total pages <= maxButtons
-  //     for (let i = 1; i <= totalPages; i++) {
-  //       pages.push(i);
-  //     }
-  //   } else {
-  //     // Handle pages with "..." for large number of pages
-  //     if (currentPage <= 3) {
-  //       // Show first few pages and "..."
-  //       pages.push(1, 2, 3, "...", totalPages);
-  //     } else if (currentPage >= totalPages - 2) {
-  //       // Show "..." and last few pages
-  //       pages.push(1, "...", totalPages - 2, totalPages - 1, totalPages);
-  //     } else {
-  //       // Show "..." on both sides of the current page
-  //       pages.push(
-  //         1,
-  //         "...",
-  //         currentPage - 1,
-  //         currentPage,
-  //         currentPage + 1,
-  //         "...",
-  //         totalPages
-  //       );
-  //     }
-  //   }
-  //   return pages;
-  // };
 
   const getPageNumbers = () => {
     const maxButtons = 5;
@@ -122,23 +83,16 @@ const Pagination: React.FC<PaginationProps> = ({
   const handleEllipsisClick = (ellipsisPosition: string) => {
     const jumpPages = 3; // Number of pages to jump
     if (ellipsisPosition === "left") {
-      handlePageClick(
-        currentPage - jumpPages > 0 ? currentPage - jumpPages : 1
-      );
+      const newPage = currentPage - jumpPages > 0 ? currentPage - jumpPages : 1;
+      onPageChange(newPage);
     } else if (ellipsisPosition === "right") {
-      handlePageClick(
+      const newPage =
         currentPage + jumpPages <= totalPages
           ? currentPage + jumpPages
-          : totalPages
-      );
+          : totalPages;
+      onPageChange(newPage);
     }
   };
-  // const handlePageChangeInput = (value: number, jump: boolean = false) => {
-  //   if (value < 1 || value > totalPages) return; // Prevent invalid page numbers
-  //   if (jump) {
-  //     onPageChange(value); // Update to the new page when user presses Enter
-  //   }
-  // };
 
   return (
     <div className="pagination-wrapper d-flex align-items-center justify-content-between">
@@ -166,7 +120,7 @@ const Pagination: React.FC<PaginationProps> = ({
         <button
           className="btn btn-white btn-lg btn-pagination"
           disabled={currentPage === 1}
-          onClick={() => handlePageClick(currentPage - 1)}
+          onClick={() => onPageChange(currentPage - 1)}
         >
           &#60;
         </button>
@@ -177,7 +131,7 @@ const Pagination: React.FC<PaginationProps> = ({
             return (
               <button
                 key={index}
-                className="btn btn-white btn-lg  ellipsis btn-pagination"
+                className="btn btn-white btn-lg ellipsis btn-pagination"
                 onClick={() => handleEllipsisClick(ellipsisPosition)}
               >
                 ...
@@ -190,7 +144,7 @@ const Pagination: React.FC<PaginationProps> = ({
               className={`btn btn-white btn-lg btn-pagination ${
                 currentPage === page ? "active" : ""
               }`}
-              onClick={() => handlePageClick(Number(page))}
+              onClick={() => onPageChange(Number(page))}
             >
               {page}
             </button>
@@ -198,23 +152,17 @@ const Pagination: React.FC<PaginationProps> = ({
         })}
 
         <button
-          className="btn btn-white btn-lg  btn-pagination"
+          className="btn btn-white btn-lg btn-pagination"
           disabled={currentPage === totalPages}
-          onClick={() => handlePageClick(currentPage + 1)}
+          onClick={() => onPageChange(currentPage + 1)}
         >
           &#62;
         </button>
       </div>
 
       {/* Right: Page status */}
-
-      {/* <div className="page-status text-end">
-        Page {currentPage} of {totalPages}
-      </div> */}
-
       <div className="d-flex align-items-center gap-2">
-        <div>Page : </div>
-
+        <div>Page:</div>
         <div>
           <input
             type="number"
@@ -222,13 +170,11 @@ const Pagination: React.FC<PaginationProps> = ({
             min={1}
             max={totalPages}
             value={inputPage}
-            onChange={(e) => handlePageInput(Number(e.target.value))}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                jumpToPage(Number(e.currentTarget.value));
-              }
+            onChange={(e) => {
+              const page = Number(e.target.value);
+              handlePageInput(page);
             }}
-            style={{ width: "60px", height: "34px" }}
+            style={{ width: "80px", height: "34px" }}
           />
         </div>
         <div>of {totalPages}</div>
