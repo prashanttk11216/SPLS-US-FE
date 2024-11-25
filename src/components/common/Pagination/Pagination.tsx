@@ -2,113 +2,107 @@ import React, { useEffect, useState, useRef } from "react";
 import "./Pagination.scss";
 import Select from "../SelectInput/SelectInput";
 
-interface PaginationProps {
+export type Meta = {
+  page: number;
+  limit: number;
+  totalPages: number;
   totalItems: number;
-  itemsPerPage: number;
-  currentPage: number;
+}
+
+interface PaginationProps {
+  meta: Meta;
   onPageChange: (page: number) => void;
   onItemsPerPageChange: (itemsPerPage: number) => void;
 }
 
 const Pagination: React.FC<PaginationProps> = ({
-  totalItems,
-  itemsPerPage,
-  currentPage,
+  meta,
   onPageChange,
   onItemsPerPageChange,
 }) => {
-  const [inputPage, setInputPage] = useState(currentPage); // Local state for the input field
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const { page, limit, totalPages, totalItems } = meta;
+  const [inputPage, setInputPage] = useState(page); // Local state for the input field
   const debounceTimer = useRef<NodeJS.Timeout | null>(null); // Timer for debouncing
 
   useEffect(() => {
-    setInputPage(currentPage); // Sync input with currentPage whenever it changes
-  }, [currentPage]);
+    setInputPage(page); // Sync input with current page
+  }, [page]);
 
   const handlePageInput = (value: number) => {
-    setInputPage(value); // Update the input field's state
+    setInputPage(value);
 
-    // Clear the existing timer
-    if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current);
-    }
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
 
-    // Set a new timer to delay the navigation
     debounceTimer.current = setTimeout(() => {
       if (value >= 1 && value <= totalPages) {
-        onPageChange(value); // Trigger the parent function to change the page
+        onPageChange(value);
       } else {
-        setInputPage(currentPage); // Reset input if invalid
+        setInputPage(page); // Reset input if invalid
       }
-    }, 1000);
+    }, 1000); // Reduced debounce time for faster UX
   };
 
   const handleItemsPerPageChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     const newItemsPerPage = Number(event.target.value);
-    onItemsPerPageChange(newItemsPerPage);
-    onPageChange(1); // Reset to the first page when items per page changes
+    if (newItemsPerPage !== limit) {
+      onItemsPerPageChange(newItemsPerPage);
+      onPageChange(1); // Reset to the first page
+    }
   };
 
   const getPageNumbers = () => {
     const maxButtons = 5;
-    if (isNaN(totalPages) || totalPages <= 0) return [];
+    if (totalPages <= 0) return [];
 
     const pages: (number | string)[] = [];
     if (totalPages <= maxButtons) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
-      if (currentPage <= 3) {
-        pages.push(1, 2, 3, "...", totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1, "...", totalPages - 2, totalPages - 1, totalPages);
+      if (page <= 3) {
+        pages.push(1, 2, 3, "...");
+      } else if (page >= totalPages - 2) {
+        pages.push("...", totalPages - 2, totalPages - 1, totalPages);
       } else {
         pages.push(
-          1,
           "...",
-          currentPage - 1,
-          currentPage,
-          currentPage + 1,
-          "...",
-          totalPages
+          page - 1,
+          page,
+          page + 1,
+          "..."
         );
       }
     }
     return pages;
   };
 
-  const handleEllipsisClick = (ellipsisPosition: string) => {
-    const jumpPages = 3; // Number of pages to jump
-    if (ellipsisPosition === "left") {
-      const newPage = currentPage - jumpPages > 0 ? currentPage - jumpPages : 1;
+  const handleEllipsisClick = (direction: "left" | "right") => {
+    const jumpPages = 3;
+    if (direction === "left") {
+      const newPage = Math.max(page - jumpPages, 1);
       onPageChange(newPage);
-    } else if (ellipsisPosition === "right") {
-      const newPage =
-        currentPage + jumpPages <= totalPages
-          ? currentPage + jumpPages
-          : totalPages;
+    } else {
+      const newPage = Math.min(page + jumpPages, totalPages);
       onPageChange(newPage);
     }
   };
 
   return (
     <div className="pagination-wrapper d-flex align-items-center justify-content-between">
-      {/* Left: Page size selector */}
+      {/* Left: Items per page selector */}
       <div className="d-flex align-items-center">
-        <div className="me-2">Page Size:</div>
+        <div className="me-2">Items per Page:</div>
         <Select
           label=""
-          id="pgSize"
-          name="pgSize"
+          id="itemsPerPage"
+          name="itemsPerPage"
           options={[
             { value: 10, label: "10" },
             { value: 25, label: "25" },
             { value: 50, label: "50" },
           ]}
-          value={itemsPerPage}
+          value={limit}
           onChange={handleItemsPerPageChange}
           showDefaultOption={false}
           required
@@ -119,42 +113,43 @@ const Pagination: React.FC<PaginationProps> = ({
       <div className="pagination">
         <button
           className="btn btn-white btn-lg btn-pagination"
-          disabled={currentPage === 1}
-          onClick={() => onPageChange(currentPage - 1)}
+          disabled={page === 1}
+          aria-label="Previous page"
+          onClick={() => onPageChange(page - 1)}
         >
           &#60;
         </button>
-
-        {getPageNumbers().map((page, index) => {
-          if (page === "...") {
-            const ellipsisPosition = index === 1 ? "left" : "right";
-            return (
-              <button
-                key={index}
-                className="btn btn-white btn-lg ellipsis btn-pagination"
-                onClick={() => handleEllipsisClick(ellipsisPosition)}
-              >
-                ...
-              </button>
-            );
-          }
-          return (
+        {getPageNumbers().map((pageNumber, index) =>
+          pageNumber === "..." ? (
             <button
-              key={page}
-              className={`btn btn-white btn-lg btn-pagination ${
-                currentPage === page ? "active" : ""
-              }`}
-              onClick={() => onPageChange(Number(page))}
+              key={index}
+              className="btn btn-white btn-lg ellipsis btn-pagination"
+              aria-label={`Jump ${index === 0 ? "backward" : "forward"}`}
+              onClick={() =>
+                handleEllipsisClick(index === 0 ? "left" : "right")
+              }
             >
-              {page}
+              ...
             </button>
-          );
-        })}
+          ) : (
+            <button
+              key={pageNumber}
+              className={`btn btn-white btn-lg btn-pagination ${
+                page === pageNumber ? "active" : ""
+              }`}
+              aria-current={page === pageNumber ? "page" : undefined}
+              onClick={() => onPageChange(Number(pageNumber))}
+            >
+              {pageNumber}
+            </button>
+          )
+        )}
 
         <button
           className="btn btn-white btn-lg btn-pagination"
-          disabled={currentPage === totalPages}
-          onClick={() => onPageChange(currentPage + 1)}
+          disabled={page === totalPages}
+          aria-label="Next page"
+          onClick={() => onPageChange(page + 1)}
         >
           &#62;
         </button>
@@ -163,20 +158,19 @@ const Pagination: React.FC<PaginationProps> = ({
       {/* Right: Page status */}
       <div className="d-flex align-items-center gap-2">
         <div>Page:</div>
-        <div>
+        <div style={{width: "80px"}}>
           <input
             type="number"
             className="form-control form-control-lg"
             min={1}
             max={totalPages}
+            disabled={inputPage == totalPages}
             value={inputPage}
-            onChange={(e) => {
-              const page = Number(e.target.value);
-              handlePageInput(page);
-            }}
-            style={{ width: "80px", height: "34px" }}
+            aria-label="Go to page"
+            onChange={(e) => handlePageInput(Number(e.target.value))}
           />
         </div>
+        
         <div>of {totalPages}</div>
       </div>
     </div>

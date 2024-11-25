@@ -16,7 +16,7 @@ import CreateOrEditCustomer from "../CreateOrEditCustomer/CreateOrEditCustomer";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import { RootState } from "../../../../../store/store";
 import { useSelector } from "react-redux";
-import Pagination from "../../../../../components/common/Pagination/Pagination";
+import Pagination, { Meta } from "../../../../../components/common/Pagination/Pagination";
 import FilterShape from "../../../../../assets/icons/Filter.svg";
 import closeLogo from "../../../../../assets/icons/closeLogo.svg";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
@@ -30,22 +30,23 @@ const CustomerList: React.FC = () => {
     null
   );
   const [customers, setCustomers] = useState<User[]>([]);
-  const [totalItems, setTotalItems] = useState<number>(0);
-  const [statusFilter, setStatusFilter] = useState<
-    "All" | "Active" | "Inactive"
-  >("All"); // state for filter
-
-  // Default items per page set to 10
-  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-
-  const [sortFilter, setSortFilter] = useState<string>("default"); // state for sorting filter
+  const [meta, setMeta] = useState({
+    page: 1,
+    limit: 10,
+    totalPages: 0,
+    totalItems: 0,
+  }); // Pagination metadata
+  
+  const [statusFilter, setStatusFilter] = useState<"Active" | "Inactive" | null>(null); // state for filter
+  const [sortFilter, setSortFilter] = useState<string | null>(null); // state for sorting filter
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc"); // Sort order state
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   const handleSortFilterChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    event.preventDefault();
+    event.stopPropagation();
     setSortFilter(event.target.value);
   };
 
@@ -64,10 +65,10 @@ const CustomerList: React.FC = () => {
   });
 
   // Fetch customers data
-  const fetchCustomersData = useCallback(async () => {
+  const fetchCustomersData = useCallback(async (page: number = 1, limit: number = 10) => {
     if (!user || !user._id) return; // Wait for user data
     try {
-      let query = `?role=${UserRole.CUSTOMER}&page=${currentPage}&limit=${itemsPerPage}`;
+      let query = `?role=${UserRole.CUSTOMER}&page=${page}&limit=${limit}`;
 
       //Search Functionality
       if (searchQuery) {
@@ -85,39 +86,19 @@ const CustomerList: React.FC = () => {
         query += `&brokerId=${user._id}`;
       }
 
-      if (sortFilter !== "default") {
+      if (sortFilter) {
         query += `&sortBy=${sortFilter}&sortOrder=${sortOrder}`;
       }
 
       const result = await fetchCustomers(query);
       if (result.success) {
-        let sortedData = result.data as User[];
+        let userData = result.data as User[];
 
-        // Apply sorting based on `sortFilter`
-        sortedData = sortedData.sort((a: User, b: User) => {
-          switch (sortFilter) {
-            case "firstName":
-              return a.firstName.localeCompare(b.firstName);
-            case "lastName":
-              return a.lastName.localeCompare(b.lastName);
-            case "dueDate":
-              return (
-                new Date(a.dueDate || 0).getTime() -
-                new Date(b.dueDate || 0).getTime()
-              );
-            case "lastLogin":
-              return (
-                new Date(b.lastLogin || 0).getTime() -
-                new Date(a.lastLogin || 0).getTime()
-              );
-            default:
-              return 0; // No sorting for "default"
-          }
-        });
+        
 
         // setCustomers(result.data as User[]);
-        setCustomers(sortedData);
-        setTotalItems(result.meta.totalItems);
+        setCustomers(userData);
+        setMeta(result.meta as Meta);
       } else {
         toast.error(result.message || "Failed to fetch customers.");
       }
@@ -126,14 +107,10 @@ const CustomerList: React.FC = () => {
     }
   }, [
     fetchCustomers,
-    user,
-    currentPage,
-    itemsPerPage,
     statusFilter,
-    sortFilter,
-    searchQuery,
     sortOrder,
-  ]);
+    searchQuery,
+    user]);
 
   // Trigger fetch when user is populated
   useEffect(() => {
@@ -141,11 +118,10 @@ const CustomerList: React.FC = () => {
       fetchCustomersData();
     }
   }, [
-    fetchCustomersData,
     user,
-    currentPage,
-    itemsPerPage,
     statusFilter,
+    sortFilter,
+    sortOrder,
     searchQuery,
   ]);
 
@@ -207,9 +183,14 @@ const CustomerList: React.FC = () => {
     return actions;
   };
 
-  const handleItemsPerPageChange = (newItemsPerPage: number) => {
-    setItemsPerPage(newItemsPerPage);
-    setCurrentPage(1); // Reset to first page when items per page changes
+ 
+
+  const handlePageChange = (page: number) => {
+      fetchCustomersData(page)
+  };
+
+  const handleItemsPerPageChange = (limit: number) => {
+    fetchCustomersData(1, limit);
   };
 
   const handleSortClick = (column: string) => {
@@ -226,10 +207,6 @@ const CustomerList: React.FC = () => {
 
   const getRowData = () => {
     return customers
-      .filter((customer) => {
-        if (statusFilter === "All") return true;
-        return customer.isActive === (statusFilter === "Active");
-      })
       .map((customer) => ({
         _id: customer._id,
         name: (
@@ -270,20 +247,9 @@ const CustomerList: React.FC = () => {
     setCustomerToEdit(null); // Clear form data on modal close
   };
 
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
-  };
-
-  useEffect(() => {
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-    if (currentPage > totalPages) {
-      setCurrentPage(Math.max(totalPages, 1));
-    }
-  }, [totalItems, currentPage, itemsPerPage]);
-
   const handleCloseDropdown = () => {
     const dropdownMenu = document.getElementById("filterList");
-    dropdownMenu.classList.remove("show"); // This will close the dropdown
+    dropdownMenu?.classList.remove("show"); // This will close the dropdown
   };
 
   const handleSearch = (query: string) => {
@@ -291,53 +257,14 @@ const CustomerList: React.FC = () => {
   };
 
   const clearAllFilters = () => {
-    setStatusFilter("All");
-    setSortFilter("default");
+    setStatusFilter(null);
+    setSortFilter(null);
   };
 
   return (
     <div className="customers-list-wrapper">
       <h2 className="fw-bolder">Customer Overview</h2>
       <div className="d-flex align-items-center my-3">
-        {/* <div
-          className="status-filter-radio-group form-check"
-          id="ActiveInactiveradio"
-        >
-          <label>
-            All
-            <input
-              className="form-check-input"
-              type="radio"
-              name="statusFilter"
-              value="All"
-              checked={statusFilter === "All"}
-              onChange={() => setStatusFilter("All")}
-            />
-          </label>
-          <label>
-            Active
-            <input
-              className="form-check-input"
-              type="radio"
-              name="statusFilter"
-              value="Active"
-              checked={statusFilter === "Active"}
-              onChange={() => setStatusFilter("Active")}
-            />
-          </label>
-          <label>
-            Inactive
-            <input
-              className="form-check-input"
-              type="radio"
-              name="statusFilter"
-              value="Inactive"
-              checked={statusFilter === "Inactive"}
-              onChange={() => setStatusFilter("Inactive")}
-            />
-          </label>
-        </div> */}
-
         {/* Filter Dropdown */}
         <div className="dropdown">
           <button
@@ -357,7 +284,6 @@ const CustomerList: React.FC = () => {
             >
               Filter
             </span>
-            {/* Filter: {sortFilter === "default" ? "Default" : sortFilter} */}
           </button>
           <ul
             className="dropdown-menu mt-3"
@@ -424,38 +350,16 @@ const CustomerList: React.FC = () => {
               >
                 Sort by:
               </span>
-              {/* <img
-                src={closeLogo}
-                alt="Close"
-                onClick={handleCloseDropdown}
-                style={{
-                  width: "11px",
-                  height: "13px",
-                  marginRight: "8px",
-                  marginTop: "-15px",
-                  cursor: "pointer",
-                }}
-              /> */}
             </div>
             <li>
-              <label className="filter-label d-flex align-items-center w-100 form-check">
-                <span className="filter-text">Default</span>
-                <input
-                  type="radio"
-                  name="sortFilter"
-                  value="default"
-                  checked={sortFilter === "default"}
-                  onChange={handleSortFilterChange}
-                  className="ms-auto me-4 form-check-input"
-                />
-              </label>
-            </li>
-            <li>
               <label
-                onClick={() => handleSortClick("firstName")}
                 className="filter-label d-flex align-items-center w-100 form-check"
               >
-                <span className="filter-text">
+                <span className="filter-text" onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleSortClick("firstName")
+                }}>
                   First Name (
                   {sortFilter === "firstName" ? sortOrder.toUpperCase() : "ASC"}
                   )
@@ -465,14 +369,18 @@ const CustomerList: React.FC = () => {
                   name="sortFilter"
                   value="firstName"
                   checked={sortFilter === "firstName"}
-                  onChange={() => handleSortClick("firstName")}
+                  onChange={handleSortFilterChange}
                   className="ms-auto me-4 form-check-input"
                 />
               </label>
             </li>
             <li>
               <label
-                onClick={() => handleSortClick("lastName")}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleSortClick("lastName")
+                }}
                 className="filter-label d-flex align-items-center w-100 form-check"
               >
                 <span className="filter-text">
@@ -484,32 +392,6 @@ const CustomerList: React.FC = () => {
                   name="sortFilter"
                   value="lastName"
                   checked={sortFilter === "lastName"}
-                  onChange={handleSortFilterChange}
-                  className="ms-auto me-4 form-check-input"
-                />
-              </label>
-            </li>
-            <li>
-              <label className="filter-label d-flex align-items-center w-100 form-check">
-                <span>Due Date</span>
-                <input
-                  type="radio"
-                  name="sortFilter"
-                  value="dueDate"
-                  checked={sortFilter === "dueDate"}
-                  onChange={handleSortFilterChange}
-                  className="ms-auto me-4 form-check-input"
-                />
-              </label>
-            </li>
-            <li>
-              <label className="filter-label d-flex align-items-center w-100 form-check">
-                <span className="filter-text">Last Login</span>
-                <input
-                  type="radio"
-                  name="sortFilter"
-                  value="lastLogin"
-                  checked={sortFilter === "lastLogin"}
                   onChange={handleSortFilterChange}
                   className="ms-auto me-4 form-check-input"
                 />
@@ -556,13 +438,12 @@ const CustomerList: React.FC = () => {
             onActionClick={handleAction}
           />
           <div className="pagination-container">
-            <Pagination
-              totalItems={totalItems}
-              itemsPerPage={itemsPerPage}
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
-              onItemsPerPageChange={handleItemsPerPageChange}
-            />
+           {/* Pagination Component */}
+      <Pagination
+        meta={meta}
+        onPageChange={handlePageChange}
+        onItemsPerPageChange={handleItemsPerPageChange}
+      />
           </div>
         </>
       )}

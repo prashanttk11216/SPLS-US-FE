@@ -557,13 +557,13 @@ const CarrierList: React.FC = () => {
             onActionClick={handleAction}
           />
           <div className="pagination-container">
-            <Pagination
+            {/* <Pagination
               totalItems={totalItems}
               itemsPerPage={itemsPerPage}
               currentPage={currentPage}
               onPageChange={handlePageChange}
               onItemsPerPageChange={handleItemsPerPageChange}
-            />
+            /> */}
           </div>
         </>
       )}
