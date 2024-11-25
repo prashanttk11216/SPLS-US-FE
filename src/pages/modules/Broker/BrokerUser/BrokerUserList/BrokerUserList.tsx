@@ -40,6 +40,7 @@ const BrokerUserList: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   const [sortFilter, setSortFilter] = useState<string>("default"); // state for sorting filter
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc"); // Sort order state
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   const handleSortFilterChange = (
@@ -78,6 +79,11 @@ const BrokerUserList: React.FC = () => {
       if (user.role === UserRole.BROKER_USER) {
         query += `&brokerId=${user._id}`;
       }
+
+      if (sortFilter !== "default") {
+        query += `&sortBy=${sortFilter}&sortOrder=${sortOrder}`;
+      }
+
       const result = await fetchBrokerUsers(query);
       if (result.success) {
         let sortedData = result.data as User[];
@@ -121,6 +127,7 @@ const BrokerUserList: React.FC = () => {
     statusFilter,
     sortFilter,
     searchQuery,
+    sortOrder,
   ]);
 
   useEffect(() => {
@@ -215,6 +222,19 @@ const BrokerUserList: React.FC = () => {
   const handleItemsPerPageChange = (newItemsPerPage: number) => {
     setItemsPerPage(newItemsPerPage);
     setCurrentPage(1); // Reset to first page when items per page changes
+  };
+
+
+  const handleSortClick = (column: string) => {
+    // If the clicked column is the same as the current column
+    if (sortFilter === column) {
+      // Toggle the sort order (ASC <-> DESC)
+      setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
+    } else {
+      // If a new column is clicked, reset sort order to "asc" and update the filter
+      setSortFilter(column);
+      setSortOrder("asc");
+    }
   };
 
   const getRowData = () => {
@@ -427,21 +447,34 @@ const BrokerUserList: React.FC = () => {
               </label>
             </li>
             <li>
-              <label className="filter-label d-flex align-items-center w-100 form-check">
-                <span className="filter-text">First Name</span>
+            <label
+                onClick={() => handleSortClick("firstName")}
+                className="filter-label d-flex align-items-center w-100 form-check"
+              >
+                <span className="filter-text">
+                  First Name (
+                  {sortFilter === "firstName" ? sortOrder.toUpperCase() : "ASC"}
+                  )
+                </span>
                 <input
                   type="radio"
                   name="sortFilter"
                   value="firstName"
                   checked={sortFilter === "firstName"}
-                  onChange={handleSortFilterChange}
+                  onChange={() => handleSortClick("firstName")}
                   className="ms-auto me-4 form-check-input"
                 />
               </label>
             </li>
             <li>
-              <label className="filter-label d-flex align-items-center w-100 form-check">
-                <span className="filter-text">Last Name</span>
+            <label
+                onClick={() => handleSortClick("lastName")}
+                className="filter-label d-flex align-items-center w-100 form-check"
+              >
+                <span className="filter-text">
+                  Last Name (
+                  {sortFilter === "lastName" ? sortOrder.toUpperCase() : "ASC"})
+                </span>
                 <input
                   type="radio"
                   name="sortFilter"
