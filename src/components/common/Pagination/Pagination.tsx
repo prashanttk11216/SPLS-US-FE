@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./Pagination.scss";
+import Select from "../SelectInput/SelectInput";
 
 interface PaginationProps {
   totalItems: number;
@@ -140,29 +141,30 @@ const Pagination: React.FC<PaginationProps> = ({
   // };
 
   return (
-    <div className="pagination-wrapper">
+    <div className="pagination-wrapper d-flex align-items-center justify-content-between">
       {/* Left: Page size selector */}
-      <div className="page-size-selector">
-        <label htmlFor="itemsPerPage" className="me-2">
-          Page Size:
-        </label>
-        <select
-          id="itemsPerPage"
+      <div className="d-flex align-items-center">
+        <div className="me-2">Page Size:</div>
+        <Select
+          label=""
+          id="pgSize"
+          name="pgSize"
+          options={[
+            { value: 10, label: "10" },
+            { value: 25, label: "25" },
+            { value: 50, label: "50" },
+          ]}
           value={itemsPerPage}
           onChange={handleItemsPerPageChange}
-          style={{ width: "70px", height: "34px" }}
-        >
-          <option value={10}>10</option>
-          <option value={25}>25</option>
-          <option value={50}>50</option>
-          {/* <option value={100}>100</option> */}
-        </select>
+          showDefaultOption={false}
+          required
+        />
       </div>
 
       {/* Center: Pagination buttons */}
       <div className="pagination">
         <button
-          className="btn-pagination"
+          className="btn btn-white btn-lg btn-pagination"
           disabled={currentPage === 1}
           onClick={() => handlePageClick(currentPage - 1)}
         >
@@ -175,7 +177,7 @@ const Pagination: React.FC<PaginationProps> = ({
             return (
               <button
                 key={index}
-                className="btn-pagination ellipsis"
+                className="btn btn-white btn-lg  ellipsis btn-pagination"
                 onClick={() => handleEllipsisClick(ellipsisPosition)}
               >
                 ...
@@ -185,7 +187,7 @@ const Pagination: React.FC<PaginationProps> = ({
           return (
             <button
               key={page}
-              className={`btn-pagination ${
+              className={`btn btn-white btn-lg btn-pagination ${
                 currentPage === page ? "active" : ""
               }`}
               onClick={() => handlePageClick(Number(page))}
@@ -196,7 +198,7 @@ const Pagination: React.FC<PaginationProps> = ({
         })}
 
         <button
-          className="btn-pagination"
+          className="btn btn-white btn-lg  btn-pagination"
           disabled={currentPage === totalPages}
           onClick={() => handlePageClick(currentPage + 1)}
         >
@@ -210,23 +212,26 @@ const Pagination: React.FC<PaginationProps> = ({
         Page {currentPage} of {totalPages}
       </div> */}
 
-      <div className="page-status text-end">
-        Page
-        <input
-          type="number"
-          className="page-input"
-          min={1}
-          max={totalPages}
-          value={inputPage}
-          onChange={(e) => handlePageInput(Number(e.target.value))}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              jumpToPage(Number(e.currentTarget.value));
-            }
-          }}
-          style={{ width: "60px", height: "34px" }}
-        />
-        of {totalPages}
+      <div className="d-flex align-items-center gap-2">
+        <div>Page : </div>
+
+        <div>
+          <input
+            type="number"
+            className="form-control form-control-lg"
+            min={1}
+            max={totalPages}
+            value={inputPage}
+            onChange={(e) => handlePageInput(Number(e.target.value))}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                jumpToPage(Number(e.currentTarget.value));
+              }
+            }}
+            style={{ width: "60px", height: "34px" }}
+          />
+        </div>
+        <div>of {totalPages}</div>
       </div>
     </div>
   );
