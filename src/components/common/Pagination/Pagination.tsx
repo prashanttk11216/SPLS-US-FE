@@ -1,148 +1,177 @@
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./Pagination.scss";
+import Select from "../SelectInput/SelectInput";
+
+export type Meta = {
+  page: number;
+  limit: number;
+  totalPages: number;
+  totalItems: number;
+}
 
 interface PaginationProps {
-  totalItems: number;
-  itemsPerPage: number;
-  currentPage: number;
+  meta: Meta;
   onPageChange: (page: number) => void;
   onItemsPerPageChange: (itemsPerPage: number) => void;
 }
 
 const Pagination: React.FC<PaginationProps> = ({
-  totalItems,
-  itemsPerPage,
-  currentPage,
+  meta,
   onPageChange,
   onItemsPerPageChange,
 }) => {
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const { page, limit, totalPages, totalItems } = meta;
+  const [inputPage, setInputPage] = useState(page); // Local state for the input field
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null); // Timer for debouncing
 
-  const handlePageClick = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      onPageChange(page);
-    }
+  useEffect(() => {
+    setInputPage(page); // Sync input with current page
+  }, [page]);
+
+  const handlePageInput = (value: number) => {
+    setInputPage(value);
+
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+
+    debounceTimer.current = setTimeout(() => {
+      if (value >= 1 && value <= totalPages) {
+        onPageChange(value);
+      } else {
+        setInputPage(page); // Reset input if invalid
+      }
+    }, 1000); // Reduced debounce time for faster UX
   };
 
   const handleItemsPerPageChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
-    onItemsPerPageChange(Number(event.target.value));
+    const newItemsPerPage = Number(event.target.value);
+    if (newItemsPerPage !== limit) {
+      onItemsPerPageChange(newItemsPerPage);
+      onPageChange(1); // Reset to the first page
+    }
   };
 
   const getPageNumbers = () => {
-    const maxButtons = 5; // Number of visible buttons before showing "..."
-    const pages: (number | string)[] = [];
+    const maxButtons = 5;
+    if (totalPages <= 0) return [];
 
+    const pages: (number | string)[] = [];
     if (totalPages <= maxButtons) {
-      // Show all pages if total pages <= maxButtons
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
-      // Handle pages with "..." for large number of pages
-      if (currentPage <= 3) {
-        // Show first few pages and "..."
-        pages.push(1, 2, 3, "...", totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        // Show "..." and last few pages
-        pages.push(1, "...", totalPages - 2, totalPages - 1, totalPages);
+      if (page <= 3) {
+        pages.push(1, 2, 3, "...");
+      } else if (page >= totalPages - 2) {
+        pages.push("...", totalPages - 2, totalPages - 1, totalPages);
       } else {
-        // Show "..." on both sides of the current page
         pages.push(
-          1,
           "...",
-          currentPage - 1,
-          currentPage,
-          currentPage + 1,
-          "...",
-          totalPages
+          page - 1,
+          page,
+          page + 1,
+          "..."
         );
       }
     }
     return pages;
   };
 
-  const handleEllipsisClick = (ellipsisPosition: string) => {
-    const jumpPages = 3; // Number of pages to jump
-    if (ellipsisPosition === "left") {
-      handlePageClick(currentPage - jumpPages > 0 ? currentPage - jumpPages : 1);
-    } else if (ellipsisPosition === "right") {
-      handlePageClick(
-        currentPage + jumpPages <= totalPages
-          ? currentPage + jumpPages
-          : totalPages
-      );
+  const handleEllipsisClick = (direction: "left" | "right") => {
+    const jumpPages = 3;
+    if (direction === "left") {
+      const newPage = Math.max(page - jumpPages, 1);
+      onPageChange(newPage);
+    } else {
+      const newPage = Math.min(page + jumpPages, totalPages);
+      onPageChange(newPage);
     }
   };
 
   return (
-    <div className="pagination-wrapper">
-      {/* Left: Page size selector */}
-      <div className="page-size-selector">
-        <label htmlFor="itemsPerPage" className="me-2">
-          Page Size:
-        </label>
-        <select
+    <div className="pagination-wrapper d-flex align-items-center justify-content-between">
+      {/* Left: Items per page selector */}
+      <div className="d-flex align-items-center">
+        <div className="me-2">Items per Page:</div>
+        <Select
+          label=""
           id="itemsPerPage"
-          value={itemsPerPage}
+          name="itemsPerPage"
+          options={[
+            { value: 10, label: "10" },
+            { value: 25, label: "25" },
+            { value: 50, label: "50" },
+          ]}
+          value={limit}
           onChange={handleItemsPerPageChange}
-        >
-          <option value={10}>10</option>
-          <option value={25}>25</option>
-          <option value={50}>50</option>
-          {/* <option value={100}>100</option> */}
-        </select>
+          showDefaultOption={false}
+          required
+        />
       </div>
 
       {/* Center: Pagination buttons */}
       <div className="pagination">
         <button
-          className="btn-pagination"
-          disabled={currentPage === 1}
-          onClick={() => handlePageClick(currentPage - 1)}
+          className="btn btn-white btn-lg btn-pagination"
+          disabled={page === 1}
+          aria-label="Previous page"
+          onClick={() => onPageChange(page - 1)}
         >
           &#60;
         </button>
-
-        {getPageNumbers().map((page, index) => {
-          if (page === "...") {
-            const ellipsisPosition = index === 1 ? "left" : "right"; 
-            return (
-              <button
-                key={index}
-                className="btn-pagination ellipsis"
-                onClick={() => handleEllipsisClick(ellipsisPosition)}
-              >
-                ...
-              </button>
-            );
-          }
-          return (
+        {getPageNumbers().map((pageNumber, index) =>
+          pageNumber === "..." ? (
             <button
-              key={page}
-              className={`btn-pagination ${
-                currentPage === page ? "active" : ""
-              }`}
-              onClick={() => handlePageClick(Number(page))}
+              key={index}
+              className="btn btn-white btn-lg ellipsis btn-pagination"
+              aria-label={`Jump ${index === 0 ? "backward" : "forward"}`}
+              onClick={() =>
+                handleEllipsisClick(index === 0 ? "left" : "right")
+              }
             >
-              {page}
+              ...
             </button>
-          );
-        })}
+          ) : (
+            <button
+              key={pageNumber}
+              className={`btn btn-white btn-lg btn-pagination ${
+                page === pageNumber ? "active" : ""
+              }`}
+              aria-current={page === pageNumber ? "page" : undefined}
+              onClick={() => onPageChange(Number(pageNumber))}
+            >
+              {pageNumber}
+            </button>
+          )
+        )}
 
         <button
-          className="btn-pagination"
-          disabled={currentPage === totalPages}
-          onClick={() => handlePageClick(currentPage + 1)}
+          className="btn btn-white btn-lg btn-pagination"
+          disabled={page === totalPages}
+          aria-label="Next page"
+          onClick={() => onPageChange(page + 1)}
         >
           &#62;
         </button>
       </div>
 
       {/* Right: Page status */}
-      <div className="page-status text-end">
-        Page {currentPage} of {totalPages}
+      <div className="d-flex align-items-center gap-2">
+        <div>Page:</div>
+        <div style={{width: "80px"}}>
+          <input
+            type="number"
+            className="form-control form-control-lg"
+            min={1}
+            max={totalPages}
+            disabled={inputPage == totalPages}
+            value={inputPage}
+            aria-label="Go to page"
+            onChange={(e) => handlePageInput(Number(e.target.value))}
+          />
+        </div>
+        
+        <div>of {totalPages}</div>
       </div>
     </div>
   );
