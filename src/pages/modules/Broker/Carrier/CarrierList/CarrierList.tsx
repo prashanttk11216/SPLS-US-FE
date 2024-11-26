@@ -16,7 +16,9 @@ import CreateOrEditCarrier from "../CreateOrEditCarrier/CreateOrEditCarrier";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import { RootState } from "../../../../../store/store";
 import { useSelector } from "react-redux";
-import Pagination from "../../../../../components/common/Pagination/Pagination";
+import Pagination, {
+  Meta,
+} from "../../../../../components/common/Pagination/Pagination";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import closeLogo from "../../../../../assets/icons/closeLogo.svg";
 import FilterShape from "../../../../../assets/icons/Filter.svg";
@@ -30,14 +32,16 @@ const CarrierList: React.FC = () => {
     null
   );
   const [carriers, setCarriers] = useState<User[]>([]);
-  const [totalItems, setTotalItems] = useState<number>(0);
-  const [statusFilter, setStatusFilter] = useState<
-    "All" | "Active" | "Inactive"
-  >("All"); // state for filter
 
-  // Default items per page set to 10
-  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [meta, setMeta] = useState({
+    page: 1,
+    limit: 10,
+    totalPages: 0,
+    totalItems: 0,
+  }); // Pagination metadata
+  const [statusFilter, setStatusFilter] = useState<
+    "Active" | "Inactive" | null
+  >(null); // state for filter
 
   const [sortFilter, setSortFilter] = useState<string>("default"); // state for sorting filter
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc"); // Sort order state
@@ -46,6 +50,8 @@ const CarrierList: React.FC = () => {
   const handleSortFilterChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    event.preventDefault();
+    event.stopPropagation();
     setSortFilter(event.target.value);
   };
 
@@ -64,90 +70,55 @@ const CarrierList: React.FC = () => {
   });
 
   // Fetch Carrier data
-  const fetchCarrierData = useCallback(async () => {
-    if (!user || !user._id) return; // Wait for user data
-    try {
-      let query = `?role=${UserRole.CARRIER}&page=${currentPage}&limit=${itemsPerPage}`;
+  const fetchCarrierData = useCallback(
+    async (page: number = 1, limit: number = 10) => {
+      if (!user || !user._id) return; // Wait for user data
+      try {
+        let query = `?role=${UserRole.CARRIER}&page=${page}&limit=${limit}`;
 
-      //Search Functionality
-      if (searchQuery) {
-        query += `&search=${encodeURIComponent(searchQuery)}`;
+        //Search Functionality
+        if (searchQuery) {
+          query += `&search=${encodeURIComponent(searchQuery)}`;
+        }
+
+        // Append `isActive` filter based on `statusFilter`
+        if (statusFilter === "Active") {
+          query += `&isActive=true`;
+        } else if (statusFilter === "Inactive") {
+          query += `&isActive=false`;
+        }
+
+        if (user.role === UserRole.BROKER_USER) {
+          query += `&brokerId=${user._id}`;
+        }
+
+        if (sortFilter) {
+          query += `&sortBy=${sortFilter}&sortOrder=${sortOrder}`;
+        }
+
+        const result = await fetchCarriers(query);
+        if (result.success) {
+          let userData = result.data as User[];
+
+          // setCustomers(result.data as User[]);
+          setCarriers(userData);
+          setMeta(result.meta as Meta);
+        } else {
+          toast.error(result.message || "Failed to fetch carriers.");
+        }
+      } catch (err) {
+        toast.error("Error fetching carrier data.");
       }
-
-      // Append `isActive` filter based on `statusFilter`
-      if (statusFilter === "Active") {
-        query += `&isActive=true`;
-      } else if (statusFilter === "Inactive") {
-        query += `&isActive=false`;
-      }
-
-      if (user.role === UserRole.BROKER_USER) {
-        query += `&brokerId=${user._id}`;
-      }
-
-      if (sortFilter !== "default") {
-        query += `&sortBy=${sortFilter}&sortOrder=${sortOrder}`;
-      }
-
-      const result = await fetchCarriers(query);
-      if (result.success) {
-        let sortedData = result.data as User[];
-
-        // Apply sorting based on `sortFilter`
-        sortedData = sortedData.sort((a: User, b: User) => {
-          switch (sortFilter) {
-            case "firstName":
-              return a.firstName.localeCompare(b.firstName);
-            case "lastName":
-              return a.lastName.localeCompare(b.lastName);
-            case "dueDate":
-              return (
-                new Date(a.dueDate || 0).getTime() -
-                new Date(b.dueDate || 0).getTime()
-              );
-            case "lastLogin":
-              return (
-                new Date(b.lastLogin || 0).getTime() -
-                new Date(a.lastLogin || 0).getTime()
-              );
-            default:
-              return 0; // No sorting for "default"
-          }
-        });
-
-        // setCustomers(result.data as User[]);
-        setCarriers(sortedData);
-        setTotalItems(result.meta.totalItems);
-      } else {
-        toast.error(result.message || "Failed to fetch carriers.");
-      }
-    } catch (err) {
-      toast.error("Error fetching carrier data.");
-    }
-  }, [
-    fetchCarriers,
-    user,
-    currentPage,
-    itemsPerPage,
-    statusFilter,
-    sortFilter,
-    searchQuery,
-    sortOrder,
-  ]);
+    },
+    [fetchCarriers, statusFilter, sortOrder, searchQuery, user]
+  );
 
   // Use a single fetch on initial render and when currentPage, itemsPerPage, or user changes
   useEffect(() => {
     if (user && user._id) {
       fetchCarrierData();
     }
-  }, [
-    fetchCarrierData,
-    user,
-    currentPage,
-    itemsPerPage,
-    statusFilter,
-    searchQuery,
-  ]);
+  }, [user, statusFilter, sortFilter, sortOrder, searchQuery]);
 
   const columns = [
     { key: "name", label: "Name", width: "40%" },
@@ -207,9 +178,11 @@ const CarrierList: React.FC = () => {
     return actions;
   };
 
-  const handleItemsPerPageChange = (newItemsPerPage: number) => {
-    setItemsPerPage(newItemsPerPage);
-    setCurrentPage(1); // Reset to first page when items per page changes
+  const handlePageChange = (page: number) => {
+    fetchCarrierData(page);
+  };
+  const handleItemsPerPageChange = (limit: number) => {
+    fetchCarrierData(1, limit);
   };
 
   const handleSortClick = (column: string) => {
@@ -225,33 +198,28 @@ const CarrierList: React.FC = () => {
   };
 
   const getRowData = () => {
-    return carriers
-      .filter((carrier) => {
-        if (statusFilter === "All") return true;
-        return carrier.isActive === (statusFilter === "Active");
-      })
-      .map((carrier) => ({
-        _id: carrier._id,
-        name: (
-          <div className="d-flex align-items-center">
-            <div className="avatar_wrapper me-2">
-              <Avatar
-                avatarUrl={carrier.avatarUrl}
-                firstName={carrier.firstName}
-                lastName={carrier.lastName}
-                email={carrier.email}
-                size={35}
-              />
-            </div>
-            <div className="name">{`${carrier.firstName} ${carrier.lastName}`}</div>
+    return carriers.map((carrier) => ({
+      _id: carrier._id,
+      name: (
+        <div className="d-flex align-items-center">
+          <div className="avatar_wrapper me-2">
+            <Avatar
+              avatarUrl={carrier.avatarUrl}
+              firstName={carrier.firstName}
+              lastName={carrier.lastName}
+              email={carrier.email}
+              size={35}
+            />
           </div>
-        ),
-        email: carrier.email,
-        contact: carrier.primaryNumber || "N/A",
-        company: carrier.company || "N/A",
-        status: carrier.isActive ? "Active" : "Inactive",
-        actions: getActionsForCarrier(carrier),
-      }));
+          <div className="name">{`${carrier.firstName} ${carrier.lastName}`}</div>
+        </div>
+      ),
+      email: carrier.email,
+      contact: carrier.primaryNumber || "N/A",
+      company: carrier.company || "N/A",
+      status: carrier.isActive ? "Active" : "Inactive",
+      actions: getActionsForCarrier(carrier),
+    }));
   };
 
   const openCreateModal = () => {
@@ -271,20 +239,9 @@ const CarrierList: React.FC = () => {
     setCarrierToEdit(null); // Clear form data on modal close
   };
 
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
-  };
-
-  useEffect(() => {
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-    if (currentPage > totalPages) {
-      setCurrentPage(Math.max(totalPages, 1));
-    }
-  }, [totalItems, currentPage, itemsPerPage]);
-
   const handleCloseDropdown = () => {
     const dropdownMenu = document.getElementById("filterList");
-    dropdownMenu.classList.remove("show"); // This will close the dropdown
+    dropdownMenu?.classList.remove("show"); // This will close the dropdown
   };
 
   const handleSearch = (query: string) => {
@@ -292,53 +249,14 @@ const CarrierList: React.FC = () => {
   };
 
   const clearAllFilters = () => {
-    setStatusFilter("All");
-    setSortFilter("default");
+    setStatusFilter(null);
+    setSortFilter(null);
   };
 
   return (
     <div className="carriers-list-wrapper">
       <h2 className="fw-bolder">Carrier List</h2>
       <div className="d-flex align-items-center my-3">
-        {/* <div
-          className="status-filter-radio-group form-check"
-          id="ActiveInactiveradio"
-        >
-          <label>
-            All
-            <input
-              className="form-check-input"
-              type="radio"
-              name="statusFilter"
-              value="All"
-              checked={statusFilter === "All"}
-              onChange={() => setStatusFilter("All")}
-            />
-          </label>
-          <label>
-            Active
-            <input
-              className="form-check-input"
-              type="radio"
-              name="statusFilter"
-              value="Active"
-              checked={statusFilter === "Active"}
-              onChange={() => setStatusFilter("Active")}
-            />
-          </label>
-          <label>
-            Inactive
-            <input
-              className="form-check-input"
-              type="radio"
-              name="statusFilter"
-              value="Inactive"
-              checked={statusFilter === "Inactive"}
-              onChange={() => setStatusFilter("Inactive")}
-            />
-          </label>
-        </div> */}
-
         {/* Filter Dropdown */}
         <div className="dropdown">
           <button
@@ -358,7 +276,6 @@ const CarrierList: React.FC = () => {
             >
               Filter
             </span>
-            {/* Filter: {sortFilter === "default" ? "Default" : sortFilter} */}
           </button>
           <ul
             className="dropdown-menu mt-3"
@@ -425,38 +342,17 @@ const CarrierList: React.FC = () => {
               >
                 Sort by:
               </span>
-              {/* <img
-                src={closeLogo}
-                alt="Close"
-                onClick={handleCloseDropdown}
-                style={{
-                  width: "11px",
-                  height: "13px",
-                  marginRight: "8px",
-                  marginTop: "-15px",
-                  cursor: "pointer",
-                }}
-              /> */}
             </div>
             <li>
               <label className="filter-label d-flex align-items-center w-100 form-check">
-                <span className="filter-text">Default</span>
-                <input
-                  type="radio"
-                  name="sortFilter"
-                  value="default"
-                  checked={sortFilter === "default"}
-                  onChange={handleSortFilterChange}
-                  className="ms-auto me-4 form-check-input"
-                />
-              </label>
-            </li>
-            <li>
-              <label
-                onClick={() => handleSortClick("firstName")}
-                className="filter-label d-flex align-items-center w-100 form-check"
-              >
-                <span className="filter-text">
+                <span
+                  className="filter-text"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleSortClick("firstName");
+                  }}
+                >
                   First Name (
                   {sortFilter === "firstName" ? sortOrder.toUpperCase() : "ASC"}
                   )
@@ -466,14 +362,18 @@ const CarrierList: React.FC = () => {
                   name="sortFilter"
                   value="firstName"
                   checked={sortFilter === "firstName"}
-                  onChange={() => handleSortClick("firstName")}
+                  onChange={handleSortFilterChange}
                   className="ms-auto me-4 form-check-input"
                 />
               </label>
             </li>
             <li>
               <label
-                onClick={() => handleSortClick("lastName")}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleSortClick("lastName");
+                }}
                 className="filter-label d-flex align-items-center w-100 form-check"
               >
                 <span className="filter-text">
@@ -485,32 +385,6 @@ const CarrierList: React.FC = () => {
                   name="sortFilter"
                   value="lastName"
                   checked={sortFilter === "lastName"}
-                  onChange={handleSortFilterChange}
-                  className="ms-auto me-4 form-check-input"
-                />
-              </label>
-            </li>
-            <li>
-              <label className="filter-label d-flex align-items-center w-100 form-check">
-                <span>Due Date</span>
-                <input
-                  type="radio"
-                  name="sortFilter"
-                  value="dueDate"
-                  checked={sortFilter === "dueDate"}
-                  onChange={handleSortFilterChange}
-                  className="ms-auto me-4 form-check-input"
-                />
-              </label>
-            </li>
-            <li>
-              <label className="filter-label d-flex align-items-center w-100 form-check">
-                <span className="filter-text">Last Login</span>
-                <input
-                  type="radio"
-                  name="sortFilter"
-                  value="lastLogin"
-                  checked={sortFilter === "lastLogin"}
                   onChange={handleSortFilterChange}
                   className="ms-auto me-4 form-check-input"
                 />
@@ -557,13 +431,11 @@ const CarrierList: React.FC = () => {
             onActionClick={handleAction}
           />
           <div className="pagination-container">
-            {/* <Pagination
-              totalItems={totalItems}
-              itemsPerPage={itemsPerPage}
-              currentPage={currentPage}
+            <Pagination
+              meta={meta}
               onPageChange={handlePageChange}
               onItemsPerPageChange={handleItemsPerPageChange}
-            /> */}
+            />
           </div>
         </>
       )}

@@ -16,7 +16,9 @@ import CreateOrEditCustomer from "../CreateOrEditCustomer/CreateOrEditCustomer";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import { RootState } from "../../../../../store/store";
 import { useSelector } from "react-redux";
-import Pagination, { Meta } from "../../../../../components/common/Pagination/Pagination";
+import Pagination, {
+  Meta,
+} from "../../../../../components/common/Pagination/Pagination";
 import FilterShape from "../../../../../assets/icons/Filter.svg";
 import closeLogo from "../../../../../assets/icons/closeLogo.svg";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
@@ -36,8 +38,10 @@ const CustomerList: React.FC = () => {
     totalPages: 0,
     totalItems: 0,
   }); // Pagination metadata
-  
-  const [statusFilter, setStatusFilter] = useState<"Active" | "Inactive" | null>(null); // state for filter
+
+  const [statusFilter, setStatusFilter] = useState<
+    "Active" | "Inactive" | null
+  >(null); // state for filter
   const [sortFilter, setSortFilter] = useState<string | null>(null); // state for sorting filter
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc"); // Sort order state
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -65,65 +69,55 @@ const CustomerList: React.FC = () => {
   });
 
   // Fetch customers data
-  const fetchCustomersData = useCallback(async (page: number = 1, limit: number = 10) => {
-    if (!user || !user._id) return; // Wait for user data
-    try {
-      let query = `?role=${UserRole.CUSTOMER}&page=${page}&limit=${limit}`;
+  const fetchCustomersData = useCallback(
+    async (page: number = 1, limit: number = 10) => {
+      if (!user || !user._id) return; // Wait for user data
+      try {
+        let query = `?role=${UserRole.CUSTOMER}&page=${page}&limit=${limit}`;
 
-      //Search Functionality
-      if (searchQuery) {
-        query += `&search=${encodeURIComponent(searchQuery)}`;
+        //Search Functionality
+        if (searchQuery) {
+          query += `&search=${encodeURIComponent(searchQuery)}`;
+        }
+
+        // Append `isActive` filter based on `statusFilter`
+        if (statusFilter === "Active") {
+          query += `&isActive=true`;
+        } else if (statusFilter === "Inactive") {
+          query += `&isActive=false`;
+        }
+
+        if (user.role === UserRole.BROKER_USER) {
+          query += `&brokerId=${user._id}`;
+        }
+
+        if (sortFilter) {
+          query += `&sortBy=${sortFilter}&sortOrder=${sortOrder}`;
+        }
+
+        const result = await fetchCustomers(query);
+        if (result.success) {
+          let userData = result.data as User[];
+
+          // setCustomers(result.data as User[]);
+          setCustomers(userData);
+          setMeta(result.meta as Meta);
+        } else {
+          toast.error(result.message || "Failed to fetch customers.");
+        }
+      } catch (err) {
+        toast.error("Error fetching customer data.");
       }
-
-      // Append `isActive` filter based on `statusFilter`
-      if (statusFilter === "Active") {
-        query += `&isActive=true`;
-      } else if (statusFilter === "Inactive") {
-        query += `&isActive=false`;
-      }
-
-      if (user.role === UserRole.BROKER_USER) {
-        query += `&brokerId=${user._id}`;
-      }
-
-      if (sortFilter) {
-        query += `&sortBy=${sortFilter}&sortOrder=${sortOrder}`;
-      }
-
-      const result = await fetchCustomers(query);
-      if (result.success) {
-        let userData = result.data as User[];
-
-        
-
-        // setCustomers(result.data as User[]);
-        setCustomers(userData);
-        setMeta(result.meta as Meta);
-      } else {
-        toast.error(result.message || "Failed to fetch customers.");
-      }
-    } catch (err) {
-      toast.error("Error fetching customer data.");
-    }
-  }, [
-    fetchCustomers,
-    statusFilter,
-    sortOrder,
-    searchQuery,
-    user]);
+    },
+    [fetchCustomers, statusFilter, sortOrder, searchQuery, user]
+  );
 
   // Trigger fetch when user is populated
   useEffect(() => {
     if (user && user._id) {
       fetchCustomersData();
     }
-  }, [
-    user,
-    statusFilter,
-    sortFilter,
-    sortOrder,
-    searchQuery,
-  ]);
+  }, [user, statusFilter, sortFilter, sortOrder, searchQuery]);
 
   const columns = [
     { key: "name", label: "Name", width: "40%" },
@@ -183,10 +177,8 @@ const CustomerList: React.FC = () => {
     return actions;
   };
 
- 
-
   const handlePageChange = (page: number) => {
-      fetchCustomersData(page)
+    fetchCustomersData(page);
   };
 
   const handleItemsPerPageChange = (limit: number) => {
@@ -206,29 +198,28 @@ const CustomerList: React.FC = () => {
   };
 
   const getRowData = () => {
-    return customers
-      .map((customer) => ({
-        _id: customer._id,
-        name: (
-          <div className="d-flex align-items-center">
-            <div className="avatar_wrapper me-2">
-              <Avatar
-                avatarUrl={customer.avatarUrl}
-                firstName={customer.firstName}
-                lastName={customer.lastName}
-                email={customer.email}
-                size={35}
-              />
-            </div>
-            <div className="name">{`${customer.firstName} ${customer.lastName}`}</div>
+    return customers.map((customer) => ({
+      _id: customer._id,
+      name: (
+        <div className="d-flex align-items-center">
+          <div className="avatar_wrapper me-2">
+            <Avatar
+              avatarUrl={customer.avatarUrl}
+              firstName={customer.firstName}
+              lastName={customer.lastName}
+              email={customer.email}
+              size={35}
+            />
           </div>
-        ),
-        email: customer.email,
-        contact: customer.primaryNumber || "N/A",
-        company: customer.company || "N/A",
-        status: customer.isActive ? "Active" : "Inactive",
-        actions: getActionsForCustomer(customer),
-      }));
+          <div className="name">{`${customer.firstName} ${customer.lastName}`}</div>
+        </div>
+      ),
+      email: customer.email,
+      contact: customer.primaryNumber || "N/A",
+      company: customer.company || "N/A",
+      status: customer.isActive ? "Active" : "Inactive",
+      actions: getActionsForCustomer(customer),
+    }));
   };
 
   const openCreateModal = () => {
@@ -352,14 +343,15 @@ const CustomerList: React.FC = () => {
               </span>
             </div>
             <li>
-              <label
-                className="filter-label d-flex align-items-center w-100 form-check"
-              >
-                <span className="filter-text" onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleSortClick("firstName")
-                }}>
+              <label className="filter-label d-flex align-items-center w-100 form-check">
+                <span
+                  className="filter-text"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleSortClick("firstName");
+                  }}
+                >
                   First Name (
                   {sortFilter === "firstName" ? sortOrder.toUpperCase() : "ASC"}
                   )
@@ -379,7 +371,7 @@ const CustomerList: React.FC = () => {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  handleSortClick("lastName")
+                  handleSortClick("lastName");
                 }}
                 className="filter-label d-flex align-items-center w-100 form-check"
               >
@@ -438,12 +430,12 @@ const CustomerList: React.FC = () => {
             onActionClick={handleAction}
           />
           <div className="pagination-container">
-           {/* Pagination Component */}
-      <Pagination
-        meta={meta}
-        onPageChange={handlePageChange}
-        onItemsPerPageChange={handleItemsPerPageChange}
-      />
+            {/* Pagination Component */}
+            <Pagination
+              meta={meta}
+              onPageChange={handlePageChange}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
           </div>
         </>
       )}

@@ -17,7 +17,9 @@ import "./BrokerUserList.scss";
 import CreateOrEditBrokerUser from "../CreateOrEditBrokerUser/CreateOrEditBrokerUser";
 import { RootState } from "../../../../../store/store";
 import { useSelector } from "react-redux";
-import Pagination from "../../../../../components/common/Pagination/Pagination";
+import Pagination, {
+  Meta,
+} from "../../../../../components/common/Pagination/Pagination";
 import FilterShape from "../../../../../assets/icons/Filter.svg";
 import closeLogo from "../../../../../assets/icons/closeLogo.svg";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
@@ -30,14 +32,15 @@ const BrokerUserList: React.FC = () => {
     null
   );
   const [brokerUsers, setBrokerUsers] = useState<User[]>([]);
-  const [totalItems, setTotalItems] = useState<number>(0);
+  const [meta, setMeta] = useState({
+    page: 1,
+    limit: 10,
+    totalPages: 0,
+    totalItems: 0,
+  }); // Pagination metadata
   const [statusFilter, setStatusFilter] = useState<
-    "All" | "Active" | "Inactive"
-  >("All"); // state for filter
-
-  // Default items per page set to 10
-  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
-  const [currentPage, setCurrentPage] = useState<number>(1);
+    "Active" | "Inactive" | null
+  >(null); // state for filter
 
   const [sortFilter, setSortFilter] = useState<string>("default"); // state for sorting filter
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc"); // Sort order state
@@ -46,6 +49,8 @@ const BrokerUserList: React.FC = () => {
   const handleSortFilterChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    event.preventDefault();
+    event.stopPropagation();
     setSortFilter(event.target.value);
   };
 
@@ -60,88 +65,53 @@ const BrokerUserList: React.FC = () => {
     updateDataService: toggleActiveStatus,
   });
 
-  const fetchBrokerUsersData = useCallback(async () => {
-    if (!user || !user._id) return;
-    try {
-      let query = `?role=${UserRole.BROKER_USER}&page=${currentPage}&limit=${itemsPerPage}`;
+  const fetchBrokerUsersData = useCallback(
+    async (page: number = 1, limit: number = 10) => {
+      if (!user || !user._id) return;
+      try {
+        let query = `?role=${UserRole.BROKER_USER}&page=${page}&limit=${limit}`;
 
-      //Search Functionality
-      if (searchQuery) {
-        query += `&search=${encodeURIComponent(searchQuery)}`;
+        //Search Functionality
+        if (searchQuery) {
+          query += `&search=${encodeURIComponent(searchQuery)}`;
+        }
+        // Append `isActive` filter based on `statusFilter`
+        if (statusFilter === "Active") {
+          query += `&isActive=true`;
+        } else if (statusFilter === "Inactive") {
+          query += `&isActive=false`;
+        }
+
+        if (user.role === UserRole.BROKER_USER) {
+          query += `&brokerId=${user._id}`;
+        }
+
+        if (sortFilter) {
+          query += `&sortBy=${sortFilter}&sortOrder=${sortOrder}`;
+        }
+
+        const result = await fetchBrokerUsers(query);
+        if (result.success) {
+          let userData = result.data as User[];
+
+          // setCustomers(result.data as User[]);
+          setBrokerUsers(userData);
+          setMeta(result.meta as Meta);
+        } else {
+          toast.error(result.message || "Failed to fetch Broker Users.");
+        }
+      } catch (err) {
+        toast.error("Error fetching Broker data.");
       }
-      // Append `isActive` filter based on `statusFilter`
-      if (statusFilter === "Active") {
-        query += `&isActive=true`;
-      } else if (statusFilter === "Inactive") {
-        query += `&isActive=false`;
-      }
-
-      if (user.role === UserRole.BROKER_USER) {
-        query += `&brokerId=${user._id}`;
-      }
-
-      if (sortFilter !== "default") {
-        query += `&sortBy=${sortFilter}&sortOrder=${sortOrder}`;
-      }
-
-      const result = await fetchBrokerUsers(query);
-      if (result.success) {
-        let sortedData = result.data as User[];
-
-        // Apply sorting based on `sortFilter`
-        sortedData = sortedData.sort((a: User, b: User) => {
-          switch (sortFilter) {
-            case "firstName":
-              return a.firstName.localeCompare(b.firstName);
-            case "lastName":
-              return a.lastName.localeCompare(b.lastName);
-            case "dueDate":
-              return (
-                new Date(a.dueDate || 0).getTime() -
-                new Date(b.dueDate || 0).getTime()
-              );
-            case "lastLogin":
-              return (
-                new Date(b.lastLogin || 0).getTime() -
-                new Date(a.lastLogin || 0).getTime()
-              );
-            default:
-              return 0; // No sorting for "default"
-          }
-        });
-
-        // setCustomers(result.data as User[]);
-        setBrokerUsers(sortedData);
-        setTotalItems(result.meta.totalItems);
-      } else {
-        toast.error(result.message || "Failed to fetch Broker Users.");
-      }
-    } catch (err) {
-      toast.error("Error fetching Broker data.");
-    }
-  }, [
-    fetchBrokerUsers,
-    user,
-    currentPage,
-    itemsPerPage,
-    statusFilter,
-    sortFilter,
-    searchQuery,
-    sortOrder,
-  ]);
+    },
+    [fetchBrokerUsers, statusFilter, sortOrder, searchQuery, user]
+  );
 
   useEffect(() => {
     if (user && user._id) {
       fetchBrokerUsersData();
     }
-  }, [
-    fetchBrokerUsersData,
-    user,
-    currentPage,
-    itemsPerPage,
-    statusFilter,
-    searchQuery,
-  ]);
+  }, [user, statusFilter, sortFilter, sortOrder, searchQuery]);
 
   const openCreateModal = () => {
     setIsEditing(false);
@@ -219,11 +189,13 @@ const BrokerUserList: React.FC = () => {
     { key: "actions", label: "Actions", isAction: true },
   ];
 
-  const handleItemsPerPageChange = (newItemsPerPage: number) => {
-    setItemsPerPage(newItemsPerPage);
-    setCurrentPage(1); // Reset to first page when items per page changes
+  const handlePageChange = (page: number) => {
+    fetchBrokerUsersData(page);
   };
 
+  const handleItemsPerPageChange = (limit: number) => {
+    fetchBrokerUsersData(1, limit);
+  };
 
   const handleSortClick = (column: string) => {
     // If the clicked column is the same as the current column
@@ -238,50 +210,34 @@ const BrokerUserList: React.FC = () => {
   };
 
   const getRowData = () => {
-    return brokerUsers
-      .filter((broker) => {
-        if (statusFilter === "All") return true;
-        return broker.isActive === (statusFilter === "Active");
-      })
-      .map((broker) => ({
-        _id: broker._id,
-        name: (
-          <div className="d-flex align-items-center">
-            <div className="avatar_wrapper me-2">
-              <Avatar
-                avatarUrl={broker.avatarUrl}
-                firstName={broker.firstName}
-                lastName={broker.lastName}
-                email={broker.email}
-                size={35}
-              />
-            </div>
-            <div className="name">{`${broker.firstName} ${broker.lastName}`}</div>
+    return brokerUsers.map((broker) => ({
+      _id: broker._id,
+      name: (
+        <div className="d-flex align-items-center">
+          <div className="avatar_wrapper me-2">
+            <Avatar
+              avatarUrl={broker.avatarUrl}
+              firstName={broker.firstName}
+              lastName={broker.lastName}
+              email={broker.email}
+              size={35}
+            />
           </div>
-        ),
-        employeeId: broker.employeeId,
-        email: broker.email,
-        contact: broker.primaryNumber || "N/A",
-        company: broker.company || "N/A",
-        status: broker.isActive ? "Active" : "Inactive",
-        actions: getActionsForBroker(broker),
-      }));
+          <div className="name">{`${broker.firstName} ${broker.lastName}`}</div>
+        </div>
+      ),
+      employeeId: broker.employeeId,
+      email: broker.email,
+      contact: broker.primaryNumber || "N/A",
+      company: broker.company || "N/A",
+      status: broker.isActive ? "Active" : "Inactive",
+      actions: getActionsForBroker(broker),
+    }));
   };
-
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
-  };
-
-  useEffect(() => {
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-    if (currentPage > totalPages) {
-      setCurrentPage(Math.max(totalPages, 1));
-    }
-  }, [totalItems, currentPage, itemsPerPage]);
 
   const handleCloseDropdown = () => {
     const dropdownMenu = document.getElementById("filterList");
-    dropdownMenu.classList.remove("show"); // This will close the dropdown
+    dropdownMenu?.classList.remove("show"); // This will close the dropdown
   };
 
   const handleSearch = (query: string) => {
@@ -289,50 +245,14 @@ const BrokerUserList: React.FC = () => {
   };
 
   const clearAllFilters = () => {
-    setStatusFilter("All");
-    setSortFilter("default");
+    setStatusFilter(null);
+    setSortFilter(null);
   };
 
   return (
     <div className="broker-list-wrapper">
       <h2 className="fw-bolder">Broker Users</h2>
       <div className="d-flex align-items-center my-3">
-        {/* <div className="status-filter-radio-group form-check" id="ActiveInactiveradio">
-          <label>
-            All
-            <input
-            className="form-check-input"
-              type="radio"
-              name="statusFilter"
-              value="All"
-              checked={statusFilter === "All"}
-              onChange={() => setStatusFilter("All")}
-            />
-          </label>
-          <label>
-            Active
-            <input
-            className="form-check-input"
-              type="radio"
-              name="statusFilter"
-              value="Active"
-              checked={statusFilter === "Active"}
-              onChange={() => setStatusFilter("Active")}
-            />
-          </label>
-          <label>
-            Inactive
-            <input
-            className="form-check-input"
-              type="radio"
-              name="statusFilter"
-              value="Inactive"
-              checked={statusFilter === "Inactive"}
-              onChange={() => setStatusFilter("Inactive")}
-            />
-          </label>
-        </div> */}
-
         {/* Filter Dropdown */}
         <div className="dropdown">
           <button
@@ -419,38 +339,18 @@ const BrokerUserList: React.FC = () => {
               >
                 Sort by:
               </span>
-              {/* <img
-                src={closeLogo}
-                alt="Close"
-                onClick={handleCloseDropdown}
-                style={{
-                  width: "11px",
-                  height: "13px",
-                  marginRight: "8px",
-                  marginTop: "-15px",
-                  cursor: "pointer",
-                }}
-              /> */}
             </div>
+
             <li>
               <label className="filter-label d-flex align-items-center w-100 form-check">
-                <span className="filter-text">Default</span>
-                <input
-                  type="radio"
-                  name="sortFilter"
-                  value="default"
-                  checked={sortFilter === "default"}
-                  onChange={handleSortFilterChange}
-                  className="ms-auto me-4 form-check-input"
-                />
-              </label>
-            </li>
-            <li>
-            <label
-                onClick={() => handleSortClick("firstName")}
-                className="filter-label d-flex align-items-center w-100 form-check"
-              >
-                <span className="filter-text">
+                <span
+                  className="filter-text"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleSortClick("firstName");
+                  }}
+                >
                   First Name (
                   {sortFilter === "firstName" ? sortOrder.toUpperCase() : "ASC"}
                   )
@@ -460,14 +360,18 @@ const BrokerUserList: React.FC = () => {
                   name="sortFilter"
                   value="firstName"
                   checked={sortFilter === "firstName"}
-                  onChange={() => handleSortClick("firstName")}
+                  onChange={handleSortFilterChange}
                   className="ms-auto me-4 form-check-input"
                 />
               </label>
             </li>
             <li>
-            <label
-                onClick={() => handleSortClick("lastName")}
+              <label
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleSortClick("lastName");
+                }}
                 className="filter-label d-flex align-items-center w-100 form-check"
               >
                 <span className="filter-text">
@@ -479,32 +383,6 @@ const BrokerUserList: React.FC = () => {
                   name="sortFilter"
                   value="lastName"
                   checked={sortFilter === "lastName"}
-                  onChange={handleSortFilterChange}
-                  className="ms-auto me-4 form-check-input"
-                />
-              </label>
-            </li>
-            <li>
-              <label className="filter-label d-flex align-items-center w-100 form-check">
-                <span>Due Date</span>
-                <input
-                  type="radio"
-                  name="sortFilter"
-                  value="dueDate"
-                  checked={sortFilter === "dueDate"}
-                  onChange={handleSortFilterChange}
-                  className="ms-auto me-4 form-check-input"
-                />
-              </label>
-            </li>
-            <li>
-              <label className="filter-label d-flex align-items-center w-100 form-check">
-                <span className="filter-text">Last Login</span>
-                <input
-                  type="radio"
-                  name="sortFilter"
-                  value="lastLogin"
-                  checked={sortFilter === "lastLogin"}
                   onChange={handleSortFilterChange}
                   className="ms-auto me-4 form-check-input"
                 />
@@ -549,13 +427,12 @@ const BrokerUserList: React.FC = () => {
             onActionClick={handleAction}
           />
           <div className="pagination-container">
-            {/* <Pagination
-              totalItems={totalItems}
-              itemsPerPage={itemsPerPage}
-              currentPage={currentPage}
+            {/* Pagination Component */}
+            <Pagination
+              meta={meta}
               onPageChange={handlePageChange}
               onItemsPerPageChange={handleItemsPerPageChange}
-            /> */}
+            />
           </div>
         </>
       )}
