@@ -1,41 +1,44 @@
 import { FC, useEffect, useState } from "react";
-import Modal from "../../../../../components/common/Modal/Modal";
-import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
-import Input from "../../../../../components/common/Input/Input";
-import { REGEX_PATTERNS } from "../../../../../constants/patterns";
-import { createUserForm } from "../../../../Auth/Signup/Signup";
-import { Controller, useForm } from "react-hook-form";
 import { UserRole } from "../../../../../enums/UserRole";
 import { toast } from "react-toastify";
-import { createUser, editUser } from "../../../../../services/user/userService";
-import { User } from "../../../../../types/User";
+import { createUserForm } from "../../../../Auth/Signup/Signup";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
-import Loading from "../../../../../components/common/Loading/Loading";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../../../store/store";
+import { Controller, useForm } from "react-hook-form";
+import Input from "../../../../../components/common/Input/Input";
+import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
+import CheckboxField from "../../../../../components/common/CheckboxField/CheckboxField";
+import { REGEX_PATTERNS } from "../../../../../constants/patterns";
 import { PhoneInput } from "react-international-phone";
 import { validatePhoneNumber } from "../../../../../utils/phoneValidate";
 import Stepper, {
   Step,
 } from "../../../../../components/common/Stepper/Stepper";
-import CheckboxField from "../../../../../components/common/CheckboxField/CheckboxField";
+import Modal from "../../../../../components/common/Modal/Modal";
+import Loading from "../../../../../components/common/Loading/Loading";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../../store/store";
+import {
+  createConsignee,
+  editConsignee,
+} from "../../../../../services/consignee/consigneeService";
+import { Consignee } from "../../../../../types/Consignee";
 
-interface CreateOrEditCustomerProps {
+interface CreateOrEditConsigneeProps {
   isModalOpen: boolean; // Controls modal visibility
   setIsModalOpen: (value: boolean) => void; // Setter for modal visibility
-  isEditing: boolean; // Indicates if editing an existing customer
-  customerData?: Partial<User> | null; // Pre-filled data for editing
+  isEditing: boolean; // Indicates if editing an existing Consignee
+  consigneeData?: Partial<Consignee> | null; // Pre-filled data for editing
   closeModal: () => void;
 }
 
-const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
+const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
   isModalOpen,
   setIsModalOpen,
   isEditing,
-  customerData,
+  consigneeData,
   closeModal,
 }) => {
-  const user = useSelector((state: RootState) => state.user);
+  const user = useSelector((state: RootState) => state.consignee);
   const [activeStep, setActiveStep] = useState(0); // Tracks current step
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
@@ -51,41 +54,37 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
     trigger,
   } = useForm<createUserForm>({
     mode: "onBlur",
-    defaultValues: customerData || {}, // Pre-fill form when editing
+    defaultValues: consigneeData || {}, // Pre-fill form when editing
   });
 
   const {
-    createData: createCustomer,
-    updateData: updateCustomer,
+    createData: createdConsignee,
+    updateData: updateConsignee,
     loading,
     error,
   } = useFetchData<any>({
-    createDataService: createUser,
-    updateDataService: editUser,
+    createDataService: createConsignee,
+    updateDataService: editConsignee,
   });
 
-  /**
-   * Handles form submission for creating or editing a customer.
-   * @param data - Form data
-   */
   const submit = async (data: createUserForm) => {
     try {
       let result;
-      if (isEditing && customerData?._id) {
-        // Update customer if editing
-        result = await updateCustomer(customerData._id, data);
+      if (isEditing && consigneeData?._id) {
+        // Update Consignee if editing
+        result = await updateConsignee(consigneeData._id, data);
       } else {
-        // Create customer with role assigned
-        data.role = UserRole.CUSTOMER;
+        // Create Consignee with role assigned
+        data.role = UserRole.CONSIGNEE;
         data.brokerId = user._id;
-        result = await createCustomer(data);
+        result = await createdConsignee(data);
       }
 
       if (result.success) {
         toast.success(
           isEditing
-            ? "Customer updated successfully."
-            : "Customer created successfully."
+            ? "Consignee updated successfully."
+            : "Consignee created successfully."
         );
         setIsModalOpen(false);
         resetSteps();
@@ -98,20 +97,11 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
     }
   };
 
-  /**
-   * Validates if the confirmed password matches the entered password.
-   * @param value - Confirm password value
-   */
-  const validatePassword = (value: string) => {
-    return watch("password") === value || "Passwords do not match";
-  };
-
-  // Reset form state or pre-fill values when modal opens/closes
   useEffect(() => {
     if (isModalOpen) {
-      if (isEditing && customerData) {
+      if (isEditing && consigneeData) {
         // Pre-fill form when editing
-        reset(customerData);
+        reset(consigneeData);
       } else {
         // Clear form when creating
         reset({
@@ -119,9 +109,6 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
           lastName: "",
           primaryNumber: "",
           email: "",
-          password: "",
-          confirmPassword: "",
-          company: "",
 
           // Primary address
           address: "",
@@ -132,7 +119,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
           city: "",
           zip: "",
 
-          // Billing-specific fields (only for customers)
+          // Billing-specific fields (only for Consignees)
           billingAddress: "",
           billingAddressLine2: "",
           billingAddressLine3: "",
@@ -143,7 +130,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
         });
       }
     }
-  }, [isModalOpen, reset, isEditing, customerData]);
+  }, [isModalOpen, reset, isEditing, consigneeData]);
 
   const handleSameAsMailingChange = async (e: any) => {
     if (e.target.checked) {
@@ -186,7 +173,6 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
   };
 
   const prevStep = () => {
-    // setCompletedSteps((prev) => prev.filter((step) => step !== activeStep - 1)); // Optionally remove completion status for the previous step
     setActiveStep((prev) => Math.max(0, prev - 1)); // Safeguard against going below step 0
   };
 
@@ -285,18 +271,6 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
               />
             </div>
 
-            {/* Company Name */}
-            <div className="col-12 col-md-6">
-              <Input
-                label="Company Name"
-                type="text"
-                id="company"
-                name="company"
-                placeholder="Enter Company Name"
-                register={register}
-                errors={errors}
-              />
-            </div>
           </div>
         </>
       ),
@@ -405,13 +379,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
           </div>
         </>
       ),
-      fields: [
-        "address", // Primary address (optional for non-customers)
-        "country",
-        "state",
-        "city",
-        "zip",
-      ],
+      fields: ["address", "country", "state", "city", "zip"],
     },
     {
       label: "Billing Address",
@@ -527,60 +495,12 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
         </>
       ),
       fields: [
-        // Billing-specific fields (only for customers)
         "billingAddress",
         "billingCountry",
         "billingState",
         "billingCity",
         "billingZip",
       ],
-    },
-    {
-      label: "Security",
-      content: (
-        <>
-          <div className="row">
-            {/* Password (only for creating) */}
-            <>
-              <div className="col-12 col-md-6">
-                <Input
-                  label="Password"
-                  type="password"
-                  id="password"
-                  name="password"
-                  placeholder="Enter Password"
-                  register={register}
-                  errors={errors}
-                  validationMessages={{
-                    required: VALIDATION_MESSAGES.passwordRequired,
-                    pattern: VALIDATION_MESSAGES.passwordPattern,
-                  }}
-                  pattern={REGEX_PATTERNS.password}
-                  required
-                />
-              </div>
-
-              <div className="col-12 col-md-6">
-                <Input
-                  label="Confirm Password"
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  placeholder="Confirm Password"
-                  register={register}
-                  errors={errors}
-                  validationMessages={{
-                    required: VALIDATION_MESSAGES.confirmPasswordRequired,
-                  }}
-                  validateFun={validatePassword}
-                  required
-                />
-              </div>
-            </>
-          </div>
-        </>
-      ),
-      fields: ["password", "confirmPassword"],
     },
   ];
 
@@ -591,7 +511,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
         resetSteps();
         closeModal();
       }}
-      title={isEditing ? "Edit Customer" : "Create Customer"}
+      title={isEditing ? "Edit Consignee" : "Create Consignee"}
       size="lg"
       isCentered
       backdropClose
@@ -607,7 +527,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
         </div>
       )}
 
-      {/* Form for creating/editing customer */}
+      {/* Form for creating/editing Consignee */}
       <Stepper
         steps={steps}
         activeStep={activeStep}
@@ -615,6 +535,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
         completedSteps={completedSteps}
         linear
       />
+
       <div className="row">
         <div className="col-6 text-start">
           <button
@@ -651,4 +572,4 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
   );
 };
 
-export default CreateOrEditCustomer;
+export default CreateOrEditConsignee;

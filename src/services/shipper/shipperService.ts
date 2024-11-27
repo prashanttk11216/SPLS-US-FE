@@ -1,0 +1,96 @@
+import axiosApi from "../../api/axios";
+import { createUserForm } from "../../pages/Auth/Signup/Signup";
+import { ApiResponse } from "../../types/responseTypes";
+import { handleResponse } from "../../utils/apiHelpers";
+import { handleAxiosError } from "../../utils/errorHandler";
+
+interface EditUserData {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  primaryNumber?: string;
+  // Add any other editable fields as needed
+}
+
+export const getShipper = async (query?: string): Promise<ApiResponse> => {
+  try {
+    const endpoint = `/shipper${query ? `?${query}` : ""}`;
+    const response = await axiosApi.get(endpoint, {
+      params: {
+        // Add any additional query parameters here
+        page: 1,
+        limit: 10,
+        search: "your_search_term",
+        isActive: true,
+        sortBy: "firstName",
+        sortOrder: "asc",
+      },
+    });
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "Failed to retrieve shipper details");
+  }
+};
+
+// Fetch shipper details by ID
+export const getShipperById = async (
+  shipperId: string
+): Promise<ApiResponse> => {
+  try {
+    const response = await axiosApi.get(`/shipper/${shipperId}`);
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "Failed to retrieve shipper details");
+  }
+};
+
+// Create a new shipper
+export const createShipper = async (
+  data: createUserForm
+): Promise<ApiResponse> => {
+  try {
+    const response = await axiosApi.post("/shipper", data);
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "Failed to create shipper");
+  }
+};
+
+// Edit an existing shipper
+export const editShipper = async (
+  shipperId: string,
+  data: EditUserData
+): Promise<ApiResponse> => {
+  try {
+    const response = await axiosApi.put(`/shipper/${shipperId}`, data);
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "Failed to update shipper details");
+  }
+};
+
+// Delete a shipper
+export const deleteShipper = async (
+  shipperId: string
+): Promise<ApiResponse> => {
+  try {
+    const response = await axiosApi.delete(`/shipper/${shipperId}`);
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "Failed to delete shipper");
+  }
+};
+
+// Toggle active status of shipper
+export const toggleActiveShipper = async (
+  shipperId: string
+): Promise<ApiResponse> => {
+  try {
+    const response = await axiosApi.patch(
+      `/shipper/${shipperId}/toggle-active`
+    );
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "Failed to toggle shipper status");
+  }
+};

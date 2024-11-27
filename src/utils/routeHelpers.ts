@@ -10,6 +10,8 @@ export const getRoleBasedRoute = (role: UserRole): string => {
       return "/carrier";
     case UserRole.CUSTOMER:
       return "/customer";
+    case UserRole.CONSIGNEE:
+      return "/consignee";
     default:
       return "/"; // Default route for undefined roles
   }
