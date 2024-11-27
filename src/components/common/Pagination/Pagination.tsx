@@ -1,13 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./Pagination.scss";
-import Select from "../SelectInput/SelectInput";
 
 export type Meta = {
   page: number;
   limit: number;
   totalPages: number;
   totalItems: number;
-}
+};
 
 interface PaginationProps {
   meta: Meta;
@@ -48,7 +47,6 @@ const Pagination: React.FC<PaginationProps> = ({
     const newItemsPerPage = Number(event.target.value);
     if (newItemsPerPage !== limit) {
       onItemsPerPageChange(newItemsPerPage);
-      onPageChange(1); // Reset to the first page
     }
   };
 
@@ -65,13 +63,7 @@ const Pagination: React.FC<PaginationProps> = ({
       } else if (page >= totalPages - 2) {
         pages.push("...", totalPages - 2, totalPages - 1, totalPages);
       } else {
-        pages.push(
-          "...",
-          page - 1,
-          page,
-          page + 1,
-          "..."
-        );
+        pages.push("...", page - 1, page, page + 1, "...");
       }
     }
     return pages;
@@ -93,20 +85,16 @@ const Pagination: React.FC<PaginationProps> = ({
       {/* Left: Items per page selector */}
       <div className="d-flex align-items-center">
         <div className="me-2">Items per Page:</div>
-        <Select
-          label=""
-          id="itemsPerPage"
-          name="itemsPerPage"
-          options={[
-            { value: 10, label: "10" },
-            { value: 25, label: "25" },
-            { value: 50, label: "50" },
-          ]}
+        <select
+        style={{width:"80px"}}
+          className="form-select form-select-lg"
           value={limit}
           onChange={handleItemsPerPageChange}
-          showDefaultOption={false}
-          required
-        />
+        >
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+        </select>
       </div>
 
       {/* Center: Pagination buttons */}
@@ -158,7 +146,7 @@ const Pagination: React.FC<PaginationProps> = ({
       {/* Right: Page status */}
       <div className="d-flex align-items-center gap-2">
         <div>Page:</div>
-        <div style={{width: "80px"}}>
+        <div style={{ width: "80px" }}>
           <input
             type="number"
             className="form-control form-control-lg"
@@ -170,7 +158,7 @@ const Pagination: React.FC<PaginationProps> = ({
             onChange={(e) => handlePageInput(Number(e.target.value))}
           />
         </div>
-        
+
         <div>of {totalPages}</div>
       </div>
     </div>
