@@ -23,6 +23,18 @@ const BrokerLayout = () => {
       path: "/broker/broker-users", 
       isVisible: user.role === "broker_admin" // Visible only to broker_admin
     },
+    { 
+      name: "Shipper", 
+      icon: BrokerIcon, 
+      path: "/broker/shipper",
+      isVisible: true 
+    },
+    { 
+      name: "Consignee", 
+      icon: BrokerIcon, 
+      path: "/broker/consignee", 
+      isVisible: true
+    },
   ];
 
   return (
