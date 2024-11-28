@@ -61,6 +61,10 @@ export const routes = createBrowserRouter([
             element: <Profile />,
           },
           {
+            path: "Setting", // Matches /broker
+            element: <Profile />,
+          },
+          {
             path: "customers", // Matches /broker
             element: <CustomerList />,
           },
@@ -69,7 +73,7 @@ export const routes = createBrowserRouter([
             element: <CarrierList />,
           },
           {
-            path: "broker-users", // Matches /broker
+            path: "users", // Matches /broker
             element: <BrokerUserList />,
           },
           {
