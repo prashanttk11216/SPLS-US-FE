@@ -157,6 +157,20 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
       content: (
         <>
           <div className="row">
+            {/* Employee ID */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="Employee Id"
+                type="text"
+                id="employeeId"
+                name="employeeId"
+                placeholder="Enter Employee Id"
+                register={register}
+                errors={errors}
+                errorMessage={VALIDATION_MESSAGES.employeeIdRequired}
+                required
+              />
+            </div>
             {/* First Name */}
             <div className="col-12 col-md-6">
               <Input

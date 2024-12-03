@@ -1,25 +1,24 @@
 // src/pages/CustomerDashboard.tsx
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '../../../../store/store';
-import { clearStorage } from '../../../../utils/authHelplers';
-import { resetUser } from '../../../../features/user/userSlice';
+import { useNavigate } from 'react-router-dom';
+import PlusIcon from "../../../../assets/icons/plus.svg";
 
 const CustomerDashboard: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
-  const dispatch = useDispatch();
-
-  const logout = () => {
-    clearStorage();
-    dispatch(resetUser())
-  }
-
+  const navigate = useNavigate();
   return (
-    <div>
-      <h1>Customer Dashboard</h1>
-      <p>Welcome, {user?.firstName} {user?.lastName}</p>
-      {/* Add customer-specific features here */}
-      <button className='btn btn-primary' onClick={logout}>logout</button>
+    <div className='d-flex align-items-center'>
+      <h3 className='fw-bold'>Quick Load Form</h3>
+      <button
+          className="btn btn-accent d-flex align-items-center ms-auto"
+          type="button"
+          onClick={() => navigate(`create`)}
+        >
+          <img src={PlusIcon} height={16} width={16} className="me-2" />
+          Create Load
+        </button>
     </div>
   );
 };

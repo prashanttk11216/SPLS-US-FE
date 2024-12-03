@@ -1,20 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
-import Avatar from "../../../../../components/common/Avatar/Avatar";
 import Table from "../../../../../components/common/Table/Table";
 import PlusIcon from "../../../../../assets/icons/plus.svg";
-import {
-  deleteUser,
-  getUserById,
-  getUsers,
-  toggleActiveStatus,
-} from "../../../../../services/user/userService";
 import { toast } from "react-toastify";
 import { UserRole } from "../../../../../enums/UserRole";
-import { User } from "../../../../../types/User";
 import Loading from "../../../../../components/common/Loading/Loading";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
-import "./BrokerUserList.scss";
-import CreateOrEditBrokerUser from "../CreateOrEditBrokerUser/CreateOrEditBrokerUser";
 import { RootState } from "../../../../../store/store";
 import { useSelector } from "react-redux";
 import Pagination, {
@@ -23,28 +13,36 @@ import Pagination, {
 import FilterShape from "../../../../../assets/icons/Filter.svg";
 import closeLogo from "../../../../../assets/icons/closeLogo.svg";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
+import "./LoadList.scss";
+import { Load } from "../../../../../types/Load";
+import {
+  deleteLoad,
+  getloads,
+  updateLoadStatus,
+} from "../../../../../services/load/loadServices";
+import { useNavigate } from "react-router-dom";
+import { formatDate } from "../../../../../utils/dateFormat";
+import { LoadStatus } from "../../../../../enums/LoadStatus";
 
-const BrokerUserList: React.FC = () => {
+const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [brokerUserData, setBrokerUserData] = useState<Partial<User> | null>(
-    null
-  );
-  const [brokerUsers, setBrokerUsers] = useState<User[]>([]);
+  const navigate = useNavigate()
+  const [loads, setLoads] = useState<Load[]>([]);
   const [meta, setMeta] = useState({
     page: 1,
     limit: 10,
     totalPages: 0,
     totalItems: 0,
   }); // Pagination metadata
+
   const [statusFilter, setStatusFilter] = useState<
     "Active" | "Inactive" | null
   >(null); // state for filter
-
-  const [sortFilter, setSortFilter] = useState<string>("default"); // state for sorting filter
+  const [sortFilter, setSortFilter] = useState<string | null>(null); // state for sorting filter
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc"); // Sort order state
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isAvailableLoad, setAvailableLoad] = useState<boolean>(false);
+
 
   const handleSortFilterChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -55,26 +53,35 @@ const BrokerUserList: React.FC = () => {
   };
 
   const {
-    fetchData: fetchBrokerUsers,
-    deleteDataById: deleteBrokerUser,
-    updateData: updateStatus,
+    fetchData: fetchLoads,
+    updateData: loadStatus,
+    deleteDataById: deleteLoads,
     loading,
+    error,
   } = useFetchData<any>({
-    fetchDataService: getUsers,
-    deleteDataService: deleteUser,
-    updateDataService: toggleActiveStatus,
+    fetchDataService: getloads,
+    updateDataService: updateLoadStatus,
+    deleteDataService: deleteLoad,
   });
 
-  const fetchBrokerUsersData = useCallback(
+  // Fetch Load data
+  const fetchLoadsData = useCallback(
     async (page: number = 1, limit: number = 10) => {
-      if (!user || !user._id) return;
+      if (!user || !user._id) return; // Wait for user data
       try {
-        let query = `?role=${UserRole.BROKER_USER}&page=${page}&limit=${limit}`;
+        let query = `?page=${page}&limit=${limit}`;
 
         //Search Functionality
         if (searchQuery) {
           query += `&search=${encodeURIComponent(searchQuery)}`;
         }
+
+        if(isAvailableLoad){
+          query += `&status=${LoadStatus.Draft}`;
+        }else {
+          query += `&status=${LoadStatus.Published}`;
+        }
+
         // Append `isActive` filter based on `statusFilter`
         if (statusFilter === "Active") {
           query += `&isActive=true`;
@@ -82,85 +89,69 @@ const BrokerUserList: React.FC = () => {
           query += `&isActive=false`;
         }
 
-        if (user.role === UserRole.BROKER_USER) {
-          query += `&brokerId=${user._id}`;
-        }
-
         if (sortFilter) {
           query += `&sortBy=${sortFilter}&sortOrder=${sortOrder}`;
         }
 
-        const result = await fetchBrokerUsers(query);
+        const result = await fetchLoads(query);
         if (result.success) {
-          let userData = result.data as User[];
+          let loadData = result.data as Load[];
 
           // setCustomers(result.data as User[]);
-          setBrokerUsers(userData);
+          setLoads(loadData);
           setMeta(result.meta as Meta);
         } else {
-          toast.error(result.message || "Failed to fetch Broker Users.");
+          toast.error(result.message || "Failed to fetch customers.");
         }
       } catch (err) {
-        toast.error("Error fetching Broker data.");
+        toast.error("Error fetching customer data.");
       }
     },
-    [fetchBrokerUsers, statusFilter, sortOrder, searchQuery, user]
+    [fetchLoads, statusFilter, sortOrder, searchQuery, user, isAvailableLoad]
   );
 
+  // Trigger fetch when user is populated
   useEffect(() => {
     if (user && user._id) {
-      fetchBrokerUsersData();
+      fetchLoadsData();
     }
-  }, [user, statusFilter, sortFilter, sortOrder, searchQuery]);
+  }, [user, statusFilter, sortFilter, sortOrder, searchQuery, isAvailableLoad]);
 
-  const openCreateModal = () => {
-    setIsEditing(false);
-    setBrokerUserData(null);
-    setIsModalOpen(true);
-  };
-
-  const openEditModal = (data: Partial<User>) => {
-    setIsEditing(true);
-    setBrokerUserData(data);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setBrokerUserData(null);
-  };
+  const columns = [
+    { key: "origin", label: "Origin", width: "30%" },
+    { key: "destination", label: "Destination" },
+    { key: "originEarlyPickupDate", label: "Pick-up" },
+    { key: "originEarlyPickupTime", label: "Pick-up Time" },
+    { key: "equipment", label: "Equipment" },
+    { key: "mode", label: "Mode" },
+    { key: "actions", label: "Actions", isAction: true },
+  ];
 
   const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
       case "Edit":
+        navigate(`create/${row._id}${isAvailableLoad ? '?draft=true': ''}`)
+        break;
+      case "Published":
         try {
-          const brokerData = await getUserById(row._id);
-          openEditModal(brokerData.data);
-        } catch {
-          toast.error("Failed to fetch user details for editing.");
+          const result = await loadStatus(row._id, {status: LoadStatus.Published});
+          if (result.success) {
+            toast.success(result.message);
+            fetchLoadsData();
+          }
+        } catch (err) {
+          toast.error("Failed to delete customer.");
         }
         break;
       case "Delete":
         try {
-          const result = await deleteBrokerUser(row._id);
+          const result = await deleteLoads(row._id);
           if (result.success) {
             toast.success(result.message);
-            fetchBrokerUsersData();
+            fetchLoadsData();
           }
-        } catch {
-          toast.error("Failed to delete user.");
-        }
-        break;
-      case "Activate":
-      case "Deactivate":
-        try {
-          const result = await updateStatus(row._id, {});
-          if (result.success) {
-            toast.success(result.message);
-            fetchBrokerUsersData();
-          }
-        } catch {
-          toast.error(`Failed to ${action.toLowerCase()} user.`);
+        } catch (err) {
+          toast.error("Failed to delete customer.");
         }
         break;
       default:
@@ -168,33 +159,21 @@ const BrokerUserList: React.FC = () => {
     }
   };
 
-  const getActionsForBroker = (broker: User): string[] => {
+  const getActionsForLoad = (load: Load): string[] => {
     const actions = ["Edit"];
-    if (broker.isActive) {
-      actions.push("Deactivate");
-    } else {
-      actions.push("Activate");
+    if(isAvailableLoad) {
+      actions.push("Published");
     }
     actions.push("Delete");
     return actions;
   };
 
-  const columns = [
-    { key: "name", label: "Name", width: "30%" },
-    { key: "employeeId", label: "Employee ID" },
-    { key: "email", label: "Email" },
-    { key: "contact", label: "Contact" },
-    { key: "company", label: "Company" },
-    { key: "status", label: "Status" },
-    { key: "actions", label: "Actions", isAction: true },
-  ];
-
   const handlePageChange = (page: number) => {
-    fetchBrokerUsersData(page);
+    fetchLoadsData(page);
   };
 
   const handleItemsPerPageChange = (limit: number) => {
-    fetchBrokerUsersData(1, limit);
+    fetchLoadsData(1, limit);
   };
 
   const handleSortClick = (column: string) => {
@@ -210,28 +189,15 @@ const BrokerUserList: React.FC = () => {
   };
 
   const getRowData = () => {
-    return brokerUsers.map((broker) => ({
-      _id: broker._id,
-      name: (
-        <div className="d-flex align-items-center">
-          <div className="avatar_wrapper me-2">
-            <Avatar
-              avatarUrl={broker.avatarUrl}
-              firstName={broker.firstName}
-              lastName={broker.lastName}
-              email={broker.email}
-              size={35}
-            />
-          </div>
-          <div className="name">{`${broker.firstName} ${broker.lastName}`}</div>
-        </div>
-      ),
-      employeeId: broker.employeeId,
-      email: broker.email,
-      contact: broker.primaryNumber || "N/A",
-      company: broker.company || "N/A",
-      status: broker.isActive ? "Active" : "Inactive",
-      actions: getActionsForBroker(broker),
+    return loads.map((load) => ({
+      _id: load._id,
+      origin: load.origin,
+      destination: load.destination || "N/A",
+      originEarlyPickupDate: formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
+      originEarlyPickupTime: formatDate(load.originEarlyPickupDate, "h:mm aa") || "N/A",
+      equipment: load.equipment || "N/A",
+      mode: load.mode || "N/A",
+      actions: getActionsForLoad(load),
     }));
   };
 
@@ -246,12 +212,12 @@ const BrokerUserList: React.FC = () => {
 
   const clearAllFilters = () => {
     setStatusFilter(null);
-    setSortFilter(null!);
+    setSortFilter(null);
   };
 
   return (
-    <div className="broker-list-wrapper">
-      <h2 className="fw-bolder">Broker Users</h2>
+    <div className="customers-list-wrapper">
+      <h2 className="fw-bolder">SPLS Load Board</h2>
       <div className="d-flex align-items-center my-3">
         {/* Filter Dropdown */}
         <div className="dropdown">
@@ -272,7 +238,6 @@ const BrokerUserList: React.FC = () => {
             >
               Filter
             </span>
-            {/* Filter: {sortFilter === "default" ? "Default" : sortFilter} */}
           </button>
           <ul
             className="dropdown-menu mt-3"
@@ -340,7 +305,6 @@ const BrokerUserList: React.FC = () => {
                 Sort by:
               </span>
             </div>
-
             <li>
               <label className="filter-label d-flex align-items-center w-100 form-check">
                 <span
@@ -409,7 +373,7 @@ const BrokerUserList: React.FC = () => {
         <button
           className="btn btn-accent d-flex align-items-center ms-auto"
           type="button"
-          onClick={openCreateModal}
+          onClick={() => navigate(`create`)}
         >
           <img src={PlusIcon} height={16} width={16} className="me-2" />
           Create
@@ -418,15 +382,28 @@ const BrokerUserList: React.FC = () => {
 
       {loading ? (
         <Loading />
+      ) : error ? (
+        <div className="text-danger">{error}</div>
       ) : (
         <>
+          {
+            user.role === UserRole.BROKER_ADMIN && (<ul className="nav nav-tabs">
+              <li className="nav-item" onClick={()=>setAvailableLoad(false)}>
+                <a className={`nav-link ${!isAvailableLoad && 'active'}`} aria-current="page" href="#">Loads</a>
+              </li>
+              <li className="nav-item" onClick={()=> setAvailableLoad(true)}>
+                <a className={`nav-link ${isAvailableLoad && 'active'}`} href="#">Available Loads</a>
+              </li>
+            </ul>)
+          }
           <Table
             columns={columns}
             rows={getRowData()}
-            data={brokerUsers}
+            data={loads}
             onActionClick={handleAction}
           />
-          <div className="pagination-container">
+          {loads?.length > 0 && (
+            <div className="pagination-container">
             {/* Pagination Component */}
             <Pagination
               meta={meta}
@@ -434,21 +411,11 @@ const BrokerUserList: React.FC = () => {
               onItemsPerPageChange={handleItemsPerPageChange}
             />
           </div>
+          )}
         </>
       )}
-
-      <CreateOrEditBrokerUser
-        isModalOpen={isModalOpen}
-        closeModal={closeModal}
-        setIsModalOpen={(value: boolean) => {
-          setIsModalOpen(value);
-          if (!value) fetchBrokerUsersData();
-        }}
-        isEditing={isEditing}
-        brokerUserData={brokerUserData}
-      />
     </div>
   );
 };
 
-export default BrokerUserList;
+export default LoadList;

@@ -1,0 +1,56 @@
+import { Mode } from "fs";
+import { Equipment } from "../enums/Equipment";
+import { Commodity } from "../enums/Commodity";
+import { LoadOption } from "../enums/LoadOption";
+import { User } from "./User";
+
+export interface Load {
+  _id: string;
+  customerId?: string;
+  brokerId?: string | User;
+  adminId?: string;
+  carrierId?: string;
+  origin: string;
+  originEarlyPickupDate: Date;
+  originLatePickupDate?: Date;
+  originEarlyPickupTime?: Date;
+  originLatePickupTime?: Date;
+  originStops?: {
+    address: string;
+    earlyPickupDate?: Date;
+    latePickupDate?: Date;
+    earlyPickupTime?: Date;
+    latePickupTime?: Date;
+  }[];
+  destination: string;
+  destinationEarlyDropoffDate?: Date;
+  destinationLateDropoffDate?: Date;
+  destinationEarlyDropoffTime?: Date;
+  destinationLateDropoffTime?: Date;
+  destinationStops?: {
+    address: string;
+    earlyDropoffDate?: Date;
+    lateDropoffDate?: Date;
+    earlyDropoffTime?: Date;
+    lateDropoffTime?: Date;
+  }[];
+  equipment: Equipment;
+  mode: Mode;
+  allInRate?: number;
+  customerRate?: number;
+  weight?: number;
+  length?: number;
+  width?: number;
+  height?: number;
+  distance?: number;
+  pieces?: number;
+  pallets?: number;
+  loadOption?: LoadOption;
+  specialInstructions?: string;
+  commodity: Commodity;
+  loadNumber?: number;
+  postedBy?: string;
+  status: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}

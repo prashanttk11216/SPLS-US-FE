@@ -17,6 +17,13 @@ export const VALIDATION_MESSAGES = {
     stateRequired: "State is required.",
     cityRequired: "City is required.",
     zipRequired: "Zip code is required.",
+
+
+    //load 
+
+    originRequired: "Origin is required",
+    destinationRequired: "Destination is required",
+    dateRequired: "Date is required"
   };
   
   export const ERROR_MESSAGES = {

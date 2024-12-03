@@ -16,6 +16,12 @@ const BrokerLayout = () => {
   // Dynamically determine visibility based on user's role
   const menuItems = [
     { name: "Dashboard", icon: HomeIcon, path: "/broker", isVisible: true },
+    { 
+      name: "Load", 
+      icon: BrokerIcon, 
+      path: "/broker/load",
+      isVisible: true 
+    },
     { name: "Settings", icon: HomeIcon, path: "/broker/shipper", isVisible: true, subMenu: [
       { 
         name: "Shipper", 
