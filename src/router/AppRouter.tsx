@@ -20,6 +20,8 @@ import BrokerUserList from "../pages/modules/Broker/BrokerUser/BrokerUserList/Br
 import VerifyUser from "../pages/Auth/VerifyUser/VerifyUser";
 import ShipperList from "../pages/modules/Broker/Shipper/ShipperList/ShipperList";
 import ConsigneeList from "../pages/modules/Broker/Consignee/ConsigneeList/ConsigneeList";
+import LoadList from "../pages/modules/Broker/Load/LoadList/LoadList";
+import CreateOrEditLoad from "../pages/modules/Broker/Load/CreateOrEditLoad/CreateOrEditLoad";
 
 // Define the routes using createBrowserRouter
 export const routes = createBrowserRouter([
@@ -41,6 +43,14 @@ export const routes = createBrowserRouter([
             path: "", // Matches /customer
             element: <CustomerDashboard />,
           },
+          // {
+          //   path: "load", // Matches /broker
+          //   element: <LoadList />,
+          // },
+          {
+            path: "load/create/:loadId?",
+            element: <CreateOrEditLoad />
+          },
         ],
       },
       // Broker Dashboard Route
@@ -61,8 +71,12 @@ export const routes = createBrowserRouter([
             element: <Profile />,
           },
           {
-            path: "Setting", // Matches /broker
-            element: <Profile />,
+            path: "load", // Matches /broker
+            element: <LoadList />,
+          },
+          {
+            path: "load/create/:loadId?",
+            element: <CreateOrEditLoad />
           },
           {
             path: "customers", // Matches /broker

@@ -1,26 +1,26 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Select, { Props as SelectProps } from "react-select";
 import { Controller } from "react-hook-form";
 import { customSelectStyles, customSelectTheme } from "./selectStyles";
 
-// Define the structure for a select option
 export type SelectOption = {
   value: string;
   label: string;
 };
 
 type SelectFieldProps = {
-  name: string; // Name of the field in the form
-  options: SelectOption[]; // Options for the select dropdown
-  control: any; // React Hook Form's control object
-  rules?: any; // Validation rules from react-hook-form
+  name: string;
+  options: SelectOption[];
+  control: any;
+  rules?: any;
   defaultValue?: string;
-  label?: string; // Field label
-  required?: boolean; // Whether the field is required
-  placeholder?: string; // Placeholder text
-  customStyles?: any; // Custom styles for react-select
-  customTheme?: any; // Custom theme for react-select
-} & Omit<SelectProps<SelectOption>, "name" | "options" | "defaultValue">; // Allow all other props for Select
+  label?: string;
+  required?: boolean;
+  placeholder?: string;
+  customStyles?: any;
+  customTheme?: any;
+  isLoading?: boolean; // For indicating loading state
+} & Omit<SelectProps<SelectOption>, "name" | "options" | "defaultValue">;
 
 const SelectField: React.FC<SelectFieldProps> = ({
   name,
@@ -31,10 +31,20 @@ const SelectField: React.FC<SelectFieldProps> = ({
   label,
   required,
   placeholder,
-  customStyles = customSelectStyles, // Default to predefined styles
-  customTheme = customSelectTheme, // Default to predefined theme
+  customStyles = customSelectStyles,
+  customTheme = customSelectTheme,
+  isLoading = false,
   ...rest
 }) => {
+  const [filteredOptions, setFilteredOptions] = useState<SelectOption[]>([]);
+
+  useEffect(() => {
+    // Simulate async loading of options
+    if (options?.length) {
+      setFilteredOptions(options);
+    }
+  }, [options]);
+
   return (
     <div>
       {label && (
@@ -52,9 +62,10 @@ const SelectField: React.FC<SelectFieldProps> = ({
           <div>
             <Select
               {...field}
-              options={options}
-              placeholder={placeholder}
+              options={filteredOptions}
+              placeholder={placeholder || (isLoading ? "Loading..." : "Select")}
               classNamePrefix="select"
+              isLoading={isLoading} // Show loading spinner if applicable
               styles={{
                 ...customStyles,
                 control: (baseStyles) => ({
@@ -63,6 +74,14 @@ const SelectField: React.FC<SelectFieldProps> = ({
                 }),
               }}
               theme={customTheme}
+              onChange={(selectedOption: any) =>
+                field.onChange(selectedOption?.value || "")
+              }
+              value={
+                filteredOptions.find(
+                  (option) => option.value === field.value
+                ) || null
+              }
               {...rest}
             />
             {fieldState?.error && (

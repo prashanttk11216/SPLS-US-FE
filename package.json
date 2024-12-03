@@ -17,6 +17,7 @@
     "google-libphonenumber": "^3.2.38",
     "lodash": "^4.17.21",
     "react": "^18.3.1",
+    "react-datepicker": "^7.5.0",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.1",
     "react-international-phone": "^4.3.0",
@@ -24,7 +25,8 @@
     "react-router-dom": "^6.28.0",
     "react-select": "^5.8.3",
     "react-toastify": "^10.0.6",
-    "spls-us-fe": "file:"
+    "spls-us-fe": "file:",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",

@@ -5,6 +5,7 @@ import { ToastContainer } from "react-toastify";
 import { routes } from "./router/AppRouter";
 import "react-toastify/dist/ReactToastify.css";
 import "react-international-phone/style.css";
+import "react-datepicker/dist/react-datepicker.css";
 import '../node_modules/bootstrap/dist/js/bootstrap.bundle.js';
 import "./App.scss";
 
