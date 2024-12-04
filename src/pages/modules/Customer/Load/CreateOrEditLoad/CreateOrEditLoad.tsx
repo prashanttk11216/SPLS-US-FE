@@ -203,7 +203,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
    * Handles form submission for creating or editing a Load.
    * @param data - Form data
    */
-  const submit = async (data: loadForm) => {    
+  const submit = async (data: loadForm) => {
     try {
       let result;
       if (loadId && loadData) {
@@ -218,7 +218,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
         toast.success(
           loadId ? "Load updated successfully." : "Load created successfully."
         );
-        navigate("/broker/load")
+        navigate("/customer")
       } else {
         throw new Error(result.message || "Action failed.");
       }
@@ -599,7 +599,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
           </div>
 
           {/* Equipment */}
-          <div className="col-3">
+          <div className="col-2">
             <SelectField
               label="Equipment"
               name="equipment"
@@ -612,7 +612,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
           </div>
 
           {/* Mode */}
-          <div className="col-3">
+          <div className="col-2">
             <SelectField
               label="Mode"
               name="mode"
@@ -624,23 +624,8 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
             />
           </div>
 
-          {/* All-in Rate*/}
-          <div className="col-3">
-            <NumberInput
-              label="Broker All-in Rate"
-              id="allInRate"
-              min={0}
-              name="allInRate"
-              placeholder="Enter All-in Rate"
-              control={control}
-              errors={errors} 
-              currency
-              preventNegative
-            />
-          </div>
-
           {/* Customer Rate */}
-          <div className="col-3">
+          <div className="col-2">
             <NumberInput
               label="All-in Rate"
               id="customerRate"
@@ -739,7 +724,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
             />
           </div>
           {/* Pallets */}
-          <div className="col-3">
+          <div className="col-2">
             <NumberInput
               label="Pallets"
               id="pallets"
@@ -753,7 +738,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
             />
           </div>
           {/* Load Options */}
-          <div className="col-3">
+          <div className="col-2">
             <SelectField
               label="Load Option"
               name="loadOption"
@@ -763,7 +748,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
             />
           </div>
           {/* Commodity */}
-          <div className="col-3">
+          <div className="col-2">
             <SelectField
               label="Commodity"
               name="commodity"
@@ -772,31 +757,8 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               options={commodityOptions}
             />
           </div>
-          {/* Load/Reference Number */}
-          <div className="col-3">
-            <NumberInput
-              label="Load / Reference Number"
-              id="loadNumber"
-              min={0}
-              name="loadNumber"
-              placeholder="Enter Load / Reference Number"
-              control={control}
-              errors={errors} 
-              preventNegative
-            />
-          </div>
-          {/* Assign User */}
-          {(user?.role == UserRole.BROKER_ADMIN && <div className="col-3">
-            <SelectField
-              label="Assign User"
-              name="postedBy"
-              placeholder="Select User"
-              control={control}
-              options={usersList}
-            />
-          </div>)}
           {/* Special Information */}
-          <div className={`${user?.role == UserRole.BROKER_ADMIN ? 'col-9' : 'col-12'}`}>
+          <div className="col-12">
             <Input
                 label="Special Information"
                 id="specialInstructions"
