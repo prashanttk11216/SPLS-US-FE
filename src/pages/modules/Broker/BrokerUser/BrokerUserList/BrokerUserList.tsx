@@ -23,6 +23,7 @@ import Pagination, {
 import FilterShape from "../../../../../assets/icons/Filter.svg";
 import closeLogo from "../../../../../assets/icons/closeLogo.svg";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
+import BrokerDetailsModal from "../BrokerDetailsModal/BrokerDetailsModal";
 
 const BrokerUserList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -45,6 +46,12 @@ const BrokerUserList: React.FC = () => {
   const [sortFilter, setSortFilter] = useState<string>("default"); // state for sorting filter
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc"); // Sort order state
   const [searchQuery, setSearchQuery] = useState<string>("");
+
+  // View Details Option Added
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
+  const [brokerDetails, setBrokerDetails] = useState<Partial<User> | null>(
+    null
+  );
 
   const handleSortFilterChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -130,8 +137,28 @@ const BrokerUserList: React.FC = () => {
     setBrokerUserData(null);
   };
 
+  // View Details Option Added
+  const openDetailsModal = (brokerData: Partial<User>) => {
+    setBrokerDetails(brokerData);
+    setIsDetailsModalOpen(true);
+  };
+
+  const closeDetailsModal = () => {
+    setBrokerDetails(null);
+    setIsDetailsModalOpen(false);
+  };
+
   const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
+      case "View Details":
+        try {
+          const brokerData = await getUserById(row._id);
+          openDetailsModal(brokerData.data); // Open details modal
+        } catch (err) {
+          toast.error("Failed to fetch carrier details.");
+        }
+        break;
+
       case "Edit":
         try {
           const brokerData = await getUserById(row._id);
@@ -169,7 +196,7 @@ const BrokerUserList: React.FC = () => {
   };
 
   const getActionsForBroker = (broker: User): string[] => {
-    const actions = ["Edit"];
+    const actions = ["View Details", "Edit"];
     if (broker.isActive) {
       actions.push("Deactivate");
     } else {
@@ -248,6 +275,7 @@ const BrokerUserList: React.FC = () => {
     setStatusFilter(null);
     setSortFilter(null!);
   };
+
 
   return (
     <div className="broker-list-wrapper">
@@ -446,6 +474,12 @@ const BrokerUserList: React.FC = () => {
         }}
         isEditing={isEditing}
         brokerUserData={brokerUserData}
+      />
+
+      <BrokerDetailsModal
+        isOpen={isDetailsModalOpen}
+        broker={brokerDetails}
+        onClose={closeDetailsModal}
       />
     </div>
   );

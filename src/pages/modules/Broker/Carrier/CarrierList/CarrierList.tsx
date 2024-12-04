@@ -23,6 +23,7 @@ import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import closeLogo from "../../../../../assets/icons/closeLogo.svg";
 import FilterShape from "../../../../../assets/icons/Filter.svg";
 import "./CarrierList.scss";
+import CarrierDetailsModal from "../CarrierDetailsModal/CarrierDetailsModal";
 
 const CarrierList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -46,6 +47,12 @@ const CarrierList: React.FC = () => {
   const [sortFilter, setSortFilter] = useState<string>("default"); // state for sorting filter
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc"); // Sort order state
   const [searchQuery, setSearchQuery] = useState<string>("");
+
+  // View Details Option Added
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
+  const [carrierDetails, setCarrierDetails] = useState<Partial<User> | null>(
+    null
+  );
 
   const handleSortFilterChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -131,12 +138,20 @@ const CarrierList: React.FC = () => {
 
   const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
+      case "View Details":
+        try {
+          const carrierData = await fetchCarrier(row._id);
+          openDetailsModal(carrierData.data); // Open details modal
+        } catch (err) {
+          toast.error("Failed to fetch carrier details.");
+        }
+        break;
       case "Edit":
         try {
           const carrierData = await fetchCarrier(row._id);
           openEditModal(carrierData.data);
         } catch (err) {
-          toast.error("Failed to fetch customer details for editing.");
+          toast.error("Failed to fetch carrier details for editing.");
         }
         break;
       case "Delete":
@@ -147,7 +162,7 @@ const CarrierList: React.FC = () => {
             fetchCarrierData();
           }
         } catch (err) {
-          toast.error("Failed to delete customer.");
+          toast.error("Failed to delete carrier.");
         }
         break;
       case "Activate":
@@ -168,7 +183,7 @@ const CarrierList: React.FC = () => {
   };
 
   const getActionsForCarrier = (carrier: User): string[] => {
-    const actions = ["Edit"];
+    const actions = ["View Details", "Edit"];
     if (carrier.isActive) {
       actions.push("Deactivate");
     } else {
@@ -239,6 +254,17 @@ const CarrierList: React.FC = () => {
     setCarrierToEdit(null); // Clear form data on modal close
   };
 
+  // View Details Option Added
+  const openDetailsModal = (carrierData: Partial<User>) => {
+    setCarrierDetails(carrierData);
+    setIsDetailsModalOpen(true);
+  };
+
+  const closeDetailsModal = () => {
+    setCarrierDetails(null);
+    setIsDetailsModalOpen(false);
+  };
+
   const handleCloseDropdown = () => {
     const dropdownMenu = document.getElementById("filterList");
     dropdownMenu?.classList.remove("show"); // This will close the dropdown
@@ -252,6 +278,7 @@ const CarrierList: React.FC = () => {
     setStatusFilter(null);
     setSortFilter(null);
   };
+
 
   return (
     <div className="carriers-list-wrapper">
@@ -449,6 +476,12 @@ const CarrierList: React.FC = () => {
         isEditing={isEditing}
         carrierData={carrierToEdit}
         closeModal={closeModal}
+      />
+
+      <CarrierDetailsModal
+        isOpen={isDetailsModalOpen}
+        carrier={carrierDetails}
+        onClose={closeDetailsModal}
       />
     </div>
   );

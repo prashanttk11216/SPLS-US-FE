@@ -14,10 +14,17 @@ interface TableProps {
   rows: Record<string, any>[]; // List of row data
   data: Record<string, any>[]; // List of data
   onActionClick?: (action: string, row: Record<string, any>) => void; // Callback for action clicks
+  onRowClick?: (row: Record<string, any>) => void; // Callback for row clicks
   actions?: string[]; // Action names for the dropdown menu
 }
 
-const Table: FC<TableProps> = ({ columns, rows, data , onActionClick }) => {
+const Table: FC<TableProps> = ({ columns, rows, data, onActionClick }) => {
+  const handleRowClick = (row: Record<string, any>) => {
+    if (onActionClick) {
+      onActionClick("View Details", row);
+    }
+  };
+
   return (
     <div className="table-wrapper">
       <table className="common-table">
@@ -36,11 +43,18 @@ const Table: FC<TableProps> = ({ columns, rows, data , onActionClick }) => {
         </thead>
         <tbody>
           {rows.map((row, rowIndex) => (
-            <tr key={rowIndex}>
+            <tr
+              key={rowIndex}
+              className="table-row"
+              onClick={() => handleRowClick(data[rowIndex])}
+            >
               {columns.map((column) => (
                 <td key={`${rowIndex}-${column.key}`}>
                   {column.isAction && row.actions ? (
-                    <div className="dropdown text-center">
+                    <div
+                      className="dropdown text-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <a
                         role="button"
                         id={`dropdown-${rowIndex}`}
@@ -57,7 +71,10 @@ const Table: FC<TableProps> = ({ columns, rows, data , onActionClick }) => {
                           <li key={index}>
                             <button
                               className="dropdown-item"
-                              onClick={() => onActionClick && onActionClick(action, data[rowIndex])}
+                              onClick={() =>
+                                onActionClick &&
+                                onActionClick(action, data[rowIndex])
+                              }
                             >
                               {action}
                             </button>

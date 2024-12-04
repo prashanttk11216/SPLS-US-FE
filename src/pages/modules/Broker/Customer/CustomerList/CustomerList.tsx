@@ -23,6 +23,7 @@ import FilterShape from "../../../../../assets/icons/Filter.svg";
 import closeLogo from "../../../../../assets/icons/closeLogo.svg";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import "./CustomerList.scss";
+import CustomerDetailsModal from "../CustomerDetailsModal/CustomerDetailsModal";
 
 const CustomerList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -45,6 +46,12 @@ const CustomerList: React.FC = () => {
   const [sortFilter, setSortFilter] = useState<string | null>(null); // state for sorting filter
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc"); // Sort order state
   const [searchQuery, setSearchQuery] = useState<string>("");
+
+  // View Details Option Added
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
+  const [customerDetails, setCustomerDetails] = useState<Partial<User> | null>(
+    null
+  );
 
   const handleSortFilterChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -130,6 +137,15 @@ const CustomerList: React.FC = () => {
 
   const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
+      case "View Details":
+        try {
+          const customerData = await fetchCustomer(row._id);
+          openDetailsModal(customerData.data); // Open details modal
+        } catch (err) {
+          toast.error("Failed to fetch customer details.");
+        }
+        break;
+
       case "Edit":
         try {
           const customerData = await fetchCustomer(row._id);
@@ -167,7 +183,7 @@ const CustomerList: React.FC = () => {
   };
 
   const getActionsForCustomer = (broker: User): string[] => {
-    const actions = ["Edit"];
+    const actions = ["View Details", "Edit"];
     if (broker.isActive) {
       actions.push("Deactivate");
     } else {
@@ -236,6 +252,17 @@ const CustomerList: React.FC = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setCustomerToEdit(null); // Clear form data on modal close
+  };
+
+  // View Details Option Added
+  const openDetailsModal = (customerData: Partial<User>) => {
+    setCustomerDetails(customerData);
+    setIsDetailsModalOpen(true);
+  };
+
+  const closeDetailsModal = () => {
+    setCustomerDetails(null);
+    setIsDetailsModalOpen(false);
   };
 
   const handleCloseDropdown = () => {
@@ -449,6 +476,12 @@ const CustomerList: React.FC = () => {
         closeModal={closeModal}
         isEditing={isEditing}
         customerData={customerToEdit}
+      />
+
+      <CustomerDetailsModal
+        isOpen={isDetailsModalOpen}
+        customer={customerDetails}
+        onClose={closeDetailsModal}
       />
     </div>
   );
