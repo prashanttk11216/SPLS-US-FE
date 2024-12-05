@@ -38,6 +38,8 @@ export type createUserForm = {
   city: string;
   zip: string;
 
+  sameAsMailing?: boolean;
+
   // Billing-specific fields (only for customers)
   billingAddress?: string;
   billingAddressLine2?: string;

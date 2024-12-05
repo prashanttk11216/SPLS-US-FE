@@ -109,42 +109,42 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
 
   // Reset form state or pre-fill values when modal opens/closes
   useEffect(() => {
-    if (isModalOpen) {
-      if (isEditing && customerData) {
-        // Pre-fill form when editing
-        reset(customerData);
-      } else {
-        // Clear form when creating
-        reset({
-          firstName: "",
-          lastName: "",
-          primaryNumber: "",
-          email: "",
-          password: "",
-          confirmPassword: "",
-          company: "",
+    if (isModalOpen && isEditing && customerData) {
+      // Pre-fill form when editing
+      reset(customerData);
+    } else {
+      // Clear form when creating
+      reset({
+        firstName: "",
+        lastName: "",
+        primaryNumber: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        company: "",
 
-          // Primary address
-          address: "",
-          addressLine2: "",
-          addressLine3: "",
-          country: "",
-          state: "",
-          city: "",
-          zip: "",
+        // Primary address
+        address: "",
+        addressLine2: "",
+        addressLine3: "",
+        country: "",
+        state: "",
+        city: "",
+        zip: "",
 
-          // Billing-specific fields (only for customers)
-          billingAddress: "",
-          billingAddressLine2: "",
-          billingAddressLine3: "",
-          billingCountry: "",
-          billingState: "",
-          billingCity: "",
-          billingZip: "",
-        });
-      }
+        sameAsMailing: false,
+
+        // Billing-specific fields (only for customers)
+        billingAddress: "",
+        billingAddressLine2: "",
+        billingAddressLine3: "",
+        billingCountry: "",
+        billingState: "",
+        billingCity: "",
+        billingZip: "",
+      });
     }
-  }, [isModalOpen, reset, isEditing, customerData]);
+  }, [isModalOpen, isEditing, customerData]);
 
   const handleSameAsMailingChange = async (e: any) => {
     if(e.target.checked) {

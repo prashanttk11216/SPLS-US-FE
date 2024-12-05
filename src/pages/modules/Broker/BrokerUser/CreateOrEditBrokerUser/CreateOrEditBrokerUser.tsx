@@ -101,34 +101,32 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
 
   // Reset form state or pre-fill values when modal opens/closes
   useEffect(() => {
-    if (isModalOpen) {
-      if (isEditing && brokerUserData) {
-        // Pre-fill form when editing
-        reset(brokerUserData);
-      } else {
-        // Clear form when creating
-        reset({
-          employeeId: "",
-          firstName: "",
-          lastName: "",
-          primaryNumber: "",
-          email: "",
-          password: "",
-          confirmPassword: "",
-          company: "",
+    if (isModalOpen && isEditing && brokerUserData) {
+      // Pre-fill form when editing
+      reset(brokerUserData);
+    } else {
+      // Clear form when creating
+      reset({
+        employeeId: "",
+        firstName: "",
+        lastName: "",
+        primaryNumber: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        company: "",
 
-          // Primary address
-          address: "",
-          addressLine2: "",
-          addressLine3: "",
-          country: "",
-          state: "",
-          city: "",
-          zip: "",
-        });
-      }
+        // Primary address
+        address: "",
+        addressLine2: "",
+        addressLine3: "",
+        country: "",
+        state: "",
+        city: "",
+        zip: "",
+      });
     }
-  }, [isModalOpen, reset, isEditing, brokerUserData]);
+  }, [isModalOpen, isEditing, brokerUserData]);
 
   const nextStep = async () => {
     const stepFields = steps[activeStep].fields || [];
