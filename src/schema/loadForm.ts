@@ -49,7 +49,7 @@ export const loadFormSchema = z.object({
   loadOption: z.string().optional(),
   specialInstructions: z.string().optional(),
   commodity: z.string().optional(),
-  loadNumber: z.string().optional(),
+  loadNumber: z.number().optional(),
   postedBy: z.string().optional(),
   status: z.enum(['Draft', 
     'Published', 

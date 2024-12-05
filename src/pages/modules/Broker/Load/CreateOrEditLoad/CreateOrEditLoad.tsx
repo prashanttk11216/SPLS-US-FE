@@ -781,6 +781,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               id="loadNumber"
               min={0}
               name="loadNumber"
+              disabled={loadId ? true : false}
               placeholder="Enter Load / Reference Number"
               control={control}
               errors={errors} 

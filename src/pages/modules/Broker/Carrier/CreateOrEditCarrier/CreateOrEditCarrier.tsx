@@ -16,6 +16,7 @@ import { RootState } from "../../../../../store/store";
 import { PhoneInput } from "react-international-phone";
 import { validatePhoneNumber } from "../../../../../utils/phoneValidate";
 import Stepper, { Step } from "../../../../../components/common/Stepper/Stepper";
+import CheckboxField from "../../../../../components/common/CheckboxField/CheckboxField";
 
 interface CreateOrEditCarrierProps {
   isModalOpen: boolean; // Controls modal visibility
@@ -43,6 +44,8 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
     formState: { errors, isValid },
     watch,
     reset,
+    getValues,
+    setValue,
     trigger
   } = useForm<createUserForm>({
     mode: "onBlur",
@@ -79,8 +82,8 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
       if (result.success) {
         toast.success(
           isEditing
-            ? "Customer updated successfully."
-            : "Customer created successfully."
+            ? "Carrirer updated successfully."
+            : "Carrirer created successfully."
         );
         setIsModalOpen(false);
         resetSteps();
@@ -103,34 +106,65 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
 
   // Reset form state or pre-fill values when modal opens/closes
   useEffect(() => {
-    if (isModalOpen) {
-      if (isEditing && carrierData) {
-        // Pre-fill form when editing
-        reset(carrierData);
-      } else {
-        // Clear form when creating
-        reset({
-          firstName: "",
-          lastName: "",
-          primaryNumber: "",
-          email: "",
-          password: "",
-          confirmPassword: "",
-          company: "",
+    if (isModalOpen && isEditing && carrierData) {
+      // Pre-fill form when editing
+      reset(carrierData);
+    } else {
+      // Clear form when creating
+      reset({
+        firstName: "",
+        lastName: "",
+        primaryNumber: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        company: "",
 
-          // Primary address
-          address: "",
-          addressLine2: "",
-          addressLine3: "",
-          country: "",
-          state: "",
-          city: "",
-          zip: "",
-        });
-      }
+        // Primary address
+        address: "",
+        addressLine2: "",
+        addressLine3: "",
+        country: "",
+        state: "",
+        city: "",
+        zip: "",
+
+        sameAsMailing: false,
+
+        // Billing-specific fields (only for customers)
+        billingAddress: "",
+        billingAddressLine2: "",
+        billingAddressLine3: "",
+        billingCountry: "",
+        billingState: "",
+        billingCity: "",
+        billingZip: "",
+      });
     }
-  }, [isModalOpen, reset, isEditing, carrierData]);
+  }, [isModalOpen, isEditing, carrierData]);
 
+  const handleSameAsMailingChange = async (e: any) => {
+    if(e.target.checked) {
+      const values = getValues();
+      setValue("billingAddress", values.address);
+      setValue("billingAddressLine2", values.addressLine2);
+      setValue("billingAddressLine3", values.addressLine3);
+      setValue("billingCountry", values.country);
+      setValue("billingState", values.state);
+      setValue("billingCity", values.city);
+      setValue("billingZip", values.zip);
+      await trigger(['billingAddress','billingCountry','billingState','billingCity','billingZip']);
+    }else {
+      // Clear billing address fields if unchecked
+      setValue("billingAddress", "");
+      setValue("billingAddressLine2", "");
+      setValue("billingAddressLine3", "");
+      setValue("billingCountry", "");
+      setValue("billingState", "");
+      setValue("billingCity", "");
+      setValue("billingZip", "");
+    }
+  };
 
   const nextStep = async () => {
     const stepFields = steps[activeStep].fields || [];
@@ -370,6 +404,128 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
         "city",
         "zip",
       ]
+    },
+    {
+      label: "Billing Address",
+      content: (
+        <>
+          {/* Billing Address Section */}
+          <div className="d-flex align-items-center mb-3">
+            <CheckboxField
+              label="Same as Mailing Address"
+              id="sameAsMailing"
+              name="sameAsMailing"
+              onChange={handleSameAsMailingChange}
+              register={register}
+              errors={errors}
+            />
+          </div>
+          <div className="row">
+            {/* Billing Address */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="Billing Address"
+                type="text"
+                id="billingAddress"
+                name="billingAddress"
+                placeholder="Enter Primary Billing Address"
+                register={register}
+                errors={errors}
+                errorMessage={VALIDATION_MESSAGES.addressRequired}
+                required
+              />
+            </div>
+            {/* Billing Address Line 2 */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="Billing Address Line 2"
+                type="text"
+                id="billingAddressLine2"
+                name="billingAddressLine2"
+                placeholder="Enter Additional Address Info"
+                register={register}
+                errors={errors}
+              />
+            </div>
+            {/* Billing Address Line 3 */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="Billing Address Line 3"
+                type="text"
+                id="billingAddressLine3"
+                name="billingAddressLine3"
+                placeholder="Enter Additional Address Info"
+                register={register}
+                errors={errors}
+              />
+            </div>
+            {/* Country */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="Country"
+                type="text"
+                id="billingCountry"
+                name="billingCountry"
+                placeholder="Enter Country Name"
+                register={register}
+                errors={errors}
+                errorMessage={VALIDATION_MESSAGES.countryRequired}
+                required
+              />
+            </div>
+            {/* State */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="State"
+                type="text"
+                id="billingState"
+                name="billingState"
+                placeholder="Enter State Name"
+                register={register}
+                errors={errors}
+                errorMessage={VALIDATION_MESSAGES.stateRequired}
+                required
+              />
+            </div>
+            {/* City */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="City"
+                type="text"
+                id="billingCity"
+                name="billingCity"
+                placeholder="Enter City Name"
+                register={register}
+                errors={errors}
+                errorMessage={VALIDATION_MESSAGES.cityRequired}
+                required
+              />
+            </div>
+            {/* Zip Code */}
+            <div className="col-12 col-md-6">
+              <Input
+                label="Zip Code"
+                type="text"
+                id="billingZip"
+                name="billingZip"
+                placeholder="Enter Zip Code"
+                register={register}
+                errors={errors}
+                errorMessage={VALIDATION_MESSAGES.zipRequired}
+                required
+              />
+            </div>
+          </div>
+        </>
+      ),
+      fields: [
+        // Billing-specific fields (only for customers)
+        "billingAddress",
+        "billingCountry",
+        "billingState",
+        "billingCity",
+        "billingZip",
+      ],
     },
     {
       label: "Security",
