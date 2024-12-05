@@ -1,6 +1,18 @@
 import React from "react";
+import Modal from "../../../../../components/common/Modal/Modal";
 import { User } from "../../../../../types/User";
 import { PhoneNumberFormat, PhoneNumberUtil } from "google-libphonenumber";
+
+const DetailsRow: React.FC<{
+  label: string;
+  value: string | number;
+  fullWidth?: boolean;
+}> = ({ label, value, fullWidth }) => (
+  <div className={`details-row ${fullWidth ? "full-width" : ""}`}>
+    <span className="details-label">{label}</span>
+    <span className="details-value">: {value}</span>
+  </div>
+);
 
 const BrokerDetailsModal: React.FC<{
   isOpen: boolean;
@@ -21,114 +33,88 @@ const BrokerDetailsModal: React.FC<{
     }
   };
 
-  const DetailsRow: React.FC<{
-    label: string;
-    value: string;
-    fullWidth?: boolean;
-  }> = ({ label, value, fullWidth }) => (
-    <div className={`details-row ${fullWidth ? "full-width" : ""}`}>
-      <span className="details-label">{label}:</span>
-      <span className="details-value">: {value}</span>
+  const renderDetailsGroup = (
+    heading: string,
+    rows: { label: string; value: string | number; fullWidth?: boolean }[],
+    rowClassName: string
+  ) => (
+    <div>
+      <h5 className="modal-heading mt-2 mb-1">{heading}</h5>
+      <div className="details-group">
+        <div className="row">
+          {rows.map(({ label, value, fullWidth = false }, index) => (
+            <div
+              key={index}
+              className={`${fullWidth ? "col-12" : rowClassName} mb-2`}
+            >
+              <DetailsRow label={label} value={value} fullWidth={fullWidth} />
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 
   return (
     <div className="detailsModal-wrapper">
-      <div
-        className={`modal fade ${isOpen ? "show d-block" : ""}`}
-        style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        title="Broker User Details"
+        size="lg"
+        isCentered={true}
       >
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3 className="title">
-                <strong>Broker User Details</strong>
-              </h3>
-              <button
-                type="button"
-                className="btn-close"
-                onClick={onClose}
-              ></button>
-            </div>
-            <div className="modal-body">
-              <h5 className="modal-heading mb-1">BASIC DETAILS</h5>
-              <div className="details-group">
-                <div className="row">
-                  <div className="col-12 col-md-6">
-                    <DetailsRow
-                      label="Name"
-                      value={`${broker.firstName} ${broker.lastName}`}
-                    />
-                  </div>
-                  <div className="col-12 col-md-6">
-                    <DetailsRow label="Email" value={broker.email || "N/A"} />
-                  </div>
-                </div>
+        {/* Basic Details */}
+        {renderDetailsGroup(
+          "BASIC DETAILS",
+          [
+            {
+              label: "Name",
+              value: `${broker.firstName || ""} ${broker.lastName || ""}`,
+            },
+            { label: "Email", value: broker.email || "N/A" },
+            {
+              label: "Contact",
+              value: formatPhoneNumber(broker.primaryNumber),
+            },
+            { label: "Company", value: broker.company || "N/A" },
+          ],
+          "col-12 col-md-6" // Half-width columns for basic details
+        )}
 
-                <div className="row">
-                  <div className="col-12 col-md-6">
-                    <DetailsRow
-                      label="Contact"
-                      value={formatPhoneNumber(broker.primaryNumber)}
-                    />
-                  </div>
-                  <div className="col-12 col-md-6">
-                    <DetailsRow
-                      label="Company"
-                      value={broker.company || "N/A"}
-                    />
-                  </div>
-                </div>
-              </div>
+        {/* Mailing Address */}
+        {renderDetailsGroup(
+          "MAILING ADDRESS",
+          [
+            {
+              label: "Address",
+              value: broker.address || "N/A",
+              fullWidth: true,
+            },
+            {
+              label: "Address Line 2",
+              value: broker.addressLine2 || "N/A",
+              fullWidth: true,
+            },
+            {
+              label: "Address Line 3",
+              value: broker.addressLine3 || "N/A",
+              fullWidth: true,
+            },
+            { label: "City", value: broker.city || "N/A" },
+            { label: "Zip", value: broker.zip || "N/A" },
+            { label: "State", value: broker.state || "N/A" },
+            { label: "Country", value: broker.country || "N/A" },
+          ],
+          "col-12 col-md-6" // Half-width columns for mailing address
+        )}
 
-              <h5 className="modal-heading mt-2 mb-1">MAILING ADDRESS</h5>
-              <div className="details-group">
-                <DetailsRow
-                  label="Address"
-                  value={broker.address || "N/A"}
-                  fullWidth={true}
-                />
-                <DetailsRow
-                  label="Address Line 2"
-                  value={broker.addressLine2 || "N/A"}
-                  fullWidth={true}
-                />
-                <DetailsRow
-                  label="Address Line 3"
-                  value={broker.addressLine3 || "N/A"}
-                  fullWidth={true}
-                />
-
-                <div className="row">
-                  <div className="col-12 col-md-6">
-                    <DetailsRow label="City" value={broker.city || "N/A"} />
-                  </div>
-                  <div className="col-12 col-md-6">
-                    <DetailsRow label="Zip" value={broker.zip || "N/A"} />
-                  </div>
-                </div>
-
-                <div className="row">
-                  <div className="col-12 col-md-6">
-                    <DetailsRow label="State" value={broker.state || "N/A"} />
-                  </div>
-                  <div className="col-12 col-md-6">
-                    <DetailsRow
-                      label="Country"
-                      value={broker.country || "N/A"}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={onClose}>
-                Close
-              </button>
-            </div>
-          </div>
+        <div className="modal-footer">
+          <button className="btn btn-secondary" onClick={onClose}>
+            Close
+          </button>
         </div>
-      </div>
+      </Modal>
     </div>
   );
 };

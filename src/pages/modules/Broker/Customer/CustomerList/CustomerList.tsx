@@ -260,11 +260,6 @@ const CustomerList: React.FC = () => {
     setIsDetailsModalOpen(true);
   };
 
-  const closeDetailsModal = () => {
-    setCustomerDetails(null);
-    setIsDetailsModalOpen(false);
-  };
-
   const handleCloseDropdown = () => {
     const dropdownMenu = document.getElementById("filterList");
     dropdownMenu?.classList.remove("show"); // This will close the dropdown
@@ -481,7 +476,7 @@ const CustomerList: React.FC = () => {
       <CustomerDetailsModal
         isOpen={isDetailsModalOpen}
         customer={customerDetails}
-        onClose={closeDetailsModal}
+        onClose={() => setIsDetailsModalOpen(false)}
       />
     </div>
   );

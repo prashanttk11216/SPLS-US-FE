@@ -144,11 +144,6 @@ const ShipperList: React.FC = () => {
     setIsDetailsModalOpen(true);
   };
 
-  const closeDetailsModal = () => {
-    setShipperDetails(null);
-    setIsDetailsModalOpen(false);
-  };
-
   const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
       case "View Details":
@@ -464,7 +459,7 @@ const ShipperList: React.FC = () => {
       <ShipperDetailsModal
         isOpen={isDetailsModalOpen}
         shipper={shipperDetails}
-        onClose={closeDetailsModal}
+        onClose={() => setIsDetailsModalOpen(false)}
       />
     </div>
   );

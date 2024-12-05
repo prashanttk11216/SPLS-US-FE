@@ -143,11 +143,6 @@ const BrokerUserList: React.FC = () => {
     setIsDetailsModalOpen(true);
   };
 
-  const closeDetailsModal = () => {
-    setBrokerDetails(null);
-    setIsDetailsModalOpen(false);
-  };
-
   const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
       case "View Details":
@@ -275,7 +270,6 @@ const BrokerUserList: React.FC = () => {
     setStatusFilter(null);
     setSortFilter(null!);
   };
-
 
   return (
     <div className="broker-list-wrapper">
@@ -479,7 +473,7 @@ const BrokerUserList: React.FC = () => {
       <BrokerDetailsModal
         isOpen={isDetailsModalOpen}
         broker={brokerDetails}
-        onClose={closeDetailsModal}
+        onClose={() => setIsDetailsModalOpen(false)}
       />
     </div>
   );

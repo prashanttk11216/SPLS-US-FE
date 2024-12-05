@@ -143,11 +143,6 @@ const ConsigneeList: React.FC = () => {
     setIsDetailsModalOpen(true);
   };
 
-  const closeDetailsModal = () => {
-    setConsigneeDetails(null);
-    setIsDetailsModalOpen(false);
-  };
-
   const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
       case "View Details":
@@ -462,7 +457,7 @@ const ConsigneeList: React.FC = () => {
       <ConsigneeDetailsModal
         isOpen={isDetailsModalOpen}
         consignee={consigneeDetails}
-        onClose={closeDetailsModal}
+        onClose={() => setIsDetailsModalOpen(false)}
       />
     </div>
   );

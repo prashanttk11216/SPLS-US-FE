@@ -260,11 +260,6 @@ const CarrierList: React.FC = () => {
     setIsDetailsModalOpen(true);
   };
 
-  const closeDetailsModal = () => {
-    setCarrierDetails(null);
-    setIsDetailsModalOpen(false);
-  };
-
   const handleCloseDropdown = () => {
     const dropdownMenu = document.getElementById("filterList");
     dropdownMenu?.classList.remove("show"); // This will close the dropdown
@@ -278,7 +273,6 @@ const CarrierList: React.FC = () => {
     setStatusFilter(null);
     setSortFilter(null);
   };
-
 
   return (
     <div className="carriers-list-wrapper">
@@ -481,7 +475,7 @@ const CarrierList: React.FC = () => {
       <CarrierDetailsModal
         isOpen={isDetailsModalOpen}
         carrier={carrierDetails}
-        onClose={closeDetailsModal}
+        onClose={() => setIsDetailsModalOpen(false)}
       />
     </div>
   );

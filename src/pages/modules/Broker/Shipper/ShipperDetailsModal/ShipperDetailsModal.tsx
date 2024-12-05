@@ -1,6 +1,18 @@
 import React from "react";
-import { PhoneNumberFormat, PhoneNumberUtil } from "google-libphonenumber";
+import Modal from "../../../../../components/common/Modal/Modal";
 import { Shipper } from "../../../../../types/Shipper";
+import { PhoneNumberFormat, PhoneNumberUtil } from "google-libphonenumber";
+
+const DetailsRow: React.FC<{
+  label: string;
+  value: string | number;
+  fullWidth?: boolean;
+}> = ({ label, value, fullWidth }) => (
+  <div className={`details-row ${fullWidth ? "full-width" : ""}`}>
+    <span className="details-label">{label}:</span>
+    <span className="details-value">: {value}</span>
+  </div>
+);
 
 const ShipperDetailsModal: React.FC<{
   isOpen: boolean;
@@ -21,114 +33,88 @@ const ShipperDetailsModal: React.FC<{
     }
   };
 
-  const DetailsRow: React.FC<{
-    label: string;
-    value: string;
-    fullWidth?: boolean;
-  }> = ({ label, value, fullWidth }) => (
-    <div className={`details-row ${fullWidth ? "full-width" : ""}`}>
-      <span className="details-label">{label}:</span>
-      <span className="details-value">: {value}</span>
+  const renderDetailsGroup = (
+    heading: string,
+    rows: { label: string; value: string | number; fullWidth?: boolean }[],
+    rowClassName: string
+  ) => (
+    <div>
+      <h5 className="modal-heading mt-2 mb-1">{heading}</h5>
+      <div className="details-group">
+        <div className="row">
+          {rows.map(({ label, value, fullWidth = false }, index) => (
+            <div
+              key={index}
+              className={`${fullWidth ? "col-12" : rowClassName} mb-2`}
+            >
+              <DetailsRow label={label} value={value} fullWidth={fullWidth} />
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 
   return (
     <div className="detailsModal-wrapper">
-      <div
-        className={`modal fade ${isOpen ? "show d-block" : ""}`}
-        style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        title="Shipper Details"
+        size="lg"
+        isCentered={true}
       >
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3 className="title">
-                <strong>Shipper Details</strong>
-              </h3>
-              <button
-                type="button"
-                className="btn-close"
-                onClick={onClose}
-              ></button>
-            </div>
-            <div className="modal-body">
-              <h5 className="modal-heading mb-1">BASIC DETAILS</h5>
-              <div className="details-group">
-                <div className="row">
-                  <div className="col-12 col-md-6">
-                    <DetailsRow
-                      label="Name"
-                      value={`${shipper.firstName} ${shipper.lastName}`}
-                    />
-                  </div>
-                  <div className="col-12 col-md-6">
-                    <DetailsRow label="Email" value={shipper.email || "N/A"} />
-                  </div>
-                </div>
+        {/* Basic Details */}
+        {renderDetailsGroup(
+          "BASIC DETAILS",
+          [
+            {
+              label: "Name",
+              value: `${shipper.firstName || ""} ${shipper.lastName || ""}`,
+            },
+            { label: "Email", value: shipper.email || "N/A" },
+            {
+              label: "Contact",
+              value: formatPhoneNumber(shipper.primaryNumber),
+            },
+            { label: "Shipping Hours", value: shipper.shippingHours || "N/A" },
+          ],
+          "col-12 col-md-6" // Half-width columns for basic details
+        )}
 
-                <div className="row">
-                  <div className="col-12 col-md-6">
-                    <DetailsRow
-                      label="Contact"
-                      value={formatPhoneNumber(shipper.primaryNumber)}
-                    />
-                  </div>
-                  <div className="col-12 col-md-6">
-                    <DetailsRow
-                      label="Company"
-                      value={shipper.shippingHours || "N/A"}
-                    />
-                  </div>
-                </div>
-              </div>
+        {/* Mailing Address */}
+        {renderDetailsGroup(
+          "MAILING ADDRESS",
+          [
+            {
+              label: "Address",
+              value: shipper.address || "N/A",
+              fullWidth: true,
+            },
+            {
+              label: "Address Line 2",
+              value: shipper.addressLine2 || "N/A",
+              fullWidth: true,
+            },
+            {
+              label: "Address Line 3",
+              value: shipper.addressLine3 || "N/A",
+              fullWidth: true,
+            },
+            { label: "City", value: shipper.city || "N/A" },
+            { label: "Zip", value: shipper.zip || "N/A" },
+            { label: "State", value: shipper.state || "N/A" },
+            { label: "Country", value: shipper.country || "N/A" },
+          ],
+          "col-12 col-md-6" // Half-width columns for mailing address
+        )}
 
-              <h5 className="modal-heading mt-2 mb-1">ADDRESS</h5>
-              <div className="details-group">
-                <DetailsRow
-                  label="Address"
-                  value={shipper.address || "N/A"}
-                  fullWidth={true}
-                />
-                <DetailsRow
-                  label="Address Line 2"
-                  value={shipper.addressLine2 || "N/A"}
-                  fullWidth={true}
-                />
-                <DetailsRow
-                  label="Address Line 3"
-                  value={shipper.addressLine3 || "N/A"}
-                  fullWidth={true}
-                />
-
-                <div className="row">
-                  <div className="col-12 col-md-6">
-                    <DetailsRow label="City" value={shipper.city || "N/A"} />
-                  </div>
-                  <div className="col-12 col-md-6">
-                    <DetailsRow label="Zip" value={shipper.zip || "N/A"} />
-                  </div>
-                </div>
-
-                <div className="row">
-                  <div className="col-12 col-md-6">
-                    <DetailsRow label="State" value={shipper.state || "N/A"} />
-                  </div>
-                  <div className="col-12 col-md-6">
-                    <DetailsRow
-                      label="Shipping Hours"
-                      value={shipper.country || "N/A"}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={onClose}>
-                Close
-              </button>
-            </div>
-          </div>
+        <div className="modal-footer">
+          <button className="btn btn-secondary" onClick={onClose}>
+            Close
+          </button>
         </div>
-      </div>
+      </Modal>
     </div>
   );
 };
