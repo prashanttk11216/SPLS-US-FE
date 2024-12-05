@@ -1,0 +1,41 @@
+.splsdetailsModal-wrapper{
+    .modal-dialog-centered {
+        display: flex;
+        align-items: center;
+        margin-top: 10vh;
+        min-height: 50vh;
+        min-width: 50%;
+      }
+    
+      .splsModal-heading {
+        background-color: $dark-blue;
+        color: $white;
+        font-weight: bold;
+        padding: 6px;
+        margin-bottom: 12px !important;
+      }
+    
+      .details-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+      }
+    
+      .details-label {
+        font-weight: bold;
+        width: 40%;
+      }
+    
+      .details-value {
+        text-align: left;
+        width: 60%;
+      }
+      .details-value {
+        display: inline-block;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+      }
+}
