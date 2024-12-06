@@ -19,6 +19,7 @@ import Stepper, {
   Step,
 } from "../../../../../components/common/Stepper/Stepper";
 import CheckboxField from "../../../../../components/common/CheckboxField/CheckboxField";
+import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 
 interface CreateOrEditCustomerProps {
   isModalOpen: boolean; // Controls modal visibility
@@ -39,7 +40,6 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
   const [activeStep, setActiveStep] = useState(0); // Tracks current step
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
-  
   const {
     register,
     handleSubmit,
@@ -147,7 +147,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
   }, [isModalOpen, isEditing, customerData]);
 
   const handleSameAsMailingChange = async (e: any) => {
-    if(e.target.checked) {
+    if (e.target.checked) {
       const values = getValues();
       setValue("billingAddress", values.address);
       setValue("billingAddressLine2", values.addressLine2);
@@ -156,8 +156,14 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
       setValue("billingState", values.state);
       setValue("billingCity", values.city);
       setValue("billingZip", values.zip);
-      await trigger(['billingAddress','billingCountry','billingState','billingCity','billingZip']);
-    }else {
+      await trigger([
+        "billingAddress",
+        "billingCountry",
+        "billingState",
+        "billingCity",
+        "billingZip",
+      ]);
+    } else {
       // Clear billing address fields if unchecked
       setValue("billingAddress", "");
       setValue("billingAddressLine2", "");
@@ -188,6 +194,31 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
   const resetSteps = () => {
     setActiveStep(0);
     setCompletedSteps([]); // Clear all completed steps
+  };
+
+  const handlePlaceSelect = (details: {
+    formatted_address: string | null;
+    city: string | null;
+    state: string | null;
+    postal_code: string | null;
+    country: string | null;
+    lat: number | null;
+    lng: number | null;
+  }, isBilling: boolean = false) => {
+    console.log("Selected Place Details:", details);
+    if(isBilling){
+      setValue("billingAddress", details.formatted_address!);
+      setValue("billingCountry", details.country!);
+      setValue("billingState", details.state!);
+      setValue("billingCity", details.city!);
+      setValue("billingZip", details.postal_code!);
+    }else{
+    setValue("address", details.formatted_address!);
+    setValue("country", details.country!);
+    setValue("state", details.state!);
+    setValue("city", details.city!);
+    setValue("zip", details.postal_code!);
+    }
   };
 
   const steps: Step[] = [
@@ -305,16 +336,14 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
           <div className="row">
             {/* Address */}
             <div className="col-12 col-md-6">
-              <Input
-                label="Address"
-                type="text"
-                id="address"
+              <PlaceAutocompleteField
                 name="address"
-                placeholder="Enter Address"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.addressRequired}
+                label="Address"
+                control={control}
+                placeholder="Enter address"
+                rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
                 required
+                onPlaceSelect={(details)=>handlePlaceSelect(details)}
               />
             </div>
             {/* Address Line 2 */}
@@ -426,16 +455,14 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
           <div className="row">
             {/* Billing Address */}
             <div className="col-12 col-md-6">
-              <Input
-                label="Billing Address"
-                type="text"
-                id="billingAddress"
+              <PlaceAutocompleteField
                 name="billingAddress"
+                label="Billing Address"
+                control={control}
                 placeholder="Enter Primary Billing Address"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.addressRequired}
+                rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
                 required
+                onPlaceSelect={(details)=>handlePlaceSelect(details, true)}
               />
             </div>
             {/* Billing Address Line 2 */}

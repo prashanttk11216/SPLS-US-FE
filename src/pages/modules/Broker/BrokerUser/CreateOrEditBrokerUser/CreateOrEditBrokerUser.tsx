@@ -16,6 +16,7 @@ import { useSelector } from "react-redux";
 import { PhoneInput } from "react-international-phone";
 import { validatePhoneNumber } from "../../../../../utils/phoneValidate";
 import Stepper, { Step } from "../../../../../components/common/Stepper/Stepper";
+import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 
 interface CreateOrEditBrokerUserProps {
   isModalOpen: boolean; // Controls modal visibility
@@ -41,6 +42,7 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
     handleSubmit,
     control,
     formState: { errors, isValid },
+    setValue,
     watch,
     reset,
     trigger
@@ -147,6 +149,23 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
   const resetSteps = () => {
     setActiveStep(0);
     setCompletedSteps([]); // Clear all completed steps
+  };
+
+  const handlePlaceSelect = (details: {
+    formatted_address: string | null;
+    city: string | null;
+    state: string | null;
+    postal_code: string | null;
+    country: string | null;
+    lat: number | null;
+    lng: number | null;
+  }) => {
+    console.log("Selected Place Details:", details);
+    setValue("address", details.formatted_address!);
+    setValue("country", details.country!);
+    setValue("state", details.state!);
+    setValue("city", details.city!);
+    setValue("zip", details.postal_code!);
   };
   
   const steps: Step[] = [
@@ -278,16 +297,14 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
           <div className="row">
             {/* Address */}
             <div className="col-12 col-md-6">
-              <Input
-                label="Address"
-                type="text"
-                id="address"
+            <PlaceAutocompleteField
                 name="address"
-                placeholder="Enter Address"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.addressRequired}
+                label="Address"
+                control={control}
+                placeholder="Enter address"
+                rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
                 required
+                onPlaceSelect={handlePlaceSelect}
               />
             </div>
             {/* Address Line 2 */}

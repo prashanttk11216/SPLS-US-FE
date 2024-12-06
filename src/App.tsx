@@ -8,11 +8,16 @@ import "react-international-phone/style.css";
 import "react-datepicker/dist/react-datepicker.css";
 import '../node_modules/bootstrap/dist/js/bootstrap.bundle.js';
 import "./App.scss";
+import { APIProvider } from "@vis.gl/react-google-maps";
+
+const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY as string;
+
 
 function App() {
   return (
     <>
       <div className="app-wrapper">
+       <APIProvider apiKey={API_KEY} solutionChannel='GMP_devsite_samples_v3_rgmautocomplete'>
         <Provider store={store}>
           <RouterProvider router={routes} />
           <ToastContainer
@@ -28,6 +33,7 @@ function App() {
             theme="light"
           />
         </Provider>
+        </APIProvider>
       </div>
     </>
   );

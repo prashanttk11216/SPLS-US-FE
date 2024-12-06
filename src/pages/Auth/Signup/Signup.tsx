@@ -13,6 +13,7 @@ import "./Signup.scss";
 import { validatePhoneNumber } from "../../../utils/phoneValidate";
 import Stepper, { Step } from "../../../components/common/Stepper/Stepper";
 import CheckboxField from "../../../components/common/CheckboxField/CheckboxField";
+import PlaceAutocompleteField from "../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 
 interface SignupProps {
   role?: UserRole | null;
@@ -121,6 +122,31 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
       setValue("billingState", "");
       setValue("billingCity", "");
       setValue("billingZip", "");
+    }
+  };
+
+  const handlePlaceSelect = (details: {
+    formatted_address: string | null;
+    city: string | null;
+    state: string | null;
+    postal_code: string | null;
+    country: string | null;
+    lat: number | null;
+    lng: number | null;
+  }, isBilling: boolean = false) => {
+    console.log("Selected Place Details:", details);
+    if(isBilling){
+      setValue("billingAddress", details.formatted_address!);
+      setValue("billingCountry", details.country!);
+      setValue("billingState", details.state!);
+      setValue("billingCity", details.city!);
+      setValue("billingZip", details.postal_code!);
+    }else{
+    setValue("address", details.formatted_address!);
+    setValue("country", details.country!);
+    setValue("state", details.state!);
+    setValue("city", details.city!);
+    setValue("zip", details.postal_code!);
     }
   };
 
@@ -239,17 +265,17 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
             <div className="row">
               {/* Address */}
               <div className="col-12 col-md-4">
-                <Input
-                  label="Address"
-                  type="text"
-                  id="address"
-                  name="address"
-                  placeholder="Enter Address"
-                  register={register}
-                  errors={errors}
-                  errorMessage={VALIDATION_MESSAGES.addressRequired}
-                  required
-                />
+                <div className="col-12 col-md-6">
+                  <PlaceAutocompleteField
+                    name="address"
+                    label="Address"
+                    control={control}
+                    placeholder="Enter address"
+                    rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
+                    required
+                    onPlaceSelect={handlePlaceSelect}
+                  />
+            </div>
               </div>
               {/* Address Line 2 */}
               <div className="col-12 col-md-4">
@@ -343,130 +369,124 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
         "zip",
       ],
     },
-    ...(role === UserRole.CUSTOMER
-      ? [
-          {
-            label: "Billing Address",
-            content: (
-              <div className="row">
-                {/* Billing Address Section */}
-                <div className="d-flex align-items-center my-3">
-                  <CheckboxField
-                    label="Same as Mailing Address"
-                    id="sameAsMailing"
-                    name="sameAsMailing"
-                    onChange={handleSameAsMailingChange}
-                    register={register}
-                    errors={errors}
-                  />
-                </div>
-                {/* Billing Address */}
-                <div className="col-12 col-md-4">
-                  <Input
-                    label="Billing Address"
-                    type="text"
-                    id="billingAddress"
-                    name="billingAddress"
-                    placeholder="Enter Primary Billing Address"
-                    register={register}
-                    errors={errors}
-                    errorMessage={VALIDATION_MESSAGES.addressRequired}
-                    required
-                  />
-                </div>
-                {/* Billing Address Line 2 */}
-                <div className="col-12 col-md-4">
-                  <Input
-                    label="Billing Address Line 2"
-                    type="text"
-                    id="billingAddressLine2"
-                    name="billingAddressLine2"
-                    placeholder="Enter Additional Address Info"
-                    register={register}
-                    errors={errors}
-                  />
-                </div>
-                {/* Billing Address Line 3 */}
-                <div className="col-12 col-md-4">
-                  <Input
-                    label="Billing Address Line 3"
-                    type="text"
-                    id="billingAddressLine3"
-                    name="billingAddressLine3"
-                    placeholder="Enter Additional Address Info"
-                    register={register}
-                    errors={errors}
-                  />
-                </div>
-                {/* Country */}
-                <div className="col-12 col-md-4">
-                  <Input
-                    label="Country"
-                    type="text"
-                    id="billingCountry"
-                    name="billingCountry"
-                    placeholder="Enter Country Name"
-                    register={register}
-                    errors={errors}
-                    errorMessage={VALIDATION_MESSAGES.countryRequired}
-                    required
-                  />
-                </div>
-                {/* State */}
-                <div className="col-12 col-md-4">
-                  <Input
-                    label="State"
-                    type="text"
-                    id="billingState"
-                    name="billingState"
-                    placeholder="Enter State Name"
-                    register={register}
-                    errors={errors}
-                    errorMessage={VALIDATION_MESSAGES.stateRequired}
-                    required
-                  />
-                </div>
-                {/* City */}
-                <div className="col-12 col-md-4">
-                  <Input
-                    label="City"
-                    type="text"
-                    id="billingCity"
-                    name="billingCity"
-                    placeholder="Enter City Name"
-                    register={register}
-                    errors={errors}
-                    errorMessage={VALIDATION_MESSAGES.cityRequired}
-                    required
-                  />
-                </div>
-                {/* Zip Code */}
-                <div className="col-12 col-md-4">
-                  <Input
-                    label="Zip Code"
-                    type="text"
-                    id="billingZip"
-                    name="billingZip"
-                    placeholder="Enter Zip Code"
-                    register={register}
-                    errors={errors}
-                    errorMessage={VALIDATION_MESSAGES.zipRequired}
-                    required
-                  />
-                </div>
-              </div>
-            ),
-            fields: [
-              // Billing-specific fields (only for customers)
-              "billingAddress",
-              "billingCountry",
-              "billingState",
-              "billingCity",
-              "billingZip",
-            ],
-          },
-        ]
-      : []),
+    {
+      label: "Billing Address",
+      content: (
+        <div className="row">
+          {/* Billing Address Section */}
+          <div className="d-flex align-items-center my-3">
+            <CheckboxField
+              label="Same as Mailing Address"
+              id="sameAsMailing"
+              name="sameAsMailing"
+              onChange={handleSameAsMailingChange}
+              register={register}
+              errors={errors}
+            />
+          </div>
+          {/* Billing Address */}
+          <div className="col-12 col-md-4">
+            <PlaceAutocompleteField
+                name="billingAddress"
+                label="Billing Address"
+                control={control}
+                placeholder="Enter Primary Billing Address"
+                rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
+                required
+                onPlaceSelect={(details)=>handlePlaceSelect(details, true)}
+              />
+          </div>
+          {/* Billing Address Line 2 */}
+          <div className="col-12 col-md-4">
+            <Input
+              label="Billing Address Line 2"
+              type="text"
+              id="billingAddressLine2"
+              name="billingAddressLine2"
+              placeholder="Enter Additional Address Info"
+              register={register}
+              errors={errors}
+            />
+          </div>
+          {/* Billing Address Line 3 */}
+          <div className="col-12 col-md-4">
+            <Input
+              label="Billing Address Line 3"
+              type="text"
+              id="billingAddressLine3"
+              name="billingAddressLine3"
+              placeholder="Enter Additional Address Info"
+              register={register}
+              errors={errors}
+            />
+          </div>
+          {/* Country */}
+          <div className="col-12 col-md-4">
+            <Input
+              label="Country"
+              type="text"
+              id="billingCountry"
+              name="billingCountry"
+              placeholder="Enter Country Name"
+              register={register}
+              errors={errors}
+              errorMessage={VALIDATION_MESSAGES.countryRequired}
+              required
+            />
+          </div>
+          {/* State */}
+          <div className="col-12 col-md-4">
+            <Input
+              label="State"
+              type="text"
+              id="billingState"
+              name="billingState"
+              placeholder="Enter State Name"
+              register={register}
+              errors={errors}
+              errorMessage={VALIDATION_MESSAGES.stateRequired}
+              required
+            />
+          </div>
+          {/* City */}
+          <div className="col-12 col-md-4">
+            <Input
+              label="City"
+              type="text"
+              id="billingCity"
+              name="billingCity"
+              placeholder="Enter City Name"
+              register={register}
+              errors={errors}
+              errorMessage={VALIDATION_MESSAGES.cityRequired}
+              required
+            />
+          </div>
+          {/* Zip Code */}
+          <div className="col-12 col-md-4">
+            <Input
+              label="Zip Code"
+              type="text"
+              id="billingZip"
+              name="billingZip"
+              placeholder="Enter Zip Code"
+              register={register}
+              errors={errors}
+              errorMessage={VALIDATION_MESSAGES.zipRequired}
+              required
+            />
+          </div>
+        </div>
+      ),
+      fields: [
+        // Billing-specific fields (only for customers)
+        "billingAddress",
+        "billingCountry",
+        "billingState",
+        "billingCity",
+        "billingZip",
+      ],
+    },
     {
       label: "Security",
       content: (

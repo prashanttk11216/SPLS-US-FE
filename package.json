@@ -12,6 +12,7 @@
   "dependencies": {
     "@popperjs/core": "^2.11.8",
     "@reduxjs/toolkit": "^2.3.0",
+    "@vis.gl/react-google-maps": "^1.4.2",
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
     "google-libphonenumber": "^3.2.38",

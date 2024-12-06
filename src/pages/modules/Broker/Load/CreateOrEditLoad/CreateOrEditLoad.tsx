@@ -23,6 +23,7 @@ import NumberInput from "../../../../../components/common/NumberInput/NumberInpu
 import { UserRole } from "../../../../../enums/UserRole";
 import { getUsers } from "../../../../../services/user/userService";
 import { createLoadSchema, updateLoadSchema } from "../../../../../schema/Load";
+import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 
 export type loadForm = {
   _id: string;
@@ -101,6 +102,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors, isValid },
     reset,
   } = useForm<loadForm>({
@@ -116,50 +118,47 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   } = useFetchData<any>({
     createDataService: createLoad,
     updateDataService: editLoad,
-    fetchByIdService: getLoadById
+    fetchByIdService: getLoadById,
   });
 
-  const {
-    fetchData: fetchUsers,
-  } = useFetchData<any>({
-    fetchDataService: getUsers
+  const { fetchData: fetchUsers } = useFetchData<any>({
+    fetchDataService: getUsers,
   });
 
-  const fetchLoad =  async (loadId: string) => {
-        const result = await fetchLoadById(loadId);
-        if(result.success) {          
-          setLoadData(result.data);
-        }
-  }
+  const fetchLoad = async (loadId: string) => {
+    const result = await fetchLoadById(loadId);
+    if (result.success) {
+      setLoadData(result.data);
+    }
+  };
 
-
-  const fetchUsersData =  async () => {
-    let query = `?role=${UserRole.BROKER_USER}`
+  const fetchUsersData = async () => {
+    let query = `?role=${UserRole.BROKER_USER}`;
     const result = await fetchUsers(query);
-    if(result.success) {
+    if (result.success) {
       let users: any = [];
-      result?.data?.forEach(user => {
+      result?.data?.forEach((user) => {
         users.push({
           value: user._id,
           label: `${user.firstName} ${user.lastName}`,
-        })
-      });        
-      setUsersList(users)
+        });
+      });
+      setUsersList(users);
     }
-  }
+  };
 
   useEffect(() => {
-    if(loadId) fetchLoad(loadId);
+    if (loadId) fetchLoad(loadId);
   }, [loadId]);
-  useEffect(()=>{
-    if(loadData){
+  useEffect(() => {
+    if (loadData) {
       reset(loadData);
     }
-  },[loadData])
+  }, [loadData]);
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchUsersData();
-  },[]);
+  }, []);
 
   const {
     fields: originFields,
@@ -203,7 +202,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
    * Handles form submission for creating or editing a Load.
    * @param data - Form data
    */
-  const submit = async (data: loadForm) => {    
+  const submit = async (data: loadForm) => {
     try {
       let result;
       if (loadId && loadData) {
@@ -218,7 +217,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
         toast.success(
           loadId ? "Load updated successfully." : "Load created successfully."
         );
-        navigate("/broker/load")
+        navigate("/broker/load");
       } else {
         throw new Error(result.message || "Action failed.");
       }
@@ -250,15 +249,15 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
           </div>
           {/* Origin */}
           <div className="col-4">
-            <Input
-              label="Origin City & State, or Zip Code"
-              type="text"
-              id="origin"
+            <PlaceAutocompleteField
               name="origin"
+              label="Origin City & State, or Zip Code"
+              control={control}
               placeholder="Enter Origin City & State, or Zip Code"
-              register={register}
-              errors={errors}
-              errorMessage={VALIDATION_MESSAGES.originRequired}
+              rules={{ required: VALIDATION_MESSAGES.originRequired }} // Example validation
+              onPlaceSelect={(details) =>
+                setValue("origin", details.formatted_address!)
+              }
               required
             />
           </div>
@@ -321,95 +320,102 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                 dateFormat: "h:mm aa",
               }}
             />
-          </div>          
+          </div>
 
           {originFields.map((item, index) => (
-            <>
-              <div key={item.id} className="col-12 mb-2 border-top border-bottom border-secondary border-2">
-                <div className="row py-2">
-                  {/* delete */}
-                  <div className="col-12 d-flex align-items-center justify-content-between mb-2">
-                    <h4 className="fw-lighter">Stop {index}</h4>
-                    <button
-                      type="button"
-                      className="btn btn-danger btn-sm"
-                      onClick={() => removeOrigin(index)}
-                    >
-                      delete
-                    </button>
-                  </div>
-                  {/* Stop City & State, or Zip Code*/}
-                  <div className="col-4">
-                    <Input
-                      label={`Stop ${index} City & State, or Zip Code`}
-                      type="text"
-                      id={`${item.id}-${item.address}`}
-                      name={`originStops.${index}.address`}
-                      placeholder={`Enter Stop ${index} City & State, or Zip Code`}
-                      register={register}
-                      errors={errors}
-                      required
-                    />
-                  </div>
-                  {/* Origin Early Pickup Date*/}
-                  <div className="col-2">
-                    <DateInput
-                      name={`originStops.${index}.earlyPickupDate`}
-                      control={control}
-                      label="Early Pick-Up Date"
-                      placeholder="Choose a date"
-                      datePickerProps={{
-                        dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
-                        minDate: new Date(), // Disable past dates
-                      }}
-                    />
-                  </div>
-                  {/* Origin Early Pickup Time*/}
-                  <div className="col-2">
-                    <DateInput
-                      name={`originStops.${index}.earlyPickupTime`}
-                      control={control}
-                      label="Early Pick-Up Time"
-                      placeholder="Choose a Time"
-                      datePickerProps={{
-                        showTimeSelectOnly: true,
-                        timeCaption: "Time",
-                        showTimeSelect: true,
-                        dateFormat: "h:mm aa",
-                      }}
-                    />
-                  </div>
-                  {/* Origin Late Pickup Date*/}
-                  <div className="col-2">
-                    <DateInput
-                      name={`originStops.${index}.latePickupDate`}
-                      control={control}
-                      label="Late Pick-Up Date"
-                      placeholder="Choose a date"
-                      datePickerProps={{
-                        dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
-                        minDate: new Date(), // Disable past dates
-                      }}
-                    />
-                  </div>
-                  {/* Origin Late Pickup Time*/}
-                  <div className="col-2">
-                    <DateInput
-                      name={`originStops.${index}.latePickupTime`}
-                      control={control}
-                      label="Late Pick-Up Time"
-                      placeholder="Choose a Time"
-                      datePickerProps={{
-                        showTimeSelectOnly: true,
-                        timeCaption: "Time",
-                        showTimeSelect: true,
-                        dateFormat: "h:mm aa",
-                      }}
-                    />
-                  </div>
+            <div
+              key={item.id}
+              className="col-12 mb-2 border-top border-bottom border-secondary border-2"
+            >
+              <div className="row py-2">
+                {/* delete */}
+                <div className="col-12 d-flex align-items-center justify-content-between mb-2">
+                  <h4 className="fw-lighter">Stop {index + 1}</h4>
+                  <button
+                    type="button"
+                    className="btn btn-danger btn-sm"
+                    onClick={() => removeOrigin(index)}
+                  >
+                    delete
+                  </button>
+                </div>
+                {/* Stop City & State, or Zip Code*/}
+                <div className="col-4">
+                  <PlaceAutocompleteField
+                    name={`originStops.${index}.address`}
+                    label={`Stop ${index + 1} City & State, or Zip Code`}
+                    control={control}
+                    placeholder={`Enter Stop ${
+                      index + 1
+                    } City & State, or Zip Code`}
+                    rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
+                    onPlaceSelect={(details) =>
+                      setValue(
+                        `originStops.${index}.address`,
+                        details.formatted_address!
+                      )
+                    }
+                    required
+                  />
+                </div>
+                {/* Origin Early Pickup Date*/}
+                <div className="col-2">
+                  <DateInput
+                    name={`originStops.${index}.earlyPickupDate`}
+                    control={control}
+                    label="Early Pick-Up Date"
+                    placeholder="Choose a date"
+                    datePickerProps={{
+                      dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                      minDate: new Date(), // Disable past dates
+                    }}
+                  />
+                </div>
+                {/* Origin Early Pickup Time*/}
+                <div className="col-2">
+                  <DateInput
+                    name={`originStops.${index}.earlyPickupTime`}
+                    control={control}
+                    label="Early Pick-Up Time"
+                    placeholder="Choose a Time"
+                    datePickerProps={{
+                      showTimeSelectOnly: true,
+                      timeCaption: "Time",
+                      showTimeSelect: true,
+                      dateFormat: "h:mm aa",
+                    }}
+                  />
+                </div>
+                {/* Origin Late Pickup Date*/}
+                <div className="col-2">
+                  <DateInput
+                    name={`originStops.${index}.latePickupDate`}
+                    control={control}
+                    label="Late Pick-Up Date"
+                    placeholder="Choose a date"
+                    datePickerProps={{
+                      dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                      minDate: new Date(), // Disable past dates
+                    }}
+                  />
+                </div>
+                {/* Origin Late Pickup Time*/}
+                <div className="col-2">
+                  <DateInput
+                    name={`originStops.${index}.latePickupTime`}
+                    control={control}
+                    label="Late Pick-Up Time"
+                    placeholder="Choose a Time"
+                    datePickerProps={{
+                      showTimeSelectOnly: true,
+                      timeCaption: "Time",
+                      showTimeSelect: true,
+                      dateFormat: "h:mm aa",
+                    }}
+                  />
                 </div>
               </div>
-            </>
+            </div>
           ))}
 
           {/* Button to add an origin stop */}
@@ -429,15 +435,15 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
 
           {/* Destination */}
           <div className="col-4">
-            <Input
-              label="Destination City & State, or Zip Code"
-              type="text"
-              id="destination"
+            <PlaceAutocompleteField
               name="destination"
+              label="Destination City & State, or Zip Code"
+              control={control}
               placeholder="Enter Destination City & State, or Zip Code"
-              register={register}
-              errors={errors}
-              errorMessage={VALIDATION_MESSAGES.destinationRequired}
+              rules={{ required: VALIDATION_MESSAGES.destinationRequired }} // Example validation
+              onPlaceSelect={(details) =>
+                setValue("destination", details.formatted_address!)
+              }
               required
             />
           </div>
@@ -499,92 +505,99 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
           </div>
 
           {destinationFields.map((item, index) => (
-            <>
-              <div key={item.id} className="col-12 mb-2 border-top border-bottom border-secondary border-2">
-                <div className="row py-2">
-                  {/* delete */}
-                  <div className="col-12 d-flex align-items-center justify-content-between mb-2">
-                    <h4 className="fw-lighter">Stop {index}</h4>
-                    <button
-                      type="button"
-                      className="btn btn-danger btn-sm"
-                      onClick={() => removeDestination(index)}
-                    >
-                      delete
-                    </button>
-                  </div>
-                 {/* Stop City & State, or Zip Code*/}
-                  <div className="col-4">
-                    <Input
-                      label={`Stop ${index} City & State, or Zip Code`}
-                      type="text"
-                      id={`${item.id}-${item.address}`}
-                      name={`destinationStops.${index}.address`}
-                      placeholder={`Enter Stop ${index} City & State, or Zip Code`}                  
-                      register={register}
-                      errors={errors}
-                      required
-                    />
-                  </div>
-                  {/* Early Drop-off Date */}
-                  <div className="col-2">
-                    <DateInput
-                      name={`destinationStops.${index}.earlyDropoffDate`}
-                      control={control}
-                      label="Early Drop-off Date"
-                      placeholder="Choose a date"
-                      datePickerProps={{
-                        dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
-                        minDate: new Date(), // Disable past dates
-                      }}
-                    />
-                  </div>
-                  {/* Early Drop-off Time*/}
-                  <div className="col-2">
-                    <DateInput
-                      name={`destinationStops.${index}.earlyDropoffTime`}
-                      control={control}
-                      label="Early Drop-off Time"
-                      placeholder="Choose a Time"
-                      datePickerProps={{
-                        showTimeSelectOnly: true,
-                        timeCaption: "Time",
-                        showTimeSelect: true,
-                        dateFormat: "h:mm aa",
-                      }}
-                    />
-                  </div>
-                  {/* Late Drop-off Date*/}
-                  <div className="col-2">
-                    <DateInput
-                      name={`destinationStops.${index}.lateDropoffDate`}
-                      control={control}
-                      label="Late Drop-off Date"
-                      placeholder="Choose a date"
-                      datePickerProps={{
-                        dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
-                        minDate: new Date(), // Disable past dates
-                      }}
-                    />
-                  </div>
-                  {/* Late Drop-off Time */}
-                  <div className="col-2">
-                    <DateInput
-                      name={`destinationStops.${index}.lateDropoffTime`}
-                      control={control}
-                      label="Late Drop-off Time"
-                      placeholder="Choose a Time"
-                      datePickerProps={{
-                        showTimeSelectOnly: true,
-                        timeCaption: "Time",
-                        showTimeSelect: true,
-                        dateFormat: "h:mm aa",
-                      }}
-                    />
-                  </div>
+            <div
+              key={item.id}
+              className="col-12 mb-2 border-top border-bottom border-secondary border-2"
+            >
+              <div className="row py-2">
+                {/* delete */}
+                <div className="col-12 d-flex align-items-center justify-content-between mb-2">
+                  <h4 className="fw-lighter">Stop {index + 1}</h4>
+                  <button
+                    type="button"
+                    className="btn btn-danger btn-sm"
+                    onClick={() => removeDestination(index)}
+                  >
+                    delete
+                  </button>
+                </div>
+                {/* Stop City & State, or Zip Code*/}
+                <div className="col-4">
+                  <PlaceAutocompleteField
+                    name={`destinationStops.${index}.address`}
+                    label={`Stop ${index + 1} City & State, or Zip Code`}
+                    control={control}
+                    placeholder={`Enter Stop ${
+                      index + 1
+                    } City & State, or Zip Code`}
+                    rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
+                    onPlaceSelect={(details) =>
+                      setValue(
+                        `destinationStops.${index}.address`,
+                        details.formatted_address!
+                      )
+                    }
+                    required
+                  />
+                </div>
+                {/* Early Drop-off Date */}
+                <div className="col-2">
+                  <DateInput
+                    name={`destinationStops.${index}.earlyDropoffDate`}
+                    control={control}
+                    label="Early Drop-off Date"
+                    placeholder="Choose a date"
+                    datePickerProps={{
+                      dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                      minDate: new Date(), // Disable past dates
+                    }}
+                  />
+                </div>
+                {/* Early Drop-off Time*/}
+                <div className="col-2">
+                  <DateInput
+                    name={`destinationStops.${index}.earlyDropoffTime`}
+                    control={control}
+                    label="Early Drop-off Time"
+                    placeholder="Choose a Time"
+                    datePickerProps={{
+                      showTimeSelectOnly: true,
+                      timeCaption: "Time",
+                      showTimeSelect: true,
+                      dateFormat: "h:mm aa",
+                    }}
+                  />
+                </div>
+                {/* Late Drop-off Date*/}
+                <div className="col-2">
+                  <DateInput
+                    name={`destinationStops.${index}.lateDropoffDate`}
+                    control={control}
+                    label="Late Drop-off Date"
+                    placeholder="Choose a date"
+                    datePickerProps={{
+                      dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                      minDate: new Date(), // Disable past dates
+                    }}
+                  />
+                </div>
+                {/* Late Drop-off Time */}
+                <div className="col-2">
+                  <DateInput
+                    name={`destinationStops.${index}.lateDropoffTime`}
+                    control={control}
+                    label="Late Drop-off Time"
+                    placeholder="Choose a Time"
+                    datePickerProps={{
+                      showTimeSelectOnly: true,
+                      timeCaption: "Time",
+                      showTimeSelect: true,
+                      dateFormat: "h:mm aa",
+                    }}
+                  />
                 </div>
               </div>
-            </>
+            </div>
           ))}
 
           {/* Button to add Destination stop */}
@@ -633,7 +646,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               name="allInRate"
               placeholder="Enter All-in Rate"
               control={control}
-              errors={errors} 
+              errors={errors}
               currency
               preventNegative
             />
@@ -647,9 +660,8 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               min={0}
               name="customerRate"
               placeholder="Enter All-in Rate"
-                            control={control}
-
-              errors={errors} 
+              control={control}
+              errors={errors}
               currency
               preventNegative
             />
@@ -664,7 +676,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               name="weight"
               placeholder="Weight"
               control={control}
-              errors={errors} 
+              errors={errors}
               preventNegative
             />
           </div>
@@ -676,9 +688,8 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               min={0}
               name="length"
               placeholder="Feet"
-                            control={control}
-
-              errors={errors} 
+              control={control}
+              errors={errors}
               preventNegative
             />
           </div>
@@ -690,9 +701,8 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               min={0}
               name="width"
               placeholder="Feet"
-                            control={control}
-
-              errors={errors} 
+              control={control}
+              errors={errors}
               preventNegative
             />
           </div>
@@ -704,9 +714,8 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               min={0}
               name="height"
               placeholder="Feet"
-                            control={control}
-
-              errors={errors} 
+              control={control}
+              errors={errors}
               preventNegative
             />
           </div>
@@ -718,9 +727,8 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               min={0}
               name="distance"
               placeholder="Mile"
-                            control={control}
-
-              errors={errors} 
+              control={control}
+              errors={errors}
               preventNegative
             />
           </div>
@@ -732,9 +740,8 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               min={0}
               name="pieces"
               placeholder="Enter Pieces"
-                            control={control}
-
-              errors={errors} 
+              control={control}
+              errors={errors}
               preventNegative
             />
           </div>
@@ -746,9 +753,8 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               min={0}
               name="pallets"
               placeholder="Enter Pallets"
-                            control={control}
-
-              errors={errors} 
+              control={control}
+              errors={errors}
               preventNegative
             />
           </div>
@@ -782,42 +788,48 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               disabled={loadId ? true : false}
               placeholder="Enter Load / Reference Number"
               control={control}
-              errors={errors} 
+              errors={errors}
               preventNegative
             />
           </div>
           {/* Assign User */}
-          {(user?.role == UserRole.BROKER_ADMIN && <div className="col-3">
-            <SelectField
-              label="Assign User"
-              name="postedBy"
-              placeholder="Select User"
-              control={control}
-              options={usersList}
-            />
-          </div>)}
-          {/* Special Information */}
-          <div className={`${user?.role == UserRole.BROKER_ADMIN ? 'col-9' : 'col-12'}`}>
-            <Input
-                label="Special Information"
-                id="specialInstructions"
-                name="specialInstructions"
-                placeholder="Enter a detailed description"
-                register={register}
-                errors={errors}
-                isTextArea
-                rows={3}
+          {user?.role == UserRole.BROKER_ADMIN && (
+            <div className="col-3">
+              <SelectField
+                label="Assign User"
+                name="postedBy"
+                placeholder="Select User"
+                control={control}
+                options={usersList}
               />
+            </div>
+          )}
+          {/* Special Information */}
+          <div
+            className={`${
+              user?.role == UserRole.BROKER_ADMIN ? "col-9" : "col-12"
+            }`}
+          >
+            <Input
+              label="Special Information"
+              id="specialInstructions"
+              name="specialInstructions"
+              placeholder="Enter a detailed description"
+              register={register}
+              errors={errors}
+              isTextArea
+              rows={3}
+            />
           </div>
           <div className="col-12 text-center">
-          <button
-            className="btn btn-accent btn-lg"
-            type="submit"
-            disabled={!isValid || loading}
-            onClick={handleSubmit(submit)}
-          >
-            {loadId ? "Update" : "Create"}
-          </button>
+            <button
+              className="btn btn-accent btn-lg"
+              type="submit"
+              disabled={!isValid || loading}
+              onClick={handleSubmit(submit)}
+            >
+              {loadId ? "Update" : "Create"}
+            </button>
           </div>
         </div>
       </form>

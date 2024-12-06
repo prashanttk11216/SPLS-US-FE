@@ -17,6 +17,7 @@ import { PhoneInput } from "react-international-phone";
 import { validatePhoneNumber } from "../../../../../utils/phoneValidate";
 import Stepper, { Step } from "../../../../../components/common/Stepper/Stepper";
 import CheckboxField from "../../../../../components/common/CheckboxField/CheckboxField";
+import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 
 interface CreateOrEditCarrierProps {
   isModalOpen: boolean; // Controls modal visibility
@@ -302,16 +303,14 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
           <div className="row">
             {/* Address */}
             <div className="col-12 col-md-6">
-              <Input
-                label="Address"
-                type="text"
-                id="address"
+            <PlaceAutocompleteField
                 name="address"
-                placeholder="Enter Address"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.addressRequired}
+                label="Address"
+                control={control}
+                placeholder="Enter address"
+                rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
                 required
+                onPlaceSelect={(details)=>handlePlaceSelect(details)}
               />
             </div>
             {/* Address Line 2 */}
@@ -423,16 +422,14 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
           <div className="row">
             {/* Billing Address */}
             <div className="col-12 col-md-6">
-              <Input
-                label="Billing Address"
-                type="text"
-                id="billingAddress"
+            <PlaceAutocompleteField
                 name="billingAddress"
+                label="Billing Address"
+                control={control}
                 placeholder="Enter Primary Billing Address"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.addressRequired}
+                rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
                 required
+                onPlaceSelect={(details)=>handlePlaceSelect(details, true)}
               />
             </div>
             {/* Billing Address Line 2 */}
@@ -575,6 +572,31 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
       fields: ["password", "confirmPassword"],
     },
   ]
+
+  const handlePlaceSelect = (details: {
+    formatted_address: string | null;
+    city: string | null;
+    state: string | null;
+    postal_code: string | null;
+    country: string | null;
+    lat: number | null;
+    lng: number | null;
+  }, isBilling: boolean = false) => {
+    console.log("Selected Place Details:", details);
+    if(isBilling){
+      setValue("billingAddress", details.formatted_address!);
+      setValue("billingCountry", details.country!);
+      setValue("billingState", details.state!);
+      setValue("billingCity", details.city!);
+      setValue("billingZip", details.postal_code!);
+    }else{
+    setValue("address", details.formatted_address!);
+    setValue("country", details.country!);
+    setValue("state", details.state!);
+    setValue("city", details.city!);
+    setValue("zip", details.postal_code!);
+    }
+  };
 
   return (
     <Modal

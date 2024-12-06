@@ -14,6 +14,7 @@ import { validatePhoneNumber } from "../../../../../utils/phoneValidate";
 import Stepper, { Step } from "../../../../../components/common/Stepper/Stepper";
 import { createConsignee, editConsignee } from "../../../../../services/consignee/consigneeService";
 import { Consignee } from "../../../../../types/Consignee";
+import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 
 
 export type ConsigneeForm = {
@@ -58,6 +59,7 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
     handleSubmit,
     control,
     formState: { errors, isValid },
+    setValue,
     reset,
     trigger
   } = useForm<ConsigneeForm>({
@@ -153,6 +155,24 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
   const resetSteps = () => {
     setActiveStep(0);
     setCompletedSteps([]); // Clear all completed steps
+  };
+
+
+  const handlePlaceSelect = (details: {
+    formatted_address: string | null;
+    city: string | null;
+    state: string | null;
+    postal_code: string | null;
+    country: string | null;
+    lat: number | null;
+    lng: number | null;
+  }) => {
+    console.log("Selected Place Details:", details);
+    setValue("address", details.formatted_address!);
+    setValue("country", details.country!);
+    setValue("state", details.state!);
+    setValue("city", details.city!);
+    setValue("zip", details.postal_code!);
   };
   
   const steps: Step[] = [
@@ -269,16 +289,14 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
           <div className="row">
             {/* Address */}
             <div className="col-12 col-md-6">
-              <Input
-                label="Address"
-                type="text"
-                id="address"
+              <PlaceAutocompleteField
                 name="address"
-                placeholder="Enter Address"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.addressRequired}
+                label="Address"
+                control={control}
+                placeholder="Enter address"
+                rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
                 required
+                onPlaceSelect={handlePlaceSelect}
               />
             </div>
             {/* Address Line 2 */}
