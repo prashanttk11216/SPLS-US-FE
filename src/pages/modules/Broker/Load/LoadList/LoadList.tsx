@@ -23,10 +23,12 @@ import {
 import { useNavigate } from "react-router-dom";
 import { formatDate } from "../../../../../utils/dateFormat";
 import { LoadStatus } from "../../../../../enums/LoadStatus";
+import Modal from "../../../../../components/common/Modal/Modal";
+import LoadDetailsModal from "../LoadDetailsModal/LoadDetailsModal";
 
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [loads, setLoads] = useState<Load[]>([]);
   const [meta, setMeta] = useState({
     page: 1,
@@ -43,6 +45,13 @@ const LoadList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isAvailableLoad, setAvailableLoad] = useState<boolean>(false);
 
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
+  const [loadDetails, setLoadDetails] = useState<Partial<Load> | null>(null);
+
+  const closeModal = () => {
+    setIsDetailsModalOpen(false);
+    setLoadDetails(null);
+  };
 
   const handleSortFilterChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -76,9 +85,9 @@ const LoadList: React.FC = () => {
           query += `&search=${encodeURIComponent(searchQuery)}`;
         }
 
-        if(isAvailableLoad){
+        if (isAvailableLoad) {
           query += `&status=${LoadStatus.Draft}`;
-        }else {
+        } else {
           query += `&status=${LoadStatus.Published}`;
         }
 
@@ -129,12 +138,22 @@ const LoadList: React.FC = () => {
 
   const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
+      case "View Details":
+        const load = loads.find((l) => l._id === row._id);
+        if (load) {
+          setLoadDetails(load);
+          setIsDetailsModalOpen(true);
+        }
+        break;
+
       case "Edit":
-        navigate(`create/${row._id}${isAvailableLoad ? '?draft=true': ''}`)
+        navigate(`create/${row._id}${isAvailableLoad ? "?draft=true" : ""}`);
         break;
       case "Published":
         try {
-          const result = await loadStatus(row._id, {status: LoadStatus.Published});
+          const result = await loadStatus(row._id, {
+            status: LoadStatus.Published,
+          });
           if (result.success) {
             toast.success(result.message);
             fetchLoadsData();
@@ -160,8 +179,8 @@ const LoadList: React.FC = () => {
   };
 
   const getActionsForLoad = (load: Load): string[] => {
-    const actions = ["Edit"];
-    if(isAvailableLoad) {
+    const actions = ["View Details", "Edit"];
+    if (isAvailableLoad) {
       actions.push("Published");
     }
     actions.push("Delete");
@@ -193,8 +212,10 @@ const LoadList: React.FC = () => {
       _id: load._id,
       origin: load.origin,
       destination: load.destination || "N/A",
-      originEarlyPickupDate: formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
-      originEarlyPickupTime: formatDate(load.originEarlyPickupDate, "h:mm aa") || "N/A",
+      originEarlyPickupDate:
+        formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
+      originEarlyPickupTime:
+        formatDate(load.originEarlyPickupDate, "h:mm aa") || "N/A",
       equipment: load.equipment || "N/A",
       mode: load.mode || "N/A",
       actions: getActionsForLoad(load),
@@ -386,16 +407,27 @@ const LoadList: React.FC = () => {
         <div className="text-danger">{error}</div>
       ) : (
         <>
-          {
-            user.role === UserRole.BROKER_ADMIN && (<ul className="nav nav-tabs">
-              <li className="nav-item" onClick={()=>setAvailableLoad(false)}>
-                <a className={`nav-link ${!isAvailableLoad && 'active'}`} aria-current="page" href="#">Loads</a>
+          {user.role === UserRole.BROKER_ADMIN && (
+            <ul className="nav nav-tabs">
+              <li className="nav-item" onClick={() => setAvailableLoad(false)}>
+                <a
+                  className={`nav-link ${!isAvailableLoad && "active"}`}
+                  aria-current="page"
+                  href="#"
+                >
+                  Loads
+                </a>
               </li>
-              <li className="nav-item" onClick={()=> setAvailableLoad(true)}>
-                <a className={`nav-link ${isAvailableLoad && 'active'}`} href="#">Available Loads</a>
+              <li className="nav-item" onClick={() => setAvailableLoad(true)}>
+                <a
+                  className={`nav-link ${isAvailableLoad && "active"}`}
+                  href="#"
+                >
+                  Available Loads
+                </a>
               </li>
-            </ul>)
-          }
+            </ul>
+          )}
           <Table
             columns={columns}
             rows={getRowData()}
@@ -404,15 +436,29 @@ const LoadList: React.FC = () => {
           />
           {loads?.length > 0 && (
             <div className="pagination-container">
-            {/* Pagination Component */}
-            <Pagination
-              meta={meta}
-              onPageChange={handlePageChange}
-              onItemsPerPageChange={handleItemsPerPageChange}
-            />
-          </div>
+              {/* Pagination Component */}
+              <Pagination
+                meta={meta}
+                onPageChange={handlePageChange}
+                onItemsPerPageChange={handleItemsPerPageChange}
+              />
+            </div>
           )}
         </>
+      )}
+
+      {isDetailsModalOpen && loadDetails && (
+        <Modal
+          isOpen={isDetailsModalOpen}
+          onClose={closeModal}
+          title="Load Details"
+        >
+          <LoadDetailsModal
+            load={loadDetails}
+            onClose={closeModal}
+            isOpen={isDetailsModalOpen}
+          />
+        </Modal>
       )}
     </div>
   );

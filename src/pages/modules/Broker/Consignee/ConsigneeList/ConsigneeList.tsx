@@ -15,8 +15,14 @@ import FilterShape from "../../../../../assets/icons/Filter.svg";
 import closeLogo from "../../../../../assets/icons/closeLogo.svg";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import { Consignee } from "../../../../../types/Consignee";
-import { deleteConsignee, getConsignee, getConsigneeById, toggleActiveConsignee } from "../../../../../services/consignee/consigneeService";
+import {
+  deleteConsignee,
+  getConsignee,
+  getConsigneeById,
+  toggleActiveConsignee,
+} from "../../../../../services/consignee/consigneeService";
 import CreateOrEditConsignee from "../CreateOrEditConsignee/CreateOrEditConsignee";
+import ConsigneeDetailsModal from "../ConsigneeDetailsModal/ConsigneeDetailsModal";
 
 const ConsigneeList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -39,6 +45,11 @@ const ConsigneeList: React.FC = () => {
   const [sortFilter, setSortFilter] = useState<string | null>(null); // state for sorting filter
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc"); // Sort order state
   const [searchQuery, setSearchQuery] = useState<string>("");
+
+  // View Details Option Added
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
+  const [consigneeDetails, setConsigneeDetails] =
+    useState<Partial<Consignee> | null>(null);
 
   const handleSortFilterChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -126,8 +137,22 @@ const ConsigneeList: React.FC = () => {
     setConsigneeData(null);
   };
 
+  // View Details Option Added
+  const openDetailsModal = (consigneeData: Partial<Consignee>) => {
+    setConsigneeDetails(consigneeData);
+    setIsDetailsModalOpen(true);
+  };
+
   const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
+      case "View Details":
+        try {
+          const consigneeData = await fetchConsigneeById(row._id);
+          openDetailsModal(consigneeData.data); // Open details modal
+        } catch (err) {
+          toast.error("Failed to fetch carrier details.");
+        }
+        break;
       case "Edit":
         try {
           const result = await fetchConsigneeById(row._id);
@@ -165,7 +190,7 @@ const ConsigneeList: React.FC = () => {
   };
 
   const getActions = (consignee: Consignee): string[] => {
-    const actions = ["Edit"];
+    const actions = ["View Details", "Edit"];
     if (consignee.isActive) {
       actions.push("Deactivate");
     } else {
@@ -207,7 +232,7 @@ const ConsigneeList: React.FC = () => {
   const getRowData = () => {
     return consignees.map((consignee) => ({
       _id: consignee._id,
-      name:`${consignee.firstName} ${consignee.lastName}`,
+      name: `${consignee.firstName} ${consignee.lastName}`,
       email: consignee.email,
       contact: consignee.primaryNumber || "N/A",
       shippingHours: consignee.shippingHours,
@@ -427,6 +452,12 @@ const ConsigneeList: React.FC = () => {
         }}
         isEditing={isEditing}
         consigneeData={consigneeData}
+      />
+
+      <ConsigneeDetailsModal
+        isOpen={isDetailsModalOpen}
+        consignee={consigneeDetails}
+        onClose={() => setIsDetailsModalOpen(false)}
       />
     </div>
   );

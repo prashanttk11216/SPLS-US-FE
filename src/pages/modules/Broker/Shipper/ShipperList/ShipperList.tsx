@@ -14,17 +14,23 @@ import Pagination, {
 import FilterShape from "../../../../../assets/icons/Filter.svg";
 import closeLogo from "../../../../../assets/icons/closeLogo.svg";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
-import CreateOrEditShipper, { ShipperForm } from "../CreateOrEditShipper/CreateOrEditShipper";
+import CreateOrEditShipper, {
+  ShipperForm,
+} from "../CreateOrEditShipper/CreateOrEditShipper";
 import { Shipper } from "../../../../../types/Shipper";
-import { deleteShipper, getShipper, getShipperById, toggleActiveShipper } from "../../../../../services/shipper/shipperService";
+import {
+  deleteShipper,
+  getShipper,
+  getShipperById,
+  toggleActiveShipper,
+} from "../../../../../services/shipper/shipperService";
+import ShipperDetailsModal from "../ShipperDetailsModal/ShipperDetailsModal";
 
 const ShipperList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [shipperData, setShipperData] = useState<ShipperForm | null>(
-    null
-  );
+  const [shipperData, setShipperData] = useState<ShipperForm | null>(null);
   const [shippers, setShippers] = useState<Shipper[]>([]);
   const [meta, setMeta] = useState({
     page: 1,
@@ -39,6 +45,12 @@ const ShipperList: React.FC = () => {
   const [sortFilter, setSortFilter] = useState<string | null>(null); // state for sorting filter
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc"); // Sort order state
   const [searchQuery, setSearchQuery] = useState<string>("");
+
+  // View Details Option Added
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
+  const [shipperDetails, setShipperDetails] = useState<Partial<Shipper> | null>(
+    null
+  );
 
   const handleSortFilterChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -126,8 +138,23 @@ const ShipperList: React.FC = () => {
     setShipperData(null);
   };
 
+  // View Details Option Added
+  const openDetailsModal = (shipperData: Partial<Shipper>) => {
+    setShipperDetails(shipperData);
+    setIsDetailsModalOpen(true);
+  };
+
   const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
+      case "View Details":
+        try {
+          const shipperData = await fetchShipperById(row._id);
+          openDetailsModal(shipperData.data); // Open details modal
+        } catch (err) {
+          toast.error("Failed to fetch carrier details.");
+        }
+        break;
+
       case "Edit":
         try {
           const result = await fetchShipperById(row._id);
@@ -165,7 +192,7 @@ const ShipperList: React.FC = () => {
   };
 
   const getActions = (shipper: Shipper): string[] => {
-    const actions = ["Edit"];
+    const actions = ["View Details", "Edit"];
     if (shipper.isActive) {
       actions.push("Deactivate");
     } else {
@@ -207,7 +234,7 @@ const ShipperList: React.FC = () => {
   const getRowData = () => {
     return shippers.map((shipper) => ({
       _id: shipper._id,
-      name:`${shipper.firstName} ${shipper.lastName}`,
+      name: `${shipper.firstName} ${shipper.lastName}`,
       email: shipper.email,
       contact: shipper.primaryNumber || "N/A",
       shippingHours: shipper.shippingHours,
@@ -427,6 +454,12 @@ const ShipperList: React.FC = () => {
         }}
         isEditing={isEditing}
         shipperData={shipperData}
+      />
+
+      <ShipperDetailsModal
+        isOpen={isDetailsModalOpen}
+        shipper={shipperDetails}
+        onClose={() => setIsDetailsModalOpen(false)}
       />
     </div>
   );
