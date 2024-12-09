@@ -18,6 +18,7 @@ import { Load } from "../../../../../types/Load";
 import {
   deleteLoad,
   getloads,
+  notifyCustomerLoad,
   updateLoadStatus,
 } from "../../../../../services/load/loadServices";
 import { useNavigate } from "react-router-dom";
@@ -43,7 +44,7 @@ const LoadList: React.FC = () => {
   const [sortFilter, setSortFilter] = useState<string | null>(null); // state for sorting filter
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc"); // Sort order state
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [isAvailableLoad, setAvailableLoad] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<LoadStatus>(LoadStatus.Published);
 
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
   const [loadDetails, setLoadDetails] = useState<Partial<Load> | null>(null);
@@ -73,22 +74,23 @@ const LoadList: React.FC = () => {
     deleteDataService: deleteLoad,
   });
 
+  const {
+    updateData: notifyCustomerRate,
+  } = useFetchData<any>({
+    updateDataService: notifyCustomerLoad,
+  })
+  
+
   // Fetch Load data
   const fetchLoadsData = useCallback(
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return; // Wait for user data
       try {
-        let query = `?page=${page}&limit=${limit}`;
+        let query = `?page=${page}&limit=${limit}&status=${activeTab}`;
 
         //Search Functionality
         if (searchQuery) {
           query += `&search=${encodeURIComponent(searchQuery)}`;
-        }
-
-        if (isAvailableLoad) {
-          query += `&status=${LoadStatus.Draft}`;
-        } else {
-          query += `&status=${LoadStatus.Published}`;
         }
 
         // Append `isActive` filter based on `statusFilter`
@@ -116,7 +118,7 @@ const LoadList: React.FC = () => {
         toast.error("Error fetching customer data.");
       }
     },
-    [fetchLoads, statusFilter, sortOrder, searchQuery, user, isAvailableLoad]
+    [fetchLoads, statusFilter, sortOrder, searchQuery, user, activeTab]
   );
 
   // Trigger fetch when user is populated
@@ -124,7 +126,7 @@ const LoadList: React.FC = () => {
     if (user && user._id) {
       fetchLoadsData();
     }
-  }, [user, statusFilter, sortFilter, sortOrder, searchQuery, isAvailableLoad]);
+  }, [user, statusFilter, sortFilter, sortOrder, searchQuery, activeTab]);
 
   const columns = [
     { key: "origin", label: "Origin", width: "30%" },
@@ -145,11 +147,10 @@ const LoadList: React.FC = () => {
           setIsDetailsModalOpen(true);
         }
         break;
-
       case "Edit":
-        navigate(`create/${row._id}${isAvailableLoad ? "?draft=true" : ""}`);
+        navigate(`create/${row._id}${activeTab === LoadStatus.Draft ? "?draft=true" : ""}`);
         break;
-      case "Published":
+      case LoadStatus.Published:
         try {
           const result = await loadStatus(row._id, {
             status: LoadStatus.Published,
@@ -160,6 +161,38 @@ const LoadList: React.FC = () => {
           }
         } catch (err) {
           toast.error("Failed to delete customer.");
+        }
+        break;
+      case LoadStatus.DealClosed:
+        try {
+          const result = await loadStatus(row._id, {
+            status: LoadStatus.DealClosed,
+          });
+          if (result.success) {
+            toast.success(result.message);
+            fetchLoadsData();
+          }
+        } catch (err) {
+          toast.error("Failed to delete customer.");
+        }
+        break;
+      case LoadStatus.Cancelled:
+          try {
+            const result = await loadStatus(row._id, {
+              status: LoadStatus.Cancelled,
+            });
+            if (result.success) {
+              toast.success(result.message);
+              fetchLoadsData();
+            }
+          } catch (err) {
+            toast.error("Failed to delete customer.");
+          }
+          break;
+      case "Notify Customer":
+        const result = await notifyCustomerRate(row._id, "");
+        if(result.success){
+          toast.success(result.message);
         }
         break;
       case "Delete":
@@ -180,8 +213,13 @@ const LoadList: React.FC = () => {
 
   const getActionsForLoad = (load: Load): string[] => {
     const actions = ["View Details", "Edit"];
-    if (isAvailableLoad) {
+    if (activeTab == LoadStatus.Draft) {
       actions.push("Published");
+    }
+    if (activeTab == LoadStatus.PendingResponse) {
+      actions.push("Notify Customer");
+      actions.push("Deal Closed");
+      actions.push("Cancelled");
     }
     actions.push("Delete");
     return actions;
@@ -409,21 +447,45 @@ const LoadList: React.FC = () => {
         <>
           {user.role === UserRole.BROKER_ADMIN && (
             <ul className="nav nav-tabs">
-              <li className="nav-item" onClick={() => setAvailableLoad(false)}>
+              <li className="nav-item" onClick={() => setActiveTab(LoadStatus.Published)}>
                 <a
-                  className={`nav-link ${!isAvailableLoad && "active"}`}
+                  className={`nav-link ${LoadStatus.Published == activeTab && "active"}`}
                   aria-current="page"
                   href="#"
                 >
                   Loads
                 </a>
               </li>
-              <li className="nav-item" onClick={() => setAvailableLoad(true)}>
+              <li className="nav-item" onClick={() => setActiveTab(LoadStatus.Draft)}>
                 <a
-                  className={`nav-link ${isAvailableLoad && "active"}`}
+                  className={`nav-link ${LoadStatus.Draft == activeTab  && "active"}`}
                   href="#"
                 >
-                  Available Loads
+                  Available/Draft
+                </a>
+              </li>
+              <li className="nav-item" onClick={() => setActiveTab(LoadStatus.PendingResponse)}>
+                <a
+                  className={`nav-link ${LoadStatus.PendingResponse == activeTab  && "active"}`}
+                  href="#"
+                >
+                  Pending Response
+                </a>
+              </li>
+              <li className="nav-item" onClick={() => setActiveTab(LoadStatus.DealClosed)}>
+                <a
+                  className={`nav-link ${LoadStatus.DealClosed == activeTab  && "active"}`}
+                  href="#"
+                >
+                  Deal Closed
+                </a>
+              </li>
+              <li className="nav-item" onClick={() => setActiveTab(LoadStatus.Cancelled)}>
+                <a
+                  className={`nav-link ${LoadStatus.Cancelled == activeTab  && "active"}`}
+                  href="#"
+                >
+                  Cancelled
                 </a>
               </li>
             </ul>

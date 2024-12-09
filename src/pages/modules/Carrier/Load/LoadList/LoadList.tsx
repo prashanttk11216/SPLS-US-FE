@@ -17,6 +17,7 @@ import "./LoadList.scss";
 import { Load } from "../../../../../types/Load";
 import {
   getloads,
+  sendLoadRequest,
 } from "../../../../../services/load/loadServices";
 import { formatDate } from "../../../../../utils/dateFormat";
 
@@ -48,9 +49,11 @@ const LoadList: React.FC = () => {
 
   const {
     fetchData: fetchLoads,
+    updateData: loadRequest,
     loading,
     error,
   } = useFetchData<any>({
+    updateDataService: sendLoadRequest,
     fetchDataService: getloads,
   });
 
@@ -115,6 +118,10 @@ const LoadList: React.FC = () => {
   const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
       case "Send Request":
+        const result = await loadRequest(row._id, "");
+        if(result.success){
+          toast.success(result.message);
+        }
         break;
       default:
         toast.info(`Action "${action}" is not yet implemented.`);

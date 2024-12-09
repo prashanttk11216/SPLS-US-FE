@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import "./Table.scss";
 import EllipsisVertical from "../../../assets/icons/ellipsisVertical.svg";
 
@@ -19,10 +19,31 @@ interface TableProps {
 }
 
 const Table: FC<TableProps> = ({ columns, rows, data, onActionClick }) => {
+  // State to track which dropdown is open
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
   const handleRowClick = (row: Record<string, any>) => {
     if (onActionClick) {
       onActionClick("View Details", row);
     }
+  };
+
+  const handleActionClick = (
+    event: React.MouseEvent,
+    dropdownId: string,
+    action: string,
+    row: Record<string, any>
+  ) => {
+    event.stopPropagation(); // Prevent the event from bubbling up to the row click
+    if (onActionClick) {
+      onActionClick(action, row);
+    }
+    // Close the dropdown after an action click
+    setOpenDropdown(null);
+  };
+
+  const toggleDropdown = (dropdownId: string) => {
+    setOpenDropdown((prev) => (prev === dropdownId ? null : dropdownId));
   };
 
   return (
@@ -53,28 +74,32 @@ const Table: FC<TableProps> = ({ columns, rows, data, onActionClick }) => {
                   {column.isAction && row.actions ? (
                     <div
                       className="dropdown text-center"
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleDropdown(`dropdown-${rowIndex}`);
+                      }}
                     >
                       <a
                         role="button"
                         id={`dropdown-${rowIndex}`}
                         data-bs-toggle="dropdown"
-                        aria-expanded="false"
+                        aria-expanded={openDropdown === `dropdown-${rowIndex}`}
                       >
                         <img src={EllipsisVertical} height={20} width={20} />
                       </a>
                       <ul
-                        className="dropdown-menu"
+                        className={`dropdown-menu ${
+                          openDropdown === `dropdown-${rowIndex}` ? "show" : ""
+                        }`}
                         aria-labelledby={`dropdown-${rowIndex}`}
                       >
                         {row.actions.map((action: string, index: number) => (
                           <li key={index}>
                             <button
                               className="dropdown-item"
-                              onClick={() =>
-                                onActionClick &&
-                                onActionClick(action, data[rowIndex])
-                              }
+                              onClick={(e) => {
+                                handleActionClick(e, `dropdown-${rowIndex}`, action, data[rowIndex]);
+                              }}
                             >
                               {action}
                             </button>

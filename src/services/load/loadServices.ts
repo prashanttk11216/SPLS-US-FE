@@ -69,3 +69,25 @@ export const deleteLoad = async (loadId: string): Promise<ApiResponse> => {
     return handleAxiosError(error, "Failed to delete Load");
   }
 };
+
+export const sendLoadRequest = async (
+  loadId: string,
+): Promise<ApiResponse> => {
+  try {
+    const response = await axiosApi.post(`/load/request/${loadId}`);
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "Failed to update Load details");
+  }
+};
+
+export const notifyCustomerLoad = async (
+  loadId: string,
+): Promise<ApiResponse> => {
+  try {
+    const response = await axiosApi.post(`/load/rateconfirm/${loadId}`);
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "Failed to update Load details");
+  }
+};
