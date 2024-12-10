@@ -8,3 +8,11 @@
     border:1px solid red !important; /* Red border for invalid input */
     border-radius: 0.5rem;
 }
+
+.text-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    display: block;
+}

@@ -10,7 +10,11 @@ export interface Load {
   brokerId?: string | User;
   adminId?: string;
   carrierId?: string;
-  origin: string;
+  origin:  {
+    str: string; // String representation of the address
+    lat: number; // Latitude
+    lng: number; // Longitude
+  };
   originEarlyPickupDate: Date;
   originLatePickupDate?: Date;
   originEarlyPickupTime?: Date;
@@ -22,7 +26,11 @@ export interface Load {
     earlyPickupTime?: Date;
     latePickupTime?: Date;
   }[];
-  destination: string;
+  destination:  {
+    str: string; // String representation of the address
+    lat: number; // Latitude
+    lng: number; // Longitude
+  };
   destinationEarlyDropoffDate?: Date;
   destinationLateDropoffDate?: Date;
   destinationEarlyDropoffTime?: Date;
@@ -45,6 +53,7 @@ export interface Load {
   distance?: number;
   pieces?: number;
   pallets?: number;
+  miles?: number;
   loadOption?: LoadOption;
   specialInstructions?: string;
   commodity: Commodity;

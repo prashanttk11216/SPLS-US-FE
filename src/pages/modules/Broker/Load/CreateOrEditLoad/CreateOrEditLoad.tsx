@@ -24,10 +24,16 @@ import { UserRole } from "../../../../../enums/UserRole";
 import { getUsers } from "../../../../../services/user/userService";
 import { createLoadSchema, updateLoadSchema } from "../../../../../schema/Load";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
+import DirectionsMap from "../../../../../components/DirectionsMap/DirectionsMap";
+import calculateDistance from "../../../../../utils/distanceCalculator";
 
 export type loadForm = {
   _id: string;
-  origin: string;
+  origin: {
+    str: string; // String representation of the address
+    lat: number; // Latitude
+    lng: number; // Longitude
+  };
   originEarlyPickupDate: Date;
   originLatePickupDate?: Date | string;
   originEarlyPickupTime?: Date | string;
@@ -39,7 +45,11 @@ export type loadForm = {
     earlyPickupTime?: Date | string;
     latePickupTime?: Date | string;
   }[];
-  destination: string;
+  destination: {
+    str: string; // String representation of the address
+    lat: number; // Latitude
+    lng: number; // Longitude
+  };
   destinationEarlyDropoffDate?: Date | string;
   destinationLateDropoffDate?: Date | string;
   destinationEarlyDropoffTime?: Date | string;
@@ -62,6 +72,7 @@ export type loadForm = {
   distance?: number;
   pieces?: number;
   pallets?: number;
+  miles?: number;
   loadOption?: LoadOption;
   specialInstructions?: string;
   commodity: Commodity;
@@ -79,21 +90,22 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   const [loadData, setLoadData] = useState<loadForm>();
   const [usersList, setUsersList] = useState<any[]>([]);
 
-  const equipmentOptions = Object.entries(Equipment).map(([key, value]) => ({
-    value: value,
-    label: value,
-  }));
-  const modeOptions = Object.entries(Mode).map(([key, value]) => ({
+  const equipmentOptions = Object.entries(Equipment).map(([_, value]) => ({
     value: value,
     label: value,
   }));
 
-  const loadOptions = Object.entries(LoadOption).map(([key, value]) => ({
+  const modeOptions = Object.entries(Mode).map(([_, value]) => ({
     value: value,
     label: value,
   }));
 
-  const commodityOptions = Object.entries(Commodity).map(([key, value]) => ({
+  const loadOptions = Object.entries(LoadOption).map(([_, value]) => ({
+    value: value,
+    label: value,
+  }));
+
+  const commodityOptions = Object.entries(Commodity).map(([_, value]) => ({
     value: value,
     label: value,
   }));
@@ -103,6 +115,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
     handleSubmit,
     control,
     setValue,
+    getValues,
     formState: { errors, isValid },
     reset,
   } = useForm<loadForm>({
@@ -206,9 +219,11 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
     try {
       let result;
       if (loadId && loadData) {
+        data.miles = await getDistance();
         const validatedData = updateLoadSchema.parse(data);
         result = await updateLoad(loadData._id, validatedData);
       } else {
+        data.miles = await getDistance();
         const validatedData = createLoadSchema.parse(data);
         result = await newLoad(validatedData);
       }
@@ -224,6 +239,25 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
     } catch (err) {
       console.error("Error:", err);
       toast.error("An unexpected error occurred. Please try again.");
+    }
+  };
+
+  const getDistance = async () => {
+    const originData = {
+      lat: getValues("origin").lat,
+      lng: getValues("origin").lng,
+    };
+    const destinationData = {
+      lat: getValues("destination").lat,
+      lng: getValues("destination").lng,
+    };
+
+    try {
+      const distance = await calculateDistance(originData, destinationData);
+      return distance;
+    } catch (error) {
+      console.error(error);
+      return 0;
     }
   };
 
@@ -255,9 +289,13 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               control={control}
               placeholder="Enter Origin City & State, or Zip Code"
               rules={{ required: VALIDATION_MESSAGES.originRequired }} // Example validation
-              onPlaceSelect={(details) =>
-                setValue("origin", details.formatted_address!)
-              }
+              onPlaceSelect={(details) => {
+                setValue("origin", {
+                  str: details.formatted_address!,
+                  lat: details.lat!,
+                  lng: details.lng!,
+                });
+              }}
               required
             />
           </div>
@@ -441,9 +479,13 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               control={control}
               placeholder="Enter Destination City & State, or Zip Code"
               rules={{ required: VALIDATION_MESSAGES.destinationRequired }} // Example validation
-              onPlaceSelect={(details) =>
-                setValue("destination", details.formatted_address!)
-              }
+              onPlaceSelect={(details) => {
+                setValue("destination", {
+                  str: details.formatted_address!,
+                  lat: details.lat!,
+                  lng: details.lng!,
+                });
+              }}
               required
             />
           </div>
@@ -831,6 +873,25 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               {loadId ? "Update" : "Create"}
             </button>
           </div>
+          {getValues("origin") && getValues("destination") && (
+            <>
+              <div className="col-12 mt-5">
+                <h3>Calculated Distance : </h3>
+                <DirectionsMap
+                  width="100%"
+                  height="400px"
+                  origin={{
+                    lat: getValues("origin").lat,
+                    lng: getValues("origin").lng,
+                  }} // New York City
+                  destination={{
+                    lat: getValues("destination").lat,
+                    lng: getValues("destination").lng,
+                  }} // Los Angeles
+                />
+              </div>
+            </>
+          )}
         </div>
       </form>
     </>

@@ -20,6 +20,7 @@ import {
   sendLoadRequest,
 } from "../../../../../services/load/loadServices";
 import { formatDate } from "../../../../../utils/dateFormat";
+import { formatDistance } from "../../../../../utils/distanceCalculator";
 
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -105,13 +106,14 @@ const LoadList: React.FC = () => {
   }, [user, statusFilter, sortFilter, sortOrder, searchQuery]);
 
   const columns = [
-    { key: "origin", label: "Origin", width: "30%" },
+    { key: "origin", label: "Origin", width: "20%" },
     { key: "destination", label: "Destination" },
     { key: "originEarlyPickupDate", label: "Pick-up" },
     { key: "originEarlyPickupTime", label: "Pick-up Time" },
     { key: "equipment", label: "Equipment" },
+    { key: "miles", label: "Miles" },
     { key: "mode", label: "Mode" },
-     {key: "postedBy", label: "Posted By"},
+    { key: "postedBy", label: "Posted By" },
     { key: "actions", label: "Actions", isAction: true },
   ];
 
@@ -156,11 +158,12 @@ const LoadList: React.FC = () => {
   const getRowData = () => {
     return loads.map((load) => ({
       _id: load._id,
-      origin: load.origin,
-      destination: load.destination || "N/A",
+      origin: load.origin.str,
+      destination: load.destination?.str || "N/A",
       originEarlyPickupDate: formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
       originEarlyPickupTime: formatDate(load.originEarlyPickupDate, "h:mm aa") || "N/A",
       equipment: load.equipment || "N/A",
+      miles: formatDistance(load.miles!) || "N/A",
       mode: load.mode || "N/A",
       postedBy: load.brokerId && typeof load.brokerId === "object" ? load.brokerId.company : "N/A",
       actions: getActionsForLoad(load),

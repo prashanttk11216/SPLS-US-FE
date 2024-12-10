@@ -133,8 +133,8 @@ const PlaceAutocompleteField = ({
               onBlur={field.onBlur}
               disabled={field.disabled}
               name={field.name}
-              value={field.value}
-              onChange={(e) => {
+              value={field.value?.str}
+              onChange={(e) => {                
                 field.onChange(e);
               }}
             />

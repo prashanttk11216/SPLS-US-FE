@@ -23,10 +23,17 @@ import NumberInput from "../../../../../components/common/NumberInput/NumberInpu
 import { UserRole } from "../../../../../enums/UserRole";
 import { getUsers } from "../../../../../services/user/userService";
 import { createLoadSchema, updateLoadSchema } from "../../../../../schema/Load";
+import calculateDistance from "../../../../../utils/distanceCalculator";
+import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
+import DirectionsMap from "../../../../../components/DirectionsMap/DirectionsMap";
 
 export type loadForm = {
   _id: string;
-  origin: string;
+  origin: {
+    str: string; // String representation of the address
+    lat: number; // Latitude
+    lng: number; // Longitude
+  };
   originEarlyPickupDate: Date;
   originLatePickupDate?: Date | string;
   originEarlyPickupTime?: Date | string;
@@ -38,7 +45,11 @@ export type loadForm = {
     earlyPickupTime?: Date | string;
     latePickupTime?: Date | string;
   }[];
-  destination: string;
+  destination: {
+    str: string; // String representation of the address
+    lat: number; // Latitude
+    lng: number; // Longitude
+  };
   destinationEarlyDropoffDate?: Date | string;
   destinationLateDropoffDate?: Date | string;
   destinationEarlyDropoffTime?: Date | string;
@@ -61,6 +72,7 @@ export type loadForm = {
   distance?: number;
   pieces?: number;
   pallets?: number;
+  miles?: number;
   loadOption?: LoadOption;
   specialInstructions?: string;
   commodity: Commodity;
@@ -86,12 +98,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
     value: value,
     label: value,
   }));
-
   const loadOptions = Object.entries(LoadOption).map(([key, value]) => ({
     value: value,
     label: value,
   }));
-
   const commodityOptions = Object.entries(Commodity).map(([key, value]) => ({
     value: value,
     label: value,
@@ -101,6 +111,8 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
     register,
     handleSubmit,
     control,
+    setValue,
+    getValues,
     formState: { errors, isValid },
     reset,
   } = useForm<loadForm>({
@@ -116,50 +128,47 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   } = useFetchData<any>({
     createDataService: createLoad,
     updateDataService: editLoad,
-    fetchByIdService: getLoadById
+    fetchByIdService: getLoadById,
   });
 
-  const {
-    fetchData: fetchUsers,
-  } = useFetchData<any>({
-    fetchDataService: getUsers
+  const { fetchData: fetchUsers } = useFetchData<any>({
+    fetchDataService: getUsers,
   });
 
-  const fetchLoad =  async (loadId: string) => {
-        const result = await fetchLoadById(loadId);
-        if(result.success) {          
-          setLoadData(result.data);
-        }
-  }
+  const fetchLoad = async (loadId: string) => {
+    const result = await fetchLoadById(loadId);
+    if (result.success) {
+      setLoadData(result.data);
+    }
+  };
 
-
-  const fetchUsersData =  async () => {
-    let query = `?role=${UserRole.BROKER_USER}`
+  const fetchUsersData = async () => {
+    let query = `?role=${UserRole.BROKER_USER}`;
     const result = await fetchUsers(query);
-    if(result.success) {
+    if (result.success) {
       let users: any = [];
-      result?.data?.forEach(user => {
+      result?.data?.forEach((user) => {
         users.push({
           value: user._id,
           label: `${user.firstName} ${user.lastName}`,
-        })
-      });        
-      setUsersList(users)
+        });
+      });
+      setUsersList(users);
     }
-  }
+  };
 
   useEffect(() => {
-    if(loadId) fetchLoad(loadId);
+    if (loadId) fetchLoad(loadId);
   }, [loadId]);
-  useEffect(()=>{
-    if(loadData){
+  useEffect(() => {
+    if (loadData) {
       reset(loadData);
     }
-  },[loadData])
+  }, [loadData]);
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchUsersData();
-  },[]);
+  }, []);
 
   const {
     fields: originFields,
@@ -207,9 +216,11 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
     try {
       let result;
       if (loadId && loadData) {
+        data.miles = await getDistance();
         const validatedData = updateLoadSchema.parse(data);
         result = await updateLoad(loadData._id, validatedData);
       } else {
+        data.miles = await getDistance();
         const validatedData = createLoadSchema.parse(data);
         result = await newLoad(validatedData);
       }
@@ -218,13 +229,32 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
         toast.success(
           loadId ? "Load updated successfully." : "Load created successfully."
         );
-        navigate("/customer")
+        navigate("/customer");
       } else {
         throw new Error(result.message || "Action failed.");
       }
     } catch (err) {
       console.error("Error:", err);
       toast.error("An unexpected error occurred. Please try again.");
+    }
+  };
+
+  const getDistance = async () => {
+    const originData = {
+      lat: getValues("origin").lat,
+      lng: getValues("origin").lng,
+    };
+    const destinationData = {
+      lat: getValues("destination").lat,
+      lng: getValues("destination").lng,
+    };
+
+    try {
+      const distance = await calculateDistance(originData, destinationData);
+      return distance;
+    } catch (error) {
+      console.error(error);
+      return 0;
     }
   };
 
@@ -250,15 +280,19 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
           </div>
           {/* Origin */}
           <div className="col-4">
-            <Input
-              label="Origin City & State, or Zip Code"
-              type="text"
-              id="origin"
+            <PlaceAutocompleteField
               name="origin"
+              label="Origin City & State, or Zip Code"
+              control={control}
               placeholder="Enter Origin City & State, or Zip Code"
-              register={register}
-              errors={errors}
-              errorMessage={VALIDATION_MESSAGES.originRequired}
+              rules={{ required: VALIDATION_MESSAGES.originRequired }} // Example validation
+              onPlaceSelect={(details) => {
+                setValue("origin", {
+                  str: details.formatted_address!,
+                  lat: details.lat!,
+                  lng: details.lng!,
+                });
+              }}
               required
             />
           </div>
@@ -321,11 +355,14 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                 dateFormat: "h:mm aa",
               }}
             />
-          </div>          
+          </div>
 
           {originFields.map((item, index) => (
             <>
-              <div key={item.id} className="col-12 mb-2 border-top border-bottom border-secondary border-2">
+              <div
+                key={item.id}
+                className="col-12 mb-2 border-top border-bottom border-secondary border-2"
+              >
                 <div className="row py-2">
                   {/* delete */}
                   <div className="col-12 d-flex align-items-center justify-content-between mb-2">
@@ -340,14 +377,20 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                   </div>
                   {/* Stop City & State, or Zip Code*/}
                   <div className="col-4">
-                    <Input
-                      label={`Stop ${index} City & State, or Zip Code`}
-                      type="text"
-                      id={`${item.id}-${item.address}`}
+                    <PlaceAutocompleteField
                       name={`originStops.${index}.address`}
-                      placeholder={`Enter Stop ${index} City & State, or Zip Code`}
-                      register={register}
-                      errors={errors}
+                      label={`Stop ${index + 1} City & State, or Zip Code`}
+                      control={control}
+                      placeholder={`Enter Stop ${
+                        index + 1
+                      } City & State, or Zip Code`}
+                      rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
+                      onPlaceSelect={(details) =>
+                        setValue(
+                          `originStops.${index}.address`,
+                          details.formatted_address!
+                        )
+                      }
                       required
                     />
                   </div>
@@ -429,15 +472,19 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
 
           {/* Destination */}
           <div className="col-4">
-            <Input
-              label="Destination City & State, or Zip Code"
-              type="text"
-              id="destination"
+            <PlaceAutocompleteField
               name="destination"
+              label="Destination City & State, or Zip Code"
+              control={control}
               placeholder="Enter Destination City & State, or Zip Code"
-              register={register}
-              errors={errors}
-              errorMessage={VALIDATION_MESSAGES.destinationRequired}
+              rules={{ required: VALIDATION_MESSAGES.destinationRequired }} // Example validation
+              onPlaceSelect={(details) => {
+                setValue("destination", {
+                  str: details.formatted_address!,
+                  lat: details.lat!,
+                  lng: details.lng!,
+                });
+              }}
               required
             />
           </div>
@@ -500,7 +547,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
 
           {destinationFields.map((item, index) => (
             <>
-              <div key={item.id} className="col-12 mb-2 border-top border-bottom border-secondary border-2">
+              <div
+                key={item.id}
+                className="col-12 mb-2 border-top border-bottom border-secondary border-2"
+              >
                 <div className="row py-2">
                   {/* delete */}
                   <div className="col-12 d-flex align-items-center justify-content-between mb-2">
@@ -513,16 +563,22 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                       delete
                     </button>
                   </div>
-                 {/* Stop City & State, or Zip Code*/}
+                  {/* Stop City & State, or Zip Code*/}
                   <div className="col-4">
-                    <Input
-                      label={`Stop ${index} City & State, or Zip Code`}
-                      type="text"
-                      id={`${item.id}-${item.address}`}
+                    <PlaceAutocompleteField
                       name={`destinationStops.${index}.address`}
-                      placeholder={`Enter Stop ${index} City & State, or Zip Code`}                  
-                      register={register}
-                      errors={errors}
+                      label={`Stop ${index + 1} City & State, or Zip Code`}
+                      control={control}
+                      placeholder={`Enter Stop ${
+                        index + 1
+                      } City & State, or Zip Code`}
+                      rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
+                      onPlaceSelect={(details) =>
+                        setValue(
+                          `destinationStops.${index}.address`,
+                          details.formatted_address!
+                        )
+                      }
                       required
                     />
                   </div>
@@ -632,9 +688,8 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               min={0}
               name="customerRate"
               placeholder="Enter All-in Rate"
-                            control={control}
-
-              errors={errors} 
+              control={control}
+              errors={errors}
               currency
               preventNegative
             />
@@ -649,7 +704,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               name="weight"
               placeholder="Weight"
               control={control}
-              errors={errors} 
+              errors={errors}
               preventNegative
             />
           </div>
@@ -661,9 +716,8 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               min={0}
               name="length"
               placeholder="Feet"
-                            control={control}
-
-              errors={errors} 
+              control={control}
+              errors={errors}
               preventNegative
             />
           </div>
@@ -675,9 +729,8 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               min={0}
               name="width"
               placeholder="Feet"
-                            control={control}
-
-              errors={errors} 
+              control={control}
+              errors={errors}
               preventNegative
             />
           </div>
@@ -689,9 +742,8 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               min={0}
               name="height"
               placeholder="Feet"
-                            control={control}
-
-              errors={errors} 
+              control={control}
+              errors={errors}
               preventNegative
             />
           </div>
@@ -703,9 +755,8 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               min={0}
               name="distance"
               placeholder="Mile"
-                            control={control}
-
-              errors={errors} 
+              control={control}
+              errors={errors}
               preventNegative
             />
           </div>
@@ -717,9 +768,8 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               min={0}
               name="pieces"
               placeholder="Enter Pieces"
-                            control={control}
-
-              errors={errors} 
+              control={control}
+              errors={errors}
               preventNegative
             />
           </div>
@@ -731,9 +781,8 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               min={0}
               name="pallets"
               placeholder="Enter Pallets"
-                            control={control}
-
-              errors={errors} 
+              control={control}
+              errors={errors}
               preventNegative
             />
           </div>
@@ -760,26 +809,45 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
           {/* Special Information */}
           <div className="col-12">
             <Input
-                label="Special Information"
-                id="specialInstructions"
-                name="specialInstructions"
-                placeholder="Enter a detailed description"
-                register={register}
-                errors={errors}
-                isTextArea
-                rows={3}
-              />
+              label="Special Information"
+              id="specialInstructions"
+              name="specialInstructions"
+              placeholder="Enter a detailed description"
+              register={register}
+              errors={errors}
+              isTextArea
+              rows={3}
+            />
           </div>
           <div className="col-12 text-center">
-          <button
-            className="btn btn-accent btn-lg"
-            type="submit"
-            disabled={!isValid || loading}
-            onClick={handleSubmit(submit)}
-          >
-            {loadId ? "Update" : "Create"}
-          </button>
+            <button
+              className="btn btn-accent btn-lg"
+              type="submit"
+              disabled={!isValid || loading}
+              onClick={handleSubmit(submit)}
+            >
+              {loadId ? "Update" : "Create"}
+            </button>
           </div>
+          {getValues("origin").str && getValues("destination").str && (
+            <>
+              <div className="col-12 my-5">
+                <h3>Calculated Distance : </h3>
+                <DirectionsMap
+                  width="100%"
+                  height="400px"
+                  origin={{
+                    lat: getValues("origin").lat,
+                    lng: getValues("origin").lng,
+                  }} // New York City
+                  destination={{
+                    lat: getValues("destination").lat,
+                    lng: getValues("destination").lng,
+                  }} // Los Angeles
+                />
+              </div>
+            </>
+          )}
         </div>
       </form>
     </>

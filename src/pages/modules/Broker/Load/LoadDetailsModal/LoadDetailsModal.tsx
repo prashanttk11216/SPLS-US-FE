@@ -13,7 +13,7 @@ const LoadDetailsModal: React.FC<{
     {
       heading: "ORIGIN",
       rows: [
-        { label: "Name", value: load.origin || "N/A", fullWidth: true },
+        { label: "Name", value: load.origin?.str || "N/A", fullWidth: true },
         {
           label: "Early Pick-Up Date",
           value: String(load.originEarlyPickupDate || "N/A"),
@@ -41,7 +41,7 @@ const LoadDetailsModal: React.FC<{
       rows: [
         {
           label: "Destination",
-          value: load.destination || "N/A",
+          value: load.destination?.str || "N/A",
           fullWidth: true,
         },
         {
