@@ -1,7 +1,7 @@
 .consignee-list-wrapper {
   .form-check-input:checked {
-    background-color: #6d5bd0;
-    border: 1.5px #6d5bd0;
+    background-color: $accent-color;
+    border: 1.5px $accent-color;
   }
   .dropdown-toggle::after {
     display: none;
@@ -29,13 +29,13 @@
   .status-filter-radio-group input[type="radio"] {
     height: 16px;
     width: 16px;
-    border-color: #6D5BD0;
+    border-color: $accent-color;
   }
 
   .filter-label input[type="radio"] {
     height: 15px;
     width: 15px;
-    border-color: #6D5BD0;
+    border-color: $accent-color;
   }
 
   /*  Filter Radio Buttons */
@@ -53,7 +53,7 @@
     display: inline-block;
     width: 15px;
     height: 15px;
-    border: 1.5px #6d5bd0;
+    border: 1.5px $accent-color;
     box-sizing: border-box;
   }
 
@@ -64,8 +64,8 @@
   }
 
   #sortDropdown {
-    background-color: #ffffff;
-    color: #2a4459;
+    background-color: $white;
+    color: $dark-blue;
     border-radius: 8px;
     border: 1px solid #ccc;
     height: 40px;
