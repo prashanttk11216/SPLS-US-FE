@@ -22,7 +22,7 @@ import Pagination, {
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import "./CarrierList.scss";
 import CarrierDetailsModal from "../CarrierDetailsModal/CarrierDetailsModal";
-import FilterDropdown from "../../../../../components/common/FilterDropdown/FilterDropDown";
+import FilterDropdown from "../../../../../components/common/FilterDropdown/FilterDropdown";
 
 const CarrierList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -294,6 +294,7 @@ const CarrierList: React.FC = () => {
             rows={getRowData()}
             data={carriers}
             onActionClick={handleAction}
+            rowClickable={true}
           />
           <div className="pagination-container">
             <Pagination

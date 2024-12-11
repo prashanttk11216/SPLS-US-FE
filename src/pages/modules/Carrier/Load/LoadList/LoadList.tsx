@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Table from "../../../../../components/common/Table/Table";
-import PlusIcon from "../../../../../assets/icons/plus.svg";
 import { toast } from "react-toastify";
-import { UserRole } from "../../../../../enums/UserRole";
 import Loading from "../../../../../components/common/Loading/Loading";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import { RootState } from "../../../../../store/store";

@@ -498,6 +498,7 @@ const LoadList: React.FC = () => {
             rows={getRowData()}
             data={loads}
             onActionClick={handleAction}
+            rowClickable={true}
           />
           {loads?.length > 0 && (
             <div className="pagination-container">

@@ -23,7 +23,7 @@ import {
   toggleActiveShipper,
 } from "../../../../../services/shipper/shipperService";
 import ShipperDetailsModal from "../ShipperDetailsModal/ShipperDetailsModal";
-import FilterDropdown from "../../../../../components/common/FilterDropdown/FilterDropDown";
+import FilterDropdown from "../../../../../components/common/FilterDropdown/FilterDropdown";
 
 const ShipperList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -274,6 +274,7 @@ const ShipperList: React.FC = () => {
             rows={getRowData()}
             data={shippers}
             onActionClick={handleAction}
+            rowClickable={true}
           />
           <div className="pagination-container">
             {/* Pagination Component */}

@@ -14,7 +14,6 @@ import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import "./LoadList.scss";
 import { Load } from "../../../../../types/Load";
 import {
-  deleteLoad,
   getloads,
 } from "../../../../../services/load/loadServices";
 import { useNavigate } from "react-router-dom";
@@ -47,12 +46,10 @@ const LoadList: React.FC = () => {
 
   const {
     fetchData: fetchLoads,
-    deleteDataById: deleteLoads,
     loading,
     error,
   } = useFetchData<any>({
     fetchDataService: getloads,
-    deleteDataService: deleteLoad,
   });
 
   // Fetch Load data
@@ -150,11 +147,6 @@ const LoadList: React.FC = () => {
       miles: formatDistance(load.miles!) || "N/A",
       actions: getActionsForLoad(load),
     }));
-  };
-
-  const handleCloseDropdown = () => {
-    const dropdownMenu = document.getElementById("filterList");
-    dropdownMenu?.classList.remove("show"); // This will close the dropdown
   };
 
   const handleSearch = (query: string) => {
@@ -291,6 +283,7 @@ const LoadList: React.FC = () => {
             rows={getRowData()}
             data={loads}
             onActionClick={handleAction}
+            rowClickable={true}
           />
           {loads?.length > 0 && (
             <div className="pagination-container">

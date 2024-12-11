@@ -22,7 +22,7 @@ import Pagination, {
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import "./CustomerList.scss";
 import CustomerDetailsModal from "../CustomerDetailsModal/CustomerDetailsModal";
-import FilterDropdown from "../../../../../components/common/FilterDropdown/FilterDropDown";
+import FilterDropdown from "../../../../../components/common/FilterDropdown/FilterDropdown";
 
 
 const CustomerList: React.FC = () => {
@@ -297,6 +297,7 @@ const CustomerList: React.FC = () => {
             rows={getRowData()}
             data={customers}
             onActionClick={handleAction}
+            rowClickable={true}
           />
           <div className="pagination-container">
             {/* Pagination Component */}

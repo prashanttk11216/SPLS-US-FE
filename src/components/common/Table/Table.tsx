@@ -18,9 +18,10 @@ interface TableProps {
   onActionClick?: (action: string, row: Record<string, any>) => void; // Callback for action clicks
   onRowClick?: (row: Record<string, any>) => void; // Callback for row clicks
   actions?: string[]; // Action names for the dropdown menu
+  rowClickable?: boolean;
 }
 
-const Table: FC<TableProps> = ({ columns, rows, data, onActionClick }) => {
+const Table: FC<TableProps> = ({ columns, rows, data, onActionClick, rowClickable =  false }) => {
   // State to track which dropdown is open
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
@@ -32,7 +33,7 @@ const Table: FC<TableProps> = ({ columns, rows, data, onActionClick }) => {
 
   const handleActionClick = (
     event: React.MouseEvent,
-    dropdownId: string,
+    _dropdownId: string,
     action: string,
     row: Record<string, any>
   ) => {
@@ -69,7 +70,7 @@ const Table: FC<TableProps> = ({ columns, rows, data, onActionClick }) => {
             <tr
               key={rowIndex}
               className="table-row"
-              onClick={() => handleRowClick(data[rowIndex])}
+              onClick={() => rowClickable && handleRowClick(data[rowIndex])}
             >
               {columns.map((column) => (
                 <td key={`${rowIndex}-${column.key}`}>

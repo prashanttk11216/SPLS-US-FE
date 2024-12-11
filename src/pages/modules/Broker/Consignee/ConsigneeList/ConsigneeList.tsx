@@ -21,7 +21,7 @@ import {
 } from "../../../../../services/consignee/consigneeService";
 import CreateOrEditConsignee from "../CreateOrEditConsignee/CreateOrEditConsignee";
 import ConsigneeDetailsModal from "../ConsigneeDetailsModal/ConsigneeDetailsModal";
-import FilterDropdown from "../../../../../components/common/FilterDropdown/FilterDropDown";
+import FilterDropdown from "../../../../../components/common/FilterDropdown/FilterDropdown";
 
 const ConsigneeList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -279,6 +279,7 @@ const ConsigneeList: React.FC = () => {
             rows={getRowData()}
             data={consignees}
             onActionClick={handleAction}
+            rowClickable={true}
           />
           <div className="pagination-container">
             {/* Pagination Component */}
