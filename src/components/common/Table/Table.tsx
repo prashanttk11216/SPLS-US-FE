@@ -1,12 +1,14 @@
 import React, { FC, useState } from "react";
 import "./Table.scss";
 import EllipsisVertical from "../../../assets/icons/ellipsisVertical.svg";
+import { truncateText } from "../../../utils/globalHelper";
 
 interface Column {
   key: string;
   label: string;
   width?: string;
   isAction?: boolean;
+  truncateLength?: number; // Maximum length for truncation
 }
 
 interface TableProps {
@@ -108,7 +110,14 @@ const Table: FC<TableProps> = ({ columns, rows, data, onActionClick }) => {
                       </ul>
                     </div>
                   ) : (
-                    row[column.key]
+                    <div title={typeof row[column.key] === "string" && column.truncateLength && row[column.key].length > column.truncateLength ? row[column.key] : ""}>
+                          {
+                            column.truncateLength && typeof row[column.key] === "string"
+                            ? truncateText(row[column.key], column.truncateLength)
+                            : row[column.key]
+                          }
+                    </div>
+                    
                   )}
                 </td>
               ))}

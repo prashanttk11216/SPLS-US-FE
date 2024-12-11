@@ -130,7 +130,7 @@ const LoadList: React.FC = () => {
   }, [user, statusFilter, sortFilter, sortOrder, searchQuery, activeTab]);
 
   const columns = [
-    { key: "origin", label: "Origin", width: "25%" },
+    { key: "origin", label: "Origin", width: "20%" },
     { key: "destination", label: "Destination" },
     { key: "originEarlyPickupDate", label: "Pick-up" },
     { key: "originEarlyPickupTime", label: "Pick-up Time" },
@@ -213,7 +213,7 @@ const LoadList: React.FC = () => {
     }
   };
 
-  const getActionsForLoad = (load: Load): string[] => {
+  const getActionsForLoad = (_: Load): string[] => {
     const actions = ["View Details", "Edit"];
     if (activeTab == LoadStatus.Draft) {
       actions.push("Published");
