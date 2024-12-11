@@ -20,3 +20,41 @@
   margin-top: 10px;
   font-weight: 600;
 }
+
+.dropdown-toggle::after {
+  display: none;
+}
+.form-check-input:checked {
+  background-color: $accent-color;
+  border: 1.5px $accent-color;
+}
+.filter-label input[type="radio"] {
+  height: 15px;
+  width: 15px;
+  border-color: $accent-color;
+}
+.dropdown-menu input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  cursor: pointer;
+}
+
+#filterList label {
+  color: #6e7191;
+  margin: 2px;
+  cursor: pointer;
+}
+
+#sortDropdown {
+  background-color: $white;
+  color: $dark-blue;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  height: 40px;
+  width: 88px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
+}
