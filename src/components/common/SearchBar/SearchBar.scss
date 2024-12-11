@@ -18,13 +18,9 @@
   height: 40px;
 }
 
-// .search-bar-input:focus {
-//   border-color: #007bff;
-// }
-
 .search-bar-icon {
-  position: absolute; // Make image absolute
+  position: absolute;
   top: 50%;
-  left: 10px; // Adjust position as needed
-  transform: translateY(-50%); // Center image vertically
+  left: 10px; 
+  transform: translateY(-50%); 
 }

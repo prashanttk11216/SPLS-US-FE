@@ -19,11 +19,11 @@ import { useSelector } from "react-redux";
 import Pagination, {
   Meta,
 } from "../../../../../components/common/Pagination/Pagination";
-import FilterShape from "../../../../../assets/icons/Filter.svg";
-import closeLogo from "../../../../../assets/icons/closeLogo.svg";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import "./CustomerList.scss";
 import CustomerDetailsModal from "../CustomerDetailsModal/CustomerDetailsModal";
+import FilterDropdown from "../../../../../components/common/FilterDropdown/FilterDropDown";
+
 
 const CustomerList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -52,14 +52,6 @@ const CustomerList: React.FC = () => {
   const [customerDetails, setCustomerDetails] = useState<Partial<User> | null>(
     null
   );
-
-  const handleSortFilterChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setSortFilter(event.target.value);
-  };
 
   const {
     fetchData: fetchCustomers,
@@ -201,18 +193,6 @@ const CustomerList: React.FC = () => {
     fetchCustomersData(1, limit);
   };
 
-  const handleSortClick = (column: string) => {
-    // If the clicked column is the same as the current column
-    if (sortFilter === column) {
-      // Toggle the sort order (ASC <-> DESC)
-      setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
-    } else {
-      // If a new column is clicked, reset sort order to "asc" and update the filter
-      setSortFilter(column);
-      setSortOrder("asc");
-    }
-  };
-
   const getRowData = () => {
     return customers.map((customer) => ({
       _id: customer._id,
@@ -260,169 +240,36 @@ const CustomerList: React.FC = () => {
     setIsDetailsModalOpen(true);
   };
 
-  const handleCloseDropdown = () => {
-    const dropdownMenu = document.getElementById("filterList");
-    dropdownMenu?.classList.remove("show"); // This will close the dropdown
-  };
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   };
 
-  const clearAllFilters = () => {
-    setStatusFilter(null);
-    setSortFilter(null);
+  const handleClearFilters = () => {
+    setStatusFilter(null); // Clear status filter
+    setSortFilter("default"); // Reset sort filter
+    setSortOrder("asc"); // Reset sort order
   };
+  
+
 
   return (
     <div className="customers-list-wrapper">
       <h2 className="fw-bolder">Customer Overview</h2>
       <div className="d-flex align-items-center my-3">
         {/* Filter Dropdown */}
-        <div className="dropdown">
-          <button
-            className="btn btn-outline-primary dropdown-toggle"
-            type="button"
-            id="sortDropdown"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <img src={FilterShape} alt="FilterShape" height={20} width={20} />
-            <span
-              style={{
-                fontSize: "17px",
-                margin: "6px",
-                lineHeight: "16.94px",
-              }}
-            >
-              Filter
-            </span>
-          </button>
-          <ul
-            className="dropdown-menu mt-3"
-            aria-labelledby="sortDropdown"
-            id="filterList"
-            style={{ width: "224px" }}
-          >
-            <div className="d-flex justify-content-between align-items-center form-check">
-              <span
-                style={{
-                  marginTop: "10px",
-                  fontWeight: "600",
-                }}
-              >
-                Filter by Status:
-              </span>
-              <img
-                src={closeLogo}
-                alt="Close"
-                onClick={handleCloseDropdown}
-                style={{
-                  width: "11px",
-                  height: "13px",
-                  marginRight: "8px",
-                  marginTop: "-15px",
-                  cursor: "pointer",
-                }}
-              />
-            </div>
-            {/* Active/Inactive Filters */}
-            <li>
-              <label className="filter-label d-flex align-items-center w-100 form-check">
-                <span className="filter-text">Active</span>
-                <input
-                  type="radio"
-                  name="statusFilter"
-                  value="Active"
-                  checked={statusFilter === "Active"}
-                  onChange={() => setStatusFilter("Active")}
-                  className="ms-auto me-4 form-check-input"
-                />
-              </label>
-            </li>
-            <li>
-              <label className="filter-label d-flex align-items-center w-100 form-check">
-                <span className="filter-text">Inactive</span>
-                <input
-                  type="radio"
-                  name="statusFilter"
-                  value="Inactive"
-                  checked={statusFilter === "Inactive"}
-                  onChange={() => setStatusFilter("Inactive")}
-                  className="ms-auto me-4 form-check-input"
-                />
-              </label>
-            </li>
-
-            <div className="d-flex justify-content-between align-items-center form-check">
-              <span
-                style={{
-                  marginTop: "10px",
-                  fontWeight: "600",
-                }}
-              >
-                Sort by:
-              </span>
-            </div>
-            <li>
-              <label className="filter-label d-flex align-items-center w-100 form-check">
-                <span
-                  className="filter-text"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleSortClick("firstName");
-                  }}
-                >
-                  First Name (
-                  {sortFilter === "firstName" ? sortOrder.toUpperCase() : "ASC"}
-                  )
-                </span>
-                <input
-                  type="radio"
-                  name="sortFilter"
-                  value="firstName"
-                  checked={sortFilter === "firstName"}
-                  onChange={handleSortFilterChange}
-                  className="ms-auto me-4 form-check-input"
-                />
-              </label>
-            </li>
-            <li>
-              <label
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleSortClick("lastName");
-                }}
-                className="filter-label d-flex align-items-center w-100 form-check"
-              >
-                <span className="filter-text">
-                  Last Name (
-                  {sortFilter === "lastName" ? sortOrder.toUpperCase() : "ASC"})
-                </span>
-                <input
-                  type="radio"
-                  name="sortFilter"
-                  value="lastName"
-                  checked={sortFilter === "lastName"}
-                  onChange={handleSortFilterChange}
-                  className="ms-auto me-4 form-check-input"
-                />
-              </label>
-            </li>
-            <div className="dropdown-divider"></div>
-            {/* Clear Filter Button */}
-            <li className="text-center mt-2">
-              <button
-                className="btn btn-sm btn-secondary"
-                onClick={clearAllFilters}
-              >
-                Clear Filters
-              </button>
-            </li>
-          </ul>
-        </div>
+       
+        <FilterDropdown
+          statusFilter={statusFilter}
+          sortFilter={sortFilter}
+          sortOrder={sortOrder}
+          onStatusFilterChange={setStatusFilter}
+          onSortFilterChange={(sort, order) => {
+            setSortFilter(sort);
+            setSortOrder(order);
+          }}
+          onClearFilters={handleClearFilters}
+        />
 
         {/* Search Bar */}
         <div className="searchbar-container ms-4">
