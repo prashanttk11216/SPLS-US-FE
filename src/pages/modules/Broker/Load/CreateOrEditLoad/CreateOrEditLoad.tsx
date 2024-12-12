@@ -873,7 +873,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               {loadId ? "Update" : "Create"}
             </button>
           </div>
-          {getValues("origin") && getValues("destination") && (
+          {getValues("origin")?.str && getValues("destination")?.str && (
             <>
               <div className="col-12 mt-5">
                 <h3>Calculated Distance : </h3>

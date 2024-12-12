@@ -60,7 +60,7 @@ export interface Load {
   specialInstructions?: string;
   commodity: Commodity;
   loadNumber?: number;
-  postedBy?: string;
+  postedBy?:  string | User;
   status: string;
   createdAt?: Date;
   updatedAt?: Date;

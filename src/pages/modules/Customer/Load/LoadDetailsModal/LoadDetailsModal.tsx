@@ -1,6 +1,7 @@
 import React from "react";
 import { Load } from "../../../../../types/Load";
 import DetailsModal from "../../../../../components/common/DetailsModal/DetailsModal";
+import { User } from "../../../../../types/User";
 
 const LoadDetailsModal: React.FC<{
   isOpen: boolean;
@@ -78,7 +79,7 @@ const LoadDetailsModal: React.FC<{
         { label: "Load Option", value: load.loadOption || "N/A" },
         { label: "Commodity", value: load.commodity || "N/A" },
         { label: "Load Number", value: load.loadNumber || "N/A" },
-        { label: "Assign User", value: load.postedBy || "N/A" },
+        { label: "Assign User", value: (load.postedBy as User)?.company || "N/A" },
         { label: "Special Info", value: load.specialInstructions || "N/A" },
       ],
     },
