@@ -129,12 +129,7 @@ const BrokerUserList: React.FC = () => {
   const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
       case "View Details":
-        try {
-          const brokerData = await getUserById(row._id);
-          openDetailsModal(brokerData.data); // Open details modal
-        } catch (err) {
-          toast.error("Failed to fetch carrier details.");
-        }
+        handleRowClick(row);
         break;
 
       case "Edit":

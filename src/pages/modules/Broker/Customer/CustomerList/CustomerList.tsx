@@ -120,12 +120,7 @@ const CustomerList: React.FC = () => {
   const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
       case "View Details":
-        try {
-          const customerData = await fetchCustomer(row._id);
-          openDetailsModal(customerData.data); // Open details modal
-        } catch (err) {
-          toast.error("Failed to fetch customer details.");
-        }
+        handleRowClick(row);
         break;
 
       case "Edit":

@@ -130,12 +130,7 @@ const ShipperList: React.FC = () => {
   const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
       case "View Details":
-        try {
-          const shipperData = await fetchShipperById(row._id);
-          openDetailsModal(shipperData.data); // Open details modal
-        } catch (err) {
-          toast.error("Failed to fetch carrier details.");
-        }
+        handleRowClick(row);
         break;
 
       case "Edit":
