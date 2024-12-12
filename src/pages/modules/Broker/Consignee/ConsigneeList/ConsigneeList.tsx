@@ -21,7 +21,6 @@ import {
 } from "../../../../../services/consignee/consigneeService";
 import CreateOrEditConsignee from "../CreateOrEditConsignee/CreateOrEditConsignee";
 import ConsigneeDetailsModal from "../ConsigneeDetailsModal/ConsigneeDetailsModal";
-import FilterDropdown from "../../../../../components/common/FilterDropdown/FilterDropdown";
 
 const ConsigneeList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -39,14 +38,15 @@ const ConsigneeList: React.FC = () => {
   }); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
-
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: "asc" | "desc";
+  } | null>(null);
 
   // View Details Option Added
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
   const [consigneeDetails, setConsigneeDetails] =
     useState<Partial<Consignee> | null>(null);
-
 
   const {
     fetchData: fetchConsignees,
@@ -71,7 +71,7 @@ const ConsigneeList: React.FC = () => {
         if (searchQuery) {
           query += `&search=${encodeURIComponent(searchQuery)}`;
         }
-       
+
         if (user.role === UserRole.BROKER_USER) {
           query += `&brokerId=${user._id}`;
         }
@@ -171,9 +171,11 @@ const ConsigneeList: React.FC = () => {
     if (row) {
       openDetailsModal(row); // Open details modal
     }
-  }
+  };
 
-  const handleSort = (sortStr: { key: string; direction: "asc" | "desc" } | null) => {
+  const handleSort = (
+    sortStr: { key: string; direction: "asc" | "desc" } | null
+  ) => {
     setSortConfig(sortStr); // Updates the sort query to trigger API call
   };
 
@@ -191,8 +193,8 @@ const ConsigneeList: React.FC = () => {
   const columns = [
     { key: "name", label: "Name", width: "30%" },
     { key: "email", label: "Email", sortable: true },
-    { key: "contact", label: "Contact" },
-    { key: "shippingHours", label: "Shipping Hours" },
+    { key: "contact", label: "Contact", sortable: true },
+    { key: "shippingHours", label: "Shipping Hours", sortable: true },
     { key: "status", label: "Status" },
     { key: "actions", label: "Actions", isAction: true },
   ];
@@ -221,11 +223,10 @@ const ConsigneeList: React.FC = () => {
     setSearchQuery(query);
   };
 
-  
   return (
     <div className="consignee-list-wrapper">
       <h2 className="fw-bolder">Consignees</h2>
-      <div className="d-flex align-items-center my-3"> 
+      <div className="d-flex align-items-center my-3">
         {/* Search Bar */}
         <div className="searchbar-container">
           <SearchBar onSearch={handleSearch} />
