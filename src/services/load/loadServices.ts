@@ -91,3 +91,12 @@ export const notifyCustomerLoad = async (
     return handleAxiosError(error, "Failed to update Load details");
   }
 };
+
+export const refreshAgeforLoad = async (data: any): Promise<ApiResponse> => {
+  try {
+    const response = await axiosApi.post<ApiResponse>("/load/refresh-age", data);
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "failed");
+  }
+};

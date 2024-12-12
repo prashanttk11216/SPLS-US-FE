@@ -17,6 +17,7 @@ import {
   deleteLoad,
   getloads,
   notifyCustomerLoad,
+  refreshAgeforLoad,
   updateLoadStatus,
 } from "../../../../../services/load/loadServices";
 import { useNavigate } from "react-router-dom";
@@ -100,6 +101,17 @@ const LoadList: React.FC = () => {
     [fetchLoads, searchQuery, user, activeTab, sortConfig]
   );
 
+  const refreshAgeCall = async (data: any)=> {
+    const result = await refreshAgeforLoad(data);
+    if (result.success) {
+        toast.success(result.message);
+        setTimeout(()=>{
+          fetchLoadsData();
+        },500)
+    }
+  }
+  
+
   // Trigger fetch when user is populated
   useEffect(() => {
     if (user && user._id) {
@@ -108,14 +120,15 @@ const LoadList: React.FC = () => {
   }, [user, searchQuery, activeTab, sortConfig]);
 
   const columns = [
-    { key: "origin.str", label: "Origin", width: "20%", sortable: true },
-    { key: "destination.str", label: "Destination", sortable: true  },
-    { key: "originEarlyPickupDate", label: "Pick-up", sortable: true  },
-    { key: "originEarlyPickupTime", label: "Pick-up Time", sortable: true  },
-    { key: "equipment", label: "Equipment", sortable: true  },
-    { key: "miles", label: "Miles", sortable: true  },
-    { key: "mode", label: "Mode", sortable: true  },
-    { key: "actions", label: "Actions", isAction: true },
+    { width: "90px",  key: "age", label: "Age", sortable: true, bold: true },
+    { width: "150px", key: "origin.str", label: "Origin", sortable: true },
+    { width: "150px", key: "destination.str", label: "Destination", sortable: true  },
+    { width: "120px", key: "originEarlyPickupDate", label: "Pick-up", sortable: true  },
+    { width: "150px", key: "originEarlyPickupTime", label: "Pick-up Time", sortable: true  },
+    { width: "150px", key: "equipment", label: "Equipment", sortable: true  },
+    { width: "120px", key: "miles", label: "Miles", sortable: true  },
+    { width: "120px", key: "mode", label: "Mode", sortable: true  },
+    { width: "90px",  key: "actions", label: "Actions", isAction: true },
   ];
 
   const handleAction = async (action: string, row: Record<string, any>) => {
@@ -223,6 +236,7 @@ const LoadList: React.FC = () => {
   const getRowData = () => {
     return loads.map((load) => ({
       _id: load._id,
+      age: load.formattedAge || "N/A",
       "origin.str": load.origin.str,
       "destination.str": load.destination.str || "N/A",
       originEarlyPickupDate:
@@ -240,6 +254,19 @@ const LoadList: React.FC = () => {
     setSearchQuery(query);
   };
 
+  const handleGeneralAction = (action: any, selectedData: any) => {
+    switch (action) {
+      case "Refresh Loads":
+        let ids: string[] = []
+        selectedData.map((item:any) => ids.push(item._id));
+        refreshAgeCall({ids});
+        break;
+    
+      default:
+        break;
+    }
+    console.log(`General Action: ${action}`, selectedData);
+  };
 
   return (
     <div className="customers-list-wrapper">
@@ -321,6 +348,9 @@ const LoadList: React.FC = () => {
             onSort={handleSort}
             sortConfig={sortConfig}
             rowClickable={true}
+            showCheckbox={true}
+            tableActions={['Refresh Loads']} 
+            onTableAction={handleGeneralAction} 
           />
           {loads?.length > 0 && (
             <div className="pagination-container">

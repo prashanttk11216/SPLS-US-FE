@@ -53,6 +53,8 @@ export interface Load {
   distance?: number;
   pieces?: number;
   pallets?: number;
+  age?: Date;
+  formattedAge?: string;
   miles?: number;
   loadOption?: LoadOption;
   specialInstructions?: string;
