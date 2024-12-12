@@ -22,7 +22,6 @@ import Pagination, {
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import "./CarrierList.scss";
 import CarrierDetailsModal from "../CarrierDetailsModal/CarrierDetailsModal";
-import FilterDropdown from "../../../../../components/common/FilterDropdown/FilterDropdown";
 
 const CarrierList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -39,13 +38,12 @@ const CarrierList: React.FC = () => {
     totalPages: 0,
     totalItems: 0,
   }); // Pagination metadata
-  const [statusFilter, setStatusFilter] = useState<
-    "Active" | "Inactive" | null
-  >(null); // state for filter
 
-  const [sortFilter, setSortFilter] = useState<string>("default"); // state for sorting filter
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc"); // Sort order state
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: "asc" | "desc";
+  } | null>(null);
 
   // View Details Option Added
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
@@ -79,19 +77,12 @@ const CarrierList: React.FC = () => {
           query += `&search=${encodeURIComponent(searchQuery)}`;
         }
 
-        // Append `isActive` filter based on `statusFilter`
-        if (statusFilter === "Active") {
-          query += `&isActive=true`;
-        } else if (statusFilter === "Inactive") {
-          query += `&isActive=false`;
-        }
-
         if (user.role === UserRole.BROKER_USER) {
           query += `&brokerId=${user._id}`;
         }
 
-        if (sortFilter) {
-          query += `&sortBy=${sortFilter}&sortOrder=${sortOrder}`;
+        if (sortConfig) {
+          query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
 
         const result = await fetchCarriers(query);
@@ -108,7 +99,7 @@ const CarrierList: React.FC = () => {
         toast.error("Error fetching carrier data.");
       }
     },
-    [fetchCarriers, statusFilter, sortOrder, searchQuery, user]
+    [fetchCarriers, searchQuery, user, sortConfig]
   );
 
   // Use a single fetch on initial render and when currentPage, itemsPerPage, or user changes
@@ -116,13 +107,13 @@ const CarrierList: React.FC = () => {
     if (user && user._id) {
       fetchCarrierData();
     }
-  }, [user, statusFilter, sortFilter, sortOrder, searchQuery]);
+  }, [user, searchQuery, sortConfig]);
 
   const columns = [
     { key: "name", label: "Name", width: "40%" },
-    { key: "email", label: "Email" },
-    { key: "contact", label: "Contact" },
-    { key: "company", label: "Company" },
+    { key: "email", label: "Email", sortable: true },
+    { key: "contact", label: "Contact", sortable: true },
+    { key: "company", label: "Company", sortable: true },
     { key: "status", label: "Status" },
     { key: "actions", label: "Actions", isAction: true },
   ];
@@ -171,6 +162,18 @@ const CarrierList: React.FC = () => {
       default:
         toast.info(`Action "${action}" is not yet implemented.`);
     }
+  };
+
+  const handleRowClick = async (row: Record<string, any>) => {
+    if (row) {
+      openDetailsModal(row); // Open details modal
+    }
+  };
+
+  const handleSort = (
+    sortStr: { key: string; direction: "asc" | "desc" } | null
+  ) => {
+    setSortConfig(sortStr); // Updates the sort query to trigger API call
   };
 
   const getActionsForCarrier = (carrier: User): string[] => {
@@ -243,33 +246,12 @@ const CarrierList: React.FC = () => {
     setSearchQuery(query);
   };
 
-  const handleClearFilters = () => {
-    setStatusFilter(null); // Clear status filter
-    setSortFilter("default"); // Reset sort filter
-    setSortOrder("asc"); // Reset sort order
-  };
-
-
   return (
     <div className="carriers-list-wrapper">
       <h2 className="fw-bolder">Carrier List</h2>
       <div className="d-flex align-items-center my-3">
-        
-        {/* Filter Dropdown */}
-        <FilterDropdown
-          statusFilter={statusFilter}
-          sortFilter={sortFilter}
-          sortOrder={sortOrder}
-          onStatusFilterChange={setStatusFilter}
-          onSortFilterChange={(sort, order) => {
-            setSortFilter(sort);
-            setSortOrder(order);
-          }}
-          onClearFilters={handleClearFilters}
-        />
-
         {/* Search Bar */}
-        <div className="searchbar-container ms-4">
+        <div className="searchbar-container">
           <SearchBar onSearch={handleSearch} />
         </div>
 
@@ -295,6 +277,9 @@ const CarrierList: React.FC = () => {
             data={carriers}
             onActionClick={handleAction}
             rowClickable={true}
+            onSort={handleSort}
+            sortConfig={sortConfig}
+            onRowClick={handleRowClick}
           />
           <div className="pagination-container">
             <Pagination
