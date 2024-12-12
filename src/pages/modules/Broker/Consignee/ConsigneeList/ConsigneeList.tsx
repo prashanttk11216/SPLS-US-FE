@@ -37,13 +37,10 @@ const ConsigneeList: React.FC = () => {
     totalPages: 0,
     totalItems: 0,
   }); // Pagination metadata
-  const [statusFilter, setStatusFilter] = useState<
-    "Active" | "Inactive" | null
-  >(null); // state for filter
 
-  const [sortFilter, setSortFilter] = useState<string | null>(null); // state for sorting filter
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc"); // Sort order state
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
+
 
   // View Details Option Added
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
@@ -74,19 +71,13 @@ const ConsigneeList: React.FC = () => {
         if (searchQuery) {
           query += `&search=${encodeURIComponent(searchQuery)}`;
         }
-        // Append `isActive` filter based on `statusFilter`
-        if (statusFilter === "Active") {
-          query += `&isActive=true`;
-        } else if (statusFilter === "Inactive") {
-          query += `&isActive=false`;
-        }
-
+       
         if (user.role === UserRole.BROKER_USER) {
           query += `&brokerId=${user._id}`;
         }
 
-        if (sortFilter) {
-          query += `&sortBy=${sortFilter}&sortOrder=${sortOrder}`;
+        if (sortConfig) {
+          query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
 
         const result = await fetchConsignees(query);
@@ -103,14 +94,14 @@ const ConsigneeList: React.FC = () => {
         toast.error("Error fetching Consignee data.");
       }
     },
-    [fetchConsignees, statusFilter, sortOrder, searchQuery, user]
+    [fetchConsignees, searchQuery, user, sortConfig]
   );
 
   useEffect(() => {
     if (user && user._id) {
       fetchConsigneesData();
     }
-  }, [user, statusFilter, sortFilter, sortOrder, searchQuery]);
+  }, [user, searchQuery, sortConfig]);
 
   const openCreateModal = () => {
     setIsEditing(false);
@@ -138,12 +129,7 @@ const ConsigneeList: React.FC = () => {
   const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
       case "View Details":
-        try {
-          const consigneeData = await fetchConsigneeById(row._id);
-          openDetailsModal(consigneeData.data); // Open details modal
-        } catch (err) {
-          toast.error("Failed to fetch carrier details.");
-        }
+        handleRowClick(row);
         break;
       case "Edit":
         try {
@@ -181,6 +167,16 @@ const ConsigneeList: React.FC = () => {
     }
   };
 
+  const handleRowClick = async (row: Record<string, any>) => {
+    if (row) {
+      openDetailsModal(row); // Open details modal
+    }
+  }
+
+  const handleSort = (sortStr: { key: string; direction: "asc" | "desc" } | null) => {
+    setSortConfig(sortStr); // Updates the sort query to trigger API call
+  };
+
   const getActions = (consignee: Consignee): string[] => {
     const actions = ["View Details", "Edit"];
     if (consignee.isActive) {
@@ -194,7 +190,7 @@ const ConsigneeList: React.FC = () => {
 
   const columns = [
     { key: "name", label: "Name", width: "30%" },
-    { key: "email", label: "Email" },
+    { key: "email", label: "Email", sortable: true },
     { key: "contact", label: "Contact" },
     { key: "shippingHours", label: "Shipping Hours" },
     { key: "status", label: "Status" },
@@ -209,8 +205,6 @@ const ConsigneeList: React.FC = () => {
     fetchConsigneesData(1, limit);
   };
 
-
-
   const getRowData = () => {
     return consignees.map((consignee) => ({
       _id: consignee._id,
@@ -223,40 +217,17 @@ const ConsigneeList: React.FC = () => {
     }));
   };
 
-
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   };
-  
-  const handleClearFilters = () => {
-    setStatusFilter(null); // Clear status filter
-    setSortFilter("default"); // Reset sort filter
-    setSortOrder("asc"); // Reset sort order
-  };
-  
 
-
+  
   return (
     <div className="consignee-list-wrapper">
       <h2 className="fw-bolder">Consignees</h2>
-      <div className="d-flex align-items-center my-3">
-        {/* Filter Dropdown */}
-       
-       
-        <FilterDropdown
-          statusFilter={statusFilter}
-          sortFilter={sortFilter}
-          sortOrder={sortOrder}
-          onStatusFilterChange={setStatusFilter}
-          onSortFilterChange={(sort, order) => {
-            setSortFilter(sort);
-            setSortOrder(order);
-          }}
-          onClearFilters={handleClearFilters}
-        />
-
+      <div className="d-flex align-items-center my-3"> 
         {/* Search Bar */}
-        <div className="searchbar-container ms-4">
+        <div className="searchbar-container">
           <SearchBar onSearch={handleSearch} />
         </div>
 
@@ -280,6 +251,9 @@ const ConsigneeList: React.FC = () => {
             data={consignees}
             onActionClick={handleAction}
             rowClickable={true}
+            onSort={handleSort}
+            sortConfig={sortConfig}
+            onRowClick={handleRowClick}
           />
           <div className="pagination-container">
             {/* Pagination Component */}

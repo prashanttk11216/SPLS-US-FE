@@ -1,6 +1,9 @@
 import React, { FC, useState } from "react";
 import "./Table.scss";
 import EllipsisVertical from "../../../assets/icons/ellipsisVertical.svg";
+import SortIcon from "../../../assets/icons/sort.svg";
+import ArrowDownShortWideIcon from "../../../assets/icons/arrowDownShortWide.svg";
+import ArrowDownWideShortIcon from "../../../assets/icons/arrowDownWideShort.svg";
 import { truncateText } from "../../../utils/globalHelper";
 
 interface Column {
@@ -9,6 +12,7 @@ interface Column {
   width?: string;
   isAction?: boolean;
   truncateLength?: number; // Maximum length for truncation
+  sortable?: boolean;
 }
 
 interface TableProps {
@@ -18,16 +22,40 @@ interface TableProps {
   onActionClick?: (action: string, row: Record<string, any>) => void; // Callback for action clicks
   onRowClick?: (row: Record<string, any>) => void; // Callback for row clicks
   actions?: string[]; // Action names for the dropdown menu
+  onSort?: (sortString: { key: string; direction: "asc" | "desc" } | null) => void; // Callback to trigger API for sorting
+  sortConfig?: { key: string; direction: string } | null
   rowClickable?: boolean;
 }
 
-const Table: FC<TableProps> = ({ columns, rows, data, onActionClick, rowClickable =  false }) => {
-  // State to track which dropdown is open
+const Table: FC<TableProps> = ({
+  columns,
+  rows,
+  data,
+  onActionClick,
+  onRowClick,
+  onSort,
+  sortConfig, // Pass sortConfig as a prop
+  rowClickable = false,
+}) => {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
+  const handleSort = (key: string) => {
+   
+
+      const newSortConfig:{ key: string; direction: "asc" | "desc" } =
+      sortConfig?.key === key
+        ? { key, direction: sortConfig.direction === "asc" ? "desc" : "asc" }
+        : { key, direction: "asc" };
+
+    // Build sort string for API
+    if (onSort) {
+      onSort(newSortConfig); // Trigger the callback to update parent state
+    }
+  };
+
   const handleRowClick = (row: Record<string, any>) => {
-    if (onActionClick) {
-      onActionClick("View Details", row);
+    if (onRowClick) {
+      onRowClick(row);
     }
   };
 
@@ -58,9 +86,25 @@ const Table: FC<TableProps> = ({ columns, rows, data, onActionClick, rowClickabl
               <th
                 key={column.key}
                 style={{ width: column.width || "auto" }}
-                className={column.isAction ? "text-center" : ""}
+                className={`${column.isAction ? "text-center" : ""} ${column.sortable ? "sortable" : ""}`}
+                onClick={() => column.sortable && handleSort(column.key)}
               >
-                {column.label}
+                <div className="column-header">
+                  {column.label}
+                  {column.sortable && (
+                    <img
+                      src={
+                        sortConfig?.key === column.key
+                          ? sortConfig.direction === "asc"
+                            ? ArrowDownShortWideIcon
+                            : ArrowDownWideShortIcon
+                          : SortIcon
+                      }
+                      alt="Sort Icon"
+                      className="sort-icon"
+                    />
+                  )}
+                </div>
               </th>
             ))}
           </tr>
@@ -88,7 +132,7 @@ const Table: FC<TableProps> = ({ columns, rows, data, onActionClick, rowClickabl
                         data-bs-toggle="dropdown"
                         aria-expanded={openDropdown === `dropdown-${rowIndex}`}
                       >
-                        <img src={EllipsisVertical} height={20} width={20} />
+                        <img src={EllipsisVertical} height={20} width={20} alt="Actions" />
                       </a>
                       <ul
                         className={`dropdown-menu ${
@@ -111,14 +155,19 @@ const Table: FC<TableProps> = ({ columns, rows, data, onActionClick, rowClickabl
                       </ul>
                     </div>
                   ) : (
-                    <div title={typeof row[column.key] === "string" && column.truncateLength && row[column.key].length > column.truncateLength ? row[column.key] : ""}>
-                          {
-                            column.truncateLength && typeof row[column.key] === "string"
-                            ? truncateText(row[column.key], column.truncateLength)
-                            : row[column.key]
-                          }
+                    <div
+                      title={
+                        typeof row[column.key] === "string" &&
+                        column.truncateLength &&
+                        row[column.key].length > column.truncateLength
+                          ? row[column.key]
+                          : ""
+                      }
+                    >
+                      {column.truncateLength && typeof row[column.key] === "string"
+                        ? truncateText(row[column.key], column.truncateLength)
+                        : row[column.key]}
                     </div>
-                    
                   )}
                 </td>
               ))}

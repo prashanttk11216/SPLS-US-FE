@@ -11,6 +11,14 @@
     table-layout: auto;
     text-align: left;
 
+
+    .sort-icon {
+      height: 20px;
+      width: 20px;
+      margin-left: 5px;
+      cursor: pointer;
+    }
+
     th {
       background-color: $dark-blue;
       padding: 12px;

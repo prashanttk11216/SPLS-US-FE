@@ -10,8 +10,6 @@ import { useSelector } from "react-redux";
 import Pagination, {
   Meta,
 } from "../../../../../components/common/Pagination/Pagination";
-import FilterShape from "../../../../../assets/icons/Filter.svg";
-import closeLogo from "../../../../../assets/icons/closeLogo.svg";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import "./LoadList.scss";
 import { Load } from "../../../../../types/Load";
@@ -39,28 +37,15 @@ const LoadList: React.FC = () => {
     totalItems: 0,
   }); // Pagination metadata
 
-  const [statusFilter, setStatusFilter] = useState<
-    "Active" | "Inactive" | null
-  >(null); // state for filter
-  const [sortFilter, setSortFilter] = useState<string | null>(null); // state for sorting filter
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc"); // Sort order state
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [activeTab, setActiveTab] = useState<LoadStatus>(LoadStatus.Published);
-
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
   const [loadDetails, setLoadDetails] = useState<Partial<Load> | null>(null);
 
   const closeModal = () => {
     setIsDetailsModalOpen(false);
     setLoadDetails(null);
-  };
-
-  const handleSortFilterChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setSortFilter(event.target.value);
   };
 
   const {
@@ -94,15 +79,8 @@ const LoadList: React.FC = () => {
           query += `&search=${encodeURIComponent(searchQuery)}`;
         }
 
-        // Append `isActive` filter based on `statusFilter`
-        if (statusFilter === "Active") {
-          query += `&isActive=true`;
-        } else if (statusFilter === "Inactive") {
-          query += `&isActive=false`;
-        }
-
-        if (sortFilter) {
-          query += `&sortBy=${sortFilter}&sortOrder=${sortOrder}`;
+        if (sortConfig) {
+          query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
 
         const result = await fetchLoads(query);
@@ -119,7 +97,7 @@ const LoadList: React.FC = () => {
         toast.error("Error fetching customer data.");
       }
     },
-    [fetchLoads, statusFilter, sortOrder, searchQuery, user, activeTab]
+    [fetchLoads, searchQuery, user, activeTab, sortConfig]
   );
 
   // Trigger fetch when user is populated
@@ -127,27 +105,23 @@ const LoadList: React.FC = () => {
     if (user && user._id) {
       fetchLoadsData();
     }
-  }, [user, statusFilter, sortFilter, sortOrder, searchQuery, activeTab]);
+  }, [user, searchQuery, activeTab, sortConfig]);
 
   const columns = [
-    { key: "origin", label: "Origin", width: "20%" },
-    { key: "destination", label: "Destination" },
-    { key: "originEarlyPickupDate", label: "Pick-up" },
-    { key: "originEarlyPickupTime", label: "Pick-up Time" },
-    { key: "equipment", label: "Equipment" },
-    { key: "miles", label: "Miles" },
-    { key: "mode", label: "Mode" },
+    { key: "origin.str", label: "Origin", width: "20%", sortable: true },
+    { key: "destination.str", label: "Destination", sortable: true  },
+    { key: "originEarlyPickupDate", label: "Pick-up", sortable: true  },
+    { key: "originEarlyPickupTime", label: "Pick-up Time", sortable: true  },
+    { key: "equipment", label: "Equipment", sortable: true  },
+    { key: "miles", label: "Miles", sortable: true  },
+    { key: "mode", label: "Mode", sortable: true  },
     { key: "actions", label: "Actions", isAction: true },
   ];
 
   const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
       case "View Details":
-        const load = loads.find((l) => l._id === row._id);
-        if (load) {
-          setLoadDetails(load);
-          setIsDetailsModalOpen(true);
-        }
+        handleRowClick(row)
         break;
       case "Edit":
         navigate(`create/${row._id}${activeTab === LoadStatus.Draft ? "?draft=true" : ""}`);
@@ -213,6 +187,17 @@ const LoadList: React.FC = () => {
     }
   };
 
+  const handleRowClick = async (row: Record<string, any>) => {
+    if (row) {
+      setLoadDetails(row);
+      setIsDetailsModalOpen(true);
+    }
+  }
+
+  const handleSort = (sortStr: { key: string; direction: "asc" | "desc" } | null) => {
+    setSortConfig(sortStr); // Updates the sort query to trigger API call
+  };
+
   const getActionsForLoad = (_: Load): string[] => {
     const actions = ["View Details", "Edit"];
     if (activeTab == LoadStatus.Draft) {
@@ -235,23 +220,11 @@ const LoadList: React.FC = () => {
     fetchLoadsData(1, limit);
   };
 
-  const handleSortClick = (column: string) => {
-    // If the clicked column is the same as the current column
-    if (sortFilter === column) {
-      // Toggle the sort order (ASC <-> DESC)
-      setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
-    } else {
-      // If a new column is clicked, reset sort order to "asc" and update the filter
-      setSortFilter(column);
-      setSortOrder("asc");
-    }
-  };
-
   const getRowData = () => {
     return loads.map((load) => ({
       _id: load._id,
-      origin: load.origin.str,
-      destination: load.destination.str || "N/A",
+      "origin.str": load.origin.str,
+      "destination.str": load.destination.str || "N/A",
       originEarlyPickupDate:
         formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
       originEarlyPickupTime:
@@ -263,172 +236,18 @@ const LoadList: React.FC = () => {
     }));
   };
 
-  const handleCloseDropdown = () => {
-    const dropdownMenu = document.getElementById("filterList");
-    dropdownMenu?.classList.remove("show"); // This will close the dropdown
-  };
-
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   };
 
-  const clearAllFilters = () => {
-    setStatusFilter(null);
-    setSortFilter(null);
-  };
 
   return (
     <div className="customers-list-wrapper">
       <h2 className="fw-bolder">SPLS Load Board</h2>
       <div className="d-flex align-items-center my-3">
-        {/* Filter Dropdown */}
-        <div className="dropdown">
-          <button
-            className="btn btn-outline-primary dropdown-toggle"
-            type="button"
-            id="sortDropdown"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <img src={FilterShape} alt="FilterShape" height={20} width={20} />
-            <span
-              style={{
-                fontSize: "17px",
-                margin: "6px",
-                lineHeight: "16.94px",
-              }}
-            >
-              Filter
-            </span>
-          </button>
-          <ul
-            className="dropdown-menu mt-3"
-            aria-labelledby="sortDropdown"
-            id="filterList"
-            style={{ width: "224px" }}
-          >
-            <div className="d-flex justify-content-between align-items-center form-check">
-              <span
-                style={{
-                  marginTop: "10px",
-                  fontWeight: "600",
-                }}
-              >
-                Filter by Status:
-              </span>
-              <img
-                src={closeLogo}
-                alt="Close"
-                onClick={handleCloseDropdown}
-                style={{
-                  width: "11px",
-                  height: "13px",
-                  marginRight: "8px",
-                  marginTop: "-15px",
-                  cursor: "pointer",
-                }}
-              />
-            </div>
-            {/* Active/Inactive Filters */}
-            <li>
-              <label className="filter-label d-flex align-items-center w-100 form-check">
-                <span className="filter-text">Active</span>
-                <input
-                  type="radio"
-                  name="statusFilter"
-                  value="Active"
-                  checked={statusFilter === "Active"}
-                  onChange={() => setStatusFilter("Active")}
-                  className="ms-auto me-4 form-check-input"
-                />
-              </label>
-            </li>
-            <li>
-              <label className="filter-label d-flex align-items-center w-100 form-check">
-                <span className="filter-text">Inactive</span>
-                <input
-                  type="radio"
-                  name="statusFilter"
-                  value="Inactive"
-                  checked={statusFilter === "Inactive"}
-                  onChange={() => setStatusFilter("Inactive")}
-                  className="ms-auto me-4 form-check-input"
-                />
-              </label>
-            </li>
-
-            <div className="d-flex justify-content-between align-items-center form-check">
-              <span
-                style={{
-                  marginTop: "10px",
-                  fontWeight: "600",
-                }}
-              >
-                Sort by:
-              </span>
-            </div>
-            <li>
-              <label className="filter-label d-flex align-items-center w-100 form-check">
-                <span
-                  className="filter-text"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleSortClick("firstName");
-                  }}
-                >
-                  First Name (
-                  {sortFilter === "firstName" ? sortOrder.toUpperCase() : "ASC"}
-                  )
-                </span>
-                <input
-                  type="radio"
-                  name="sortFilter"
-                  value="firstName"
-                  checked={sortFilter === "firstName"}
-                  onChange={handleSortFilterChange}
-                  className="ms-auto me-4 form-check-input"
-                />
-              </label>
-            </li>
-            <li>
-              <label
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleSortClick("lastName");
-                }}
-                className="filter-label d-flex align-items-center w-100 form-check"
-              >
-                <span className="filter-text">
-                  Last Name (
-                  {sortFilter === "lastName" ? sortOrder.toUpperCase() : "ASC"})
-                </span>
-                <input
-                  type="radio"
-                  name="sortFilter"
-                  value="lastName"
-                  checked={sortFilter === "lastName"}
-                  onChange={handleSortFilterChange}
-                  className="ms-auto me-4 form-check-input"
-                />
-              </label>
-            </li>
-            <div className="dropdown-divider"></div>
-            {/* Clear Filter Button */}
-            <li className="text-center mt-2">
-              <button
-                className="btn btn-sm btn-secondary"
-                onClick={clearAllFilters}
-              >
-                Clear Filters
-              </button>
-            </li>
-          </ul>
-        </div>
-
+       
         {/* Search Bar */}
-        <div className="searchbar-container ms-4">
+        <div className="searchbar-container">
           <SearchBar onSearch={handleSearch} />
         </div>
 
@@ -498,6 +317,9 @@ const LoadList: React.FC = () => {
             rows={getRowData()}
             data={loads}
             onActionClick={handleAction}
+            onRowClick={handleRowClick}
+            onSort={handleSort}
+            sortConfig={sortConfig}
             rowClickable={true}
           />
           {loads?.length > 0 && (
