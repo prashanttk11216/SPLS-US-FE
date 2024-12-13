@@ -91,5 +91,5 @@ function cleanData<T extends Record<string, unknown>>(data: T): Partial<T> {
 export const createLoadSchema = baseLoadSchema.transform((data) => cleanData(data));
 
 // Validation for update operation (all fields optional)
-export const updateLoadSchema = baseLoadSchema.omit({ brokerId: true, customerId: true}).partial().transform((data) => cleanData(data));
+export const updateLoadSchema = baseLoadSchema.omit({ brokerId: true, postedBy: true, customerId: true}).partial().transform((data) => cleanData(data));
 

@@ -12,6 +12,7 @@ type DateInputProps = {
   placeholder?: string; // Placeholder text
   errorMessage?: string; // Error message to display
   datePickerProps?: DatePickerProps; // Props for the DatePicker
+  isRange?: boolean; // Flag to toggle range functionality
 }; // Allow all other props for DatePicker
 
 const DateInput: React.FC<DateInputProps> = ({
@@ -23,6 +24,7 @@ const DateInput: React.FC<DateInputProps> = ({
   placeholder = "Choose Date",
   errorMessage,
   datePickerProps,
+  isRange = false,
 }) => {
 
   const parseDate = (value: any) => {
@@ -47,20 +49,26 @@ const DateInput: React.FC<DateInputProps> = ({
           <div>
             <DatePicker
               {...datePickerProps}
-              selected={parseDate(field.value)}
+              selected={parseDate((isRange ? field.value?.[0] : field?.value)|| null)} // Start date for range or single date
               // onChange={field.onChange}
-              onChange={(date: any) => {
-                // Convert Date to string before passing it to react-hook-form
-                field.onChange(date ? date.toISOString() : "");
+              onChange={(dates: any) => {
+                if (isRange && Array.isArray(dates)) {
+                  field.onChange(dates); // Pass the range to react-hook-form
+                } else {
+                  field.onChange(dates ? dates.toISOString() : ""); // Pass a single date
+                }
               }}
               ref={field.ref}
               onBlur={field.onBlur}
+              startDate={field.value?.[0] || null} // Start date
+              endDate={field.value?.[1] || null} // End date
               disabled={field.disabled}
               name={field.name}
               className={`form-control form-control-lg ${
                 fieldState?.invalid ? "is-invalid" : ""
               }`} 
               placeholderText={placeholder}
+              autoComplete="off"
             />
             {fieldState?.error && (
               <span className="text-danger">

@@ -8,7 +8,7 @@ interface NumberInputProps {
   name: string;
   placeholder?: string;
   control: any; // Replace with the actual type from react-hook-form
-  errors: any; // Replace with the actual type from react-hook-form
+  errors?: any; // Replace with the actual type from react-hook-form
   errorMessage?: string;
   required?: boolean;
   disabled?: boolean;
@@ -34,7 +34,7 @@ const NumberInput: React.FC<NumberInputProps> = ({
   name,
   placeholder,
   control,
-  errors,
+  errors = null,
   errorMessage,
   required = false,
   disabled = false,
@@ -83,10 +83,13 @@ const NumberInput: React.FC<NumberInputProps> = ({
 
   return (
     <div className="mb-3">
-      <label htmlFor={id} className="form-label text-dark-blue">
+            {label && (
+              <label htmlFor={id} className="form-label text-dark-blue">
         {label}
         {required && " *"}
       </label>
+            )}
+      
       <div className="input-group">
         {currency && currencyOptions && (
           <select
@@ -109,7 +112,7 @@ const NumberInput: React.FC<NumberInputProps> = ({
           render={({ field }) => (
             <input
               type="text"
-              className={`form-control form-control-lg ${errors[name] ? "is-invalid" : ""}`}
+              className={`form-control form-control-lg ${(errors && errors[name]) ? "is-invalid" : ""}`}
               id={id}
               placeholder={placeholder}
               value={formatNumber(field.value)}
@@ -130,7 +133,7 @@ const NumberInput: React.FC<NumberInputProps> = ({
           rules={validationRules}
         />
       </div>
-      {errors[name] && <span className="text-danger">{errors[name].message}</span>}
+      {(errors && errors[name]) && <span className="text-danger">{errors[name].message}</span>}
     </div>
   );
 };

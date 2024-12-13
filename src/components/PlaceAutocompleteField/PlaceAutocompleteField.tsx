@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
-import { useFormContext, Controller } from "react-hook-form";
+import { Controller, useWatch } from "react-hook-form";
 
 interface PlaceAutocompleteFieldProps {
   name: string; // Field name for react-hook-form
@@ -35,9 +35,22 @@ const PlaceAutocompleteField = ({
   onPlaceSelect,
   className = "",
 }: PlaceAutocompleteFieldProps) => {
+  const [inputValue, setInputValue] = useState<string>(""); // Internal state for display
   const [placeAutocomplete, setPlaceAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
   let inputRef = useRef<HTMLInputElement | null>(null);
   const places = useMapsLibrary("places");
+
+  // Watch the field value to reset internal state when form resets
+  const fieldValue = useWatch({ control, name });
+
+  // Sync `inputValue` with the external field value
+  useEffect(() => {
+    if (fieldValue?.str === undefined || fieldValue?.str === null) {
+      setInputValue(""); // Reset internal state
+    } else {
+      setInputValue(fieldValue.str); // Sync with external field value
+    }
+  }, [fieldValue]);
 
   // Initialize the Autocomplete API on component mount
   useEffect(() => {
@@ -75,18 +88,19 @@ const PlaceAutocompleteField = ({
         console.log(place);
         
         const details = extractPlaceDetails(place);
-        if (onPlaceSelect) onPlaceSelect(details);
+        setInputValue(details.formatted_address || ""); // Update internal input display
+        if (onPlaceSelect) onPlaceSelect(details); // Trigger parent callback
       }
     };
 
     placeAutocomplete.addListener("place_changed", handlePlaceChanged);
 
     return () => {
-      // Cleanup: clear all event listeners attached to the placeAutocomplete instance
       google.maps.event.clearInstanceListeners(placeAutocomplete);
     };
   }, [placeAutocomplete, onPlaceSelect]);
 
+  // Extract relevant place details
   const extractPlaceDetails = useCallback((place: google.maps.places.PlaceResult) => {
     const addressComponents = place.address_components || [];
     const getComponent = (type: string) =>
@@ -117,25 +131,23 @@ const PlaceAutocompleteField = ({
         name={name}
         control={control}
         rules={rules}
-        disabled={disabled}
         render={({ field, fieldState }) => (
           <>
             <input
               id={`autocomplete-${name}`}
               ref={(el) => {
-                field.ref(el); // Assign React Hook Form's ref
-                inputRef.current = el; // Assign your custom ref
+                field.ref(el); // React Hook Form's ref
+                inputRef.current = el; // Local ref
               }}
-              className={`form-control form-control-lg ${
-                fieldState?.invalid ? "is-invalid" : ""
-              }`}
+              className={`form-control form-control-lg ${fieldState?.invalid ? "is-invalid" : ""}`}
               placeholder={placeholder}
               onBlur={field.onBlur}
               disabled={field.disabled}
               name={field.name}
-              value={field.value?.str}
-              onChange={(e) => {                
-                field.onChange(e);
+              value={inputValue}
+              onChange={(e) => {
+                setInputValue(e.target.value); // Update display value
+                field.onChange({ str: e.target.value }); // Update form state
               }}
             />
             {fieldState?.error && (
@@ -150,4 +162,3 @@ const PlaceAutocompleteField = ({
 
 export default PlaceAutocompleteField;
 
-  

@@ -18,6 +18,13 @@ import {
 import { formatDate } from "../../../../../utils/dateFormat";
 import { formatDistance } from "../../../../../utils/distanceCalculator";
 import LoadDetailsModal from "../LoadDetailsModal/LoadDetailsModal";
+import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
+import NumberInput from "../../../../../components/common/NumberInput/NumberInput";
+import { useForm } from "react-hook-form";
+import arrowRightArrowLeft from '../../../../../assets/icons/arrowRightArrowLeft.svg'
+import SelectField from "../../../../../components/common/SelectField/SelectField";
+import { Equipment } from "../../../../../enums/Equipment";
+import DateInput from "../../../../../components/common/DateInput/DateInput";
 
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -34,12 +41,24 @@ const LoadList: React.FC = () => {
     key: string;
     direction: "asc" | "desc";
   } | null>(null);
+  const [formQuery, setFormQuery] = useState<string | null>(null);
 
    // View Details Option Added
    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
    const [loadDetails, setLoadDetails] = useState<Partial<Load> | null>(
      null
    );
+
+   const {
+       register,
+       handleSubmit,
+       control,
+       setValue,
+       getValues,
+       reset,
+     } = useForm<any>({
+       mode: "onBlur",
+     });
 
   const {
     fetchData: fetchLoads,
@@ -66,6 +85,9 @@ const LoadList: React.FC = () => {
         if (sortConfig) {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
+        if(formQuery){
+          query += `&${formQuery}`;
+        }
 
         const result = await fetchLoads(query);
         if (result.success) {
@@ -81,7 +103,7 @@ const LoadList: React.FC = () => {
         toast.error("Error fetching customer data.");
       }
     },
-    [fetchLoads, searchQuery, user, sortConfig]
+    [fetchLoads, searchQuery, user, sortConfig, formQuery]
   );
 
   // Trigger fetch when user is populated
@@ -89,7 +111,7 @@ const LoadList: React.FC = () => {
     if (user && user._id) {
       fetchLoadsData();
     }
-  }, [user, searchQuery, sortConfig]);
+  }, [user, searchQuery, sortConfig, formQuery]);
 
   const columns = [
     { key: "origin", label: "Origin", width: "20%"},
@@ -144,8 +166,6 @@ const LoadList: React.FC = () => {
     fetchLoadsData(1, limit);
   };
 
-
-
   const getRowData = () => {
     return loads.map((load) => ({
       _id: load._id,
@@ -166,25 +186,192 @@ const LoadList: React.FC = () => {
     }));
   };
 
-    // View Details Option Added
-    const openDetailsModal = (customerData: Partial<Load>) => {
-      setLoadDetails(customerData);
-      setIsDetailsModalOpen(true);
-    };
+  // View Details Option Added
+  const openDetailsModal = (customerData: Partial<Load>) => {
+    setLoadDetails(customerData);
+    setIsDetailsModalOpen(true);
+  };
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   };
 
+  const handleSearchForm = (data: any) => {
+    // Initialize query object
+    let query: { [key: string]: any } = {};
+  
+    // Populate the query object based on data
+    if (data.origin?.str) {
+      query.originLat = data.origin?.lat;
+      query.originLng = data.origin?.lng;
+      query.dhoRadius = data.dhoRadius;
+    }
+    if (data.destination?.str) {
+      query.destinationLat = data.destination?.lat;
+      query.destinationLng = data.destination?.lng;
+      query.dhdRadius = data.dhdRadius;
+    }
+
+    if(data.equipment){
+      query.equipment = data.equipment
+    }
+
+    if(data.loadDateRange.length > 0){
+      query.fromDate = data.loadDateRange[0]?.toISOString();
+      query.toDate = data.loadDateRange[1]?.toISOString();
+    }
+
+    console.log(data);
+  
+    // Use URLSearchParams to generate the query string, excluding undefined fields
+    const searchParams = new URLSearchParams();
+    Object.entries(query).forEach(([key, value]) => {
+      if (value !== undefined) { // Exclude undefined fields
+        searchParams.append(key, value.toString());
+      }
+    });
+  
+    // Output the query string
+    const queryString = `${searchParams.toString()}`;
+    setFormQuery(queryString);
+  };
+  const resetForm = () => {
+    reset({
+      equipment: undefined,
+      origin: undefined,
+      destination: undefined,
+      dhoRadius: undefined,
+      dhdRadius: undefined
+    });
+    setFormQuery(null)
+  }
+
+  const swapAddress = ()=> {
+    const origin =  getValues("origin");
+    const dhoRadius =  getValues("dhoRadius");
+    const destination =  getValues("destination");
+    const dhdRadius =  getValues("dhdRadius");
+    reset({
+      "origin": destination,
+      "dhoRadius": dhdRadius,
+      "destination": origin,
+      "dhdRadius": dhoRadius
+    });
+  }
+
+  const equipmentOptions = Object.entries(Equipment).map(([_, value]) => ({
+      value: value,
+      label: value,
+    }));
 
   return (
     <div className="customers-list-wrapper">
       <h2 className="fw-bolder">SPLS Load Board</h2>
-      <div className="d-flex align-items-center my-3">
-        {/* Search Bar */}
-        <div className="searchbar-container">
+      <form onSubmit={handleSubmit(handleSearchForm)}>
+      <div className="d-flex align-items-center">
+          {/* Origin */}
+          <div style={{width:"200px"}}>
+            <PlaceAutocompleteField
+              name="origin"
+              label=""
+              control={control}
+              placeholder="Origin"
+              onPlaceSelect={(details) => {
+                setValue("origin", {
+                  str: details.formatted_address!,
+                  lat: details.lat!,
+                  lng: details.lng!,
+                });
+              }}
+            />
+          </div>
+          {/* DH-O */}
+          <div style={{width:"90px"}} className="ms-2">
+              <NumberInput
+                label=""
+                id="dhoRadius"
+                min={0}
+                name="dhoRadius"
+                placeholder="DH-O"
+                control={control}
+                preventNegative
+              />
+
+          </div>
+          <img src={arrowRightArrowLeft} height={20} width={20} className="mx-3 mb-3" onClick={swapAddress} />
+          {/* Destination */}
+          <div style={{width:"200px"}}>
+            <PlaceAutocompleteField
+              name="destination"
+              label=""
+              control={control}
+              placeholder="Destination"
+              onPlaceSelect={(details) => {
+                setValue("destination", {
+                  str: details.formatted_address!,
+                  lat: details.lat!,
+                  lng: details.lng!,
+                });
+              }}
+            />
+          </div>
+          {/* DH-D */}
+          <div style={{width:"90px"}} className="ms-2">
+              <NumberInput
+                label=""
+                id="dhdRadius"
+                min={0}
+                name="dhdRadius"
+                placeholder="DH-D"
+                control={control}
+                preventNegative
+              />
+          </div>
+          {/* Equipment */}
+          <div style={{width:"200px"}} className="mb-3 ms-2">
+            <SelectField
+              label=""
+              name="equipment"
+              placeholder="Select Equipment"
+              control={control}
+              options={equipmentOptions}
+            />
+          </div>
+          {/* Equipment */}
+          <div style={{width:"200px"}} className="mb-3 ms-2">
+            <SelectField
+              label=""
+              name="equipment"
+              placeholder="Select Equipment"
+              control={control}
+              options={equipmentOptions}
+            />
+          </div>
+          <div style={{width:"200px"}} className="mb-3 ms-2">
+          <DateInput
+              name="loadDateRange"
+              control={control}
+              label=""
+              required={true}
+              isRange={true}
+              placeholder="Choose a date range"
+              datePickerProps={{
+                dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                isClearable: true,
+                selectsRange: true,                 
+              }}
+            />
+          </div>
+          <div className="mb-3">
+            <button className="btn btn-primary px-5 ms-3" disabled={loading}>Search</button>
+            <button type="button"className="btn btn-outline-secondary px-5 ms-3" disabled={loading} onClick={resetForm}>Reset</button>
+          </div>
+      </div>
+      </form>
+
+      {/* Search Bar */}
+      <div className="mb-2">
           <SearchBar onSearch={handleSearch} />
-        </div>
       </div>
 
       {loading ? (
