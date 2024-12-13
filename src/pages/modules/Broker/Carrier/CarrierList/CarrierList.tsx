@@ -110,12 +110,12 @@ const CarrierList: React.FC = () => {
   }, [user, searchQuery, sortConfig]);
 
   const columns = [
-    { key: "name", label: "Name", width: "40%" },
-    { key: "email", label: "Email", sortable: true },
-    { key: "contact", label: "Contact", sortable: true },
-    { key: "company", label: "Company", sortable: true },
-    { key: "status", label: "Status" },
-    { key: "actions", label: "Actions", isAction: true },
+    { width: "250px", key: "name", label: "Name" },
+    { width: "210px", key: "email", label: "Email", sortable: true },
+    { width: "150px", key: "contact", label: "Contact", sortable: true },
+    { width: "150px", key: "company", label: "Company", sortable: true },
+    { width: "90px", key: "status", label: "Status" },
+    { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
   const handleAction = async (action: string, row: Record<string, any>) => {

@@ -114,15 +114,25 @@ const LoadList: React.FC = () => {
   }, [user, searchQuery, sortConfig, formQuery]);
 
   const columns = [
-    { key: "origin", label: "Origin", width: "20%"},
-    { key: "destination", label: "Destination" },
-    { key: "originEarlyPickupDate", label: "Pick-up", sortable: true },
-    { key: "originEarlyPickupTime", label: "Pick-up Time", sortable: true },
-    { key: "equipment", label: "Equipment"},
-    { key: "miles", label: "Miles", sortable: true },
-    { key: "mode", label: "Mode" },
-    { key: "postedBy", label: "Posted By" },
-    { key: "actions", label: "Actions", isAction: true },
+    { width: "250px", key: "origin", label: "Origin" },
+    { width: "250px", key: "destination", label: "Destination" },
+    {
+      width: "150px",
+      key: "originEarlyPickupDate",
+      label: "Pick-up",
+      sortable: true,
+    },
+    {
+      width: "150px",
+      key: "originEarlyPickupTime",
+      label: "Pick-up Time",
+      sortable: true,
+    },
+    { width: "150px", key: "equipment", label: "Equipment" },
+    { width: "110px", key: "miles", label: "Miles", sortable: true },
+    { width: "150px", key: "mode", label: "Mode" },
+    { width: "150px", key: "postedBy", label: "Posted By" },
+    { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
   const handleAction = async (action: string, row: Record<string, any>) => {

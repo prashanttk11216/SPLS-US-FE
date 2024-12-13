@@ -193,12 +193,17 @@ const ShipperList: React.FC = () => {
   };
 
   const columns = [
-    { key: "name", label: "Name", width: "30%" },
-    { key: "email", label: "Email" , sortable: true},
-    { key: "contact", label: "Contact", sortable: true },
-    { key: "shippingHours", label: "Shipping Hours", sortable: true },
-    { key: "status", label: "Status" },
-    { key: "actions", label: "Actions", isAction: true },
+    { width: "250px", key: "name", label: "Name" },
+    { width: "210px", key: "email", label: "Email", sortable: true },
+    { width: "150px", key: "contact", label: "Contact", sortable: true },
+    {
+      width: "170px",
+      key: "shippingHours",
+      label: "Shipping Hours",
+      sortable: true,
+    },
+    { width: "90px", key: "status", label: "Status" },
+    { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
   const handlePageChange = (page: number) => {
