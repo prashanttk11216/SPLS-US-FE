@@ -226,7 +226,7 @@ const LoadList: React.FC = () => {
       query.equipment = data.equipment
     }
 
-    if(data.loadDateRange.length > 0){
+    if(data.loadDateRange?.length > 0){
       query.fromDate = data.loadDateRange[0]?.toISOString();
       query.toDate = data.loadDateRange[1]?.toISOString();
     }
@@ -347,17 +347,7 @@ const LoadList: React.FC = () => {
               options={equipmentOptions}
             />
           </div>
-          {/* Equipment */}
-          <div style={{width:"200px"}} className="mb-3 ms-2">
-            <SelectField
-              label=""
-              name="equipment"
-              placeholder="Select Equipment"
-              control={control}
-              options={equipmentOptions}
-            />
-          </div>
-          <div style={{width:"200px"}} className="mb-3 ms-2">
+          <div style={{width:"270px"}} className="mb-3 ms-2">
           <DateInput
               name="loadDateRange"
               control={control}
@@ -378,11 +368,6 @@ const LoadList: React.FC = () => {
           </div>
       </div>
       </form>
-
-      {/* Search Bar */}
-      <div className="mb-2">
-          <SearchBar onSearch={handleSearch} />
-      </div>
 
       {loading ? (
         <Loading />
