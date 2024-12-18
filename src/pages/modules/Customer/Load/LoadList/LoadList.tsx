@@ -92,6 +92,12 @@ const LoadList: React.FC = () => {
   }, [user, searchQuery, sortConfig]);
 
   const columns = [
+    {
+      width: "160px",
+      key: "loadNumber",
+      label: "Load/Reference Number",
+      sortable: true,
+    },
     { width: "250px", key: "origin", label: "Origin" },
     { width: "250px", key: "destination", label: "Destination" },
     {
@@ -109,6 +115,13 @@ const LoadList: React.FC = () => {
     { width: "150px", key: "equipment", label: "Equipment" },
     { width: "150px", key: "miles", label: "Miles", sortable: true },
     { width: "150px", key: "mode", label: "Mode" },
+    { width: "140px", key: "brokerRate", label: "Broker Rate", sortable: true },
+    { width: "140px", key: "allInRate", label: "All-in Rate", sortable: true },
+    { width: "120px", key: "weight", label: "Weight", sortable: true },
+    { width: "120px", key: "length", label: "Length", sortable: true },
+    { width: "120px", key: "width", label: "Width", sortable: true },
+    { width: "120px", key: "height", label: "Height", sortable: true },
+    { width: "120px", key: "loadOption", label: "Load Option"},
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
@@ -159,6 +172,14 @@ const LoadList: React.FC = () => {
       equipment: load.equipment || "N/A",
       mode: load.mode || "N/A",
       miles: formatDistance(load.miles!) || "N/A",
+      brokerRate: load.allInRate || "N/A",
+      allInRate: load.customerRate || "N/A",
+      weight: load.weight || "N/A",
+      length: load.length || "N/A",
+      width: load.width || "N/A",
+      height: load.height || "N/A",
+      loadOption: load.loadOption || "N/A",
+      loadNumber: load.loadNumber || "N/A",
       actions: getActionsForLoad(load),
     }));
   };

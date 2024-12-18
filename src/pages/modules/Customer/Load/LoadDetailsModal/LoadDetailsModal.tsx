@@ -2,6 +2,7 @@ import React from "react";
 import { Load } from "../../../../../types/Load";
 import DetailsModal from "../../../../../components/common/DetailsModal/DetailsModal";
 import { User } from "../../../../../types/User";
+import { formatDate } from "../../../../../utils/dateFormat";
 
 const LoadDetailsModal: React.FC<{
   isOpen: boolean;
@@ -17,12 +18,16 @@ const LoadDetailsModal: React.FC<{
         { label: "Name", value: load.origin?.str || "N/A", fullWidth: true },
         {
           label: "Pick-Up",
-          value: String(load.originEarlyPickupDate || "N/A"),
+          value: load.originEarlyPickupDate
+            ? formatDate(load.originEarlyPickupDate, "MM/dd/yyyy")
+            : "N/A",
           fullWidth: true,
         },
         {
           label: "Pick-Up Time",
-          value: String(load.originEarlyPickupTime || "N/A"),
+          value: load.originEarlyPickupTime
+            ? formatDate(load.originEarlyPickupTime, "h:mm aa")
+            : "N/A",
           fullWidth: true,
         },
         {
@@ -42,22 +47,30 @@ const LoadDetailsModal: React.FC<{
         },
         {
           label: "Early Drop-off Date",
-          value: String(load.destinationEarlyDropoffDate || "N/A"),
+          value: load.destinationEarlyDropoffDate
+            ? formatDate(load.destinationEarlyDropoffDate, "MM/dd/yyyy")
+            : "N/A",
           fullWidth: true,
         },
         {
           label: "Early Drop-off Time",
-          value: String(load.destinationEarlyDropoffTime || "N/A"),
+          value: load.destinationEarlyDropoffTime
+            ? formatDate(load.destinationEarlyDropoffTime, "h:mm aa")
+            : "N/A",
           fullWidth: true,
         },
         {
           label: "Late Drop-off Date",
-          value: String(load.destinationLateDropoffDate || "N/A"),
+          value: load.destinationLateDropoffDate
+            ? formatDate(load.destinationLateDropoffDate, "MM/dd/yyyy")
+            : "N/A", 
           fullWidth: true,
         },
         {
           label: "Late Drop-off Time",
-          value: String(load.destinationLateDropoffTime || "N/A"),
+          value: load.destinationLateDropoffTime
+            ? formatDate(load.destinationLateDropoffTime, "h:mm aa")
+            : "N/A", 
           fullWidth: true,
         },
       ],
@@ -79,7 +92,10 @@ const LoadDetailsModal: React.FC<{
         { label: "Load Option", value: load.loadOption || "N/A" },
         { label: "Commodity", value: load.commodity || "N/A" },
         { label: "Load Number", value: load.loadNumber || "N/A" },
-        { label: "Assign User", value: (load.postedBy as User)?.company || "N/A" },
+        {
+          label: "Assign User",
+          value: (load.postedBy as User)?.company || "N/A",
+        },
         { label: "Special Info", value: load.specialInstructions || "N/A" },
       ],
     },
