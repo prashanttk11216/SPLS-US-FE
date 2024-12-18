@@ -23,7 +23,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import { formatDate } from "../../../../../utils/dateFormat";
 import { LoadStatus } from "../../../../../enums/LoadStatus";
-import Modal from "../../../../../components/common/Modal/Modal";
 import LoadDetailsModal from "../LoadDetailsModal/LoadDetailsModal";
 import { formatDistance } from "../../../../../utils/distanceCalculator";
 
@@ -39,8 +38,12 @@ const LoadList: React.FC = () => {
   }); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<LoadStatus>(LoadStatus.Published);
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
+  const savedActiveTab = localStorage.getItem("activeTab");
+  const [activeTab, setActiveTab] = useState<LoadStatus>(savedActiveTab ? (savedActiveTab as LoadStatus) : LoadStatus.Published);
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: "asc" | "desc";
+  } | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
   const [loadDetails, setLoadDetails] = useState<Partial<Load> | null>(null);
 
@@ -61,12 +64,9 @@ const LoadList: React.FC = () => {
     deleteDataService: deleteLoad,
   });
 
-  const {
-    updateData: notifyCustomerRate,
-  } = useFetchData<any>({
+  const { updateData: notifyCustomerRate } = useFetchData<any>({
     updateDataService: notifyCustomerLoad,
-  })
-  
+  });
 
   // Fetch Load data
   const fetchLoadsData = useCallback(
@@ -101,16 +101,15 @@ const LoadList: React.FC = () => {
     [fetchLoads, searchQuery, user, activeTab, sortConfig]
   );
 
-  const refreshAgeCall = async (data: any)=> {
+  const refreshAgeCall = async (data: any) => {
     const result = await refreshAgeforLoad(data);
     if (result.success) {
-        toast.success(result.message);
-        setTimeout(()=>{
-          fetchLoadsData();
-        },500)
+      toast.success(result.message);
+      setTimeout(() => {
+        fetchLoadsData();
+      }, 500);
     }
-  }
-  
+  };
 
   // Trigger fetch when user is populated
   useEffect(() => {
@@ -119,25 +118,57 @@ const LoadList: React.FC = () => {
     }
   }, [user, searchQuery, activeTab, sortConfig]);
 
+   // Update active tab in localStorage whenever it changes
+   useEffect(() => {
+    localStorage.setItem("activeTab", activeTab);
+  }, [activeTab]);
+
   const columns = [
-    { width: "90px",  key: "age", label: "Age", sortable: true, bold: true },
+    { width: "90px", key: "age", label: "Age", sortable: true, bold: true },
+    { width: "160px", key: "loadNumber", label: "Load/Reference Number", sortable: true },
     { width: "150px", key: "origin.str", label: "Origin", sortable: true },
-    { width: "150px", key: "destination.str", label: "Destination", sortable: true  },
-    { width: "120px", key: "originEarlyPickupDate", label: "Pick-up", sortable: true  },
-    { width: "150px", key: "originEarlyPickupTime", label: "Pick-up Time", sortable: true  },
-    { width: "150px", key: "equipment", label: "Equipment", sortable: true  },
-    { width: "120px", key: "miles", label: "Miles", sortable: true  },
-    { width: "120px", key: "mode", label: "Mode", sortable: true  },
-    { width: "90px",  key: "actions", label: "Actions", isAction: true },
+    {
+      width: "150px",
+      key: "destination.str",
+      label: "Destination",
+      sortable: true,
+    },
+    {
+      width: "120px",
+      key: "originEarlyPickupDate",
+      label: "Pick-up",
+      sortable: true,
+    },
+    {
+      width: "150px",
+      key: "originEarlyPickupTime",
+      label: "Pick-up Time",
+      sortable: true,
+    },
+    { width: "150px", key: "equipment", label: "Equipment", sortable: true },
+    { width: "120px", key: "miles", label: "Miles", sortable: true },
+    { width: "120px", key: "mode", label: "Mode", sortable: true },
+    { width: "140px", key: "brokerRate", label: "Broker Rate", sortable: true },
+    { width: "140px", key: "allInRate", label: "All-in Rate", sortable: true },
+    { width: "120px", key: "weight", label: "Weight", sortable: true },
+    { width: "120px", key: "length", label: "Length", sortable: true },
+    { width: "120px", key: "width", label: "Width", sortable: true },
+    { width: "120px", key: "height", label: "Height", sortable: true },
+    { width: "120px", key: "loadOption", label: "Load Option"},
+    { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
   const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
       case "View Details":
-        handleRowClick(row)
+        handleRowClick(row);
         break;
       case "Edit":
-        navigate(`create/${row._id}${activeTab === LoadStatus.Draft ? "?draft=true" : ""}`);
+        navigate(
+          `create/${row._id}${
+            activeTab === LoadStatus.Draft ? "?draft=true" : ""
+          }`
+        );
         break;
       case LoadStatus.Published:
         try {
@@ -166,21 +197,21 @@ const LoadList: React.FC = () => {
         }
         break;
       case LoadStatus.Cancelled:
-          try {
-            const result = await loadStatus(row._id, {
-              status: LoadStatus.Cancelled,
-            });
-            if (result.success) {
-              toast.success(result.message);
-              fetchLoadsData();
-            }
-          } catch (err) {
-            toast.error("Failed to delete customer.");
+        try {
+          const result = await loadStatus(row._id, {
+            status: LoadStatus.Cancelled,
+          });
+          if (result.success) {
+            toast.success(result.message);
+            fetchLoadsData();
           }
-          break;
+        } catch (err) {
+          toast.error("Failed to delete customer.");
+        }
+        break;
       case "Notify Customer":
         const result = await notifyCustomerRate(row._id, "");
-        if(result.success){
+        if (result.success) {
           toast.success(result.message);
         }
         break;
@@ -205,9 +236,11 @@ const LoadList: React.FC = () => {
       setLoadDetails(row);
       setIsDetailsModalOpen(true);
     }
-  }
+  };
 
-  const handleSort = (sortStr: { key: string; direction: "asc" | "desc" } | null) => {
+  const handleSort = (
+    sortStr: { key: string; direction: "asc" | "desc" } | null
+  ) => {
     setSortConfig(sortStr); // Updates the sort query to trigger API call
   };
 
@@ -246,6 +279,14 @@ const LoadList: React.FC = () => {
       equipment: load.equipment || "N/A",
       miles: formatDistance(load.miles!) || "N/A",
       mode: load.mode || "N/A",
+      brokerRate: load.allInRate || "N/A",
+      allInRate: load.customerRate || "N/A",
+      weight: load.weight || "N/A",
+      length: load.length || "N/A",
+      width: load.width || "N/A",
+      height: load.height || "N/A",
+      loadOption: load.loadOption || "N/A",
+      loadNumber: load.loadNumber || "N/A",
       actions: getActionsForLoad(load),
     }));
   };
@@ -257,11 +298,11 @@ const LoadList: React.FC = () => {
   const handleGeneralAction = (action: any, selectedData: any) => {
     switch (action) {
       case "Refresh Loads":
-        let ids: string[] = []
-        selectedData.map((item:any) => ids.push(item._id));
-        refreshAgeCall({ids});
+        let ids: string[] = [];
+        selectedData.map((item: any) => ids.push(item._id));
+        refreshAgeCall({ ids });
         break;
-    
+
       default:
         break;
     }
@@ -272,7 +313,6 @@ const LoadList: React.FC = () => {
     <div className="customers-list-wrapper">
       <h2 className="fw-bolder">SPLS Load Board</h2>
       <div className="d-flex align-items-center my-3">
-       
         {/* Search Bar */}
         <div className="searchbar-container">
           <SearchBar onSearch={handleSearch} />
@@ -296,42 +336,67 @@ const LoadList: React.FC = () => {
         <>
           {user.role === UserRole.BROKER_ADMIN && (
             <ul className="nav nav-tabs">
-              <li className="nav-item" onClick={() => setActiveTab(LoadStatus.Published)}>
+              <li
+                className="nav-item"
+                onClick={() => setActiveTab(LoadStatus.Published)}
+              >
                 <a
-                  className={`nav-link ${LoadStatus.Published == activeTab && "active"}`}
+                  className={`nav-link ${
+                    LoadStatus.Published == activeTab && "active"
+                  }`}
                   aria-current="page"
                   href="#"
                 >
                   Loads
                 </a>
               </li>
-              <li className="nav-item" onClick={() => setActiveTab(LoadStatus.Draft)}>
+              <li
+                className="nav-item"
+                onClick={() => setActiveTab(LoadStatus.Draft)}
+              >
                 <a
-                  className={`nav-link ${LoadStatus.Draft == activeTab  && "active"}`}
+                  className={`nav-link ${
+                    LoadStatus.Draft == activeTab && "active"
+                  }`}
                   href="#"
                 >
                   Available/Draft
                 </a>
               </li>
-              <li className="nav-item" onClick={() => setActiveTab(LoadStatus.PendingResponse)}>
+              <li
+                className="nav-item"
+                onClick={() => setActiveTab(LoadStatus.PendingResponse)}
+              >
                 <a
-                  className={`nav-link ${LoadStatus.PendingResponse == activeTab  && "active"}`}
+                  className={`nav-link ${
+                    LoadStatus.PendingResponse == activeTab && "active"
+                  }`}
                   href="#"
                 >
                   Pending Response
                 </a>
               </li>
-              <li className="nav-item" onClick={() => setActiveTab(LoadStatus.DealClosed)}>
+              <li
+                className="nav-item"
+                onClick={() => setActiveTab(LoadStatus.DealClosed)}
+              >
                 <a
-                  className={`nav-link ${LoadStatus.DealClosed == activeTab  && "active"}`}
+                  className={`nav-link ${
+                    LoadStatus.DealClosed == activeTab && "active"
+                  }`}
                   href="#"
                 >
                   Deal Closed
                 </a>
               </li>
-              <li className="nav-item" onClick={() => setActiveTab(LoadStatus.Cancelled)}>
+              <li
+                className="nav-item"
+                onClick={() => setActiveTab(LoadStatus.Cancelled)}
+              >
                 <a
-                  className={`nav-link ${LoadStatus.Cancelled == activeTab  && "active"}`}
+                  className={`nav-link ${
+                    LoadStatus.Cancelled == activeTab && "active"
+                  }`}
                   href="#"
                 >
                   Cancelled
@@ -349,8 +414,8 @@ const LoadList: React.FC = () => {
             sortConfig={sortConfig}
             rowClickable={true}
             showCheckbox={true}
-            tableActions={['Refresh Loads']} 
-            onTableAction={handleGeneralAction} 
+            tableActions={["Refresh Loads"]}
+            onTableAction={handleGeneralAction}
           />
           {loads?.length > 0 && (
             <div className="pagination-container">
@@ -364,20 +429,11 @@ const LoadList: React.FC = () => {
           )}
         </>
       )}
-
-      {isDetailsModalOpen && loadDetails && (
-        <Modal
-          isOpen={isDetailsModalOpen}
-          onClose={closeModal}
-          title="Load Details"
-        >
-          <LoadDetailsModal
-            load={loadDetails}
-            onClose={closeModal}
-            isOpen={isDetailsModalOpen}
-          />
-        </Modal>
-      )}
+      <LoadDetailsModal
+        load={loadDetails}
+        onClose={closeModal}
+        isOpen={isDetailsModalOpen}
+      />
     </div>
   );
 };
