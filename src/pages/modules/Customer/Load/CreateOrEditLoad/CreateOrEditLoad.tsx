@@ -3,8 +3,6 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import Loading from "../../../../../components/common/Loading/Loading";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../../../store/store";
 import { Equipment } from "../../../../../enums/Equipment";
 import { LoadOption } from "../../../../../enums/LoadOption";
 import { Commodity } from "../../../../../enums/Commodity";
@@ -20,10 +18,8 @@ import Input from "../../../../../components/common/Input/Input";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
 import NumberInput from "../../../../../components/common/NumberInput/NumberInput";
-import { UserRole } from "../../../../../enums/UserRole";
-import { getUsers } from "../../../../../services/user/userService";
 import { createLoadSchema, updateLoadSchema } from "../../../../../schema/Load";
-import calculateDistance from "../../../../../utils/distanceCalculator";
+import calculateDistance, { formatDistance } from "../../../../../utils/distanceCalculator";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 import DirectionsMap from "../../../../../components/DirectionsMap/DirectionsMap";
 
@@ -69,7 +65,6 @@ export type loadForm = {
   length?: number;
   width?: number;
   height?: number;
-  distance?: number;
   pieces?: number;
   pallets?: number;
   miles?: number;
@@ -84,25 +79,23 @@ export type loadForm = {
 interface CreateOrEditLoadProps {}
 
 const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
-  const user = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
   const { loadId } = useParams();
   const [loadData, setLoadData] = useState<loadForm>();
-  const [usersList, setUsersList] = useState<any[]>([]);
 
-  const equipmentOptions = Object.entries(Equipment).map(([key, value]) => ({
+  const equipmentOptions = Object.entries(Equipment).map(([_, value]) => ({
     value: value,
     label: value,
   }));
-  const modeOptions = Object.entries(Mode).map(([key, value]) => ({
+  const modeOptions = Object.entries(Mode).map(([_, value]) => ({
     value: value,
     label: value,
   }));
-  const loadOptions = Object.entries(LoadOption).map(([key, value]) => ({
+  const loadOptions = Object.entries(LoadOption).map(([_, value]) => ({
     value: value,
     label: value,
   }));
-  const commodityOptions = Object.entries(Commodity).map(([key, value]) => ({
+  const commodityOptions = Object.entries(Commodity).map(([_, value]) => ({
     value: value,
     label: value,
   }));
@@ -115,6 +108,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
     getValues,
     formState: { errors, isValid },
     reset,
+    watch
   } = useForm<loadForm>({
     mode: "onBlur",
   });
@@ -131,10 +125,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
     fetchByIdService: getLoadById,
   });
 
-  const { fetchData: fetchUsers } = useFetchData<any>({
-    fetchDataService: getUsers,
-  });
-
   const fetchLoad = async (loadId: string) => {
     const result = await fetchLoadById(loadId);
     if (result.success) {
@@ -142,20 +132,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
     }
   };
 
-  const fetchUsersData = async () => {
-    let query = `?role=${UserRole.BROKER_USER}`;
-    const result = await fetchUsers(query);
-    if (result.success) {
-      let users: any = [];
-      result?.data?.forEach((user) => {
-        users.push({
-          value: user._id,
-          label: `${user.firstName} ${user.lastName}`,
-        });
-      });
-      setUsersList(users);
-    }
-  };
+  
 
   useEffect(() => {
     if (loadId) fetchLoad(loadId);
@@ -165,10 +142,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
       reset(loadData);
     }
   }, [loadData]);
-
-  useEffect(() => {
-    fetchUsersData();
-  }, []);
 
   const {
     fields: originFields,
@@ -216,11 +189,9 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
     try {
       let result;
       if (loadId && loadData) {
-        data.miles = await getDistance();
         const validatedData = updateLoadSchema.parse(data);
         result = await updateLoad(loadData._id, validatedData);
       } else {
-        data.miles = await getDistance();
         const validatedData = createLoadSchema.parse(data);
         result = await newLoad(validatedData);
       }
@@ -257,6 +228,20 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
       return 0;
     }
   };
+
+  const origin = watch("origin");
+  const destination = watch("destination");
+
+  useEffect(() => {
+    const calculateDistance = async () => {
+      if (origin && destination) {
+        let distance: number = await getDistance();
+        setValue("miles", formatDistance(distance));
+      }
+    };
+
+    calculateDistance();
+  }, [origin, destination]);
 
   return (
     <>
@@ -751,9 +736,9 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
           <div className="col-2">
             <NumberInput
               label="Distance"
-              id="distance"
+              id="miles"
               min={0}
-              name="distance"
+              name="miles"
               placeholder="Mile"
               control={control}
               errors={errors}

@@ -43,7 +43,7 @@ export const loadFormSchema = z.object({
   length: z.number().optional(),
   width: z.number().optional(),
   height: z.number().optional(),
-  distance: z.number().optional(),
+  miles: z.number().optional(),
   pieces: z.number().optional(),
   pallets: z.number().optional(),
   loadOption: z.string().optional(),

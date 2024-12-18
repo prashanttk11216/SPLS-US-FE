@@ -86,7 +86,7 @@ const LoadDetailsModal: React.FC<{
         { label: "Length", value: load.length || "N/A" },
         { label: "Width", value: load.width || "N/A" },
         { label: "Height", value: load.height || "N/A" },
-        { label: "Distance", value: load.distance || "N/A" },
+        { label: "Distance(Miles)", value: load.miles || "N/A" },
         { label: "Pieces", value: load.pieces || "N/A" },
         { label: "Pallets", value: load.pallets || "N/A" },
         { label: "Load Option", value: load.loadOption || "N/A" },

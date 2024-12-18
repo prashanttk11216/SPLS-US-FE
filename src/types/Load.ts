@@ -50,7 +50,6 @@ export interface Load {
   length?: number;
   width?: number;
   height?: number;
-  distance?: number;
   pieces?: number;
   pallets?: number;
   age?: Date;

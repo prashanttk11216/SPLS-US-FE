@@ -25,7 +25,7 @@ import { getUsers } from "../../../../../services/user/userService";
 import { createLoadSchema, updateLoadSchema } from "../../../../../schema/Load";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 import DirectionsMap from "../../../../../components/DirectionsMap/DirectionsMap";
-import calculateDistance from "../../../../../utils/distanceCalculator";
+import calculateDistance, { formatDistance } from "../../../../../utils/distanceCalculator";
 
 export type loadForm = {
   _id: string;
@@ -69,7 +69,6 @@ export type loadForm = {
   length?: number;
   width?: number;
   height?: number;
-  distance?: number;
   pieces?: number;
   pallets?: number;
   miles?: number;
@@ -118,6 +117,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
     getValues,
     formState: { errors, isValid },
     reset,
+    watch
   } = useForm<loadForm>({
     mode: "onBlur",
   });
@@ -219,11 +219,9 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
     try {
       let result;
       if (loadId && loadData) {
-        data.miles = await getDistance();
         const validatedData = updateLoadSchema.parse(data);
         result = await updateLoad(loadData._id, validatedData);
       } else {
-        data.miles = await getDistance();
         const validatedData = createLoadSchema.parse(data);
         result = await newLoad(validatedData);
       }
@@ -260,6 +258,22 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
       return 0;
     }
   };
+
+  const origin = watch("origin");
+  const destination = watch("destination");
+
+  useEffect(() => {
+    const calculateDistance = async () =>{
+      if(origin && destination){
+        let distance: number = await getDistance();
+        setValue("miles", formatDistance(distance));
+      }
+    }
+
+    calculateDistance();
+  }, [origin, destination])
+  
+
 
   return (
     <>
@@ -765,9 +779,9 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
           <div className="col-2">
             <NumberInput
               label="Distance"
-              id="distance"
+              id="miles"
               min={0}
-              name="distance"
+              name="miles"
               placeholder="Mile"
               control={control}
               errors={errors}
