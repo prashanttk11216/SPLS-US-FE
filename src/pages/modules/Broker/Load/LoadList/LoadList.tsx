@@ -23,7 +23,6 @@ import { useNavigate } from "react-router-dom";
 import { formatDate } from "../../../../../utils/dateFormat";
 import { LoadStatus } from "../../../../../enums/LoadStatus";
 import LoadDetailsModal from "../LoadDetailsModal/LoadDetailsModal";
-import { formatDistance } from "../../../../../utils/distanceCalculator";
 import { RateConfirmationNotification } from "../RateConfirmationNotification/RateConfirmationNotification";
 import { LoadCreationAlert } from "../LoadCreationAlert/LoadCreationAlert";
 
@@ -302,7 +301,7 @@ const LoadList: React.FC = () => {
       originEarlyPickupTime:
         formatDate(load.originEarlyPickupDate, "h:mm aa") || "N/A",
       equipment: load.equipment || "N/A",
-      miles: formatDistance(load.miles!) || "N/A",
+      miles: load.miles|| "N/A",
       mode: load.mode || "N/A",
       brokerRate: load.allInRate || "N/A",
       allInRate: load.customerRate || "N/A",

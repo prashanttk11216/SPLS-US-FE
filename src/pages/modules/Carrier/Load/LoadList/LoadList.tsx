@@ -8,7 +8,6 @@ import { useSelector } from "react-redux";
 import Pagination, {
   Meta,
 } from "../../../../../components/common/Pagination/Pagination";
-import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import "./LoadList.scss";
 import { Load } from "../../../../../types/Load";
 import {
@@ -16,7 +15,6 @@ import {
   sendLoadRequest,
 } from "../../../../../services/load/loadServices";
 import { formatDate } from "../../../../../utils/dateFormat";
-import { formatDistance } from "../../../../../utils/distanceCalculator";
 import LoadDetailsModal from "../LoadDetailsModal/LoadDetailsModal";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 import NumberInput from "../../../../../components/common/NumberInput/NumberInput";
@@ -36,7 +34,6 @@ const LoadList: React.FC = () => {
     totalItems: 0,
   }); // Pagination metadata
 
-  const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "asc" | "desc";
@@ -50,7 +47,6 @@ const LoadList: React.FC = () => {
    );
 
    const {
-       register,
        handleSubmit,
        control,
        setValue,
@@ -77,11 +73,6 @@ const LoadList: React.FC = () => {
       try {
         let query = `?page=${page}&limit=${limit}`;
 
-        //Search Functionality
-        if (searchQuery) {
-          query += `&search=${encodeURIComponent(searchQuery)}`;
-        }
-
         if (sortConfig) {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
@@ -103,7 +94,7 @@ const LoadList: React.FC = () => {
         toast.error("Error fetching customer data.");
       }
     },
-    [fetchLoads, searchQuery, user, sortConfig, formQuery]
+    [fetchLoads, user, sortConfig, formQuery]
   );
 
   // Trigger fetch when user is populated
@@ -111,7 +102,7 @@ const LoadList: React.FC = () => {
     if (user && user._id) {
       fetchLoadsData();
     }
-  }, [user, searchQuery, sortConfig, formQuery]);
+  }, [user, sortConfig, formQuery]);
 
   const columns = [
     {
@@ -198,7 +189,7 @@ const LoadList: React.FC = () => {
       originEarlyPickupTime:
         formatDate(load.originEarlyPickupDate, "h:mm aa") || "N/A",
       equipment: load.equipment || "N/A",
-      miles: formatDistance(load.miles!) || "N/A",
+      miles: load.miles || "N/A",
       mode: load.mode || "N/A",
       postedBy:
         load.brokerId && typeof load.brokerId === "object"
@@ -219,10 +210,6 @@ const LoadList: React.FC = () => {
   const openDetailsModal = (customerData: Partial<Load>) => {
     setLoadDetails(customerData);
     setIsDetailsModalOpen(true);
-  };
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
   };
 
   const handleSearchForm = (data: any) => {

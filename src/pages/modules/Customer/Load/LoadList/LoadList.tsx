@@ -9,7 +9,6 @@ import { useSelector } from "react-redux";
 import Pagination, {
   Meta,
 } from "../../../../../components/common/Pagination/Pagination";
-import FilterShape from "../../../../../assets/icons/Filter.svg";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import "./LoadList.scss";
 import { Load } from "../../../../../types/Load";
@@ -18,7 +17,6 @@ import {
 } from "../../../../../services/load/loadServices";
 import { useNavigate } from "react-router-dom";
 import { formatDate } from "../../../../../utils/dateFormat";
-import { formatDistance } from "../../../../../utils/distanceCalculator";
 import LoadDetailsModal from "../LoadDetailsModal/LoadDetailsModal";
 
 const LoadList: React.FC = () => {
@@ -171,7 +169,7 @@ const LoadList: React.FC = () => {
       originEarlyPickupTime: formatDate(load.originEarlyPickupDate, "h:mm aa") || "N/A",
       equipment: load.equipment || "N/A",
       mode: load.mode || "N/A",
-      miles: formatDistance(load.miles!) || "N/A",
+      miles: load.miles|| "N/A",
       brokerRate: load.allInRate || "N/A",
       allInRate: load.customerRate || "N/A",
       weight: load.weight || "N/A",
