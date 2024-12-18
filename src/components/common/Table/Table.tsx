@@ -113,11 +113,11 @@ const Table: FC<TableProps> = ({
        {selectedRows.length > 0 && (
         <div className="table-actions my-2 d-flex align-items-center justify-content-between">
           <div><b>({selectedRows.length})</b> selected on this page</div>
-          <div>
+          <div className="ms-auto">
           {tableActions.map((action) => (
             <button
               key={action}
-              className="btn btn-outline-primary btn-sm ms-auto"
+              className="btn btn-outline-primary btn-sm ms-2"
               onClick={() => handleTableAction(action)}
             >
               {action}

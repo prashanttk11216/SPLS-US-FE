@@ -82,10 +82,19 @@ export const sendLoadRequest = async (
 };
 
 export const notifyCustomerLoad = async (
-  loadId: string,
+  loadId: string, data: any
 ): Promise<ApiResponse> => {
   try {
-    const response = await axiosApi.post(`/load/rateconfirm/${loadId}`);
+    const response = await axiosApi.post(`/load/rateconfirm/${loadId}`, data);
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "Failed to update Load details");
+  }
+};
+
+export const notifyCarrierAboutLoad = async (data: any): Promise<ApiResponse> => {
+  try {
+    const response = await axiosApi.post(`/load/create-alert`, data);
     return handleResponse(response);
   } catch (error) {
     return handleAxiosError(error, "Failed to update Load details");

@@ -16,7 +16,6 @@ import { Load } from "../../../../../types/Load";
 import {
   deleteLoad,
   getloads,
-  notifyCustomerLoad,
   refreshAgeforLoad,
   updateLoadStatus,
 } from "../../../../../services/load/loadServices";
@@ -25,6 +24,8 @@ import { formatDate } from "../../../../../utils/dateFormat";
 import { LoadStatus } from "../../../../../enums/LoadStatus";
 import LoadDetailsModal from "../LoadDetailsModal/LoadDetailsModal";
 import { formatDistance } from "../../../../../utils/distanceCalculator";
+import { RateConfirmationNotification } from "../RateConfirmationNotification/RateConfirmationNotification";
+import { LoadCreationAlert } from "../LoadCreationAlert/LoadCreationAlert";
 
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -39,17 +40,27 @@ const LoadList: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const savedActiveTab = localStorage.getItem("activeTab");
-  const [activeTab, setActiveTab] = useState<LoadStatus>(savedActiveTab ? (savedActiveTab as LoadStatus) : LoadStatus.Published);
+  const [activeTab, setActiveTab] = useState<LoadStatus>(
+    savedActiveTab ? (savedActiveTab as LoadStatus) : LoadStatus.Published
+  );
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "asc" | "desc";
-  } | null>(null);
+  } | null>({ key: "age", direction: "desc" });
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
   const [loadDetails, setLoadDetails] = useState<Partial<Load> | null>(null);
+  const [selectedLoad, setSelectedLoad] = useState<string | null>(null);
+  const [selectedLoads, setSelectedLoads] = useState<string[] | null>(null);
 
   const closeModal = () => {
+    setSelectedLoad(null);
     setIsDetailsModalOpen(false);
     setLoadDetails(null);
+  };
+
+  const closeLoadCreationModal = () => {
+    setSelectedLoads(null);
+    fetchLoadsData();
   };
 
   const {
@@ -62,10 +73,6 @@ const LoadList: React.FC = () => {
     fetchDataService: getloads,
     updateDataService: updateLoadStatus,
     deleteDataService: deleteLoad,
-  });
-
-  const { updateData: notifyCustomerRate } = useFetchData<any>({
-    updateDataService: notifyCustomerLoad,
   });
 
   // Fetch Load data
@@ -118,14 +125,19 @@ const LoadList: React.FC = () => {
     }
   }, [user, searchQuery, activeTab, sortConfig]);
 
-   // Update active tab in localStorage whenever it changes
-   useEffect(() => {
+  // Update active tab in localStorage whenever it changes
+  useEffect(() => {
     localStorage.setItem("activeTab", activeTab);
   }, [activeTab]);
 
   const columns = [
     { width: "90px", key: "age", label: "Age", sortable: true, bold: true },
-    { width: "160px", key: "loadNumber", label: "Load/Reference Number", sortable: true },
+    {
+      width: "160px",
+      key: "loadNumber",
+      label: "Load/Reference Number",
+      sortable: true,
+    },
     { width: "150px", key: "origin.str", label: "Origin", sortable: true },
     {
       width: "150px",
@@ -154,7 +166,7 @@ const LoadList: React.FC = () => {
     { width: "120px", key: "length", label: "Length", sortable: true },
     { width: "120px", key: "width", label: "Width", sortable: true },
     { width: "120px", key: "height", label: "Height", sortable: true },
-    { width: "120px", key: "loadOption", label: "Load Option"},
+    { width: "120px", key: "loadOption", label: "Load Option" },
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
@@ -181,6 +193,19 @@ const LoadList: React.FC = () => {
           }
         } catch (err) {
           toast.error("Failed to delete customer.");
+        }
+        break;
+      case LoadStatus.PendingResponse:
+        try {
+          const result = await loadStatus(row._id, {
+            status: LoadStatus.PendingResponse,
+          });
+          if (result.success) {
+            toast.success(result.message);
+            fetchLoadsData();
+          }
+        } catch (err) {
+          toast.error("Failed to change Load Status.");
         }
         break;
       case LoadStatus.DealClosed:
@@ -210,10 +235,7 @@ const LoadList: React.FC = () => {
         }
         break;
       case "Notify Customer":
-        const result = await notifyCustomerRate(row._id, "");
-        if (result.success) {
-          toast.success(result.message);
-        }
+        setSelectedLoad(row._id);
         break;
       case "Delete":
         try {
@@ -248,6 +270,9 @@ const LoadList: React.FC = () => {
     const actions = ["View Details", "Edit"];
     if (activeTab == LoadStatus.Draft) {
       actions.push("Published");
+    }
+    if (activeTab == LoadStatus.Published) {
+      actions.push("Pending Response");
     }
     if (activeTab == LoadStatus.PendingResponse) {
       actions.push("Notify Customer");
@@ -302,7 +327,11 @@ const LoadList: React.FC = () => {
         selectedData.map((item: any) => ids.push(item._id));
         refreshAgeCall({ ids });
         break;
-
+      case "Notify Carrier":
+        let loadIds: string[] = [];
+        selectedData.map((item: any) => loadIds.push(item._id));
+        setSelectedLoads(loadIds);
+        break;
       default:
         break;
     }
@@ -414,7 +443,7 @@ const LoadList: React.FC = () => {
             sortConfig={sortConfig}
             rowClickable={true}
             showCheckbox={true}
-            tableActions={["Refresh Loads"]}
+            tableActions={["Refresh Loads", "Notify Carrier"]}
             onTableAction={handleGeneralAction}
           />
           {loads?.length > 0 && (
@@ -429,6 +458,21 @@ const LoadList: React.FC = () => {
           )}
         </>
       )}
+
+      {selectedLoad && (
+        <RateConfirmationNotification
+          selectedLoad={selectedLoad}
+          closeModal={closeModal}
+        />
+      )}
+
+      {selectedLoads && (
+        <LoadCreationAlert
+          selectedLoads={selectedLoads}
+          closeModal={closeLoadCreationModal}
+        />
+      )}
+
       <LoadDetailsModal
         load={loadDetails}
         onClose={closeModal}
