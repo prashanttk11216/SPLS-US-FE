@@ -92,8 +92,8 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   const [usersList, setUsersList] = useState<any[]>([]);
 
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
-  const openMapModal = () => setIsMapModalOpen(true);
-  const closeMapModal = () => setIsMapModalOpen(false);
+  const toggleMapModal = () => setIsMapModalOpen(prev => !prev);
+
 
   const equipmentOptions = Object.entries(Equipment).map(([_, value]) => ({
     value: value,
@@ -894,7 +894,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               <button
                 className="btn btn-accent btn-lg"
                 type="button"
-                onClick={openMapModal}
+                onClick={toggleMapModal}
               >
                 View Routes
               </button>
@@ -914,7 +914,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                     lat: getValues("destination").lat,
                     lng: getValues("destination").lng,
                   }}
-                  onClose={closeMapModal}
+                  onClose={toggleMapModal}
                 />
               </div>
             </>

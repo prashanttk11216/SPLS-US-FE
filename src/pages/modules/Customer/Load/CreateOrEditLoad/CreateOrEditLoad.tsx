@@ -19,9 +19,11 @@ import DateInput from "../../../../../components/common/DateInput/DateInput";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
 import NumberInput from "../../../../../components/common/NumberInput/NumberInput";
 import { createLoadSchema, updateLoadSchema } from "../../../../../schema/Load";
-import calculateDistance, { formatDistance } from "../../../../../utils/distanceCalculator";
+import calculateDistance, {
+  formatDistance,
+} from "../../../../../utils/distanceCalculator";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
-import DirectionsMap from "../../../../../components/DirectionsMap/DirectionsMap";
+import MapModal from "../../../../../components/common/MapModal/MapModal";
 
 export type loadForm = {
   _id: string;
@@ -83,6 +85,9 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   const { loadId } = useParams();
   const [loadData, setLoadData] = useState<loadForm>();
 
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+  const toggleMapModal = () => setIsMapModalOpen((prev) => !prev);
+
   const equipmentOptions = Object.entries(Equipment).map(([_, value]) => ({
     value: value,
     label: value,
@@ -108,7 +113,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
     getValues,
     formState: { errors, isValid },
     reset,
-    watch
+    watch,
   } = useForm<loadForm>({
     mode: "onBlur",
   });
@@ -131,8 +136,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
       setLoadData(result.data);
     }
   };
-
-  
 
   useEffect(() => {
     if (loadId) fetchLoad(loadId);
@@ -804,7 +807,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               rows={3}
             />
           </div>
-          <div className="col-12 text-center">
+          <div className="col-12 text-center d-flex justify-content-center gap-3">
             <button
               className="btn btn-accent btn-lg"
               type="submit"
@@ -813,22 +816,30 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
             >
               {loadId ? "Update" : "Create"}
             </button>
+            {origin?.str && destination?.str && (
+              <button
+                className="btn btn-accent btn-lg"
+                type="button"
+                onClick={toggleMapModal}
+              >
+                View Routes
+              </button>
+            )}
           </div>
           {getValues("origin")?.str && getValues("destination")?.str && (
             <>
               <div className="col-12 my-5">
-                <h3>Calculated Distance : </h3>
-                <DirectionsMap
-                  width="100%"
-                  height="400px"
+                <MapModal
+                  isOpen={isMapModalOpen}
                   origin={{
                     lat: getValues("origin").lat,
                     lng: getValues("origin").lng,
-                  }} // New York City
+                  }}
                   destination={{
                     lat: getValues("destination").lat,
                     lng: getValues("destination").lng,
-                  }} // Los Angeles
+                  }}
+                  onClose={toggleMapModal}
                 />
               </div>
             </>
