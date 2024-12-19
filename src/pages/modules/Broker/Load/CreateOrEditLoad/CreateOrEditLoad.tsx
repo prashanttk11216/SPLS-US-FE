@@ -24,8 +24,10 @@ import { UserRole } from "../../../../../enums/UserRole";
 import { getUsers } from "../../../../../services/user/userService";
 import { createLoadSchema, updateLoadSchema } from "../../../../../schema/Load";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
-import DirectionsMap from "../../../../../components/DirectionsMap/DirectionsMap";
-import calculateDistance, { formatDistance } from "../../../../../utils/distanceCalculator";
+import calculateDistance, {
+  formatDistance,
+} from "../../../../../utils/distanceCalculator";
+import MapModal from "../../../../../components/common/MapModal/MapModal";
 
 export type loadForm = {
   _id: string;
@@ -89,6 +91,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   const [loadData, setLoadData] = useState<loadForm>();
   const [usersList, setUsersList] = useState<any[]>([]);
 
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+  const openMapModal = () => setIsMapModalOpen(true);
+  const closeMapModal = () => setIsMapModalOpen(false);
+
   const equipmentOptions = Object.entries(Equipment).map(([_, value]) => ({
     value: value,
     label: value,
@@ -117,7 +123,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
     getValues,
     formState: { errors, isValid },
     reset,
-    watch
+    watch,
   } = useForm<loadForm>({
     mode: "onBlur",
   });
@@ -263,17 +269,15 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   const destination = watch("destination");
 
   useEffect(() => {
-    const calculateDistance = async () =>{
-      if(origin && destination){
+    const calculateDistance = async () => {
+      if (origin && destination) {
         let distance: number = await getDistance();
         setValue("miles", formatDistance(distance));
       }
-    }
+    };
 
     calculateDistance();
-  }, [origin, destination])
-  
-
+  }, [origin, destination]);
 
   return (
     <>
@@ -877,7 +881,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               rows={3}
             />
           </div>
-          <div className="col-12 text-center">
+          <div className="col-12 text-center d-flex justify-content-center gap-3">
             <button
               className="btn btn-accent btn-lg"
               type="submit"
@@ -886,22 +890,31 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
             >
               {loadId ? "Update" : "Create"}
             </button>
+            {origin?.str && destination?.str && (
+              <button
+                className="btn btn-accent btn-lg"
+                type="button"
+                onClick={openMapModal}
+              >
+                View Routes
+              </button>
+            )}
           </div>
+
           {getValues("origin")?.str && getValues("destination")?.str && (
             <>
               <div className="col-12 mt-5">
-                <h3>Calculated Distance : </h3>
-                <DirectionsMap
-                  width="100%"
-                  height="400px"
+                <MapModal
+                  isOpen={isMapModalOpen}
                   origin={{
                     lat: getValues("origin").lat,
                     lng: getValues("origin").lng,
-                  }} // New York City
+                  }}
                   destination={{
                     lat: getValues("destination").lat,
                     lng: getValues("destination").lng,
-                  }} // Los Angeles
+                  }}
+                  onClose={closeMapModal}
                 />
               </div>
             </>
