@@ -906,8 +906,14 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               <div className="col-12 mt-5">
                 <MapModal
                   isOpen={isMapModalOpen}
-                  origin={{ lat: origin.lat, lng: origin.lng }}
-                  destination={{ lat: destination.lat, lng: destination.lng }}
+                  origin={{
+                    lat: getValues("origin").lat,
+                    lng: getValues("origin").lng,
+                  }}
+                  destination={{
+                    lat: getValues("destination").lat,
+                    lng: getValues("destination").lng,
+                  }}
                   onClose={closeMapModal}
                 />
               </div>

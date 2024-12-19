@@ -1,6 +1,6 @@
 import React from "react";
 import DirectionsMap from "../../DirectionsMap/DirectionsMap";
-import "./MapModal.scss";
+import Modal from "../Modal/Modal";
 
 interface LatLng {
   lat: number;
@@ -20,23 +20,15 @@ const MapModal: React.FC<MapModalProps> = ({
   destination,
   onClose,
 }) => {
-  if (!isOpen) return null;
-
   return (
-    <div className={`mapModal-overlay ${isOpen ? "open" : ""}`}>
-      <div className="mapModal-content">
-        <button className="mapModal-close-btn" onClick={onClose}>
-          &times;
-        </button>
-        <h3>Calculated Distance</h3>
-        <DirectionsMap
-          width="100%"
-          height="400px"
-          origin={origin}
-          destination={destination}
-        />
-      </div>
-    </div>
+    <Modal isOpen={isOpen} onClose={onClose} title="Route Map" size="lg">
+      <DirectionsMap
+        width="100%"
+        height="400px"
+        origin={origin}
+        destination={destination}
+      />
+    </Modal>
   );
 };
 
