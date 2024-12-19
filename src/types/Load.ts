@@ -61,6 +61,8 @@ export interface Load {
   loadNumber?: number;
   postedBy?:  string | User;
   status: string;
+  dhoDistance?: number;
+  dhdDistance?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }

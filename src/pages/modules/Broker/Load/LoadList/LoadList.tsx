@@ -132,9 +132,9 @@ const LoadList: React.FC = () => {
   const columns = [
     { width: "90px", key: "age", label: "Age", sortable: true, bold: true },
     {
-      width: "160px",
+      width: "130px",
       key: "loadNumber",
-      label: "Load/Reference Number",
+      label: "Ref No",
       sortable: true,
     },
     { width: "150px", key: "origin.str", label: "Origin", sortable: true },

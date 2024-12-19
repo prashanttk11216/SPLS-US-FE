@@ -91,13 +91,13 @@ const LoadList: React.FC = () => {
 
   const columns = [
     {
-      width: "160px",
+      width: "130px",
       key: "loadNumber",
-      label: "Load/Reference Number",
+      label: "Ref No",
       sortable: true,
     },
-    { width: "250px", key: "origin", label: "Origin" },
-    { width: "250px", key: "destination", label: "Destination" },
+    { width: "250px", key: "origin", label: "Origin", sortable: true},
+    { width: "250px", key: "destination", label: "Destination", sortable: true},
     {
       width: "150px",
       key: "originEarlyPickupDate",

@@ -106,13 +106,19 @@ const LoadList: React.FC = () => {
 
   const columns = [
     {
-      width: "160px",
+      width: "130px",
       key: "loadNumber",
-      label: "Load/Reference Number",
+      label: "Ref No",
       sortable: true,
     },
-    { width: "250px", key: "origin", label: "Origin" },
-    { width: "250px", key: "destination", label: "Destination" },
+    { width: "250px", key: "origin", label: "Origin", sortable: true},
+    ...(loads.some((load) => load.dhoDistance) // Add column conditionally
+      ? [{ width: "75px", key: "dhoDistance", label: "DHO" }]
+      : []),
+    { width: "250px", key: "destination", label: "Destination", sortable: true},
+    ...(loads.some((load) => load.dhdDistance) // Add column conditionally
+      ? [{ width: "75px", key: "dhdDistance", label: "DHD" }]
+      : []),
     {
       width: "150px",
       key: "originEarlyPickupDate",
@@ -134,9 +140,10 @@ const LoadList: React.FC = () => {
     { width: "120px", key: "length", label: "Length", sortable: true },
     { width: "120px", key: "width", label: "Width", sortable: true },
     { width: "120px", key: "height", label: "Height", sortable: true },
-    { width: "120px", key: "loadOption", label: "Load Option"},
+    { width: "120px", key: "loadOption", label: "Load Option" },
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
+  
 
   const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
@@ -180,31 +187,47 @@ const LoadList: React.FC = () => {
   };
 
   const getRowData = () => {
-    return loads.map((load) => ({
-      _id: load._id,
-      origin: load.origin.str,
-      destination: load.destination?.str || "N/A",
-      originEarlyPickupDate:
-        formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
-      originEarlyPickupTime:
-        formatDate(load.originEarlyPickupDate, "h:mm aa") || "N/A",
-      equipment: load.equipment || "N/A",
-      miles: load.miles || "N/A",
-      mode: load.mode || "N/A",
-      postedBy:
-        load.brokerId && typeof load.brokerId === "object"
-          ? load.brokerId.company
-          : "N/A",
-      brokerRate: load.allInRate || "N/A",
-      weight: load.weight || "N/A",
-      length: load.length || "N/A",
-      width: load.width || "N/A",
-      height: load.height || "N/A",
-      loadOption: load.loadOption || "N/A",
-      loadNumber: load.loadNumber || "N/A",
-      actions: getActionsForLoad(load),
-    }));
-  };
+    return loads.map((load) => {
+      const row: any = {
+        _id: load._id,
+        origin: load.origin.str,
+        dhoDistance: load.dhoDistance || "N/A", // Add dhoDistance conditionally
+        destination: load.destination?.str || "N/A",
+        dhdDistance: load.dhdDistance || "N/A", // Add dhdDistance conditionally
+        originEarlyPickupDate:
+          formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
+        originEarlyPickupTime:
+          formatDate(load.originEarlyPickupDate, "h:mm aa") || "N/A",
+        equipment: load.equipment || "N/A",
+        miles: load.miles || "N/A",
+        mode: load.mode || "N/A",
+        postedBy:
+          load.brokerId && typeof load.brokerId === "object"
+            ? load.brokerId.company
+            : "N/A",
+        brokerRate: load.allInRate || "N/A",
+        weight: load.weight || "N/A",
+        length: load.length || "N/A",
+        width: load.width || "N/A",
+        height: load.height || "N/A",
+        loadOption: load.loadOption || "N/A",
+        loadNumber: load.loadNumber || "N/A",
+        actions: getActionsForLoad(load),
+      };
+  
+      // Remove dhoDistance if it doesn't exist
+      if (!load.dhoDistance) {
+        delete row.dhoDistance;
+      }
+  
+      // Remove dhdDistance if it doesn't exist
+      if (!load.dhdDistance) {
+        delete row.dhdDistance;
+      }
+  
+      return row;
+    });
+  };   
 
   // View Details Option Added
   const openDetailsModal = (customerData: Partial<Load>) => {
