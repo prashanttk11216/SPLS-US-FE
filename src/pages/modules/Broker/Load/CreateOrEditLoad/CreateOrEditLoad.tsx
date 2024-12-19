@@ -24,7 +24,6 @@ import { UserRole } from "../../../../../enums/UserRole";
 import { getUsers } from "../../../../../services/user/userService";
 import { createLoadSchema, updateLoadSchema } from "../../../../../schema/Load";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
-import DirectionsMap from "../../../../../components/DirectionsMap/DirectionsMap";
 import calculateDistance, {
   formatDistance,
 } from "../../../../../utils/distanceCalculator";
