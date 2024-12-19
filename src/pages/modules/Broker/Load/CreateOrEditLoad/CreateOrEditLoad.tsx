@@ -95,9 +95,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   const openMapModal = () => setIsMapModalOpen(true);
   const closeMapModal = () => setIsMapModalOpen(false);
 
-  // const origin = getValues("origin"); // Assuming this comes from form values
-  // const destination = getValues("destination"); // Assuming this comes from form values
-
   const equipmentOptions = Object.entries(Equipment).map(([_, value]) => ({
     value: value,
     label: value,
