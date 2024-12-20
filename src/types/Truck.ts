@@ -31,4 +31,7 @@ export interface Truck {
 
   // Virtual properties
   formattedAge?: string; // Human-readable age (e.g., "2d", "3h", etc.)
+
+  dhoDistance?: number;
+  dhdDistance?: number;
 }

@@ -1,4 +1,4 @@
-import React, { FC, useState, ReactNode } from "react";
+import React, { FC, useState } from "react";
 import "./Table.scss";
 import EllipsisVertical from "../../../assets/icons/ellipsisVertical.svg";
 import SortIcon from "../../../assets/icons/sort.svg";

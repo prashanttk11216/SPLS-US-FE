@@ -4,7 +4,7 @@ import { ApiResponse } from "../../types/responseTypes";
 
 interface UseFetchDataProps<T, U = T> {
   fetchDataService?: (params?: any) => Promise<ApiResponse<T[]>>;
-  fetchByIdService?: (id: string) => Promise<ApiResponse<T>>;
+  fetchByIdService?: (id: string, params?: any) => Promise<ApiResponse<T>>;
   createDataService?: (data: U) => Promise<ApiResponse<T>>;
   updateDataService?: (id: string, data: T) => Promise<ApiResponse<T>>;
   deleteDataService?: (id: string) => Promise<ApiResponse<null>>;
@@ -53,14 +53,14 @@ const useFetchData = <T, U = T>({
     }
   }, [fetchDataService]);
 
-  const fetchDataById = useCallback(async (id: string): Promise<ApiResponse<T>> => {
+  const fetchDataById = useCallback(async (id: string, params?: any): Promise<ApiResponse<T>> => {
     if (!fetchByIdService) {
       return handleError(null, "fetchByIdService is not defined");
     }
     setLoading(true);
     setError("");
     try {
-      const result = await fetchByIdService(id);
+      const result = await fetchByIdService(id, params);
       if (!result.success) {
         throw new Error(result.message || "Failed to fetch data by id");
       }

@@ -19,7 +19,7 @@ import {
   refreshAgeforLoad,
   updateLoadStatus,
 } from "../../../../../services/load/loadServices";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { formatDate } from "../../../../../utils/dateFormat";
 import { LoadStatus } from "../../../../../enums/LoadStatus";
 import LoadDetailsModal from "../LoadDetailsModal/LoadDetailsModal";
@@ -171,6 +171,7 @@ const LoadList: React.FC = () => {
     { width: "120px", key: "width", label: "Width", sortable: true },
     { width: "120px", key: "height", label: "Height", sortable: true },
     { width: "120px", key: "loadOption", label: "Load Option" },
+    { width: "150px", key: "truckMatch", label: "Matches", render: (row: any) => <Link to={`../truck/matches/${row._id}`} className="link-accent text-decoration-none fw-bold">View Trucks</Link> },
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 

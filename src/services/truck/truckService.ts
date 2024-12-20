@@ -68,10 +68,11 @@ export const deleteTruck = async (
 
 // Fetch matches truck details by load ID
 export const getMatchesTrucks = async (
-  loadId: string
+  loadId: string, query?: string
 ): Promise<ApiResponse> => {
   try {
-    const response = await axiosApi.get(`/truck/matches/${loadId}`);
+    let endpoint = `/truck/matches/${loadId}` + query;
+    const response = await axiosApi.get(endpoint);
     return handleResponse(response);
   } catch (error) {
     return handleAxiosError(error, "Failed to retrieve truck details");

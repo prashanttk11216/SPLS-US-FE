@@ -1,6 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
 import { UserRole } from "../enums/UserRole";
-import CustomerDashboard from "../pages/modules/Customer/dashboard/CustomerDashboard";
 import BrokerDashboard from "../pages/modules/Broker/dashboard/BrokerDashboard";
 import CarrierDashboard from "../pages/modules/Carrier/dashboard/CarrierDashboard";
 import ProtectedRoutes from "../components/ProtectedRoutes/ProtectedRoutes";
@@ -26,6 +25,7 @@ import CustomerCreateOrEditLoad from "../pages/modules/Customer/Load/CreateOrEdi
 import CustomerLoadList from "../pages/modules/Customer/Load/LoadList/LoadList";
 import CarrierLoadList from "../pages/modules/Carrier/Load/LoadList/LoadList";
 import TruckList from "../pages/modules/Carrier/Truck/TruckList/TruckList";
+import TruckMatches from "../pages/modules/Broker/Load/TruckMatches/TruckMatches";
 
 // Define the routes using createBrowserRouter
 export const routes = createBrowserRouter([
@@ -77,6 +77,10 @@ export const routes = createBrowserRouter([
           {
             path: "load/create/:loadId?",
             element: <CreateOrEditLoad />
+          },
+          {
+            path: "truck/matches/:loadId",
+            element: <TruckMatches />
           },
           {
             path: "customers", // Matches /broker

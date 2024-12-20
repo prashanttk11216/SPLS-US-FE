@@ -27,7 +27,7 @@ export type truckForm = {
     lng: number;
   };
   availableDate: Date;
-  destination: {
+  destination?: {
     str: string;
     lat: number;
     lng: number;
@@ -188,7 +188,6 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
               label="Destination City & State, or Zip Code"
               control={control}
               placeholder="Enter Destination City & State, or Zip Code"
-              rules={{ required: VALIDATION_MESSAGES.destinationRequired }} // Example validation
               onPlaceSelect={(details) => {
                 setValue("destination", {
                   str: details.formatted_address!,
@@ -196,7 +195,6 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
                   lng: details.lng!,
                 });
               }}
-              required
             />
           </div>
           {/* Origin Early Pickup Date*/}

@@ -208,7 +208,7 @@ const TruckList: React.FC = () => {
       age: truck.formattedAge || "N/A",
       referenceNumber: truck.referenceNumber || "N/A",
       "origin.str": truck.origin.str,
-      "destination.str": truck.destination.str || "N/A",
+      "destination.str": truck?.destination?.str || "Anywhere",
       availableDate:
         formatDate(truck.availableDate, "MM/dd/yyyy") || "N/A",
       equipment: truck.equipment || "N/A",
