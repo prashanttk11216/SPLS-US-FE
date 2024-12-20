@@ -161,13 +161,13 @@ const TruckList: React.FC = () => {
     setSortConfig(sortStr); // Updates the sort query to trigger API call
   };
 
-  const getActions = (consignee: Truck): string[] => {
+  const getActions = (_: Truck): string[] => {
     const actions = ["View Details", "Edit", "Delete"];
     return actions;
   };
 
   const columns = [
-    { width: "90px", key: "age", label: "Age", sortable: true, bold: true },
+    { width: "90px", key: "age", label: "Age", sortable: true, render: (row: any) => <strong>{row.age}</strong> },
     {
       width: "130px",
       key: "referenceNumber",

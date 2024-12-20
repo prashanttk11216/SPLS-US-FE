@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useState, ReactNode } from "react";
 import "./Table.scss";
 import EllipsisVertical from "../../../assets/icons/ellipsisVertical.svg";
 import SortIcon from "../../../assets/icons/sort.svg";
@@ -13,7 +13,7 @@ interface Column {
   isAction?: boolean;
   truncateLength?: number; // Maximum length for truncation
   sortable?: boolean;
-  bold?: boolean;
+  render?: (row: Record<string, any>) => React.ReactNode; // Custom render function for this column
 }
 
 interface TableProps {
@@ -23,7 +23,9 @@ interface TableProps {
   onActionClick?: (action: string, row: Record<string, any>) => void; // Callback for action clicks
   onRowClick?: (row: Record<string, any>) => void; // Callback for row clicks
   actions?: string[]; // Action names for the dropdown menu
-  onSort?: (sortString: { key: string; direction: "asc" | "desc" } | null) => void; // Callback to trigger API for sorting
+  onSort?: (
+    sortString: { key: string; direction: "asc" | "desc" } | null
+  ) => void; // Callback to trigger API for sorting
   sortConfig?: { key: string; direction: string } | null;
   rowClickable?: boolean;
   showCheckbox?: boolean; // Flag to show checkboxes
@@ -48,9 +50,7 @@ const Table: FC<TableProps> = ({
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
 
   const handleSort = (key: string) => {
-   
-
-      const newSortConfig:{ key: string; direction: "asc" | "desc" } =
+    const newSortConfig: { key: string; direction: "asc" | "desc" } =
       sortConfig?.key === key
         ? { key, direction: sortConfig.direction === "asc" ? "desc" : "asc" }
         : { key, direction: "asc" };
@@ -110,19 +110,21 @@ const Table: FC<TableProps> = ({
 
   return (
     <div className="table-wrapper">
-       {selectedRows.length > 0 && (
+      {selectedRows.length > 0 && (
         <div className="table-actions my-2 d-flex align-items-center justify-content-between">
-          <div><b>({selectedRows.length})</b> selected on this page</div>
+          <div>
+            <b>({selectedRows.length})</b> selected on this page
+          </div>
           <div className="ms-auto">
-          {tableActions.map((action) => (
-            <button
-              key={action}
-              className="btn btn-outline-primary btn-sm ms-2"
-              onClick={() => handleTableAction(action)}
-            >
-              {action}
-            </button>
-          ))}
+            {tableActions.map((action) => (
+              <button
+                key={action}
+                className="btn btn-outline-primary btn-sm ms-2"
+                onClick={() => handleTableAction(action)}
+              >
+                {action}
+              </button>
+            ))}
           </div>
         </div>
       )}
@@ -136,7 +138,8 @@ const Table: FC<TableProps> = ({
                   className="form-check-input me-0 mt-0"
                   onChange={handleSelectAll}
                   checked={
-                    selectedRows.length > 0 && selectedRows.length === rows.length
+                    selectedRows.length > 0 &&
+                    selectedRows.length === rows.length
                   }
                 />
               </th>
@@ -145,9 +148,9 @@ const Table: FC<TableProps> = ({
               <th
                 key={column.key}
                 style={{ width: column.width || "auto" }}
-                className={`${
-                  column.isAction ? "text-center" : ""
-                } ${column.sortable ? "sortable" : ""}`}
+                className={`${column.isAction ? "text-center" : ""} ${
+                  column.sortable ? "sortable" : ""
+                }`}
                 onClick={() => column.sortable && handleSort(column.key)}
               >
                 <div className="column-header">
@@ -175,21 +178,24 @@ const Table: FC<TableProps> = ({
             <tr
               key={rowIndex}
               className="table-row"
-              onClick={() => rowClickable && handleRowClick(data[rowIndex])}>
+              onClick={() => rowClickable && handleRowClick(data[rowIndex])}
+            >
               {showCheckbox && (
                 <td>
                   <input
                     type="checkbox"
                     className="form-check-input mt-0 me-0"
                     checked={selectedRows.includes(rowIndex)}
-                    onClick={(e)=>e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()}
                     onChange={() => handleCheckboxChange(rowIndex)}
                   />
                 </td>
               )}
               {columns.map((column) => (
                 <td key={`${rowIndex}-${column.key}`}>
-                  {column.isAction && row.actions ? (
+                  {column.render ? (
+                    column.render(row)
+                  ) : column.isAction && row.actions ? (
                     <div
                       className="dropdown text-center"
                       onClick={(e) => {
@@ -203,7 +209,12 @@ const Table: FC<TableProps> = ({
                         data-bs-toggle="dropdown"
                         aria-expanded={openDropdown === `dropdown-${rowIndex}`}
                       >
-                        <img src={EllipsisVertical} height={20} width={20} alt="Actions" />
+                        <img
+                          src={EllipsisVertical}
+                          height={20}
+                          width={20}
+                          alt="Actions"
+                        />
                       </a>
                       <ul
                         className={`dropdown-menu ${
@@ -232,7 +243,6 @@ const Table: FC<TableProps> = ({
                     </div>
                   ) : (
                     <div
-                      className={`${column.bold ? "fw-bold" : ""}`}
                       title={
                         typeof row[column.key] === "string" &&
                         column.truncateLength &&
@@ -241,7 +251,8 @@ const Table: FC<TableProps> = ({
                           : ""
                       }
                     >
-                      {column.truncateLength && typeof row[column.key] === "string"
+                      {column.truncateLength &&
+                      typeof row[column.key] === "string"
                         ? truncateText(row[column.key], column.truncateLength)
                         : row[column.key]}
                     </div>
@@ -252,7 +263,10 @@ const Table: FC<TableProps> = ({
           ))}
           {rows.length === 0 && (
             <tr className="no-record-found">
-              <td colSpan={columns.length + (showCheckbox ? 1 : 0)} className="text-center">
+              <td
+                colSpan={columns.length + (showCheckbox ? 1 : 0)}
+                className="text-center"
+              >
                 No records found
               </td>
             </tr>

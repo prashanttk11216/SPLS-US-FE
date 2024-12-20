@@ -391,10 +391,11 @@ const LoadList: React.FC = () => {
               }}
             />
           </div>
-          <div className="mb-3">
-            <button className="btn btn-primary ms-3" disabled={loading}>Search</button>
+          
+      </div>
+      <div className="mb-3">
+            <button className="btn btn-primary" disabled={loading}>Search</button>
             <button type="button"className="btn btn-outline-secondary ms-3" disabled={loading} onClick={resetForm}>Reset</button>
-          </div>
       </div>
       </form>
 

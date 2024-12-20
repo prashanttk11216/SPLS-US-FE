@@ -130,7 +130,12 @@ const LoadList: React.FC = () => {
   }, [activeTab]);
 
   const columns = [
-    { width: "90px", key: "age", label: "Age", sortable: true, bold: true },
+    { width: "90px", 
+      key: "age", 
+      label: "Age", 
+      sortable: true,
+      render: (row: any) => <strong>{row.age}</strong>
+    },
     {
       width: "130px",
       key: "loadNumber",
@@ -162,7 +167,7 @@ const LoadList: React.FC = () => {
     { width: "140px", key: "brokerRate", label: "Broker Rate", sortable: true },
     { width: "140px", key: "allInRate", label: "All-in Rate", sortable: true },
     { width: "120px", key: "weight", label: "Weight", sortable: true },
-    { width: "120px", key: "length", label: "Length", sortable: true },
+    { width: "120px", key: "length", label: "Length", sortable: true  },
     { width: "120px", key: "width", label: "Width", sortable: true },
     { width: "120px", key: "height", label: "Height", sortable: true },
     { width: "120px", key: "loadOption", label: "Load Option" },
