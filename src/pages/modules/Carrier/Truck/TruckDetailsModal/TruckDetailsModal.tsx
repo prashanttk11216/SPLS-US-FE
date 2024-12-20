@@ -3,6 +3,7 @@ import React from "react";
 import DetailsModal from "../../../../../components/common/DetailsModal/DetailsModal";
 import { Truck } from "../../../../../types/Truck";
 import { User } from "../../../../../types/User";
+import { formatDate } from "../../../../../utils/dateFormat";
 
 const TruckDetailsModal: React.FC<{
   isOpen: boolean;
@@ -26,7 +27,7 @@ const TruckDetailsModal: React.FC<{
         {
           label: "Available Date",
           value: truckData.availableDate
-            ? new Date(truckData.availableDate).toLocaleDateString()
+            ? formatDate(truckData.availableDate, "MM/dd/yyyy")
             : "N/A",
         },
         {
