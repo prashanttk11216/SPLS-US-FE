@@ -24,6 +24,8 @@ import BrokerLoadList from "../pages/modules/Broker/Load/LoadList/LoadList";
 import CreateOrEditLoad from "../pages/modules/Broker/Load/CreateOrEditLoad/CreateOrEditLoad";
 import CustomerCreateOrEditLoad from "../pages/modules/Customer/Load/CreateOrEditLoad/CreateOrEditLoad";
 import CustomerLoadList from "../pages/modules/Customer/Load/LoadList/LoadList";
+import CarrierLoadList from "../pages/modules/Carrier/Load/LoadList/LoadList";
+import TruckList from "../pages/modules/Carrier/Truck/TruckList/TruckList";
 
 // Define the routes using createBrowserRouter
 export const routes = createBrowserRouter([
@@ -106,6 +108,14 @@ export const routes = createBrowserRouter([
           {
             path: "", // Matches /carrier
             element: <CarrierDashboard />,
+          },
+          {
+            path: "load", // Matches /broker
+            element: <CarrierLoadList />,
+          },
+          {
+            path: "truck", // Matches /broker
+            element: <TruckList />,
           },
         ],
       },

@@ -1,14 +1,10 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../../store/store';
-import LoadList from '../Load/LoadList/LoadList';
-
 
 const CarrierDashboard: React.FC = () => {
-  const user = useSelector((state: RootState) => state.user);
   return (
-    <div className='load-list-wrapper'>
-      <LoadList />
+    <div>
+      <h1>Welcome to the Carrier Dashboard!</h1>
+      <p>Here is your dashboard content.</p>
     </div>
   );
 
