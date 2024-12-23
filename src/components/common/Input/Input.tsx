@@ -13,12 +13,6 @@ interface InputProps {
   rules?: any; // Additional validation rules from parent component
   isTextArea?: boolean;
   rows?: number;
-  currencyOptions?: string[];
-  currency?: boolean;
-  defaultCurrency?: string;
-  onCurrencyChange?: (currency: string) => void;
-  numberFormatOptions?: Intl.NumberFormatOptions; // Options for number formatting
-  locale?: string; // Locale for number formatting
 }
 
 const Input: React.FC<InputProps> = ({
@@ -32,56 +26,14 @@ const Input: React.FC<InputProps> = ({
   rules,
   isTextArea = false,
   rows = 4,
-  currencyOptions = ["$", "€", "£", "₹"],
-  defaultCurrency = "$",
-  currency = false,
-  onCurrencyChange,
-  numberFormatOptions = {},
-  locale = "en-US",
 }) => {
-  const handleCurrencyChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    onCurrencyChange?.(event.target.value);
-  };
-
-  const formatNumber = (value: string) => {
-    if (!value) return "";
-    try {
-      const number = parseFloat(value.replace(/,/g, ""));
-      if (isNaN(number)) return value;
-      return new Intl.NumberFormat(locale, numberFormatOptions).format(number);
-    } catch {
-      return value;
-    }
-  };
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedValue = formatNumber(event.target.value);
-    event.target.value = formattedValue;
-  };
-
   return (
     <div className="mb-3">
       <label htmlFor={id} className="form-label text-dark-blue">
         {label}
         {rules?.required && " *"}
       </label>
-      <div className="input-group">
-        {type === "number" && currency && currencyOptions && (
-          <select
-            className="form-select form-select-lg currency-dropdown"
-            defaultValue={defaultCurrency}
-            onChange={handleCurrencyChange}
-            disabled={true}
-          >
-            {currencyOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        )}
+      <div>
         <Controller
           name={name}
           control={control}
@@ -99,6 +51,7 @@ const Input: React.FC<InputProps> = ({
                     placeholder={placeholder}
                     disabled={disabled}
                     {...field}
+                    value={field.value || ""} // Ensure controlled behavior
                   />
                 ) : (
                   <input
@@ -110,10 +63,7 @@ const Input: React.FC<InputProps> = ({
                     placeholder={placeholder}
                     disabled={disabled}
                     {...field}
-                    onChange={(event) => {
-                      field.onChange(event);
-                      if (type === "number") handleInputChange(event);
-                    }}
+                    value={field.value || ""} // Ensure controlled behavior
                   />
                 )}
                 {fieldState?.error && (
@@ -126,7 +76,6 @@ const Input: React.FC<InputProps> = ({
           )}
         />
       </div>
-      {/* {errors[name] && <span className="text-danger">{errors[name].message}</span>} */}
     </div>
   );
 };
