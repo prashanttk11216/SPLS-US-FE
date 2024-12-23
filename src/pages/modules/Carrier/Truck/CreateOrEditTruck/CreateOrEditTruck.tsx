@@ -4,8 +4,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import Loading from "../../../../../components/common/Loading/Loading";
-import { RootState } from "../../../../../store/store";
-import { useSelector } from "react-redux";
 import { Truck } from "../../../../../types/Truck";
 import {
   createTruck,
@@ -56,18 +54,15 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
   truckData,
   closeModal,
 }) => {
-  const user = useSelector((state: RootState) => state.user);
-
   const equipmentOptions = Object.entries(Equipment).map(([_, value]) => ({
     value: value,
     label: value,
   }));
 
   const {
-    register,
     handleSubmit,
     control,
-    formState: { errors, isValid },
+    formState: { isValid },
     setValue,
     reset,
   } = useForm<truckForm>({
@@ -235,7 +230,6 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
               name="weight"
               placeholder="Weight"
               control={control}
-              errors={errors}
               preventNegative
               required
             />
@@ -249,7 +243,6 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
               name="length"
               placeholder="Feet"
               control={control}
-              errors={errors}
               preventNegative
               required
             />
@@ -263,7 +256,6 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
               name="allInRate"
               placeholder="Enter All-in Rate"
               control={control}
-              errors={errors}
               currency
               preventNegative
             />
@@ -279,7 +271,6 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
               disabled={isEditing ? true : false}
               placeholder="Enter Reference Number"
               control={control}
-              errors={errors}
               preventNegative
             />
           </div>
@@ -291,8 +282,7 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
               id="comments"
               name="comments"
               placeholder="Comments"
-              register={register}
-              errors={errors}
+              control={control}
               isTextArea
               rows={3}
             />

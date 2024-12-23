@@ -3,7 +3,10 @@ import "./ForgotPassword.scss";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import Input from "../../../components/common/Input/Input";
-import { requestPasswordReset, resetPassword } from "../../../services/auth/authService";
+import {
+  requestPasswordReset,
+  resetPassword,
+} from "../../../services/auth/authService";
 import { toast } from "react-toastify";
 import { VALIDATION_MESSAGES } from "../../../constants/messages";
 import { REGEX_PATTERNS } from "../../../constants/patterns";
@@ -20,9 +23,9 @@ const ForgotPassword: React.FC = () => {
   const navigate = useNavigate();
 
   const {
-    register,
+    control,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { isValid },
     watch,
   } = useForm<ForgotPasswordForm>({ mode: "onBlur" });
 
@@ -77,15 +80,15 @@ const ForgotPassword: React.FC = () => {
                 id="email"
                 name="email"
                 placeholder="name@example.com"
-                register={register}
-                errors={errors}
+                control={control}
                 disabled={isEmailVerified}
-                validationMessages={{
+                rules={{
                   required: VALIDATION_MESSAGES.emailRequired,
-                  pattern: VALIDATION_MESSAGES.emailInvalid,
+                  pattern: {
+                    value: REGEX_PATTERNS.password,
+                    message: VALIDATION_MESSAGES.emailInvalid,
+                  },
                 }}
-                pattern={REGEX_PATTERNS.email}
-                required
               />
             </div>
 
@@ -98,14 +101,14 @@ const ForgotPassword: React.FC = () => {
                     id="password"
                     name="password"
                     placeholder="Enter Password"
-                    register={register}
-                    errors={errors}
-                    validationMessages={{
+                    control={control}
+                    rules={{
                       required: VALIDATION_MESSAGES.passwordRequired,
-                      pattern: VALIDATION_MESSAGES.passwordPattern,
+                      pattern: {
+                        value: REGEX_PATTERNS.password,
+                        message: VALIDATION_MESSAGES.passwordPattern,
+                      },
                     }}
-                    pattern={REGEX_PATTERNS.password}
-                    required
                   />
                 </div>
 
@@ -116,13 +119,11 @@ const ForgotPassword: React.FC = () => {
                     id="confirmPassword"
                     name="confirmPassword"
                     placeholder="Confirm Password"
-                    register={register}
-                    errors={errors}
-                    validationMessages={{
+                    control={control}
+                    rules={{
                       required: VALIDATION_MESSAGES.confirmPasswordRequired,
+                      validate: validatePassword,
                     }}
-                    validateFun={validatePassword}
-                    required
                   />
                 </div>
               </>

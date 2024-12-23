@@ -1,4 +1,4 @@
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { UserRole } from "../../../../enums/UserRole";
 import { VALIDATION_MESSAGES } from "../../../../constants/messages";
 import { REGEX_PATTERNS } from "../../../../constants/patterns";
@@ -8,8 +8,8 @@ import { getUserProfile } from "../../../../services/user/userService";
 import { RootState } from "../../../../store/store";
 import { useSelector } from "react-redux";
 import ProfileAvatar from "../../../../components/ProfileAvatar/ProfileAvatar";
-import { PhoneInput } from "react-international-phone";
 import { validatePhoneNumber } from "../../../../utils/phoneValidate";
+import PhoneInputField from "../../../../components/common/PhoneInputField/PhoneInputField";
 
 export type ProfileForm = {
   firstName: string;
@@ -27,11 +27,10 @@ const Profile: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
 
   const {
-    register,
-    handleSubmit,
     control,
+    handleSubmit,
     reset,
-    formState: { errors, isValid },
+    formState: { isValid },
   } = useForm<ProfileForm>({ mode: "onBlur" });
 
   useEffect(() => {
@@ -74,10 +73,10 @@ const Profile: React.FC = () => {
                 id="firstName"
                 name="firstName"
                 placeholder="Enter First Name"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.firstNameRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.firstNameRequired,
+                }}
               />
             </div>
 
@@ -89,45 +88,24 @@ const Profile: React.FC = () => {
                 id="lastName"
                 name="lastName"
                 placeholder="Enter Last Name"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.lastNameRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.lastNameRequired,
+                }}
               />
             </div>
 
             {/* Primary Number Input */}
 
             <div className="col-12 col-md-6">
-              <label className="form-label text-dark-blue">
-                Primary Number{"*"}
-              </label>
-              <Controller
-                name="primaryNumber"
+            <PhoneInputField
+                label={"Primary Number"}
+                name={"primaryNumber"}
                 control={control}
                 rules={{
                   required: VALIDATION_MESSAGES.primaryNumberRequired,
                   validate: validatePhoneNumber,
                 }}
-                render={({ field }) => (
-                  <>
-                    <PhoneInput
-                      {...field}
-                      defaultCountry="us"
-                      required
-                      className={errors.primaryNumber ? "phone-is-invalid" : ""}
-                      inputClassName={`w-100 phone-input form-control ${
-                        errors.primaryNumber ? "is-invalid" : ""
-                      }`}
-                      onChange={(phone) => field.onChange(phone)}
-                    />
-                    {errors.primaryNumber && (
-                      <div className="text-danger">
-                        {errors.primaryNumber.message}
-                      </div>
-                    )}
-                  </>
-                )}
               />
             </div>
 
@@ -139,15 +117,15 @@ const Profile: React.FC = () => {
                 id="email"
                 name="email"
                 placeholder="name@example.com"
-                register={register}
+                control={control}
                 disabled={true}
-                errors={errors}
-                validationMessages={{
+                rules={{
                   required: VALIDATION_MESSAGES.emailRequired,
-                  pattern: VALIDATION_MESSAGES.emailInvalid,
+                  pattern: {
+                    value: REGEX_PATTERNS.email,
+                    message: VALIDATION_MESSAGES.emailInvalid,
+                  },
                 }}
-                pattern={REGEX_PATTERNS.email}
-                required
               />
             </div>
 
@@ -159,8 +137,7 @@ const Profile: React.FC = () => {
                 id="company"
                 name="company"
                 placeholder="Enter Company Name"
-                register={register}
-                errors={errors}
+                control={control}
               />
             </div>
           </div>

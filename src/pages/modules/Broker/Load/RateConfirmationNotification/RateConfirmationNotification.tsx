@@ -36,14 +36,7 @@ export const RateConfirmationNotification: FC<
   const [customersList, setCustomersList] = useState<
     { value: string; label: string; email: string }[]
   >([]);
-  const {
-    control,
-    handleSubmit,
-    register,
-    watch,
-    getValues,
-    formState: { errors },
-  } = useForm<FormInputs>();
+  const { handleSubmit, control, watch, getValues } = useForm<FormInputs>();
 
   const {
     fetchData: fetchUsers,
@@ -177,13 +170,14 @@ export const RateConfirmationNotification: FC<
             id="emailsInput"
             name="emailsInput"
             placeholder="Enter emails separated by commas, spaces, or semicolons."
-            register={register}
-            errors={errors}
+            control={control}
             isTextArea
             rows={3}
-            required
             disabled={!!customerSelected}
-            validateFun={validateEmails}
+            rules={{
+              required: "Field is required",
+              validate: validateEmails,
+            }}
           />
         </div>
 
@@ -194,7 +188,7 @@ export const RateConfirmationNotification: FC<
           <SelectField
             label="Select Customer"
             name="customer"
-            placeholder="Select Registered Customer"
+            placeholder="Select controled Customer"
             control={control}
             options={customersList}
             isClearable={true}

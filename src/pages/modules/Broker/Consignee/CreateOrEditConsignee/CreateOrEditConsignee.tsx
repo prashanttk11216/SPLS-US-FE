@@ -3,19 +3,23 @@ import Modal from "../../../../../components/common/Modal/Modal";
 import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
 import Input from "../../../../../components/common/Input/Input";
 import { REGEX_PATTERNS } from "../../../../../constants/patterns";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import Loading from "../../../../../components/common/Loading/Loading";
 import { RootState } from "../../../../../store/store";
 import { useSelector } from "react-redux";
-import { PhoneInput } from "react-international-phone";
 import { validatePhoneNumber } from "../../../../../utils/phoneValidate";
-import Stepper, { Step } from "../../../../../components/common/Stepper/Stepper";
-import { createConsignee, editConsignee } from "../../../../../services/consignee/consigneeService";
+import Stepper, {
+  Step,
+} from "../../../../../components/common/Stepper/Stepper";
+import {
+  createConsignee,
+  editConsignee,
+} from "../../../../../services/consignee/consigneeService";
 import { Consignee } from "../../../../../types/Consignee";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
-
+import PhoneInputField from "../../../../../components/common/PhoneInputField/PhoneInputField";
 
 export type ConsigneeForm = {
   firstName: string;
@@ -32,8 +36,8 @@ export type ConsigneeForm = {
   shippingHours?: string;
   isAppointments: boolean;
   isActive: boolean;
-  brokerId?: string
-} 
+  brokerId?: string;
+};
 
 interface CreateOrEditConsigneeProps {
   isModalOpen: boolean; // Controls modal visibility
@@ -48,20 +52,19 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
   setIsModalOpen,
   isEditing,
   consigneeData,
-  closeModal
+  closeModal,
 }) => {
   const user = useSelector((state: RootState) => state.user);
   const [activeStep, setActiveStep] = useState(0); // Tracks current step
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
- 
+
   const {
-    register,
     handleSubmit,
     control,
-    formState: { errors, isValid },
+    formState: { isValid },
     setValue,
     reset,
-    trigger
+    trigger,
   } = useForm<ConsigneeForm>({
     mode: "onBlur",
     defaultValues: consigneeData || {}, // Pre-fill form when editing
@@ -95,7 +98,9 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
 
       if (result.success) {
         toast.success(
-          isEditing ? "Consignee User updated successfully." : "Consignee User created successfully."
+          isEditing
+            ? "Consignee User updated successfully."
+            : "Consignee User created successfully."
         );
         setIsModalOpen(false);
         resetSteps();
@@ -157,7 +162,6 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
     setCompletedSteps([]); // Clear all completed steps
   };
 
-
   const handlePlaceSelect = (details: {
     formatted_address: string | null;
     city: string | null;
@@ -174,7 +178,7 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
     setValue("city", details.city!);
     setValue("zip", details.postal_code!);
   };
-  
+
   const steps: Step[] = [
     {
       label: "Basic Details",
@@ -189,10 +193,10 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
                 id="firstName"
                 name="firstName"
                 placeholder="Enter First Name"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.firstNameRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.firstNameRequired,
+                }}
               />
             </div>
 
@@ -204,44 +208,23 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
                 id="lastName"
                 name="lastName"
                 placeholder="Enter Last Name"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.lastNameRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.lastNameRequired,
+                }}
               />
             </div>
 
             {/* Primary Number */}
             <div className="col-12 col-md-6">
-              <label className="form-label text-dark-blue">
-                Primary Number{"*"}
-              </label>
-              <Controller
-                name="primaryNumber"
+              <PhoneInputField
+                label={"Primary Number"}
+                name={"primaryNumber"}
                 control={control}
                 rules={{
                   required: VALIDATION_MESSAGES.primaryNumberRequired,
                   validate: validatePhoneNumber,
                 }}
-                render={({ field }) => (
-                  <>
-                    <PhoneInput
-                      {...field}
-                      defaultCountry="us"
-                      required
-                      className={errors.primaryNumber ? "phone-is-invalid" : ""}
-                      inputClassName={`w-100 phone-input form-control ${
-                        errors.primaryNumber ? "is-invalid" : ""
-                      }`}
-                      onChange={(phone) => field.onChange(phone)}
-                    />
-                    {errors.primaryNumber && (
-                      <div className="text-danger">
-                        {errors.primaryNumber.message}
-                      </div>
-                    )}
-                  </>
-                )}
               />
             </div>
 
@@ -253,28 +236,27 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
                 id="email"
                 name="email"
                 placeholder="name@example.com"
-                register={register}
-                errors={errors}
-                validationMessages={{
+                control={control}
+                rules={{
                   required: VALIDATION_MESSAGES.emailRequired,
-                  pattern: VALIDATION_MESSAGES.emailInvalid,
+                  pattern: {
+                    value: REGEX_PATTERNS.email,
+                    message: VALIDATION_MESSAGES.emailInvalid,
+                  },
                 }}
-                pattern={REGEX_PATTERNS.email}
-                required
               />
             </div>
 
-             {/* Shipping Hours	 */}
-             <div className="col-12 col-md-6">
+            {/* Shipping Hours	 */}
+            <div className="col-12 col-md-6">
               <Input
                 label="Shipping Hours"
                 type="text"
                 id="shippingHours"
                 name="shippingHours"
                 placeholder="Enter Shipping Hours"
-                register={register}
-                errors={errors}
-                />
+                control={control}
+              />
             </div>
           </div>
         </>
@@ -307,8 +289,7 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
                 id="addressLine2"
                 name="addressLine2"
                 placeholder="Enter Address Line 2"
-                register={register}
-                errors={errors}
+                control={control}
               />
             </div>
             {/* Address Line 3 */}
@@ -319,8 +300,7 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
                 id="addressLine3"
                 name="addressLine3"
                 placeholder="Enter Address Line 3"
-                register={register}
-                errors={errors}
+                control={control}
               />
             </div>
             {/* Country */}
@@ -331,10 +311,10 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
                 id="country"
                 name="country"
                 placeholder="Enter Country"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.countryRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.countryRequired,
+                }}
               />
             </div>
             {/* State */}
@@ -345,10 +325,10 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
                 id="state"
                 name="state"
                 placeholder="Enter State"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.stateRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.stateRequired,
+                }}
               />
             </div>
             {/* City */}
@@ -359,10 +339,10 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
                 id="city"
                 name="city"
                 placeholder="Enter City"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.cityRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.cityRequired,
+                }}
               />
             </div>
             {/* Zip */}
@@ -373,10 +353,10 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
                 id="zip"
                 name="zip"
                 placeholder="Enter Zip"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.zipRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.zipRequired,
+                }}
               />
             </div>
           </div>
@@ -388,9 +368,9 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
         "state",
         "city",
         "zip",
-      ]
-    }
-  ]
+      ],
+    },
+  ];
 
   return (
     <Modal
@@ -398,7 +378,7 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
       onClose={() => {
         resetSteps();
         closeModal();
-      }}      
+      }}
       title={isEditing ? "Edit Consignee" : "Create Consignee"}
       size="lg"
       isCentered
@@ -410,50 +390,51 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
       {/* Display error message if API fails */}
       {error && (
         <div className="alert alert-danger">
-          <strong>Error: </strong>{error}
+          <strong>Error: </strong>
+          {error}
         </div>
       )}
 
-        {/* Form for creating/editing Consignee */}
-        <Stepper
-          steps={steps}
-          activeStep={activeStep}
-          setActiveStep={setActiveStep}
-          completedSteps={completedSteps}
-          linear
-        />
-        <div className="row">
-          <div className="col-6 text-start">
-            <button
-              className="btn btn-secondary"
-              type="button"
-              onClick={prevStep}
-              disabled={activeStep === 0}
-            >
-              Previous
-            </button>
-          </div>
-          <div className="col-6 text-end">
-            {activeStep < steps.length - 1 ? (
-              <button
-                className="btn btn-primary"
-                type="button"
-                onClick={nextStep}
-              >
-                Next
-              </button>
-            ) : (
-              <button
-                className="btn btn-accent"
-                type="submit"
-                disabled={!isValid || loading}
-                onClick={handleSubmit(submit)}
-              >
-                {isEditing ? "Update" : "Create"}
-              </button>
-            )}
-          </div>
+      {/* Form for creating/editing Consignee */}
+      <Stepper
+        steps={steps}
+        activeStep={activeStep}
+        setActiveStep={setActiveStep}
+        completedSteps={completedSteps}
+        linear
+      />
+      <div className="row">
+        <div className="col-6 text-start">
+          <button
+            className="btn btn-secondary"
+            type="button"
+            onClick={prevStep}
+            disabled={activeStep === 0}
+          >
+            Previous
+          </button>
         </div>
+        <div className="col-6 text-end">
+          {activeStep < steps.length - 1 ? (
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={nextStep}
+            >
+              Next
+            </button>
+          ) : (
+            <button
+              className="btn btn-accent"
+              type="submit"
+              disabled={!isValid || loading}
+              onClick={handleSubmit(submit)}
+            >
+              {isEditing ? "Update" : "Create"}
+            </button>
+          )}
+        </div>
+      </div>
     </Modal>
   );
 };

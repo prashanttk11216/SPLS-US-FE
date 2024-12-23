@@ -4,7 +4,7 @@ import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
 import Input from "../../../../../components/common/Input/Input";
 import { REGEX_PATTERNS } from "../../../../../constants/patterns";
 import { createUserForm } from "../../../../Auth/Signup/Signup";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { UserRole } from "../../../../../enums/UserRole";
 import { toast } from "react-toastify";
 import { createUser, editUser } from "../../../../../services/user/userService";
@@ -13,13 +13,13 @@ import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import Loading from "../../../../../components/common/Loading/Loading";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../../store/store";
-import { PhoneInput } from "react-international-phone";
 import { validatePhoneNumber } from "../../../../../utils/phoneValidate";
 import Stepper, {
   Step,
 } from "../../../../../components/common/Stepper/Stepper";
 import CheckboxField from "../../../../../components/common/CheckboxField/CheckboxField";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
+import PhoneInputField from "../../../../../components/common/PhoneInputField/PhoneInputField";
 
 interface CreateOrEditCustomerProps {
   isModalOpen: boolean; // Controls modal visibility
@@ -41,10 +41,9 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
   const {
-    register,
     handleSubmit,
     control,
-    formState: { errors, isValid },
+    formState: { isValid },
     watch,
     setValue,
     getValues,
@@ -196,28 +195,31 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
     setCompletedSteps([]); // Clear all completed steps
   };
 
-  const handlePlaceSelect = (details: {
-    formatted_address: string | null;
-    city: string | null;
-    state: string | null;
-    postal_code: string | null;
-    country: string | null;
-    lat: number | null;
-    lng: number | null;
-  }, isBilling: boolean = false) => {
+  const handlePlaceSelect = (
+    details: {
+      formatted_address: string | null;
+      city: string | null;
+      state: string | null;
+      postal_code: string | null;
+      country: string | null;
+      lat: number | null;
+      lng: number | null;
+    },
+    isBilling: boolean = false
+  ) => {
     console.log("Selected Place Details:", details);
-    if(isBilling){
+    if (isBilling) {
       setValue("billingAddress", details.formatted_address!);
       setValue("billingCountry", details.country!);
       setValue("billingState", details.state!);
       setValue("billingCity", details.city!);
       setValue("billingZip", details.postal_code!);
-    }else{
-    setValue("address", details.formatted_address!);
-    setValue("country", details.country!);
-    setValue("state", details.state!);
-    setValue("city", details.city!);
-    setValue("zip", details.postal_code!);
+    } else {
+      setValue("address", details.formatted_address!);
+      setValue("country", details.country!);
+      setValue("state", details.state!);
+      setValue("city", details.city!);
+      setValue("zip", details.postal_code!);
     }
   };
 
@@ -235,10 +237,10 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                 id="firstName"
                 name="firstName"
                 placeholder="Enter First Name"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.firstNameRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.firstNameRequired,
+                }}
               />
             </div>
 
@@ -250,44 +252,23 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                 id="lastName"
                 name="lastName"
                 placeholder="Enter Last Name"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.lastNameRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.lastNameRequired,
+                }}
               />
             </div>
 
             {/* Primary Number */}
             <div className="col-12 col-md-6">
-              <label className="form-label text-dark-blue">
-                Primary Number{"*"}
-              </label>
-              <Controller
-                name="primaryNumber"
+              <PhoneInputField
+                label={"Primary Number"}
+                name={"primaryNumber"}
                 control={control}
                 rules={{
                   required: VALIDATION_MESSAGES.primaryNumberRequired,
                   validate: validatePhoneNumber,
                 }}
-                render={({ field }) => (
-                  <>
-                    <PhoneInput
-                      {...field}
-                      defaultCountry="us"
-                      required
-                      className={errors.primaryNumber ? "phone-is-invalid" : ""}
-                      inputClassName={`w-100 phone-input form-control ${
-                        errors.primaryNumber ? "is-invalid" : ""
-                      }`}
-                      onChange={(phone) => field.onChange(phone)}
-                    />
-                    {errors.primaryNumber && (
-                      <div className="text-danger">
-                        {errors.primaryNumber.message}
-                      </div>
-                    )}
-                  </>
-                )}
               />
             </div>
 
@@ -299,14 +280,14 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                 id="email"
                 name="email"
                 placeholder="name@example.com"
-                register={register}
-                errors={errors}
-                validationMessages={{
+                control={control}
+                rules={{
                   required: VALIDATION_MESSAGES.emailRequired,
-                  pattern: VALIDATION_MESSAGES.emailInvalid,
+                  pattern: {
+                    value: REGEX_PATTERNS.email,
+                    message: VALIDATION_MESSAGES.emailInvalid,
+                  },
                 }}
-                pattern={REGEX_PATTERNS.email}
-                required
                 disabled={isEditing} // Disable email during editing
               />
             </div>
@@ -319,8 +300,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                 id="company"
                 name="company"
                 placeholder="Enter Company Name"
-                register={register}
-                errors={errors}
+                control={control}
               />
             </div>
           </div>
@@ -343,7 +323,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                 placeholder="Enter address"
                 rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
                 required
-                onPlaceSelect={(details)=>handlePlaceSelect(details)}
+                onPlaceSelect={(details) => handlePlaceSelect(details)}
               />
             </div>
             {/* Address Line 2 */}
@@ -354,8 +334,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                 id="addressLine2"
                 name="addressLine2"
                 placeholder="Enter Address Line 2"
-                register={register}
-                errors={errors}
+                control={control}
               />
             </div>
             {/* Address Line 3 */}
@@ -366,8 +345,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                 id="addressLine3"
                 name="addressLine3"
                 placeholder="Enter Address Line 3"
-                register={register}
-                errors={errors}
+                control={control}
               />
             </div>
             {/* Country */}
@@ -378,10 +356,10 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                 id="country"
                 name="country"
                 placeholder="Enter Country"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.countryRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.countryRequired,
+                }}
               />
             </div>
             {/* State */}
@@ -392,10 +370,10 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                 id="state"
                 name="state"
                 placeholder="Enter State"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.stateRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.stateRequired,
+                }}
               />
             </div>
             {/* City */}
@@ -406,10 +384,10 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                 id="city"
                 name="city"
                 placeholder="Enter City"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.cityRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.cityRequired,
+                }}
               />
             </div>
             {/* Zip */}
@@ -420,10 +398,10 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                 id="zip"
                 name="zip"
                 placeholder="Enter Zip"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.zipRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.zipRequired,
+                }}
               />
             </div>
           </div>
@@ -448,8 +426,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
               id="sameAsMailing"
               name="sameAsMailing"
               onChange={handleSameAsMailingChange}
-              register={register}
-              errors={errors}
+              control={control}
             />
           </div>
           <div className="row">
@@ -462,7 +439,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                 placeholder="Enter Primary Billing Address"
                 rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
                 required
-                onPlaceSelect={(details)=>handlePlaceSelect(details, true)}
+                onPlaceSelect={(details) => handlePlaceSelect(details, true)}
               />
             </div>
             {/* Billing Address Line 2 */}
@@ -473,8 +450,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                 id="billingAddressLine2"
                 name="billingAddressLine2"
                 placeholder="Enter Additional Address Info"
-                register={register}
-                errors={errors}
+                control={control}
               />
             </div>
             {/* Billing Address Line 3 */}
@@ -485,8 +461,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                 id="billingAddressLine3"
                 name="billingAddressLine3"
                 placeholder="Enter Additional Address Info"
-                register={register}
-                errors={errors}
+                control={control}
               />
             </div>
             {/* Country */}
@@ -497,10 +472,10 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                 id="billingCountry"
                 name="billingCountry"
                 placeholder="Enter Country Name"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.countryRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.countryRequired,
+                }}
               />
             </div>
             {/* State */}
@@ -511,10 +486,10 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                 id="billingState"
                 name="billingState"
                 placeholder="Enter State Name"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.stateRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.stateRequired,
+                }}
               />
             </div>
             {/* City */}
@@ -525,10 +500,10 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                 id="billingCity"
                 name="billingCity"
                 placeholder="Enter City Name"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.cityRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.cityRequired,
+                }}
               />
             </div>
             {/* Zip Code */}
@@ -539,10 +514,10 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                 id="billingZip"
                 name="billingZip"
                 placeholder="Enter Zip Code"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.zipRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.zipRequired,
+                }}
               />
             </div>
           </div>
@@ -571,14 +546,14 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                   id="password"
                   name="password"
                   placeholder="Enter Password"
-                  register={register}
-                  errors={errors}
-                  validationMessages={{
+                  control={control}
+                  rules={{
                     required: VALIDATION_MESSAGES.passwordRequired,
-                    pattern: VALIDATION_MESSAGES.passwordPattern,
+                    pattern: {
+                      value: REGEX_PATTERNS.password,
+                      message: VALIDATION_MESSAGES.passwordPattern,
+                    },
                   }}
-                  pattern={REGEX_PATTERNS.password}
-                  required
                 />
               </div>
 
@@ -589,13 +564,11 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                   id="confirmPassword"
                   name="confirmPassword"
                   placeholder="Confirm Password"
-                  register={register}
-                  errors={errors}
-                  validationMessages={{
+                  control={control}
+                  rules={{
                     required: VALIDATION_MESSAGES.confirmPasswordRequired,
+                    validate: validatePassword,
                   }}
-                  validateFun={validatePassword}
-                  required
                 />
               </div>
             </>

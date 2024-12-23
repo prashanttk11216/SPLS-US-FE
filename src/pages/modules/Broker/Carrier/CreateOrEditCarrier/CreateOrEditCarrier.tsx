@@ -10,14 +10,16 @@ import Loading from "../../../../../components/common/Loading/Loading";
 import Input from "../../../../../components/common/Input/Input";
 import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
 import { REGEX_PATTERNS } from "../../../../../constants/patterns";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../../store/store";
-import { PhoneInput } from "react-international-phone";
 import { validatePhoneNumber } from "../../../../../utils/phoneValidate";
-import Stepper, { Step } from "../../../../../components/common/Stepper/Stepper";
+import Stepper, {
+  Step,
+} from "../../../../../components/common/Stepper/Stepper";
 import CheckboxField from "../../../../../components/common/CheckboxField/CheckboxField";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
+import PhoneInputField from "../../../../../components/common/PhoneInputField/PhoneInputField";
 
 interface CreateOrEditCarrierProps {
   isModalOpen: boolean; // Controls modal visibility
@@ -32,22 +34,21 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
   setIsModalOpen,
   isEditing,
   carrierData,
-  closeModal
+  closeModal,
 }) => {
   const user = useSelector((state: RootState) => state.user);
   const [activeStep, setActiveStep] = useState(0); // Tracks current step
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
-  
+
   const {
-    register,
     handleSubmit,
     control,
-    formState: { errors, isValid },
+    formState: { isValid },
     watch,
     reset,
     getValues,
     setValue,
-    trigger
+    trigger,
   } = useForm<createUserForm>({
     mode: "onBlur",
     defaultValues: carrierData || {}, // Pre-fill form when editing
@@ -145,7 +146,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
   }, [isModalOpen, isEditing, carrierData]);
 
   const handleSameAsMailingChange = async (e: any) => {
-    if(e.target.checked) {
+    if (e.target.checked) {
       const values = getValues();
       setValue("billingAddress", values.address);
       setValue("billingAddressLine2", values.addressLine2);
@@ -154,8 +155,14 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
       setValue("billingState", values.state);
       setValue("billingCity", values.city);
       setValue("billingZip", values.zip);
-      await trigger(['billingAddress','billingCountry','billingState','billingCity','billingZip']);
-    }else {
+      await trigger([
+        "billingAddress",
+        "billingCountry",
+        "billingState",
+        "billingCity",
+        "billingZip",
+      ]);
+    } else {
       // Clear billing address fields if unchecked
       setValue("billingAddress", "");
       setValue("billingAddressLine2", "");
@@ -202,10 +209,10 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                 id="firstName"
                 name="firstName"
                 placeholder="Enter First Name"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.firstNameRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.firstNameRequired,
+                }}
               />
             </div>
 
@@ -217,44 +224,23 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                 id="lastName"
                 name="lastName"
                 placeholder="Enter Last Name"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.lastNameRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.lastNameRequired,
+                }}
               />
             </div>
 
             {/* Primary Number */}
             <div className="col-12 col-md-6">
-              <label className="form-label text-dark-blue">
-                Primary Number{"*"}
-              </label>
-              <Controller
-                name="primaryNumber"
+              <PhoneInputField
+                label={"Primary Number"}
+                name={"primaryNumber"}
                 control={control}
                 rules={{
                   required: VALIDATION_MESSAGES.primaryNumberRequired,
                   validate: validatePhoneNumber,
                 }}
-                render={({ field }) => (
-                  <>
-                    <PhoneInput
-                      {...field}
-                      defaultCountry="us"
-                      required
-                      className={errors.primaryNumber ? "phone-is-invalid" : ""}
-                      inputClassName={`w-100 phone-input form-control ${
-                        errors.primaryNumber ? "is-invalid" : ""
-                      }`}
-                      onChange={(phone) => field.onChange(phone)}
-                    />
-                    {errors.primaryNumber && (
-                      <div className="text-danger">
-                        {errors.primaryNumber.message}
-                      </div>
-                    )}
-                  </>
-                )}
               />
             </div>
 
@@ -266,14 +252,14 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                 id="email"
                 name="email"
                 placeholder="name@example.com"
-                register={register}
-                errors={errors}
-                validationMessages={{
+                control={control}
+                rules={{
                   required: VALIDATION_MESSAGES.emailRequired,
-                  pattern: VALIDATION_MESSAGES.emailInvalid,
+                  pattern: {
+                    value: REGEX_PATTERNS.email,
+                    message: VALIDATION_MESSAGES.emailInvalid,
+                  },
                 }}
-                pattern={REGEX_PATTERNS.email}
-                required
                 disabled={isEditing} // Disable email during editing
               />
             </div>
@@ -286,8 +272,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                 id="company"
                 name="company"
                 placeholder="Enter Company Name"
-                register={register}
-                errors={errors}
+                control={control}
               />
             </div>
           </div>
@@ -303,14 +288,14 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
           <div className="row">
             {/* Address */}
             <div className="col-12 col-md-6">
-            <PlaceAutocompleteField
+              <PlaceAutocompleteField
                 name="address"
                 label="Address"
                 control={control}
                 placeholder="Enter address"
                 rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
                 required
-                onPlaceSelect={(details)=>handlePlaceSelect(details)}
+                onPlaceSelect={(details) => handlePlaceSelect(details)}
               />
             </div>
             {/* Address Line 2 */}
@@ -321,8 +306,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                 id="addressLine2"
                 name="addressLine2"
                 placeholder="Enter Address Line 2"
-                register={register}
-                errors={errors}
+                control={control}
               />
             </div>
             {/* Address Line 3 */}
@@ -333,8 +317,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                 id="addressLine3"
                 name="addressLine3"
                 placeholder="Enter Address Line 3"
-                register={register}
-                errors={errors}
+                control={control}
               />
             </div>
             {/* Country */}
@@ -345,10 +328,10 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                 id="country"
                 name="country"
                 placeholder="Enter Country"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.countryRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.countryRequired,
+                }}
               />
             </div>
             {/* State */}
@@ -359,10 +342,10 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                 id="state"
                 name="state"
                 placeholder="Enter State"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.stateRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.stateRequired,
+                }}
               />
             </div>
             {/* City */}
@@ -373,10 +356,10 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                 id="city"
                 name="city"
                 placeholder="Enter City"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.cityRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.cityRequired,
+                }}
               />
             </div>
             {/* Zip */}
@@ -387,10 +370,10 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                 id="zip"
                 name="zip"
                 placeholder="Enter Zip"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.zipRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.zipRequired,
+                }}
               />
             </div>
           </div>
@@ -402,7 +385,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
         "state",
         "city",
         "zip",
-      ]
+      ],
     },
     {
       label: "Billing Address",
@@ -415,21 +398,20 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
               id="sameAsMailing"
               name="sameAsMailing"
               onChange={handleSameAsMailingChange}
-              register={register}
-              errors={errors}
+              control={control}
             />
           </div>
           <div className="row">
             {/* Billing Address */}
             <div className="col-12 col-md-6">
-            <PlaceAutocompleteField
+              <PlaceAutocompleteField
                 name="billingAddress"
                 label="Billing Address"
                 control={control}
                 placeholder="Enter Primary Billing Address"
                 rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
                 required
-                onPlaceSelect={(details)=>handlePlaceSelect(details, true)}
+                onPlaceSelect={(details) => handlePlaceSelect(details, true)}
               />
             </div>
             {/* Billing Address Line 2 */}
@@ -440,8 +422,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                 id="billingAddressLine2"
                 name="billingAddressLine2"
                 placeholder="Enter Additional Address Info"
-                register={register}
-                errors={errors}
+                control={control}
               />
             </div>
             {/* Billing Address Line 3 */}
@@ -452,8 +433,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                 id="billingAddressLine3"
                 name="billingAddressLine3"
                 placeholder="Enter Additional Address Info"
-                register={register}
-                errors={errors}
+                control={control}
               />
             </div>
             {/* Country */}
@@ -464,10 +444,10 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                 id="billingCountry"
                 name="billingCountry"
                 placeholder="Enter Country Name"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.countryRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.countryRequired,
+                }}
               />
             </div>
             {/* State */}
@@ -478,10 +458,10 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                 id="billingState"
                 name="billingState"
                 placeholder="Enter State Name"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.stateRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.stateRequired,
+                }}
               />
             </div>
             {/* City */}
@@ -492,10 +472,10 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                 id="billingCity"
                 name="billingCity"
                 placeholder="Enter City Name"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.cityRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.cityRequired,
+                }}
               />
             </div>
             {/* Zip Code */}
@@ -506,10 +486,10 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                 id="billingZip"
                 name="billingZip"
                 placeholder="Enter Zip Code"
-                register={register}
-                errors={errors}
-                errorMessage={VALIDATION_MESSAGES.zipRequired}
-                required
+                control={control}
+                rules={{
+                  required: VALIDATION_MESSAGES.zipRequired,
+                }}
               />
             </div>
           </div>
@@ -538,14 +518,14 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                   id="password"
                   name="password"
                   placeholder="Enter Password"
-                  register={register}
-                  errors={errors}
-                  validationMessages={{
+                  control={control}
+                  rules={{
                     required: VALIDATION_MESSAGES.passwordRequired,
-                    pattern: VALIDATION_MESSAGES.passwordPattern,
+                    pattern: {
+                      value: REGEX_PATTERNS.password,
+                      message: VALIDATION_MESSAGES.passwordPattern,
+                    },
                   }}
-                  pattern={REGEX_PATTERNS.password}
-                  required
                 />
               </div>
 
@@ -556,13 +536,11 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                   id="confirmPassword"
                   name="confirmPassword"
                   placeholder="Confirm Password"
-                  register={register}
-                  errors={errors}
-                  validationMessages={{
+                  control={control}
+                  rules={{
                     required: VALIDATION_MESSAGES.confirmPasswordRequired,
+                    validate: validatePassword,
                   }}
-                  validateFun={validatePassword}
-                  required
                 />
               </div>
             </>
@@ -571,30 +549,33 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
       ),
       fields: ["password", "confirmPassword"],
     },
-  ]
+  ];
 
-  const handlePlaceSelect = (details: {
-    formatted_address: string | null;
-    city: string | null;
-    state: string | null;
-    postal_code: string | null;
-    country: string | null;
-    lat: number | null;
-    lng: number | null;
-  }, isBilling: boolean = false) => {
+  const handlePlaceSelect = (
+    details: {
+      formatted_address: string | null;
+      city: string | null;
+      state: string | null;
+      postal_code: string | null;
+      country: string | null;
+      lat: number | null;
+      lng: number | null;
+    },
+    isBilling: boolean = false
+  ) => {
     console.log("Selected Place Details:", details);
-    if(isBilling){
+    if (isBilling) {
       setValue("billingAddress", details.formatted_address!);
       setValue("billingCountry", details.country!);
       setValue("billingState", details.state!);
       setValue("billingCity", details.city!);
       setValue("billingZip", details.postal_code!);
-    }else{
-    setValue("address", details.formatted_address!);
-    setValue("country", details.country!);
-    setValue("state", details.state!);
-    setValue("city", details.city!);
-    setValue("zip", details.postal_code!);
+    } else {
+      setValue("address", details.formatted_address!);
+      setValue("country", details.country!);
+      setValue("state", details.state!);
+      setValue("city", details.city!);
+      setValue("zip", details.postal_code!);
     }
   };
 
@@ -604,7 +585,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
       onClose={() => {
         resetSteps();
         closeModal();
-      }}       
+      }}
       title={isEditing ? "Edit Carrier" : "Create Carrier"}
       size="lg"
       isCentered
@@ -623,45 +604,44 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
 
       {/* Form for creating/editing Broker User */}
       <Stepper
-          steps={steps}
-          activeStep={activeStep}
-          setActiveStep={setActiveStep}
-          completedSteps={completedSteps}
-          linear
-        />
-        <div className="row">
-          <div className="col-6 text-start">
-            <button
-              className="btn btn-secondary"
-              type="button"
-              onClick={prevStep}
-              disabled={activeStep === 0}
-            >
-              Previous
-            </button>
-          </div>
-          <div className="col-6 text-end">
-            {activeStep < steps.length - 1 ? (
-              <button
-                className="btn btn-primary"
-                type="button"
-                onClick={nextStep}
-              >
-                Next
-              </button>
-            ) : (
-              <button
-                className="btn btn-accent"
-                type="submit"
-                disabled={!isValid || loading}
-                onClick={handleSubmit(submit)}
-              >
-                {isEditing ? "Update" : "Create"}
-              </button>
-            )}
-          </div>
+        steps={steps}
+        activeStep={activeStep}
+        setActiveStep={setActiveStep}
+        completedSteps={completedSteps}
+        linear
+      />
+      <div className="row">
+        <div className="col-6 text-start">
+          <button
+            className="btn btn-secondary"
+            type="button"
+            onClick={prevStep}
+            disabled={activeStep === 0}
+          >
+            Previous
+          </button>
         </div>
-
+        <div className="col-6 text-end">
+          {activeStep < steps.length - 1 ? (
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={nextStep}
+            >
+              Next
+            </button>
+          ) : (
+            <button
+              className="btn btn-accent"
+              type="submit"
+              disabled={!isValid || loading}
+              onClick={handleSubmit(submit)}
+            >
+              {isEditing ? "Update" : "Create"}
+            </button>
+          )}
+        </div>
+      </div>
     </Modal>
   );
 };

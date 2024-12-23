@@ -1,4 +1,5 @@
 import React from "react";
+import { Controller } from "react-hook-form";
 import "./Input.scss";
 
 interface InputProps {
@@ -7,26 +8,9 @@ interface InputProps {
   id: string;
   name: string;
   placeholder?: string;
-  register: any; // Replace with the actual type from react-hook-form
-  errors: any; // Replace with the actual type from react-hook-form
-  errorMessage?: string;
-  required?: boolean;
+  control: any; // Replace with the actual type from react-hook-form
   disabled?: boolean;
-  minLength?: number;
-  maxLength?: number;
-  pattern?: string;
-  min?: number;
-  max?: number;
-  preventNegative?: boolean;
-  validateFun?: (val: string) => any;
-  validationMessages?: {
-    required?: string;
-    minLength?: string;
-    maxLength?: string;
-    pattern?: string;
-    min?: string;
-    max?: string;
-  };
+  rules?: any; // Additional validation rules from parent component
   isTextArea?: boolean;
   rows?: number;
   currencyOptions?: string[];
@@ -43,19 +27,9 @@ const Input: React.FC<InputProps> = ({
   id,
   name,
   placeholder,
-  register,
-  errors,
-  errorMessage,
-  required = false,
+  control,
   disabled = false,
-  minLength,
-  maxLength,
-  pattern,
-  min,
-  max,
-  preventNegative,
-  validationMessages,
-  validateFun,
+  rules,
   isTextArea = false,
   rows = 4,
   currencyOptions = ["$", "€", "£", "₹"],
@@ -65,23 +39,9 @@ const Input: React.FC<InputProps> = ({
   numberFormatOptions = {},
   locale = "en-US",
 }) => {
-  const validationRules = {
-    required: required && (errorMessage || validationMessages?.required || "This field is required"),
-    disabled,
-    minLength: minLength && ({ value: minLength, message: validationMessages?.minLength || `Must be at least ${minLength} characters` }),
-    maxLength: maxLength && ({ value: maxLength, message: validationMessages?.maxLength || `Cannot exceed ${maxLength} characters` }),
-    pattern: pattern && ({ value: pattern, message: validationMessages?.pattern || `Must match the pattern ${pattern}` }),
-    min: min && ({ value: min, message: validationMessages?.min || `Must be greater than or equal to ${min}` }),
-    max: max && ({ value: max, message: validationMessages?.max || `Cannot be greater than ${max}` }),
-    validate: validateFun,
-    setValueAs: type === "number" ? (value: string) => (value === "" ? undefined : Number(value)) : undefined,
-  };
-
-  if (type === "number" && preventNegative) {
-    validationRules.min = { value: 0, message: "Must be non-negative" };
-  }
-
-  const handleCurrencyChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleCurrencyChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     onCurrencyChange?.(event.target.value);
   };
 
@@ -90,8 +50,6 @@ const Input: React.FC<InputProps> = ({
     try {
       const number = parseFloat(value.replace(/,/g, ""));
       if (isNaN(number)) return value;
-      console.log(new Intl.NumberFormat(locale, numberFormatOptions).format(number));
-      
       return new Intl.NumberFormat(locale, numberFormatOptions).format(number);
     } catch {
       return value;
@@ -106,7 +64,8 @@ const Input: React.FC<InputProps> = ({
   return (
     <div className="mb-3">
       <label htmlFor={id} className="form-label text-dark-blue">
-        {label}{required && " *"}
+        {label}
+        {rules?.required && " *"}
       </label>
       <div className="input-group">
         {type === "number" && currency && currencyOptions && (
@@ -123,28 +82,51 @@ const Input: React.FC<InputProps> = ({
             ))}
           </select>
         )}
-        {isTextArea ? (
-          <textarea
-            className={`form-control form-control-lg ${errors[name] ? "is-invalid" : ""}`}
-            id={id}
-            rows={rows}
-            placeholder={placeholder}
-            {...register(name, validationRules)}
-            disabled={disabled}
-          />
-        ) : (
-          <input
-            type={type === "number" ?  "text" :  type}
-            className={`form-control form-control-lg ${errors[name] ? "is-invalid" : ""}`}
-            id={id}
-            placeholder={placeholder}
-            {...register(name, validationRules)}
-            disabled={disabled}
-            onChange={type === "number" ? handleInputChange : undefined}
-          />
-        )}
+        <Controller
+          name={name}
+          control={control}
+          rules={rules}
+          render={({ field, fieldState }) => (
+            <>
+              <div className="flex-grow-1">
+                {isTextArea ? (
+                  <textarea
+                    className={`form-control form-control-lg ${
+                      fieldState?.error ? "is-invalid" : ""
+                    }`}
+                    id={id}
+                    rows={rows}
+                    placeholder={placeholder}
+                    disabled={disabled}
+                    {...field}
+                  />
+                ) : (
+                  <input
+                    type={type === "number" ? "text" : type}
+                    className={`form-control form-control-lg ${
+                      fieldState?.error ? "is-invalid" : ""
+                    }`}
+                    id={id}
+                    placeholder={placeholder}
+                    disabled={disabled}
+                    {...field}
+                    onChange={(event) => {
+                      field.onChange(event);
+                      if (type === "number") handleInputChange(event);
+                    }}
+                  />
+                )}
+                {fieldState?.error && (
+                  <div className="text-danger">
+                    {fieldState?.error?.message}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        />
       </div>
-      {errors[name] && <span className="text-danger">{errors[name].message}</span>}
+      {/* {errors[name] && <span className="text-danger">{errors[name].message}</span>} */}
     </div>
   );
 };

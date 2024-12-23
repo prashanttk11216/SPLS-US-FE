@@ -8,6 +8,7 @@ import { UserRole } from "../../../../../enums/UserRole";
 import { toast } from "react-toastify";
 import { notifyCarrierAboutLoad } from "../../../../../services/load/loadServices";
 import Input from "../../../../../components/common/Input/Input";
+import CheckboxField from "../../../../../components/common/CheckboxField/CheckboxField";
 
 /**
  * Props for LoadCreationAlert component
@@ -39,10 +40,8 @@ export const LoadCreationAlert: FC<LoadCreationAlertProps> = ({
   const {
     control,
     handleSubmit,
-    register,
     watch,
     getValues,
-    formState: { errors },
   } = useForm<FormInputs>();
 
   const {
@@ -181,11 +180,12 @@ export const LoadCreationAlert: FC<LoadCreationAlertProps> = ({
             id="emailsInput"
             name="emailsInput"
             placeholder="Enter emails separated by commas, spaces, or semicolons."
-            register={register}
-            errors={errors}
+            control={control}
             isTextArea
             rows={3}
-            validateFun={validateEmails}
+            rules={{
+              validate: validateEmails,
+            }}
           />
         </div>
 
@@ -205,17 +205,14 @@ export const LoadCreationAlert: FC<LoadCreationAlertProps> = ({
         <div className="text-center fw-bold my-3">or</div>
 
         {/* Checkbox for Notify All Internal Carriers */}
-        <div className="form-check">
-          <input
-            type="checkbox"
-            className="form-check-input"
+        <div>
+          <CheckboxField
+            label="Notify all internal carriers"
             id="notifyAll"
-            {...register("notifyAll")}
+            name="notifyAll"
+            control={control}
             disabled={!!carrierSelected}
           />
-          <label className="form-check-label" htmlFor="notifyAll">
-            Notify all internal carriers
-          </label>
         </div>
 
         {/* Submit Button */}

@@ -1,18 +1,25 @@
 import React from "react";
-import './CheckboxField.scss';
+import {
+  Controller,
+  FieldErrors,
+  Control,
+  RegisterOptions,
+  FieldValues,
+} from "react-hook-form";
+import "./CheckboxField.scss";
 
 interface CheckboxFieldProps {
   label: string;
   id: string;
   name: string;
-  register: any; // Replace with the actual type from react-hook-form
-  errors: any; // Replace with the actual type from react-hook-form
-  errorMessage?: string;
-  required?: boolean;
+  control: Control<any>; // Replace `any` with your form data type
   disabled?: boolean;
-  validationMessages?: {
-    required?: string;
-  };
+  rules?:
+    | Omit<
+        RegisterOptions<FieldValues, string>,
+        "disabled" | "valueAsNumber" | "valueAsDate" | "setValueAs"
+      >
+    | undefined; // Additional validation rules from parent component
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void; // Custom onChange handler
 }
 
@@ -20,36 +27,47 @@ const CheckboxField: React.FC<CheckboxFieldProps> = ({
   label,
   id,
   name,
-  register,
-  errors,
-  errorMessage,
-  required = false,
+  control,
   disabled = false,
-  validationMessages,
+  rules,
   onChange,
 }) => {
-  const validationRules = {
-    required: required && (errorMessage || validationMessages?.required || "This field is required"),
-    disabled,
-  };
-
   return (
     <div className="form-check">
-      <input
-        type="checkbox"
-        className={`form-check-input ${errors[name] ? 'is-invalid' : ''}`}
-        id={id}
-        disabled={disabled}
-        {...register(name, validationRules)}
-        onChange={onChange} // Bind the custom onChange handler
+      <Controller
+        name={name}
+        control={control}
+        rules={rules}
+        render={({ field, fieldState }) => (
+          <>
+            <div>
+              <input
+                type="checkbox"
+                className={`form-check-input ${
+                  fieldState?.error ? "is-invalid" : ""
+                }`}
+                id={id}
+                disabled={disabled}
+                {...field}
+                onChange={(e) => {
+                  field.onChange(e); // react-hook-form's onChange handler
+                  onChange?.(e); // Custom onChange handler if provided
+                }}
+              />
+              <label className="form-check-label" htmlFor={id}>
+                {label}
+                {rules?.required && " *"}
+              </label>
+            </div>
+            {fieldState?.error && (
+              <div className="text-danger">{fieldState?.error?.message}</div>
+            )}
+          </>
+        )}
       />
-      <label className="form-check-label" htmlFor={id}>
-        {label}{required && "*"}
-      </label>
-      <br/>
-      {errors[name] && (
-        <span className="text-danger">{errors[name].message}</span>
-      )}
+      {/* {errors[name] && (
+        <span className="text-danger">{errors[name]?.message}</span>
+      )} */}
     </div>
   );
 };

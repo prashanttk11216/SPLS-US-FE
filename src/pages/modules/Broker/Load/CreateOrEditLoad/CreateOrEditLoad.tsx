@@ -92,8 +92,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   const [usersList, setUsersList] = useState<any[]>([]);
 
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
-  const toggleMapModal = () => setIsMapModalOpen(prev => !prev);
-
+  const toggleMapModal = () => setIsMapModalOpen((prev) => !prev);
 
   const equipmentOptions = Object.entries(Equipment).map(([_, value]) => ({
     value: value,
@@ -116,12 +115,11 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   }));
 
   const {
-    register,
     handleSubmit,
     control,
     setValue,
     getValues,
-    formState: { errors, isValid },
+    formState: { isValid },
     reset,
     watch,
   } = useForm<loadForm>({
@@ -706,7 +704,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               name="allInRate"
               placeholder="Enter All-in Rate"
               control={control}
-              errors={errors}
               currency
               preventNegative
             />
@@ -721,7 +718,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               name="customerRate"
               placeholder="Enter All-in Rate"
               control={control}
-              errors={errors}
               currency
               preventNegative
             />
@@ -736,7 +732,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               name="weight"
               placeholder="Weight"
               control={control}
-              errors={errors}
               preventNegative
             />
           </div>
@@ -749,7 +744,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               name="length"
               placeholder="Feet"
               control={control}
-              errors={errors}
               preventNegative
             />
           </div>
@@ -762,7 +756,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               name="width"
               placeholder="Feet"
               control={control}
-              errors={errors}
               preventNegative
             />
           </div>
@@ -775,7 +768,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               name="height"
               placeholder="Feet"
               control={control}
-              errors={errors}
               preventNegative
             />
           </div>
@@ -788,7 +780,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               name="miles"
               placeholder="Mile"
               control={control}
-              errors={errors}
               preventNegative
             />
           </div>
@@ -801,7 +792,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               name="pieces"
               placeholder="Enter Pieces"
               control={control}
-              errors={errors}
               preventNegative
             />
           </div>
@@ -814,7 +804,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               name="pallets"
               placeholder="Enter Pallets"
               control={control}
-              errors={errors}
               preventNegative
             />
           </div>
@@ -848,7 +837,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               disabled={loadId ? true : false}
               placeholder="Enter Load / Reference Number"
               control={control}
-              errors={errors}
               preventNegative
             />
           </div>
@@ -875,8 +863,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               id="specialInstructions"
               name="specialInstructions"
               placeholder="Enter a detailed description"
-              register={register}
-              errors={errors}
+              control={control}
               isTextArea
               rows={3}
             />

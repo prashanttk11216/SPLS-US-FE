@@ -36,11 +36,10 @@ const Login: React.FC<LoginProps> = () => {
 
   const userRole = role === "broker" ? UserRole.BROKER_USER : undefined;
 
-
   const {
-    register,
+    control,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { isValid },
   } = useForm<LoginForm>({ mode: "onBlur" });
 
   // Handles form submission
@@ -95,12 +94,10 @@ const Login: React.FC<LoginProps> = () => {
                       id="employeeId"
                       name="employeeId"
                       placeholder="Enter Employee Id"
-                      register={register}
-                      errors={errors}
-                      validationMessages={{
+                      control={control}
+                      rules={{
                         required: VALIDATION_MESSAGES.employeeIdRequired,
                       }}
-                      required
                     />
                   </div>
                 ) : (
@@ -111,14 +108,14 @@ const Login: React.FC<LoginProps> = () => {
                       id="email"
                       name="email"
                       placeholder="name@example.com"
-                      register={register}
-                      errors={errors}
-                      validationMessages={{
+                      control={control}
+                      rules={{
                         required: VALIDATION_MESSAGES.emailRequired,
-                        pattern: VALIDATION_MESSAGES.emailInvalid,
+                        pattern: {
+                          value: REGEX_PATTERNS.password,
+                          message: VALIDATION_MESSAGES.emailInvalid,
+                        },
                       }}
-                      pattern={REGEX_PATTERNS.email}
-                      required
                     />
                   </div>
                 )}
@@ -131,12 +128,10 @@ const Login: React.FC<LoginProps> = () => {
                     id="password"
                     name="password"
                     placeholder="Enter Password"
-                    register={register}
-                    errors={errors}
-                    validationMessages={{
+                    control={control}
+                    rules={{
                       required: VALIDATION_MESSAGES.passwordRequired,
                     }}
-                    required
                   />
                 </div>
 
