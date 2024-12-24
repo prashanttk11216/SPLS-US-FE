@@ -228,7 +228,7 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
               id="weight"
               min={0}
               name="weight"
-              placeholder="Weight"
+              placeholder="Weight(Ibs.)"
               control={control}
               preventNegative
               required
@@ -241,7 +241,7 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
               id="length"
               min={0}
               name="length"
-              placeholder="Feet"
+              placeholder="Length(ft.)"
               control={control}
               preventNegative
               required

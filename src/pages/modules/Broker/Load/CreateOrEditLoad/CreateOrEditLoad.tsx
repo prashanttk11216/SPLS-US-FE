@@ -732,7 +732,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
           {/* Customer Rate */}
           <div className="col-3">
             <NumberInput
-              label="All-in Rate"
+              label="Customer Rate"
               id="customerRate"
               min={0}
               name="customerRate"
@@ -750,7 +750,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               id="weight"
               min={0}
               name="weight"
-              placeholder="Weight"
+              placeholder="Weight(Ibs.)"
               control={control}
               preventNegative
             />
@@ -762,7 +762,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               id="length"
               min={0}
               name="length"
-              placeholder="Feet"
+              placeholder="Length(ft.)"
               control={control}
               preventNegative
             />

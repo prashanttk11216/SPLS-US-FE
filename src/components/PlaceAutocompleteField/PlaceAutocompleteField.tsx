@@ -145,6 +145,7 @@ const PlaceAutocompleteField = ({
               disabled={field.disabled}
               name={field.name}
               value={inputValue}
+              autoComplete="off"
               onChange={(e) => {
                 setInputValue(e.target.value); // Update display value
                 field.onChange({ str: e.target.value }); // Update form state

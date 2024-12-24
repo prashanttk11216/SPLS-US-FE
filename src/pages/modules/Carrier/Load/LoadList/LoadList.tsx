@@ -135,7 +135,7 @@ const LoadList: React.FC = () => {
     { width: "110px", key: "miles", label: "Miles", sortable: true },
     { width: "150px", key: "mode", label: "Mode" },
     { width: "150px", key: "postedBy", label: "Posted By" },
-    { width: "140px", key: "brokerRate", label: "Broker Rate", sortable: true },
+    { width: "140px", key: "allInRate", label: "Broker Rate", sortable: true },
     { width: "120px", key: "weight", label: "Weight", sortable: true },
     { width: "120px", key: "length", label: "Length", sortable: true },
     { width: "120px", key: "width", label: "Width", sortable: true },
@@ -205,9 +205,9 @@ const LoadList: React.FC = () => {
           load.brokerId && typeof load.brokerId === "object"
             ? load.brokerId.company
             : "N/A",
-        brokerRate: load.allInRate || "N/A",
-        weight: load.weight || "N/A",
-        length: load.length || "N/A",
+        allInRate: load.allInRate || "N/A",
+        weight: (load.weight && (load.weight + "lbs")) || "N/A",
+        length: (load.length && (load.length + "ft")) || "N/A",
         width: load.width || "N/A",
         height: load.height || "N/A",
         loadOption: load.loadOption || "N/A",
