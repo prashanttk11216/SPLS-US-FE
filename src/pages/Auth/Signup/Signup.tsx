@@ -31,7 +31,11 @@ export type createUserForm = {
   password: string;
   confirmPassword: string;
 
-  address: string; // Primary address (optional for non-customers)
+  address: {
+    str: string; // String representation of the address
+    lat: number; // Latitude
+    lng: number; // Longitude
+  }; // Primary address (optional for non-customers)
   addressLine2?: string;
   addressLine3?: string;
   country: string;
@@ -42,7 +46,11 @@ export type createUserForm = {
   sameAsMailing?: boolean;
 
   // Billing-specific fields (only for customers)
-  billingAddress?: string;
+  billingAddress?: {
+    str: string; // String representation of the address
+    lat: number; // Latitude
+    lng: number; // Longitude
+  };
   billingAddressLine2?: string;
   billingAddressLine3?: string;
   billingCountry?: string;
@@ -119,7 +127,11 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
       ]);
     } else {
       // Clear billing address fields if unchecked
-      setValue("billingAddress", "");
+      setValue("billingAddress", {
+        str: "",
+        lat: 0,
+        lng: 0,
+      });
       setValue("billingAddressLine2", "");
       setValue("billingAddressLine3", "");
       setValue("billingCountry", "");
@@ -143,13 +155,21 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
   ) => {
     console.log("Selected Place Details:", details);
     if (isBilling) {
-      setValue("billingAddress", details.formatted_address!);
+      setValue("billingAddress", {
+        str: details.formatted_address!,
+        lat: details.lat!,
+        lng: details.lng!,
+      });
       setValue("billingCountry", details.country!);
       setValue("billingState", details.state!);
       setValue("billingCity", details.city!);
       setValue("billingZip", details.postal_code!);
     } else {
-      setValue("address", details.formatted_address!);
+      setValue("address", {
+        str: details.formatted_address!,
+        lat: details.lat!,
+        lng: details.lng!,
+      });
       setValue("country", details.country!);
       setValue("state", details.state!);
       setValue("city", details.city!);

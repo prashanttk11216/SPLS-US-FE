@@ -125,7 +125,11 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
         company: "",
 
         // Primary address
-        address: "",
+        address: {
+          str: "",
+          lat: 0,
+          lng: 0,
+        },
         addressLine2: "",
         addressLine3: "",
         country: "",
@@ -167,7 +171,11 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
     lng: number | null;
   }) => {
     console.log("Selected Place Details:", details);
-    setValue("address", details.formatted_address!);
+    setValue("address", {
+      str: details.formatted_address!,
+      lat: details.lat!,
+      lng: details.lng!,
+    });
     setValue("country", details.country!);
     setValue("state", details.state!);
     setValue("city", details.city!);

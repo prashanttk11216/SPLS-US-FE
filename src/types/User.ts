@@ -18,7 +18,11 @@ export interface User {
 
   // Primary address
 
-  address?: string;
+  address?: {
+    str: string; // String representation of the address
+    lat: number; // Latitude
+    lng: number; // Longitude
+  };
   addressLine2?: string;
   addressLine3?: string;
   country?: string;
@@ -27,7 +31,11 @@ export interface User {
   zip?: string;
 
   // Billing-specific fields (only for customers)
-  billingAddress?: string;
+  billingAddress?: {
+    str: string; // String representation of the address
+    lat: number; // Latitude
+    lng: number; // Longitude
+  };
   billingAddressLine2?: string;
   billingAddressLine3?: string;
   billingCountry?: string;

@@ -123,7 +123,11 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
         company: "",
 
         // Primary address
-        address: "",
+        address: {
+          str: "",
+          lat: 0,
+          lng: 0,
+        },
         addressLine2: "",
         addressLine3: "",
         country: "",
@@ -134,7 +138,11 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
         sameAsMailing: false,
 
         // Billing-specific fields (only for customers)
-        billingAddress: "",
+        billingAddress: {
+          str: "",
+          lat: 0,
+          lng: 0,
+        },
         billingAddressLine2: "",
         billingAddressLine3: "",
         billingCountry: "",
@@ -164,7 +172,11 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
       ]);
     } else {
       // Clear billing address fields if unchecked
-      setValue("billingAddress", "");
+      setValue("billingAddress", {
+        str: "",
+        lat: 0,
+        lng: 0,
+      },);
       setValue("billingAddressLine2", "");
       setValue("billingAddressLine3", "");
       setValue("billingCountry", "");
@@ -565,13 +577,21 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
   ) => {
     console.log("Selected Place Details:", details);
     if (isBilling) {
-      setValue("billingAddress", details.formatted_address!);
+      setValue("billingAddress", {
+        str: details.formatted_address!,
+        lat: details.lat!,
+        lng: details.lng!,
+      });
       setValue("billingCountry", details.country!);
       setValue("billingState", details.state!);
       setValue("billingCity", details.city!);
       setValue("billingZip", details.postal_code!);
     } else {
-      setValue("address", details.formatted_address!);
+      setValue("address", {
+        str: details.formatted_address!,
+        lat: details.lat!,
+        lng: details.lng!,
+      });
       setValue("country", details.country!);
       setValue("state", details.state!);
       setValue("city", details.city!);

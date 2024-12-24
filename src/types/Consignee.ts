@@ -5,7 +5,11 @@ export interface Consignee {
     lastName: string;
     email: string;
     primaryNumber: string;
-    address?: string;
+    address?: {
+        str: string; // String representation of the address
+        lat: number; // Latitude
+        lng: number; // Longitude
+      };
     addressLine2?: string;
     addressLine3?: string;
     country?: string;

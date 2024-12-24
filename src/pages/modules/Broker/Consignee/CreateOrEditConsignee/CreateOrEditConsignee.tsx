@@ -26,7 +26,11 @@ export type ConsigneeForm = {
   lastName: string;
   email: string;
   primaryNumber: string;
-  address?: string;
+  address?: {
+    str: string; // String representation of the address
+    lat: number; // Latitude
+    lng: number; // Longitude
+  };
   addressLine2?: string;
   addressLine3?: string;
   country?: string;
@@ -129,7 +133,11 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
           shippingHours: "",
 
           // Primary address
-          address: "",
+          address: {
+            str: "", // String representation of the address
+            lat: 0,// Latitude
+            lng: 0, // Longitude
+          },
           addressLine2: "",
           addressLine3: "",
           country: "",
@@ -172,7 +180,11 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
     lng: number | null;
   }) => {
     console.log("Selected Place Details:", details);
-    setValue("address", details.formatted_address!);
+    setValue("address", {
+      str: details.formatted_address!,
+      lat: details.lat!,
+      lng: details.lng!,
+    });
     setValue("country", details.country!);
     setValue("state", details.state!);
     setValue("city", details.city!);

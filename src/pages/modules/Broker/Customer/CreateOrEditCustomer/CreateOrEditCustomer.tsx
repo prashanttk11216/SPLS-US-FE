@@ -123,7 +123,11 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
         company: "",
 
         // Primary address
-        address: "",
+        address: {
+          str: "", // String representation of the address
+          lat: 0,// Latitude
+          lng: 0, // Longitude
+        },
         addressLine2: "",
         addressLine3: "",
         country: "",
@@ -134,7 +138,11 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
         sameAsMailing: false,
 
         // Billing-specific fields (only for customers)
-        billingAddress: "",
+        billingAddress: {
+          str: "", // String representation of the address
+          lat: 0,// Latitude
+          lng: 0, // Longitude
+        },
         billingAddressLine2: "",
         billingAddressLine3: "",
         billingCountry: "",
@@ -164,7 +172,11 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
       ]);
     } else {
       // Clear billing address fields if unchecked
-      setValue("billingAddress", "");
+      setValue("billingAddress", {
+        str: "", // String representation of the address
+        lat: 0,// Latitude
+        lng: 0, // Longitude
+      });
       setValue("billingAddressLine2", "");
       setValue("billingAddressLine3", "");
       setValue("billingCountry", "");
@@ -209,13 +221,21 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
   ) => {
     console.log("Selected Place Details:", details);
     if (isBilling) {
-      setValue("billingAddress", details.formatted_address!);
+      setValue("billingAddress", {
+      str: details.formatted_address!,
+      lat: details.lat!,
+      lng: details.lng!,
+    });
       setValue("billingCountry", details.country!);
       setValue("billingState", details.state!);
       setValue("billingCity", details.city!);
       setValue("billingZip", details.postal_code!);
     } else {
-      setValue("address", details.formatted_address!);
+      setValue("address", {
+      str: details.formatted_address!,
+      lat: details.lat!,
+      lng: details.lng!,
+    });
       setValue("country", details.country!);
       setValue("state", details.state!);
       setValue("city", details.city!);
