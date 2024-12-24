@@ -41,7 +41,11 @@ export type loadForm = {
   originEarlyPickupTime?: Date | string;
   originLatePickupTime?: Date | string;
   originStops?: {
-    address: string;
+    address: {
+      str: string; // String representation of the address
+      lat: number; // Latitude
+      lng: number; // Longitude
+    };    
     earlyPickupDate?: Date | string;
     latePickupDate?: Date | string;
     earlyPickupTime?: Date | string;
@@ -57,7 +61,11 @@ export type loadForm = {
   destinationEarlyDropoffTime?: Date | string;
   destinationLateDropoffTime?: Date | string;
   destinationStops?: {
-    address: string;
+    address: {
+      str: string; // String representation of the address
+      lat: number; // Latitude
+      lng: number; // Longitude
+    };
     earlyDropoffDate?: Date | string;
     lateDropoffDate?: Date | string;
     earlyDropoffTime?: Date | string;
@@ -197,7 +205,11 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
 
   const addOriginStop = () => {
     appendOrigin({
-      address: "",
+      address: {
+        str: "",
+        lat: 0,
+        lng: 0,
+      },
       earlyPickupDate: "",
       latePickupDate: "",
       earlyPickupTime: "",
@@ -207,7 +219,11 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
 
   const addDestinationStop = () => {
     appendDestination({
-      address: "",
+      address: {
+        str: "",
+        lat: 0,
+        lng: 0,
+      },
       earlyDropoffDate: "",
       lateDropoffDate: "",
       earlyDropoffTime: "",
@@ -403,12 +419,15 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                       index + 1
                     } City & State, or Zip Code`}
                     rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
-                    onPlaceSelect={(details) =>
-                      setValue(
-                        `originStops.${index}.address`,
-                        details.formatted_address!
-                      )
-                    }
+                    
+                    onPlaceSelect={(details) => {
+                      setValue(`originStops.${index}.address`, {
+                        str: details.formatted_address!,
+                        lat: details.lat!,
+                        lng: details.lng!,
+                      });
+                    }}
+                    
                     required
                   />
                 </div>
@@ -589,12 +608,13 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                       index + 1
                     } City & State, or Zip Code`}
                     rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
-                    onPlaceSelect={(details) =>
-                      setValue(
-                        `destinationStops.${index}.address`,
-                        details.formatted_address!
-                      )
-                    }
+                    onPlaceSelect={(details) => {
+                      setValue(`destinationStops.${index}.address`, {
+                        str: details.formatted_address!,
+                        lat: details.lat!,
+                        lng: details.lng!,
+                      });
+                    }}
                     required
                   />
                 </div>

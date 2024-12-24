@@ -20,7 +20,11 @@ export interface Load {
   originEarlyPickupTime?: Date;
   originLatePickupTime?: Date;
   originStops?: {
-    address: string;
+    address: {
+      str: string; // String representation of the address
+      lat: number; // Latitude
+      lng: number; // Longitude
+    };
     earlyPickupDate?: Date;
     latePickupDate?: Date;
     earlyPickupTime?: Date;
@@ -36,7 +40,11 @@ export interface Load {
   destinationEarlyDropoffTime?: Date;
   destinationLateDropoffTime?: Date;
   destinationStops?: {
-    address: string;
+    address: {
+      str: string; // String representation of the address
+      lat: number; // Latitude
+      lng: number; // Longitude
+    };
     earlyDropoffDate?: Date;
     lateDropoffDate?: Date;
     earlyDropoffTime?: Date;
