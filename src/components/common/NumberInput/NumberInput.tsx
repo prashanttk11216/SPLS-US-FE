@@ -109,6 +109,7 @@ const NumberInput: React.FC<NumberInputProps> = ({
           name={name}
           control={control}
           disabled={disabled}
+          rules={validationRules}
           render={({ field }) => (
             <input
               type="text"
@@ -130,7 +131,6 @@ const NumberInput: React.FC<NumberInputProps> = ({
               }}
             />
           )}
-          rules={validationRules}
         />
       </div>
       {(errors && errors[name]) && <span className="text-danger">{errors[name].message}</span>}

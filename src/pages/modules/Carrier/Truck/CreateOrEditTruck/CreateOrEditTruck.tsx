@@ -231,7 +231,6 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
               placeholder="Weight(Ibs.)"
               control={control}
               preventNegative
-              required
             />
           </div>
           {/* length */}
@@ -244,7 +243,6 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
               placeholder="Length(ft.)"
               control={control}
               preventNegative
-              required
             />
           </div>
           {/* All-in Rate*/}
