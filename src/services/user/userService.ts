@@ -10,6 +10,27 @@ interface EditUserData {
   lastName?: string;
   email?: string;
   primaryNumber?: string;
+
+  avatarUrl?: string;
+  company?: string;
+
+  address?: string;
+  addressLine2?: string;
+  addressLine3?: string;
+  country?: string;
+  state?: string;
+  city?: string;
+  zip?: string;
+
+  billingAddress?: string;
+  billingAddressLine2?: string;
+  billingAddressLine3?: string;
+  billingCountry?: string;
+  billingState?: string;
+  billingCity?: string;
+  billingZip?: string;
+
+  sameAsMailing?: boolean;
   // Add any other editable fields as needed
 }
 
@@ -66,6 +87,7 @@ export const createUser = async (data: createUserForm): Promise<ApiResponse> => 
   }
 };
 
+
 export const createBroker = async (data: createUserForm): Promise<ApiResponse> => {
   try {
     const response = await axiosApi.post<ApiResponse>("/user/create/broker-user", data);
@@ -86,6 +108,23 @@ export const editUser = async (
     return handleAxiosError(error, "Failed to update user details");
   }
 };
+
+export const uploadAvatar = async (file: File): Promise<ApiResponse> => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await axiosApi.post(`/upload/single`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "Failed to upload avatar");
+  }
+};
+
 
 export const toggleActiveStatus = async (
   userId: string): Promise<ApiResponse> => {
