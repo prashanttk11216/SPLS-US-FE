@@ -42,10 +42,10 @@ const Header: React.FC<HeaderProps> = () => {
               data-bs-offset="15,27"
             >
               <Avatar
-                avatarUrl="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?cs=srgb&dl=pexels-pixabay-220453.jpg&fm=jpg"
-                firstName="John"
-                lastName="Doe"
-                email="johndoe@example.com"
+                avatarUrl={user.avatarUrl ? ("http://localhost:5000/" + user.avatarUrl) : ""}
+                firstName={user.firstName}
+                lastName={user.lastName}
+                email={user.email}
                 size={36}
               />
               <div className="fw-bolder ms-2">

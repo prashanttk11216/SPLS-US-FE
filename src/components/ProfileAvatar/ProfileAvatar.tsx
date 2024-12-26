@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import EditPencil from "../../assets/icons/pencil.svg";
 import "./ProfileAvatar.scss";
+import { getInitials } from "../../utils/globalHelper";
 
 type ProfileAvatarProps = {
   avatarUrl?: string;
@@ -22,17 +23,7 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
 
   // Generate initials from name or email
   useEffect(() => {
-    const getInitials = () => {
-      if (firstName && lastName) {
-        return `${firstName[0]}${lastName[0]}`.toUpperCase();
-      } else if (firstName) {
-        return firstName[0].toUpperCase();
-      } else if (email) {
-        return email[0]?.toUpperCase() || "";
-      }
-      return "";
-    };
-    setInitials(getInitials());
+    setInitials(getInitials({firstName, lastName, email}));
   }, [firstName, lastName, email]);
 
   useEffect(() => {

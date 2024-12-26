@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./Avatar.scss";
+import { getInitials } from "../../../utils/globalHelper";
 
 type AvatarProps = {
   avatarUrl?: string;
@@ -11,20 +12,16 @@ type AvatarProps = {
 
 const Avatar: React.FC<AvatarProps> = ({ avatarUrl, firstName, lastName, email, size }) => {
   const [initials, setInitials] = useState<string>("");
-
+  const [avatar, setAvatar] = useState<string | null>(avatarUrl || null);
+  
   useEffect(() => {
-    const generateInitials = () => {
-      if (firstName && lastName) {
-        return `${firstName[0]}${lastName[0]}`.toUpperCase();
-      } else if (firstName) {
-        return firstName[0].toUpperCase();
-      } else if (email) {
-        return email[0]?.toUpperCase() || "";
-      }
-      return "";
-    };
-    setInitials(generateInitials());
+    setInitials(getInitials({firstName, lastName, email}));
   }, [firstName, lastName, email]);
+
+   useEffect(() => {
+    setAvatar(avatarUrl || null);
+  }, [avatarUrl]);
+
 
   return (
     <div
@@ -33,13 +30,13 @@ const Avatar: React.FC<AvatarProps> = ({ avatarUrl, firstName, lastName, email, 
         width: `${size}px`,
         height: `${size}px`,
         fontSize: `${size * 0.4}px`,
-        backgroundColor: avatarUrl ? "transparent" : "#6c757d",
+        backgroundColor: avatar ? "transparent" : "#6c757d",
         overflow: "hidden",
       }}
     >
-      {avatarUrl ? (
+      {avatar ? (
         <img
-          src={avatarUrl}
+          src={avatar}
           alt="Avatar"
           className="w-100 h-100 object-fit-cover rounded-circle"
         />
