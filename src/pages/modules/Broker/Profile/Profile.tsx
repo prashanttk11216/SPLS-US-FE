@@ -1,5 +1,4 @@
 import { useForm } from "react-hook-form";
-import { UserRole } from "../../../../enums/UserRole";
 import { VALIDATION_MESSAGES } from "../../../../constants/messages";
 import { REGEX_PATTERNS } from "../../../../constants/patterns";
 import Input from "../../../../components/common/Input/Input";
@@ -10,7 +9,7 @@ import {
   uploadAvatar,
 } from "../../../../services/user/userService";
 import { RootState } from "../../../../store/store";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ProfileAvatar from "../../../../components/ProfileAvatar/ProfileAvatar";
 import { validatePhoneNumber } from "../../../../utils/phoneValidate";
 import PhoneInputField from "../../../../components/common/PhoneInputField/PhoneInputField";
@@ -18,48 +17,12 @@ import Stepper, { Step } from "../../../../components/common/Stepper/Stepper";
 import PlaceAutocompleteField from "../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 import CheckboxField from "../../../../components/common/CheckboxField/CheckboxField";
 import { toast } from "react-toastify";
-
-export type ProfileForm = {
-  firstName: string;
-  lastName: string;
-  company: string;
-  primaryNumber: string;
-  email: string;
-  password?: string;
-  confirmPassword?: string;
-  role: UserRole;
-  avatarUrl: string;
-
-  address: {
-    str: string; // String representation of the address
-    lat: number; // Latitude
-    lng: number; // Longitude
-  }; // Primary address (optional for non-customers)
-  addressLine2?: string;
-  addressLine3?: string;
-  country: string;
-  state: string;
-  city: string;
-  zip: string;
-
-  sameAsMailing?: boolean;
-
-  // Billing-specific fields (only for customers)
-  billingAddress?: {
-    str: string; // String representation of the address
-    lat: number; // Latitude
-    lng: number; // Longitude
-  };
-  billingAddressLine2?: string;
-  billingAddressLine3?: string;
-  billingCountry?: string;
-  billingState?: string;
-  billingCity?: string;
-  billingZip?: string;
-};
+import { createUserForm } from "../../../Auth/Signup/Signup";
+import { setUser } from "../../../../features/user/userSlice";
 
 const Profile: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
+  const dispatch = useDispatch();
   const [activeStep, setActiveStep] = useState(0); // Tracks current step
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
@@ -71,26 +34,27 @@ const Profile: React.FC = () => {
     setValue,
     getValues,
     trigger,
-  } = useForm<ProfileForm>({ mode: "onBlur" });
+  } = useForm<createUserForm>({ mode: "onBlur" });
 
   useEffect(() => {
-    const getProfile = async () => {
-      const result = await getUserProfile();
-      if (result.success && result.data) {
-        reset(result.data); // Pre-filling form data with user profile data
-      }
-      console.log(result);
-    };
     getProfile();
   }, []);
 
-  const submit = async (data: ProfileForm) => {
+  const getProfile = async () => {
+    const result = await getUserProfile();
+    if (result.success && result.data) {
+      dispatch(setUser(result.data));
+      reset(result.data); // Pre-filling form data with user profile data
+    }
+  };
+
+  const submit = async (data: createUserForm) => {
     try {
       // Use editUser to update the user profile
       const response = await editUser(user._id, data);
       if (response.success) {
         toast.success("Profile updated successfully");
-        reset(response.data); // Reset the form with the latest data
+        getProfile();
       } else {
         toast.error("Failed to update profile");
       }
@@ -100,16 +64,12 @@ const Profile: React.FC = () => {
   };
 
   const onAvatarChange = async (file: File) => {
-    try {
-      const response = await uploadAvatar(file); // Use the new uploadAvatar service
-      if (response.success) {
-        reset({ ...getValues(), avatarUrl: response.data.avatarUrl });
-        toast.success("Avatar updated successfully");
-      } else {
-        toast.error("Avatar upload failed");
-      }
-    } catch (err) {
-      toast.error("An error occurred while uploading the avatar.");
+    const result = await uploadAvatar(file); // Use the new uploadAvatar service
+    if (result.success) {
+      setValue("avatarUrl", result.data.path);
+      toast.success(
+        "Avatar updated successfully. Please save the profile to apply changes."
+      );
     }
   };
 
@@ -516,54 +476,53 @@ const Profile: React.FC = () => {
             email={user.email}
             firstName={user.firstName}
             lastName={user.lastName}
-            avatarUrl={getValues("avatarUrl")}
+            avatarUrl={
+              user.avatarUrl ? "http://localhost:5000/" + user.avatarUrl : ""
+            }
             onAvatarChange={onAvatarChange}
           />
         </div>
 
-        <form onSubmit={handleSubmit(submit)}>
-          <div className="row">
-            {/* Form for creating/editing customer */}
-            <Stepper
-              steps={steps}
-              activeStep={activeStep}
-              setActiveStep={setActiveStep}
-              completedSteps={completedSteps}
-              linear
-            />
-            <div className="row">
-              <div className="col-6 text-start">
-                <button
-                  className="btn btn-secondary"
-                  type="button"
-                  onClick={prevStep}
-                  disabled={activeStep === 0}
-                >
-                  Previous
-                </button>
-              </div>
-              <div className="col-6 text-end">
-                {activeStep < steps.length - 1 ? (
-                  <button
-                    className="btn btn-primary"
-                    type="button"
-                    onClick={nextStep}
-                  >
-                    Next
-                  </button>
-                ) : (
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={!isValid}
-                  >
-                    Save
-                  </button>
-                )}
-              </div>
-            </div>
+        {/* Form for creating/editing customer */}
+        <Stepper
+          steps={steps}
+          activeStep={activeStep}
+          setActiveStep={setActiveStep}
+          completedSteps={completedSteps}
+          linear
+        />
+        <div className="row">
+          <div className="col-6 text-start">
+            <button
+              className="btn btn-secondary"
+              type="button"
+              onClick={prevStep}
+              disabled={activeStep === 0}
+            >
+              Previous
+            </button>
           </div>
-        </form>
+          <div className="col-6 text-end">
+            {activeStep < steps.length - 1 ? (
+              <button
+                className="btn btn-primary"
+                type="button"
+                onClick={nextStep}
+              >
+                Next
+              </button>
+            ) : (
+              <button
+                type="submit"
+                className="btn btn-primary"
+                onClick={handleSubmit(submit)}
+                disabled={!isValid}
+              >
+                Save
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

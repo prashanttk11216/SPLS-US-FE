@@ -62,6 +62,7 @@ export type createUserForm = {
   role: UserRole;
   employeeId?: string;
   brokerId: string;
+  avatarUrl?: string;
 };
 
 const Signup: React.FC<SignupProps> = ({ role }) => {

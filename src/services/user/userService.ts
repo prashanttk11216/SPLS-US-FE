@@ -4,36 +4,6 @@ import { ApiResponse } from "../../types/responseTypes";
 import { handleResponse } from "../../utils/apiHelpers";
 import { handleAxiosError } from "../../utils/errorHandler";
 
-// Interface for the data expected in edit requests
-interface EditUserData {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  primaryNumber?: string;
-
-  avatarUrl?: string;
-  company?: string;
-
-  address?: string;
-  addressLine2?: string;
-  addressLine3?: string;
-  country?: string;
-  state?: string;
-  city?: string;
-  zip?: string;
-
-  billingAddress?: string;
-  billingAddressLine2?: string;
-  billingAddressLine3?: string;
-  billingCountry?: string;
-  billingState?: string;
-  billingCity?: string;
-  billingZip?: string;
-
-  sameAsMailing?: boolean;
-  // Add any other editable fields as needed
-}
-
 // Fetch user details by ID or filter by role - Private API (requires Authorization token)
 export const getUsers = async (
   query?: string
@@ -99,7 +69,7 @@ export const createBroker = async (data: createUserForm): Promise<ApiResponse> =
 
 export const editUser = async (
   userId: string,
-  data: EditUserData
+  data: createUserForm
 ): Promise<ApiResponse> => {
   try {
     const response = await axiosApi.put(`/user/${userId}`, data);

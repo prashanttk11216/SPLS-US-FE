@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import EditPencil from "../../assets/icons/pencil.svg";
 import "./ProfileAvatar.scss";
 
-
 type ProfileAvatarProps = {
   avatarUrl?: string;
   firstName?: string;
@@ -35,6 +34,10 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
     };
     setInitials(getInitials());
   }, [firstName, lastName, email]);
+
+  useEffect(() => {
+    setAvatar(avatarUrl || null);
+  }, [avatarUrl]);
 
   // Handle avatar file change
   const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
