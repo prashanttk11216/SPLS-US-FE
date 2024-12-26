@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import ArrowDownIcon from "../../assets/icons/arrowDown.svg";
 import ArrowUpIcon from "../../assets/icons/arrowUp.svg";
+import BarIcon from "../../assets/icons/bars.svg"; // Add an icon for toggling the sidebar
 import "./Sidebar.scss";
 
 // Define the structure for menu items
@@ -23,6 +24,9 @@ const Sidebar: React.FC<SidebarProps> = ({ menuItems }) => {
   // State to track open submenus
   const [openSubMenus, setOpenSubMenus] = useState<string[]>([]);
 
+  // State to track sidebar collapse
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   // Function to toggle a submenu
   const toggleSubMenu = (path: string) => {
     setOpenSubMenus((prev) =>
@@ -30,8 +34,18 @@ const Sidebar: React.FC<SidebarProps> = ({ menuItems }) => {
     );
   };
 
+  // Function to toggle sidebar collapse
+  const toggleSidebar = () => {
+    setIsCollapsed((prev) => !prev);
+  };
+
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
+      <div className="sidebar-header">
+        <button className="toggle-button" onClick={toggleSidebar}>
+          <img src={BarIcon} alt="Toggle sidebar" />
+        </button>
+      </div>
       <ul className="sidebar-menu">
         {menuItems
           .filter((item) => item.isVisible) // Only render visible menu items
@@ -57,10 +71,10 @@ const Sidebar: React.FC<SidebarProps> = ({ menuItems }) => {
                     className={`text-decoration-none w-100 ${isActiveMain ? "active-main" : ""}`}
                   >
                     {item.icon && <img src={item.icon} alt={`${item.name} icon`} />}
-                    <span>{item.name}</span>
+                    {!isCollapsed && <span>{item.name}</span>}
                   </Link>
                   {item.subMenu && (
-                    <span className={`submenu-icon`}>
+                    <span className="submenu-icon">
                       <img src={isMenuOpen ? ArrowDownIcon : ArrowUpIcon} alt="Toggle submenu" />
                     </span>
                   )}
@@ -85,7 +99,7 @@ const Sidebar: React.FC<SidebarProps> = ({ menuItems }) => {
                             {subItem.icon && (
                               <img src={subItem.icon} alt={`${subItem.name} icon`} />
                             )}
-                            <span>{subItem.name}</span>
+                            {!isCollapsed && <span>{subItem.name}</span>}
                           </Link>
                         </li>
                       ))}
