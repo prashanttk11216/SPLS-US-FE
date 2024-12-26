@@ -1,31 +1,28 @@
-import "./Header.scss";
 import Logo from "../../assets/images/Logo.svg";
 import { Link, useNavigate } from "react-router-dom";
 import Avatar from "../common/Avatar/Avatar";
 import User from "../../assets/icons/user.svg";
-import SignOutIcon from "../../assets/icons/signOut.svg"
-import Setting from "../../assets/icons/setting.svg";
-import Notification from "../../assets/icons/notification.svg";
+import SignOutIcon from "../../assets/icons/signOut.svg";
 import { RootState } from "../../store/store";
 import { useDispatch, useSelector } from "react-redux";
 import { clearStorage } from "../../utils/authHelplers";
 import { resetUser } from "../../features/user/userSlice";
 import { UserRole } from "../../enums/UserRole";
-
+import "./Header.scss";
 
 interface HeaderProps {}
 
 const Header: React.FC<HeaderProps> = () => {
-    const user = useSelector((state: RootState) => state.user);
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
+  const user = useSelector((state: RootState) => state.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-    const logout = (role: UserRole) => {
-        clearStorage();
-        dispatch(resetUser());
-        let url = role == UserRole.BROKER_USER ? "/login?role=broker" : "/login"
-        navigate(url);
-    };
+  const logout = (role: UserRole) => {
+    clearStorage();
+    dispatch(resetUser());
+    let url = role == UserRole.BROKER_USER ? "/login?role=broker" : "/login";
+    navigate(url);
+  };
   return (
     <>
       <div className="header-wrapper bg-white d-flex align-items-center">
@@ -36,14 +33,14 @@ const Header: React.FC<HeaderProps> = () => {
           </Link>
         </div>
         <div className="profile-wrapper ms-auto d-flex align-items-center">
-          <div className="settings">
-            <img src={Notification} alt="notification"/>
-          </div>
-          <div className="settings">
-          <img src={Setting} alt="setting"/>
-          </div>
           <div className="dropdown">
-            <a className="text-decoration-none d-flex align-items-center" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-offset="15,27">
+            <a
+              className="text-decoration-none d-flex align-items-center"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+              data-bs-offset="15,27"
+            >
               <Avatar
                 avatarUrl="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?cs=srgb&dl=pexels-pixabay-220453.jpg&fm=jpg"
                 firstName="John"
@@ -51,11 +48,16 @@ const Header: React.FC<HeaderProps> = () => {
                 email="johndoe@example.com"
                 size={36}
               />
-              <div className="fw-bolder ms-2">{user.firstName} {user.lastName}</div>
+              <div className="fw-bolder ms-2">
+                {user.firstName} {user.lastName}
+              </div>
             </a>
             <ul className="dropdown-menu profile-menu">
               <li>
-                <Link to="profile" className="dropdown-item d-flex align-items-center">
+                <Link
+                  to="profile"
+                  className="dropdown-item d-flex align-items-center"
+                >
                   <span className="me-3">
                     <img src={User} />
                   </span>{" "}
@@ -66,7 +68,11 @@ const Header: React.FC<HeaderProps> = () => {
                 <hr className="dropdown-divider" />
               </li>
               <li>
-              <a className="dropdown-item d-flex align-items-center"  role="button" onClick={()=>logout(user.role!)}>
+                <a
+                  className="dropdown-item d-flex align-items-center"
+                  role="button"
+                  onClick={() => logout(user.role!)}
+                >
                   <span className="me-3">
                     <img src={SignOutIcon} />
                   </span>{" "}
