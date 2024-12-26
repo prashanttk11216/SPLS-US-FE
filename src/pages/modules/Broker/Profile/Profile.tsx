@@ -19,12 +19,15 @@ import CheckboxField from "../../../../components/common/CheckboxField/CheckboxF
 import { toast } from "react-toastify";
 import { createUserForm } from "../../../Auth/Signup/Signup";
 import { setUser } from "../../../../features/user/userSlice";
+import { setUserDataInStorage } from "../../../../utils/authHelplers";
+import Loading from "../../../../components/common/Loading/Loading";
 
 const Profile: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
   const [activeStep, setActiveStep] = useState(0); // Tracks current step
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const {
     control,
@@ -41,11 +44,14 @@ const Profile: React.FC = () => {
   }, []);
 
   const getProfile = async () => {
+    setLoading(true);
     const result = await getUserProfile();
     if (result.success && result.data) {
       dispatch(setUser(result.data));
+      setUserDataInStorage(result.data);
       reset(result.data); // Pre-filling form data with user profile data
     }
+    setLoading(false);
   };
 
   const submit = async (data: createUserForm) => {
@@ -54,6 +60,7 @@ const Profile: React.FC = () => {
       const response = await editUser(user._id, data);
       if (response.success) {
         toast.success("Profile updated successfully");
+        resetSteps();
         getProfile();
       } else {
         toast.error("Failed to update profile");
@@ -61,6 +68,11 @@ const Profile: React.FC = () => {
     } catch (err) {
       toast.error("An error occurred while updating the profile.");
     }
+  };
+
+  const resetSteps = () => {
+    setActiveStep(0);
+    setCompletedSteps([]); // Clear all completed steps
   };
 
   const onAvatarChange = async (file: File) => {
@@ -199,6 +211,7 @@ const Profile: React.FC = () => {
                 id="email"
                 name="email"
                 placeholder="name@example.com"
+                disabled
                 control={control}
                 rules={{
                   required: VALIDATION_MESSAGES.emailRequired,
@@ -470,60 +483,64 @@ const Profile: React.FC = () => {
 
   return (
     <div className="container vh-100 d-flex align-items-center">
-      <div className="profile-form">
-        <div className="mb-4">
-          <ProfileAvatar
-            email={user.email}
-            firstName={user.firstName}
-            lastName={user.lastName}
-            avatarUrl={
-              user.avatarUrl ? "http://localhost:5000/" + user.avatarUrl : ""
-            }
-            onAvatarChange={onAvatarChange}
-          />
-        </div>
+      {loading ? (
+        <Loading />
+      ) : (
+        <div className="profile-form">
+          <div className="mb-4">
+            <ProfileAvatar
+              email={user.email}
+              firstName={user.firstName}
+              lastName={user.lastName}
+              avatarUrl={
+                user.avatarUrl ? "http://localhost:5000/" + user.avatarUrl : ""
+              }
+              onAvatarChange={onAvatarChange}
+            />
+          </div>
 
-        {/* Form for creating/editing customer */}
-        <Stepper
-          steps={steps}
-          activeStep={activeStep}
-          setActiveStep={setActiveStep}
-          completedSteps={completedSteps}
-          linear
-        />
-        <div className="row">
-          <div className="col-6 text-start">
-            <button
-              className="btn btn-secondary"
-              type="button"
-              onClick={prevStep}
-              disabled={activeStep === 0}
-            >
-              Previous
-            </button>
-          </div>
-          <div className="col-6 text-end">
-            {activeStep < steps.length - 1 ? (
+          {/* Form for creating/editing customer */}
+          <Stepper
+            steps={steps}
+            activeStep={activeStep}
+            setActiveStep={setActiveStep}
+            completedSteps={completedSteps}
+            linear
+          />
+          <div className="row">
+            <div className="col-6 text-start">
               <button
-                className="btn btn-primary"
+                className="btn btn-secondary"
                 type="button"
-                onClick={nextStep}
+                onClick={prevStep}
+                disabled={activeStep === 0}
               >
-                Next
+                Previous
               </button>
-            ) : (
-              <button
-                type="submit"
-                className="btn btn-primary"
-                onClick={handleSubmit(submit)}
-                disabled={!isValid}
-              >
-                Save
-              </button>
-            )}
+            </div>
+            <div className="col-6 text-end">
+              {activeStep < steps.length - 1 ? (
+                <button
+                  className="btn btn-primary"
+                  type="button"
+                  onClick={nextStep}
+                >
+                  Next
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  onClick={handleSubmit(submit)}
+                  disabled={!isValid}
+                >
+                  Save
+                </button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
