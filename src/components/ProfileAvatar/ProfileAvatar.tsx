@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import EditPencil from "../../assets/icons/pencil.svg";
-import './ProfileAvatar.scss'
+import "./ProfileAvatar.scss";
+
 
 type ProfileAvatarProps = {
   avatarUrl?: string;
@@ -10,7 +11,13 @@ type ProfileAvatarProps = {
   onAvatarChange?: (file: File) => void;
 };
 
-const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, firstName, lastName, email, onAvatarChange }) => {
+const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
+  avatarUrl,
+  firstName,
+  lastName,
+  email,
+  onAvatarChange,
+}) => {
   const [avatar, setAvatar] = useState<string | null>(avatarUrl || null);
   const [initials, setInitials] = useState<string>("");
 
@@ -43,7 +50,10 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, firstName, las
   };
 
   return (
-    <div className="avatar-container d-flex flex-column align-items-center position-relative mx-auto" style={{ width: "150px", height: "150px" }}>
+    <div
+      className="avatar-container d-flex flex-column align-items-center position-relative mx-auto"
+      style={{ width: "150px", height: "150px" }}
+    >
       {avatar ? (
         <img
           src={avatar}
@@ -58,14 +68,16 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ avatarUrl, firstName, las
       <input
         type="file"
         name="avatarUrl"
-        className="d-none"
+        className="d-none avatar-input"
         accept="image/*"
         onChange={handleAvatarChange}
       />
       <button
         className="btn p-0 edit-icon bg-light border-0 rounded-circle d-flex align-items-center justify-content-center"
         style={{ width: "30px", height: "30px" }}
-        onClick={() => document.querySelector<HTMLInputElement>(".avatar-input")?.click()}
+        onClick={() =>
+          document.querySelector<HTMLInputElement>(".avatar-input")?.click()
+        }
       >
         <img src={EditPencil} alt="Edit" className="w-50 h-50" />
       </button>
