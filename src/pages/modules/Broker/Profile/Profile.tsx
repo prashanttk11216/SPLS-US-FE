@@ -132,7 +132,11 @@ const Profile: React.FC = () => {
       ]);
     } else {
       // Clear billing address fields if unchecked
-      setValue("billingAddress", "");
+      setValue("billingAddress", {
+        str: "",
+        lat: 0,
+        lng: 0,
+      });
       setValue("billingAddressLine2", "");
       setValue("billingAddressLine3", "");
       setValue("billingCountry", "");

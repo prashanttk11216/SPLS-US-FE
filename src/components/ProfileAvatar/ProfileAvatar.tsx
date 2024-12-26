@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import EditPencil from "../../assets/icons/pencil.svg";
 import "./ProfileAvatar.scss";
-import { toast } from "react-toastify";
-import { uploadAvatar } from "../../services/user/userService";
+
 
 type ProfileAvatarProps = {
   avatarUrl?: string;
@@ -38,35 +37,15 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
   }, [firstName, lastName, email]);
 
   // Handle avatar file change
-  const handleAvatarChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      try {
-        // Call the uploadAvatar service method to upload the avatar
-        const response = await uploadAvatar(file);
-  
-        if (response.success) {
-          // Extract the image URL from the response
-          const imageUrl = response.data ? `${import.meta.env.VITE_SERVER_URL}/uploads/${response.data.filename}` : '';
-  
-          if (imageUrl) {
-            setAvatar(imageUrl); // Set the avatar in your state
-  
-            // Trigger any callback, if provided
-            if (onAvatarChange) {
-              onAvatarChange(file);
-            }
-          } else {
-            toast.error("Failed to upload avatar. Please try again.");
-          }
-        } else {
-          toast.error(response.message || "Failed to upload avatar. Please try again.");
-        }
-      } catch (err) {
-        toast.error("An error occurred while uploading the avatar.");
-      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        setAvatar(reader.result as string);
+        if (onAvatarChange) onAvatarChange(file);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
