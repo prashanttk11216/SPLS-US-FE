@@ -40,7 +40,7 @@ const ConsigneeDetailsModal: React.FC<{
       rows: [
         {
           label: "Address",
-          value: consignee.address || "N/A",
+          value: consignee.address?.str || "N/A",
           fullWidth: true,
         },
         {

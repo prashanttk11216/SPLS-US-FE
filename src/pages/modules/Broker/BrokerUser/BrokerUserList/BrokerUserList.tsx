@@ -22,6 +22,7 @@ import Pagination, {
 } from "../../../../../components/common/Pagination/Pagination";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import BrokerDetailsModal from "../BrokerDetailsModal/BrokerDetailsModal";
+import ChangePassowrd from "../../../../Auth/ChangePassword/ChangePassword";
 
 const BrokerUserList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -49,6 +50,7 @@ const BrokerUserList: React.FC = () => {
   const [brokerDetails, setBrokerDetails] = useState<Partial<User> | null>(
     null
   );
+  const [changePasswordModel, setchangePasswordModel] = useState(false)
 
   const {
     fetchData: fetchBrokerUsers,
@@ -140,6 +142,10 @@ const BrokerUserList: React.FC = () => {
           toast.error("Failed to fetch user details for editing.");
         }
         break;
+      case "Change Password":
+        setBrokerDetails(row)
+        setchangePasswordModel(true);
+        break;
       case "Delete":
         try {
           const result = await deleteBrokerUser(row._id);
@@ -187,6 +193,7 @@ const BrokerUserList: React.FC = () => {
     } else {
       actions.push("Activate");
     }
+    actions.push("Change Password");
     actions.push("Delete");
     return actions;
   };
@@ -294,11 +301,17 @@ const BrokerUserList: React.FC = () => {
         brokerUserData={brokerUserData}
       />
 
-      <BrokerDetailsModal
+      { isDetailsModalOpen &&
+        <BrokerDetailsModal
         isOpen={isDetailsModalOpen}
         broker={brokerDetails}
         onClose={() => setIsDetailsModalOpen(false)}
-      />
+      />}
+
+        {changePasswordModel && (<ChangePassowrd email={brokerDetails?.email!} isModalOpen={changePasswordModel} closeModal={() => {
+          setchangePasswordModel(false);
+          setBrokerDetails(null);
+        }} />)}
     </div>
   );
 };

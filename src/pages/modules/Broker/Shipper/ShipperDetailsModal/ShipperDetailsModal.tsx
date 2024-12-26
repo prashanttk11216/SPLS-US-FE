@@ -38,7 +38,7 @@ const ShipperDetailsModal: React.FC<{
     {
       heading: "MAILING ADDRESS",
       rows: [
-        { label: "Address", value: shipper.address || "N/A", fullWidth: true },
+        { label: "Address", value: shipper.address?.str || "N/A", fullWidth: true },
         {
           label: "Address Line 2",
           value: shipper.addressLine2 || "N/A",

@@ -39,7 +39,7 @@ const BrokerDetailsModal: React.FC<{
     {
       heading: "MAILING ADDRESS",
       rows: [
-        { label: "Address", value: broker.address || "N/A", fullWidth: true },
+        { label: "Address", value: broker.address?.str || "N/A", fullWidth: true },
         {
           label: "Address Line 2",
           value: broker.addressLine2 || "N/A",

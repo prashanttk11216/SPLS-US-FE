@@ -38,7 +38,7 @@ const CustomerDetailsModal: React.FC<{
     {
       heading: "MAILING ADDRESS",
       rows: [
-        { label: "Address", value: customer.address || "N/A", fullWidth: true },
+        { label: "Address", value: customer.address?.str || "N/A", fullWidth: true },
         {
           label: "Address Line 2",
           value: customer.addressLine2 || "N/A",
@@ -60,7 +60,7 @@ const CustomerDetailsModal: React.FC<{
       rows: [
         {
           label: "Address",
-          value: customer.billingAddress || "N/A",
+          value: customer.billingAddress?.str || "N/A",
           fullWidth: true,
         },
         {

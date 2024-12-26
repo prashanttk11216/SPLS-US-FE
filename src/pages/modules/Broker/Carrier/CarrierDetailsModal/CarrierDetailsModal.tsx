@@ -38,7 +38,7 @@ const CarrierDetailsModal: React.FC<{
     {
       heading: "MAILING ADDRESS",
       rows: [
-        { label: "Address", value: carrier.address || "N/A", fullWidth: true },
+        { label: "Address", value: carrier.address?.str || "N/A", fullWidth: true },
         {
           label: "Address Line 2",
           value: carrier.addressLine2 || "N/A",
