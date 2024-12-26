@@ -7,13 +7,6 @@ export default defineConfig(({ mode }) => {
       // Add other plugins if needed
     ],
 
-    // Resolve aliases for cleaner imports (e.g., `@/components` instead of `../../components`)
-    // resolve: {
-    //   alias: {
-    //     '@': path.resolve(__dirname, './src'),
-    //   },
-    // },
-
     // Server configuration for development
     server: {
       port: 3000, // Custom port for dev server
