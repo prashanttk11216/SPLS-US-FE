@@ -143,7 +143,6 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
       title={isEditing ? "Edit Truck" : "Create Truck"}
       size="lg"
       isCentered
-      backdropClose
     >
       {/* Show loader during API calls */}
       {loading && <Loading />}

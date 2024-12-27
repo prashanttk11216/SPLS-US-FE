@@ -17,10 +17,11 @@ import Stepper, { Step } from "../../../../components/common/Stepper/Stepper";
 import PlaceAutocompleteField from "../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 import CheckboxField from "../../../../components/common/CheckboxField/CheckboxField";
 import { toast } from "react-toastify";
-import { createUserForm } from "../../../Auth/Signup/Signup";
+import { CreateUserForm } from "../../../Auth/Signup/Signup";
 import { setUser } from "../../../../features/user/userSlice";
 import { setUserDataInStorage } from "../../../../utils/authHelplers";
 import Loading from "../../../../components/common/Loading/Loading";
+import { Address } from "../../../../types/Address";
 
 const Profile: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -37,7 +38,7 @@ const Profile: React.FC = () => {
     setValue,
     getValues,
     trigger,
-  } = useForm<createUserForm>({ mode: "onBlur" });
+  } = useForm<CreateUserForm>({ mode: "onBlur" });
 
   useEffect(() => {
     getProfile();
@@ -54,7 +55,7 @@ const Profile: React.FC = () => {
     setLoading(false);
   };
 
-  const submit = async (data: createUserForm) => {
+  const submit = async (data: CreateUserForm) => {
     try {
       // Use editUser to update the user profile
       const response = await editUser(user._id, data);
@@ -119,15 +120,7 @@ const Profile: React.FC = () => {
   };
 
   const handlePlaceSelect = (
-    details: {
-      formatted_address: string | null;
-      city: string | null;
-      state: string | null;
-      postal_code: string | null;
-      country: string | null;
-      lat: number | null;
-      lng: number | null;
-    },
+    details: Address,
     isBilling: boolean = false
   ) => {
     console.log("Selected Place Details:", details);

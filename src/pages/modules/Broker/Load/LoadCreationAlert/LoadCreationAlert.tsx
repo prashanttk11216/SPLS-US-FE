@@ -170,7 +170,6 @@ export const LoadCreationAlert: FC<LoadCreationAlertProps> = ({
       title="Notification Email"
       size="lg"
       isCentered
-      backdropClose
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* Textarea Input */}

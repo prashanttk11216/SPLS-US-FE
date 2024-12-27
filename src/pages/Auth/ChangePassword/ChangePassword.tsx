@@ -58,7 +58,6 @@ const ChangePassowrd: React.FC<ChangePasswordProps> = ({
         title={"Change Password"}
         size="lg"
         isCentered
-        backdropClose
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="row">

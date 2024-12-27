@@ -3,7 +3,7 @@ import Modal from "../../../../../components/common/Modal/Modal";
 import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
 import Input from "../../../../../components/common/Input/Input";
 import { REGEX_PATTERNS } from "../../../../../constants/patterns";
-import { createUserForm } from "../../../../Auth/Signup/Signup";
+import { CreateUserForm } from "../../../../Auth/Signup/Signup";
 import { useForm } from "react-hook-form";
 import { UserRole } from "../../../../../enums/UserRole";
 import { toast } from "react-toastify";
@@ -20,6 +20,7 @@ import Stepper, {
 import CheckboxField from "../../../../../components/common/CheckboxField/CheckboxField";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 import PhoneInputField from "../../../../../components/common/PhoneInputField/PhoneInputField";
+import { Address } from "../../../../../types/Address";
 
 interface CreateOrEditCustomerProps {
   isModalOpen: boolean; // Controls modal visibility
@@ -49,7 +50,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
     getValues,
     reset,
     trigger,
-  } = useForm<createUserForm>({
+  } = useForm<CreateUserForm>({
     mode: "onBlur",
     defaultValues: customerData || {}, // Pre-fill form when editing
   });
@@ -68,7 +69,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
    * Handles form submission for creating or editing a customer.
    * @param data - Form data
    */
-  const submit = async (data: createUserForm) => {
+  const submit = async (data: CreateUserForm) => {
     try {
       let result;
       if (isEditing && customerData?._id) {
@@ -202,15 +203,7 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
   };
 
   const handlePlaceSelect = (
-    details: {
-      formatted_address: string | null;
-      city: string | null;
-      state: string | null;
-      postal_code: string | null;
-      country: string | null;
-      lat: number | null;
-      lng: number | null;
-    },
+    details: Address,
     isBilling: boolean = false
   ) => {
     console.log("Selected Place Details:", details);
@@ -616,7 +609,6 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
       title={isEditing ? "Edit Customer" : "Create Customer"}
       size="lg"
       isCentered
-      backdropClose
     >
       {/* Show loader during API calls */}
       {loading && <Loading />}

@@ -14,18 +14,19 @@ import Stepper, { Step } from "../../../components/common/Stepper/Stepper";
 import CheckboxField from "../../../components/common/CheckboxField/CheckboxField";
 import PlaceAutocompleteField from "../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 import PhoneInputField from "../../../components/common/PhoneInputField/PhoneInputField";
+import { Address } from "../../../types/Address";
 
 interface SignupProps {
   role?: UserRole | null;
 }
 
-export type createUserForm = {
+export type CreateUserForm = {
   // basic details
   firstName: string;
   lastName: string;
-  company: string;
   primaryNumber: string;
   email: string;
+  company?: string;
 
   //security details
   password: string;
@@ -78,9 +79,9 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
     getValues,
     watch,
     trigger,
-  } = useForm<createUserForm>({ mode: "onBlur" });
+  } = useForm<CreateUserForm>({ mode: "onBlur" });
 
-  const submit = async (data: createUserForm) => {
+  const submit = async (data: CreateUserForm) => {
     try {
       // Set default role based on props
       if (role === UserRole.CARRIER) {
@@ -143,15 +144,7 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
   };
 
   const handlePlaceSelect = (
-    details: {
-      formatted_address: string | null;
-      city: string | null;
-      state: string | null;
-      postal_code: string | null;
-      country: string | null;
-      lat: number | null;
-      lng: number | null;
-    },
+    details: Address,
     isBilling: boolean = false
   ) => {
     console.log("Selected Place Details:", details);

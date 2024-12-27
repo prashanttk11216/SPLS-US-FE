@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { User } from "../../../../../types/User";
-import { createUserForm } from "../../../../Auth/Signup/Signup";
+import { CreateUserForm } from "../../../../Auth/Signup/Signup";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import { createUser, editUser } from "../../../../../services/user/userService";
 import { UserRole } from "../../../../../enums/UserRole";
@@ -20,6 +20,7 @@ import Stepper, {
 import CheckboxField from "../../../../../components/common/CheckboxField/CheckboxField";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 import PhoneInputField from "../../../../../components/common/PhoneInputField/PhoneInputField";
+import { Address } from "../../../../../types/Address";
 
 interface CreateOrEditCarrierProps {
   isModalOpen: boolean; // Controls modal visibility
@@ -49,7 +50,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
     getValues,
     setValue,
     trigger,
-  } = useForm<createUserForm>({
+  } = useForm<CreateUserForm>({
     mode: "onBlur",
     defaultValues: carrierData || {}, // Pre-fill form when editing
   });
@@ -68,7 +69,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
    * @param data - Form data
    */
 
-  const submit = async (data: createUserForm) => {
+  const submit = async (data: CreateUserForm) => {
     try {
       let result;
       if (isEditing && carrierData?._id) {
@@ -571,15 +572,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
   }
 
   const handlePlaceSelect = (
-    details: {
-      formatted_address: string | null;
-      city: string | null;
-      state: string | null;
-      postal_code: string | null;
-      country: string | null;
-      lat: number | null;
-      lng: number | null;
-    },
+    details: Address,
     isBilling: boolean = false
   ) => {
     console.log("Selected Place Details:", details);
@@ -616,7 +609,6 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
       title={isEditing ? "Edit Carrier" : "Create Carrier"}
       size="lg"
       isCentered
-      backdropClose
     >
       {/* Show loader during API calls */}
       {loading && <Loading />}

@@ -1,5 +1,5 @@
 import axiosApi from "../../api/axios";
-import { createUserForm } from "../../pages/Auth/Signup/Signup";
+import { CreateUserForm } from "../../pages/Auth/Signup/Signup";
 import { ApiResponse } from "../../types/responseTypes";
 import { handleResponse } from "../../utils/apiHelpers";
 import { handleAxiosError } from "../../utils/errorHandler";
@@ -48,7 +48,7 @@ export const getUserProfile = async (): Promise<ApiResponse> => {
   }
 };
 
-export const createUser = async (data: createUserForm): Promise<ApiResponse> => {
+export const createUser = async (data: CreateUserForm): Promise<ApiResponse> => {
   try {
     const response = await axiosApi.post<ApiResponse>("/user/create?isAdmin=true", data);
     return handleResponse(response);
@@ -58,7 +58,7 @@ export const createUser = async (data: createUserForm): Promise<ApiResponse> => 
 };
 
 
-export const createBroker = async (data: createUserForm): Promise<ApiResponse> => {
+export const createBroker = async (data: CreateUserForm): Promise<ApiResponse> => {
   try {
     const response = await axiosApi.post<ApiResponse>("/user/create/broker-user", data);
     return handleResponse(response);
@@ -69,7 +69,7 @@ export const createBroker = async (data: createUserForm): Promise<ApiResponse> =
 
 export const editUser = async (
   userId: string,
-  data: createUserForm
+  data: CreateUserForm
 ): Promise<ApiResponse> => {
   try {
     const response = await axiosApi.put(`/user/${userId}`, data);

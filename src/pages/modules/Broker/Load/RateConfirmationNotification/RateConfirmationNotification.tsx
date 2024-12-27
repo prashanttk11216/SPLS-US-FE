@@ -160,7 +160,6 @@ export const RateConfirmationNotification: FC<
       title="Notification Email"
       size="lg"
       isCentered
-      backdropClose
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* Textarea Input */}

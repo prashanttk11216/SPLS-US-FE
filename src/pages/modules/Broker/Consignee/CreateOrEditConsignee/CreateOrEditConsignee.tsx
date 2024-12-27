@@ -20,6 +20,7 @@ import {
 import { Consignee } from "../../../../../types/Consignee";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 import PhoneInputField from "../../../../../components/common/PhoneInputField/PhoneInputField";
+import { Address } from "../../../../../types/Address";
 
 export type ConsigneeForm = {
   firstName: string;
@@ -170,15 +171,7 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
     setCompletedSteps([]); // Clear all completed steps
   };
 
-  const handlePlaceSelect = (details: {
-    formatted_address: string | null;
-    city: string | null;
-    state: string | null;
-    postal_code: string | null;
-    country: string | null;
-    lat: number | null;
-    lng: number | null;
-  }) => {
+  const handlePlaceSelect = (details: Address) => {
     console.log("Selected Place Details:", details);
     setValue("address", {
       str: details.formatted_address!,
@@ -394,7 +387,6 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
       title={isEditing ? "Edit Consignee" : "Create Consignee"}
       size="lg"
       isCentered
-      backdropClose
     >
       {/* Show loader during API calls */}
       {loading && <Loading />}

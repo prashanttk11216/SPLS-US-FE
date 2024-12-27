@@ -3,7 +3,7 @@ import Modal from "../../../../../components/common/Modal/Modal";
 import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
 import Input from "../../../../../components/common/Input/Input";
 import { REGEX_PATTERNS } from "../../../../../constants/patterns";
-import { createUserForm } from "../../../../Auth/Signup/Signup";
+import { CreateUserForm } from "../../../../Auth/Signup/Signup";
 import { useForm } from "react-hook-form";
 import { UserRole } from "../../../../../enums/UserRole";
 import { toast } from "react-toastify";
@@ -49,16 +49,14 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
     watch,
     reset,
     trigger,
-  } = useForm<createUserForm>({
+  } = useForm<CreateUserForm>({
     mode: "onBlur",
-    defaultValues: brokerUserData || {}, // Pre-fill form when editing
   });
 
   const {
     createData: createBrokerUser,
     updateData: updateBrokerUser,
     loading,
-    error,
   } = useFetchData<any>({
     createDataService: createBroker,
     updateDataService: editUser,
@@ -68,7 +66,7 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
    * Handles form submission for creating or editing a BrokerUser.
    * @param data - Form data
    */
-  const submit = async (data: createUserForm) => {
+  const submit = async (data: CreateUserForm) => {
     let result;
     if (isEditing && brokerUserData?._id) {
       // Update Broker if editing
@@ -423,18 +421,9 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
       title={isEditing ? "Edit Broker User" : "Create Broker User"}
       size="lg"
       isCentered
-      backdropClose
     >
       {/* Show loader during API calls */}
       {loading && <Loading />}
-
-      {/* Display error message if API fails */}
-      {error && (
-        <div className="alert alert-danger">
-          <strong>Error: </strong>
-          {error}
-        </div>
-      )}
 
       {/* Form for creating/editing Broker User */}
       <Stepper

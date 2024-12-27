@@ -20,7 +20,7 @@ const Modal: FC<ModalProps> = ({
   footer,
   size = "md",
   isCentered = true,
-  backdropClose = true,
+  backdropClose = false,
 }) => {
   if (!isOpen) return null;
 
