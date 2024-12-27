@@ -720,12 +720,11 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
             <NumberInput
               label="Broker All-in Rate"
               id="allInRate"
-              min={0}
               name="allInRate"
               placeholder="Enter All-in Rate"
               control={control}
               currency
-              preventNegative
+              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
             />
           </div>
 
@@ -734,12 +733,11 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
             <NumberInput
               label="Customer Rate"
               id="customerRate"
-              min={0}
               name="customerRate"
               placeholder="Enter All-in Rate"
               control={control}
               currency
-              preventNegative
+              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
             />
           </div>
 
@@ -748,11 +746,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
             <NumberInput
               label="Weight"
               id="weight"
-              min={0}
               name="weight"
               placeholder="Weight(Ibs.)"
               control={control}
-              preventNegative
+              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
             />
           </div>
           {/* length */}
@@ -760,11 +757,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
             <NumberInput
               label="Length"
               id="length"
-              min={0}
               name="length"
               placeholder="Length(ft.)"
               control={control}
-              preventNegative
+              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
             />
           </div>
           {/* width */}
@@ -772,11 +768,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
             <NumberInput
               label="Width"
               id="width"
-              min={0}
               name="width"
               placeholder="Feet"
               control={control}
-              preventNegative
+              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
             />
           </div>
           {/* height */}
@@ -784,11 +779,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
             <NumberInput
               label="Height"
               id="height"
-              min={0}
               name="height"
               placeholder="Feet"
               control={control}
-              preventNegative
+              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
             />
           </div>
           {/* Distance */}
@@ -796,11 +790,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
             <NumberInput
               label="Distance"
               id="miles"
-              min={0}
               name="miles"
               placeholder="Mile"
               control={control}
-              preventNegative
+              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
             />
           </div>
           {/* Pieces */}
@@ -808,11 +801,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
             <NumberInput
               label="Pieces"
               id="pieces"
-              min={0}
               name="pieces"
               placeholder="Enter Pieces"
               control={control}
-              preventNegative
+              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
             />
           </div>
           {/* Pallets */}
@@ -820,11 +812,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
             <NumberInput
               label="Pallets"
               id="pallets"
-              min={0}
               name="pallets"
               placeholder="Enter Pallets"
               control={control}
-              preventNegative
+              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
             />
           </div>
           {/* Load Options */}
@@ -852,12 +843,11 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
             <NumberInput
               label="Load / Reference Number"
               id="loadNumber"
-              min={0}
               name="loadNumber"
               disabled={loadId ? true : false}
               placeholder="Enter Load / Reference Number"
               control={control}
-              preventNegative
+              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
             />
           </div>
           {/* Assign User */}

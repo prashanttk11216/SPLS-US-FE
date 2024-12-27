@@ -23,6 +23,7 @@ import arrowRightArrowLeft from '../../../../../assets/icons/arrowRightArrowLeft
 import SelectField from "../../../../../components/common/SelectField/SelectField";
 import { Equipment } from "../../../../../enums/Equipment";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
+import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
 
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -329,11 +330,10 @@ const LoadList: React.FC = () => {
               <NumberInput
                 label=""
                 id="dhoRadius"
-                min={0}
                 name="dhoRadius"
                 placeholder="DH-O"
                 control={control}
-                preventNegative
+                rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
               />
 
           </div>
@@ -359,11 +359,10 @@ const LoadList: React.FC = () => {
               <NumberInput
                 label=""
                 id="dhdRadius"
-                min={0}
                 name="dhdRadius"
                 placeholder="DH-D"
                 control={control}
-                preventNegative
+                rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
               />
           </div>
           {/* Equipment */}

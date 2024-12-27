@@ -17,6 +17,7 @@ export const VALIDATION_MESSAGES = {
     stateRequired: "State is required.",
     cityRequired: "City is required.",
     zipRequired: "Zip code is required.",
+    nonNegative: "Value must be non-negative",
 
 
     //load 

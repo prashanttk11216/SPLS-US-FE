@@ -226,11 +226,10 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
             <NumberInput
               label="Weight"
               id="weight"
-              min={0}
               name="weight"
               placeholder="Weight(Ibs.)"
               control={control}
-              preventNegative
+              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
             />
           </div>
           {/* length */}
@@ -238,11 +237,10 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
             <NumberInput
               label="Length"
               id="length"
-              min={0}
               name="length"
               placeholder="Length(ft.)"
               control={control}
-              preventNegative
+              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
             />
           </div>
           {/* All-in Rate*/}
@@ -250,12 +248,11 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
             <NumberInput
               label="All-in Rate"
               id="allInRate"
-              min={0}
               name="allInRate"
               placeholder="Enter All-in Rate"
               control={control}
               currency
-              preventNegative
+              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
             />
           </div>
 
@@ -264,12 +261,11 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
             <NumberInput
               label="Reference Number"
               id="referenceNumber"
-              min={0}
               name="referenceNumber"
               disabled={isEditing ? true : false}
               placeholder="Enter Reference Number"
               control={control}
-              preventNegative
+              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
             />
           </div>
 

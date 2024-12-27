@@ -8,18 +8,11 @@ interface NumberInputProps {
   name: string;
   placeholder?: string;
   control: any; // Replace with the actual type from react-hook-form
-  errors?: any; // Replace with the actual type from react-hook-form
-  errorMessage?: string;
   required?: boolean;
   disabled?: boolean;
   min?: number;
   max?: number;
-  preventNegative?: boolean;
-  validationMessages?: {
-    required?: string;
-    min?: string;
-    max?: string;
-  };
+  rules?: any;
   currencyOptions?: string[];
   currency?: boolean;
   defaultCurrency?: string;
@@ -34,14 +27,8 @@ const NumberInput: React.FC<NumberInputProps> = ({
   name,
   placeholder,
   control,
-  errors = null,
-  errorMessage,
-  required = false,
   disabled = false,
-  min,
-  max,
-  preventNegative = false,
-  validationMessages,
+  rules,
   currencyOptions = ["$", "€", "£", "₹"],
   defaultCurrency = "$",
   currency = false,
@@ -50,90 +37,83 @@ const NumberInput: React.FC<NumberInputProps> = ({
   locale = "en-US",
 }) => {
   const validationRules = {
-    required: required && (errorMessage || validationMessages?.required || "This field is required"),
-    disabled,
-    min: min && ({
-      value: min,
-      message: validationMessages?.min || `Must be greater than or equal to ${min}`,
-    }),
-    max: max && ({
-      value: max,
-      message: validationMessages?.max || `Cannot be greater than ${max}`,
-    }),
     setValueAs: (value: any) => {
       const strValue = value?.toString().replace(/,/g, "") || "";
       return strValue === "" ? undefined : parseFloat(strValue);
     },
   };
 
-  if (preventNegative) {
-    validationRules.min = { value: 0, message: "Must be non-negative" };
-  }
-
-  const handleCurrencyChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleCurrencyChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     onCurrencyChange?.(event.target.value);
   };
 
   const formatNumber = (value: number | string) => {
     if (value === undefined || value === null || value === "") return "";
-    const number = typeof value === "string" ? parseFloat(value.replace(/,/g, "")) : value;
+    const number =
+      typeof value === "string" ? parseFloat(value.replace(/,/g, "")) : value;
     if (isNaN(number)) return value;
     return new Intl.NumberFormat(locale, numberFormatOptions).format(number);
   };
 
+  rules = { ...rules, ...validationRules };
   return (
     <div className="mb-3">
-            {label && (
-              <label htmlFor={id} className="form-label text-dark-blue">
-        {label}
-        {required && " *"}
-      </label>
+      {label && (
+        <label htmlFor={id} className="form-label text-dark-blue">
+          {label}
+          {rules?.required && " *"}
+        </label>
+      )}
+
+      <Controller
+        name={name}
+        control={control}
+        rules={rules}
+        disabled={disabled}
+        render={({ field, fieldState }) => (
+          <>
+            <div className="input-group">
+              {currency && currencyOptions && (
+                <select
+                  className="form-select form-select-lg currency-dropdown"
+                  defaultValue={defaultCurrency}
+                  onChange={handleCurrencyChange}
+                  disabled={true}
+                >
+                  {currencyOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <input
+                type="text"
+                className={`form-control form-control-lg ${
+                  fieldState?.error ? "is-invalid" : ""
+                }`}
+                id={id}
+                placeholder={placeholder}
+                {...field}
+                value={formatNumber(field.value)}
+                onChange={(e) => {
+                  // Remove formatting for internal state and update raw number value
+                  const rawValue = e.target.value.replace(/,/g, "");
+                  const numberValue = parseFloat(rawValue);
+                  if (!isNaN(numberValue) || rawValue === "") {
+                    field.onChange(rawValue === "" ? undefined : numberValue); // Update with raw value or undefined if empty
+                  }
+                }}
+              />
+            </div>
+            {fieldState?.error && (
+              <div className="text-danger">{fieldState?.error?.message}</div>
             )}
-      
-      <div className="input-group">
-        {currency && currencyOptions && (
-          <select
-            className="form-select form-select-lg currency-dropdown"
-            defaultValue={defaultCurrency}
-            onChange={handleCurrencyChange}
-            disabled={true}
-          >
-            {currencyOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          </>
         )}
-        <Controller
-          name={name}
-          control={control}
-          disabled={disabled}
-          rules={validationRules}
-          render={({ field }) => (
-            <input
-              type="text"
-              className={`form-control form-control-lg ${(errors && errors[name]) ? "is-invalid" : ""}`}
-              id={id}
-              placeholder={placeholder}
-              value={formatNumber(field.value)}
-              onBlur={field.onBlur}
-              name={field.name}
-              ref={field.ref}
-              disabled={field.disabled}
-              onChange={(e) => {
-                // Remove formatting for internal state and update raw number value
-                const rawValue = e.target.value.replace(/,/g, "");
-                const numberValue = parseFloat(rawValue);
-                if (!isNaN(numberValue) || rawValue === "") {
-                  field.onChange(rawValue === "" ? undefined : numberValue); // Update with raw value or undefined if empty
-                }
-              }}
-            />
-          )}
-        />
-      </div>
-      {(errors && errors[name]) && <span className="text-danger">{errors[name].message}</span>}
+      />
     </div>
   );
 };
