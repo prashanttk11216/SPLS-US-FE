@@ -747,7 +747,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               label="Weight"
               id="weight"
               name="weight"
-              placeholder="Weight(Ibs.)"
+              placeholder="Weight (Ibs.)"
               control={control}
               rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
             />
@@ -758,7 +758,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               label="Length"
               id="length"
               name="length"
-              placeholder="Length(ft.)"
+              placeholder="Length (ft.)"
               control={control}
               rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
             />
@@ -769,7 +769,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               label="Width"
               id="width"
               name="width"
-              placeholder="Feet"
+              placeholder="Width (ft.)"
               control={control}
               rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
             />
@@ -780,7 +780,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               label="Height"
               id="height"
               name="height"
-              placeholder="Feet"
+              placeholder="Height (ft.)"
               control={control}
               rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
             />

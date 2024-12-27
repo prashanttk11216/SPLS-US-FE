@@ -51,6 +51,10 @@ export const routes = createBrowserRouter([
             path: "load/create/:loadId?",
             element: <CustomerCreateOrEditLoad />
           },
+          {
+            path: "profile", // Matches /customer/profile
+            element: <Profile />, // Add the Customer Profile component here
+          },
         ],
       },
       // Broker Dashboard Route
@@ -112,6 +116,10 @@ export const routes = createBrowserRouter([
           {
             path: "", // Matches /carrier
             element: <CarrierDashboard />,
+          },
+          {
+            path: "profile", // Matches /carrier/profile
+            element: <Profile />, // Carrier Profile
           },
           {
             path: "load", // Matches /broker

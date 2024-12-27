@@ -55,6 +55,30 @@ const CarrierDetailsModal: React.FC<{
         { label: "Country", value: carrier.country || "N/A" },
       ],
     },
+    {
+      heading: "BILLING ADDRESS",
+      rows: [
+        {
+          label: "Address",
+          value: carrier.billingAddress?.str || "N/A",
+          fullWidth: true,
+        },
+        {
+          label: "Address Line 2",
+          value: carrier.billingAddressLine2 || "N/A",
+          fullWidth: true,
+        },
+        {
+          label: "Address Line 3",
+          value: carrier.billingAddressLine3 || "N/A",
+          fullWidth: true,
+        },
+        { label: "City", value: carrier.billingCity || "N/A" },
+        { label: "Zip", value: carrier.billingZip || "N/A" },
+        { label: "State", value: carrier.billingState || "N/A" },
+        { label: "Country", value: carrier.billingCountry || "N/A" },
+      ],
+    },
   ];
 
   return (
