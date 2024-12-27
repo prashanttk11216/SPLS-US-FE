@@ -22,18 +22,17 @@ import Stepper, {
 } from "../../../../../components/common/Stepper/Stepper";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 import PhoneInputField from "../../../../../components/common/PhoneInputField/PhoneInputField";
+import { Address } from "../../../../../types/Address";
 
 interface CreateOrEditBrokerUserProps {
   isModalOpen: boolean; // Controls modal visibility
-  setIsModalOpen: (value: boolean) => void; // Setter for modal visibility
   isEditing: boolean; // Indicates if editing an existing BrokerUser
   brokerUserData?: Partial<User> | null; // Pre-filled data for editing
-  closeModal: () => void;
+  closeModal: (refresh?: boolean) => void;
 }
 
 const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
   isModalOpen,
-  setIsModalOpen,
   isEditing,
   brokerUserData,
   closeModal,
@@ -70,32 +69,23 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
    * @param data - Form data
    */
   const submit = async (data: createUserForm) => {
-    try {
-      let result;
-      if (isEditing && brokerUserData?._id) {
-        // Update Broker if editing
-        result = await updateBrokerUser(brokerUserData._id, data);
-      } else {
-        // Create Broker User with role assigned
-        data.role = UserRole.BROKER_USER;
-        data.brokerId = user._id;
-        result = await createBrokerUser(data);
-      }
-
-      if (result.success) {
-        toast.success(
-          isEditing
-            ? "Broker User updated successfully."
-            : "Broker User created successfully."
-        );
-        setIsModalOpen(false);
-        resetSteps();
-      } else {
-        throw new Error(result.message || "Action failed.");
-      }
-    } catch (err) {
-      console.error("Error:", err);
-      toast.error("An unexpected error occurred. Please try again.");
+    let result;
+    if (isEditing && brokerUserData?._id) {
+      // Update Broker if editing
+      result = await updateBrokerUser(brokerUserData._id, data);
+    } else {
+      // Create Broker User with role assigned
+      data.role = UserRole.BROKER_USER;
+      data.brokerId = user._id;
+      result = await createBrokerUser(data);
+    }
+    if (result.success) {
+      toast.success(
+        isEditing
+          ? "Broker User updated successfully."
+          : "Broker User created successfully."
+      );
+      closeModal(true);
     }
   };
 
@@ -113,6 +103,8 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
         primaryNumber: "",
         email: "",
         company: "",
+        password: "",
+        confirmPassword: "",
 
         // Primary address
         address: {
@@ -146,21 +138,7 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
     setActiveStep((prev) => Math.max(0, prev - 1)); // Safeguard against going below step 0
   };
 
-  const resetSteps = () => {
-    setActiveStep(0);
-    setCompletedSteps([]); // Clear all completed steps
-  };
-
-  const handlePlaceSelect = (details: {
-    formatted_address: string | null;
-    city: string | null;
-    state: string | null;
-    postal_code: string | null;
-    country: string | null;
-    lat: number | null;
-    lng: number | null;
-  }) => {
-    console.log("Selected Place Details:", details);
+  const handlePlaceSelect = (details: Address) => {
     setValue("address", {
       str: details.formatted_address!,
       lat: details.lat!,
@@ -170,6 +148,14 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
     setValue("state", details.state!);
     setValue("city", details.city!);
     setValue("zip", details.postal_code!);
+  };
+
+  /**
+   * Validates if the confirmed password matches the entered password.
+   * @param value - Confirm password value
+   */
+  const validatePassword = (value: string) => {
+    return watch("password") === value || "Passwords do not match";
   };
 
   const steps: Step[] = [
@@ -377,16 +363,61 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
         "city",
         "zip",
       ],
-    }
+    },
   ];
+
+  if (!isEditing) {
+    steps.push({
+      label: "Security",
+      content: (
+        <>
+          <div className="row">
+            {/* Password (only for creating) */}
+            <>
+              <div className="col-12 col-md-6">
+                <Input
+                  label="Password"
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Enter Password"
+                  control={control}
+                  rules={{
+                    required: VALIDATION_MESSAGES.passwordRequired,
+                    pattern: {
+                      value: REGEX_PATTERNS.password,
+                      message: VALIDATION_MESSAGES.passwordPattern,
+                    },
+                  }}
+                />
+              </div>
+
+              <div className="col-12 col-md-6">
+                <Input
+                  label="Confirm Password"
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  placeholder="Confirm Password"
+                  control={control}
+                  rules={{
+                    required: VALIDATION_MESSAGES.confirmPasswordRequired,
+                    validate: validatePassword,
+                  }}
+                />
+              </div>
+            </>
+          </div>
+        </>
+      ),
+      fields: ["password", "confirmPassword"],
+    });
+  }
 
   return (
     <Modal
       isOpen={isModalOpen}
-      onClose={() => {
-        resetSteps();
-        closeModal();
-      }}
+      onClose={closeModal}
       title={isEditing ? "Edit Broker User" : "Create Broker User"}
       size="lg"
       isCentered

@@ -50,7 +50,7 @@ const BrokerUserList: React.FC = () => {
   const [brokerDetails, setBrokerDetails] = useState<Partial<User> | null>(
     null
   );
-  const [changePasswordModel, setchangePasswordModel] = useState(false)
+  const [changePasswordModel, setchangePasswordModel] = useState(false);
 
   const {
     fetchData: fetchBrokerUsers,
@@ -117,9 +117,10 @@ const BrokerUserList: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const closeModal = () => {
+  const closeModal = (refresh: boolean= false) => {
     setIsModalOpen(false);
     setBrokerUserData(null);
+    if(refresh) fetchBrokerUsersData();
   };
 
   // View Details Option Added
@@ -143,7 +144,7 @@ const BrokerUserList: React.FC = () => {
         }
         break;
       case "Change Password":
-        setBrokerDetails(row)
+        setBrokerDetails(row);
         setchangePasswordModel(true);
         break;
       case "Delete":
@@ -242,6 +243,7 @@ const BrokerUserList: React.FC = () => {
     }));
   };
 
+  // Search Bar Functionality
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   };
@@ -279,8 +281,8 @@ const BrokerUserList: React.FC = () => {
             sortConfig={sortConfig}
             onRowClick={handleRowClick}
           />
+          {/* Pagination Component */}
           <div className="pagination-container">
-            {/* Pagination Component */}
             <Pagination
               meta={meta}
               onPageChange={handlePageChange}
@@ -290,28 +292,33 @@ const BrokerUserList: React.FC = () => {
         </>
       )}
 
-      <CreateOrEditBrokerUser
-        isModalOpen={isModalOpen}
-        closeModal={closeModal}
-        setIsModalOpen={(value: boolean) => {
-          setIsModalOpen(value);
-          if (!value) fetchBrokerUsersData();
-        }}
-        isEditing={isEditing}
-        brokerUserData={brokerUserData}
-      />
+      {isModalOpen && (
+        <CreateOrEditBrokerUser
+          isModalOpen={isModalOpen}
+          closeModal={closeModal}
+          isEditing={isEditing}
+          brokerUserData={brokerUserData}
+        />
+      )}
 
-      { isDetailsModalOpen &&
+      {isDetailsModalOpen && (
         <BrokerDetailsModal
-        isOpen={isDetailsModalOpen}
-        broker={brokerDetails}
-        onClose={() => setIsDetailsModalOpen(false)}
-      />}
+          isOpen={isDetailsModalOpen}
+          broker={brokerDetails}
+          onClose={() => setIsDetailsModalOpen(false)}
+        />
+      )}
 
-        {changePasswordModel && (<ChangePassowrd email={brokerDetails?.email!} isModalOpen={changePasswordModel} closeModal={() => {
-          setchangePasswordModel(false);
-          setBrokerDetails(null);
-        }} />)}
+      {changePasswordModel && (
+        <ChangePassowrd
+          email={brokerDetails?.email!}
+          isModalOpen={changePasswordModel}
+          closeModal={() => {
+            setchangePasswordModel(false);
+            setBrokerDetails(null);
+          }}
+        />
+      )}
     </div>
   );
 };
