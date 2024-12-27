@@ -42,7 +42,7 @@ const Header: React.FC<HeaderProps> = () => {
               data-bs-offset="15,27"
             >
               <Avatar
-                avatarUrl={user.avatarUrl ? ("http://localhost:5000/" + user.avatarUrl) : ""}
+                avatarUrl={user.avatarUrl ? `${import.meta.env.VITE_SERVER_URL}/${user.avatarUrl}` : ""}
                 firstName={user.firstName}
                 lastName={user.lastName}
                 email={user.email}

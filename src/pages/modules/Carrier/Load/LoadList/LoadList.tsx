@@ -206,11 +206,11 @@ const LoadList: React.FC = () => {
           load.brokerId && typeof load.brokerId === "object"
             ? load.brokerId.company
             : "N/A",
-        allInRate: load.allInRate || "N/A",
-        weight: (load.weight && (load.weight + "lbs")) || "N/A",
-        length: (load.length && (load.length + "ft")) || "N/A",
-        width: load.width || "N/A",
-        height: load.height || "N/A",
+        allInRate: load.allInRate ? `${load.allInRate} $` : "N/A",
+        weight: (load.weight && (load.weight + " lbs")) || "N/A",
+        length: (load.length && (load.length + " ft")) || "N/A",
+        width: (load.width && load.width + " ft") || "N/A",
+        height: (load.height && load.height + " ft") || "N/A",
         loadOption: load.loadOption || "N/A",
         loadNumber: load.loadNumber || "N/A",
         actions: getActionsForLoad(load),

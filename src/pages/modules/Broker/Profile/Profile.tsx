@@ -492,9 +492,7 @@ const Profile: React.FC = () => {
               email={user.email}
               firstName={user.firstName}
               lastName={user.lastName}
-              avatarUrl={
-                user.avatarUrl ? "http://localhost:5000/" + user.avatarUrl : ""
-              }
+              avatarUrl={user.avatarUrl ? `${import.meta.env.VITE_SERVER_URL}/${user.avatarUrl}` : ""}
               onAvatarChange={onAvatarChange}
             />
           </div>
