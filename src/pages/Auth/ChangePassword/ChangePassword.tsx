@@ -71,6 +71,7 @@ const ChangePassowrd: React.FC<ChangePasswordProps> = ({
                   id="password"
                   name="password"
                   placeholder="Enter Password"
+                  showEyeIcon={true}
                   control={control}
                   rules={{
                     required: VALIDATION_MESSAGES.passwordRequired,
@@ -90,6 +91,7 @@ const ChangePassowrd: React.FC<ChangePasswordProps> = ({
                   name="confirmPassword"
                   placeholder="Confirm Password"
                   control={control}
+                  showEyeIcon={true}
                   rules={{
                     required: VALIDATION_MESSAGES.confirmPasswordRequired,
                     validate: validatePassword,

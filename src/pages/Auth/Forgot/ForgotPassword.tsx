@@ -101,6 +101,7 @@ const ForgotPassword: React.FC = () => {
                     id="password"
                     name="password"
                     placeholder="Enter Password"
+                    showEyeIcon={true}
                     control={control}
                     rules={{
                       required: VALIDATION_MESSAGES.passwordRequired,
@@ -119,6 +120,7 @@ const ForgotPassword: React.FC = () => {
                     id="confirmPassword"
                     name="confirmPassword"
                     placeholder="Confirm Password"
+                    showEyeIcon={true}
                     control={control}
                     rules={{
                       required: VALIDATION_MESSAGES.confirmPasswordRequired,

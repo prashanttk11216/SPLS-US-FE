@@ -380,6 +380,7 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
                   type="password"
                   id="password"
                   name="password"
+                  showEyeIcon={true}
                   placeholder="Enter Password"
                   control={control}
                   rules={{
@@ -399,6 +400,7 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
                   id="confirmPassword"
                   name="confirmPassword"
                   placeholder="Confirm Password"
+                  showEyeIcon={true}
                   control={control}
                   rules={{
                     required: VALIDATION_MESSAGES.confirmPasswordRequired,

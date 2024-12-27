@@ -129,6 +129,7 @@ const Login: React.FC<LoginProps> = () => {
                     name="password"
                     placeholder="Enter Password"
                     control={control}
+                    showEyeIcon={true}
                     rules={{
                       required: VALIDATION_MESSAGES.passwordRequired,
                     }}

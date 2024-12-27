@@ -502,6 +502,7 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
                   id="password"
                   name="password"
                   placeholder="Enter Password"
+                  showEyeIcon={true}
                   control={control}
                   rules={{
                     required: VALIDATION_MESSAGES.passwordRequired,
@@ -520,6 +521,7 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
                   id="confirmPassword"
                   name="confirmPassword"
                   placeholder="Confirm Password"
+                  showEyeIcon={true}
                   control={control}
                   rules={{
                     required: VALIDATION_MESSAGES.confirmPasswordRequired,

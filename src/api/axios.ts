@@ -38,6 +38,7 @@ axiosApi.interceptors.response.use(
     if (error.response?.status === 401) {
       console.error("Unauthorized - please log in.");
       clearStorage();
+      window.location.reload(); // Refresh the current page
     }
     return Promise.reject(error);
   }

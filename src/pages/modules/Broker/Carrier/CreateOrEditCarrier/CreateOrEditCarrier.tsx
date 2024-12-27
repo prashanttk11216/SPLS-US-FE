@@ -535,6 +535,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                   id="password"
                   name="password"
                   placeholder="Enter Password"
+                  showEyeIcon={true}
                   control={control}
                   rules={{
                     required: VALIDATION_MESSAGES.passwordRequired,
@@ -552,6 +553,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                   type="password"
                   id="confirmPassword"
                   name="confirmPassword"
+                  showEyeIcon={true}
                   placeholder="Confirm Password"
                   control={control}
                   rules={{
