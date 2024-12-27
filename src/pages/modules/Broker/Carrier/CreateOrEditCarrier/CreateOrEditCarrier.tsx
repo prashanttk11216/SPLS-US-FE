@@ -98,13 +98,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
     }
   };
 
-  /**
-   * Validates if the confirmed password matches the entered password.
-   * @param value - Confirm password value
-   */
-  const validatePassword = (value: string) => {
-    return watch("password") === value || "Passwords do not match";
-  };
+
 
   // Reset form state or pre-fill values when modal opens/closes
   useEffect(() => {
@@ -118,8 +112,6 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
         lastName: "",
         primaryNumber: "",
         email: "",
-        password: "",
-        confirmPassword: "",
         company: "",
 
         // Primary address
@@ -515,51 +507,6 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
         "billingCity",
         "billingZip",
       ],
-    },
-    {
-      label: "Security",
-      content: (
-        <>
-          <div className="row">
-            {/* Password (only for creating) */}
-            <>
-              <div className="col-12 col-md-6">
-                <Input
-                  label="Password"
-                  type="password"
-                  id="password"
-                  name="password"
-                  placeholder="Enter Password"
-                  control={control}
-                  rules={{
-                    required: VALIDATION_MESSAGES.passwordRequired,
-                    pattern: {
-                      value: REGEX_PATTERNS.password,
-                      message: VALIDATION_MESSAGES.passwordPattern,
-                    },
-                  }}
-                />
-              </div>
-
-              <div className="col-12 col-md-6">
-                <Input
-                  label="Confirm Password"
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  placeholder="Confirm Password"
-                  control={control}
-                  rules={{
-                    required: VALIDATION_MESSAGES.confirmPasswordRequired,
-                    validate: validatePassword,
-                  }}
-                />
-              </div>
-            </>
-          </div>
-        </>
-      ),
-      fields: ["password", "confirmPassword"],
     },
   ];
 

@@ -22,6 +22,7 @@ import Pagination, {
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import "./CarrierList.scss";
 import CarrierDetailsModal from "../CarrierDetailsModal/CarrierDetailsModal";
+import ChangePassowrd from "../../../../Auth/ChangePassword/ChangePassword";
 
 const CarrierList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -50,6 +51,7 @@ const CarrierList: React.FC = () => {
   const [carrierDetails, setCarrierDetails] = useState<Partial<User> | null>(
     null
   );
+  const [changePasswordModel, setchangePasswordModel] = useState(false);
 
   const {
     fetchData: fetchCarriers,
@@ -131,6 +133,10 @@ const CarrierList: React.FC = () => {
           toast.error("Failed to fetch carrier details for editing.");
         }
         break;
+      case "Change Password":
+        setCarrierDetails(row);
+        setchangePasswordModel(true);
+        break;
       case "Delete":
         try {
           const result = await deleteCarrier(row._id);
@@ -178,6 +184,7 @@ const CarrierList: React.FC = () => {
     } else {
       actions.push("Activate");
     }
+    actions.push("Change Password");
     actions.push("Delete");
     return actions;
   };
@@ -302,6 +309,17 @@ const CarrierList: React.FC = () => {
         carrier={carrierDetails}
         onClose={() => setIsDetailsModalOpen(false)}
       />
+
+      {changePasswordModel && (
+        <ChangePassowrd
+          email={carrierDetails?.email!}
+          isModalOpen={changePasswordModel}
+          closeModal={() => {
+            setchangePasswordModel(false);
+            setCarrierDetails(null);
+          }}
+        />
+      )}
     </div>
   );
 };

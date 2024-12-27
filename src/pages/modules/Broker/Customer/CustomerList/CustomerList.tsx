@@ -22,6 +22,7 @@ import Pagination, {
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import "./CustomerList.scss";
 import CustomerDetailsModal from "../CustomerDetailsModal/CustomerDetailsModal";
+import ChangePassowrd from "../../../../Auth/ChangePassword/ChangePassword";
 
 const CustomerList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -50,6 +51,8 @@ const CustomerList: React.FC = () => {
   const [customerDetails, setCustomerDetails] = useState<Partial<User> | null>(
     null
   );
+
+  const [changePasswordModel, setchangePasswordModel] = useState(false);
 
   const {
     fetchData: fetchCustomers,
@@ -131,6 +134,10 @@ const CustomerList: React.FC = () => {
           toast.error("Failed to fetch customer details for editing.");
         }
         break;
+      case "Change Password":
+        setCustomerDetails(row);
+        setchangePasswordModel(true);
+        break;
       case "Delete":
         try {
           const result = await deleteCustomer(row._id);
@@ -178,6 +185,7 @@ const CustomerList: React.FC = () => {
     } else {
       actions.push("Activate");
     }
+    actions.push("Change Password");
     actions.push("Delete");
     return actions;
   };
@@ -245,7 +253,6 @@ const CustomerList: React.FC = () => {
     <div className="customers-list-wrapper">
       <h2 className="fw-bolder">Customer Overview</h2>
       <div className="d-flex align-items-center my-3">
-
         {/* Search Bar */}
         <div className="searchbar-container">
           <SearchBar onSearch={handleSearch} />
@@ -304,6 +311,17 @@ const CustomerList: React.FC = () => {
         customer={customerDetails}
         onClose={() => setIsDetailsModalOpen(false)}
       />
+
+      {changePasswordModel && (
+        <ChangePassowrd
+          email={customerDetails?.email!}
+          isModalOpen={changePasswordModel}
+          closeModal={() => {
+            setchangePasswordModel(false);
+            setCustomerDetails(null);
+          }}
+        />
+      )}
     </div>
   );
 };
