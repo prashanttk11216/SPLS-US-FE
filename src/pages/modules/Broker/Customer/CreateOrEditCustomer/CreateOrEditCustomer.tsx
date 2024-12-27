@@ -113,6 +113,8 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
         primaryNumber: "",
         email: "",
         company: "",
+        password: "",
+        confirmPassword: "",
 
         // Primary address
         address: {
@@ -233,6 +235,14 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
       setValue("city", details.city!);
       setValue("zip", details.postal_code!);
     }
+  };
+
+  /**
+   * Validates if the confirmed password matches the entered password.
+   * @param value - Confirm password value
+   */
+  const validatePassword = (value: string) => {
+    return watch("password") === value || "Passwords do not match";
   };
 
   const steps: Step[] = [
@@ -545,6 +555,54 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
       ],
     },
   ];
+
+  if (!isEditing) {
+    steps.push({
+      label: "Security",
+      content: (
+        <>
+          <div className="row">
+            {/* Password (only for creating) */}
+            <>
+              <div className="col-12 col-md-6">
+                <Input
+                  label="Password"
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Enter Password"
+                  control={control}
+                  rules={{
+                    required: VALIDATION_MESSAGES.passwordRequired,
+                    pattern: {
+                      value: REGEX_PATTERNS.password,
+                      message: VALIDATION_MESSAGES.passwordPattern,
+                    },
+                  }}
+                />
+              </div>
+
+              <div className="col-12 col-md-6">
+                <Input
+                  label="Confirm Password"
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  placeholder="Confirm Password"
+                  control={control}
+                  rules={{
+                    required: VALIDATION_MESSAGES.confirmPasswordRequired,
+                    validate: validatePassword,
+                  }}
+                />
+              </div>
+            </>
+          </div>
+        </>
+      ),
+      fields: ["password", "confirmPassword"],
+    });
+  }
 
   return (
     <Modal
