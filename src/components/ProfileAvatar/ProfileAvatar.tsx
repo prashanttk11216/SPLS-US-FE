@@ -45,33 +45,34 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
 
   const handleRemoveAvatar = () => {
     setAvatar(null);
-    if (onAvatarChange) onAvatarChange(null); // Notify parent to handle removal
+    if (onAvatarChange) onAvatarChange(null!); // Notify parent to handle removal
   };
 
   return (
-    <div
-      className="avatar-container d-flex flex-column align-items-center position-relative mx-auto"
-      style={{ width: "150px", height: "150px" }}
-    >
-      {avatar ? (
-        <img
-          src={avatar}
-          alt="User Avatar"
-          className="rounded-circle border border-secondary w-100 h-100 object-fit-cover"
+    <div className="d-flex flex-column align-items-center">
+      <div
+        className="avatar-container d-flex flex-column align-items-center position-relative mx-auto"
+        style={{ width: "150px", height: "150px" }}
+      >
+        {avatar ? (
+          <img
+            src={avatar}
+            alt="User Avatar"
+            className="rounded-circle border border-secondary w-100 h-100 object-fit-cover"
+          />
+        ) : (
+          <div className="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center border border-secondary w-100 h-100">
+            <span className="fs-1 fw-bold">{initials}</span>
+          </div>
+        )}
+        <input
+          type="file"
+          name="avatarUrl"
+          className="d-none avatar-input"
+          accept="image/*"
+          onChange={handleAvatarChange}
         />
-      ) : (
-        <div className="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center border border-secondary w-100 h-100">
-          <span className="fs-1 fw-bold">{initials}</span>
-        </div>
-      )}
-      <input
-        type="file"
-        name="avatarUrl"
-        className="d-none avatar-input"
-        accept="image/*"
-        onChange={handleAvatarChange}
-      />
-      {/* <button
+        {/* <button
         className="btn p-0 edit-icon bg-light border-0 rounded-circle d-flex align-items-center justify-content-center"
         style={{ width: "30px", height: "30px" }}
         onClick={() => setShowOptions(!showOptions)} // Toggle dropdown
@@ -96,7 +97,7 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
           </button>
           </div>
       )} */}
-
+      </div>
       <div className="mt-2">
         {avatar ? (
           <button
