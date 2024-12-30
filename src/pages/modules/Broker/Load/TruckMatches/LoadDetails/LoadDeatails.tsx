@@ -52,7 +52,7 @@ const LoadDetails: React.FC = () => {
               <div className="col-12 bg-dark-blue text-white">
                 <h5 className="m-0 fw-bold">TRIP</h5>
               </div>
-              <div className="col-6 mt-2">
+              <div className="col-4 mt-2">
                 <div className="d-flex">
                   <div className="fw-bold">Origin : </div>
                   <div className="ms-2">{loadDetails?.origin?.str}</div>
@@ -61,8 +61,14 @@ const LoadDetails: React.FC = () => {
                   <div className="fw-bold">Destination : </div>
                   <div className="ms-2">{loadDetails?.destination?.str}</div>
                 </div>
+                {loadDetails?.allInRate && ( // Conditional check for All-In Rate
+                  <div className="d-flex">
+                    <div className="fw-bold">All-In Rate : </div>
+                    <div className="ms-2">{loadDetails?.allInRate} $</div>
+                  </div>
+                )}
               </div>
-              <div className="col-6 mt-2">
+              <div className="col-4 mt-2">
                 <div className="d-flex">
                   <div className="fw-bold">Equipment : </div>
                   <div className="ms-2">{loadDetails?.equipment}</div>
@@ -93,10 +99,15 @@ const LoadDetails: React.FC = () => {
                     <div className="ms-2">{loadDetails?.weight} Ibs</div>
                   </div>
                 )}
-
+              </div>
+              <div className="col-4 mt-2">
                 <div className="d-flex">
                   <div className="fw-bold">Reference No : </div>
                   <div className="ms-2">{loadDetails?.loadNumber}</div>
+                </div>
+                <div className="d-flex">
+                  <div className="fw-bold">Age : </div>
+                  <div className="ms-2">{loadDetails?.formattedAge}</div>
                 </div>
               </div>
             </div>
