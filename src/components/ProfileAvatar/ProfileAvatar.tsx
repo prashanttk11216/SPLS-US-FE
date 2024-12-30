@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import EditPencil from "../../assets/icons/pencil.svg";
+// import EditPencil from "../../assets/icons/pencil.svg";
 import "./ProfileAvatar.scss";
 import { getInitials } from "../../utils/globalHelper";
 
@@ -23,7 +23,7 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
 
   // Generate initials from name or email
   useEffect(() => {
-    setInitials(getInitials({firstName, lastName, email}));
+    setInitials(getInitials({ firstName, lastName, email }));
   }, [firstName, lastName, email]);
 
   useEffect(() => {
@@ -41,6 +41,11 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatar(null);
+    if (onAvatarChange) onAvatarChange(null); // Notify parent to handle removal
   };
 
   return (
@@ -66,15 +71,51 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
         accept="image/*"
         onChange={handleAvatarChange}
       />
-      <button
+      {/* <button
         className="btn p-0 edit-icon bg-light border-0 rounded-circle d-flex align-items-center justify-content-center"
         style={{ width: "30px", height: "30px" }}
-        onClick={() =>
-          document.querySelector<HTMLInputElement>(".avatar-input")?.click()
-        }
+        onClick={() => setShowOptions(!showOptions)} // Toggle dropdown
       >
         <img src={EditPencil} alt="Edit" className="w-50 h-50" />
       </button>
+      {showOptions && (
+        <div className="avatar-options position-absolute bg-white border shadow p-2 rounded">
+          <button
+            className="btn btn-link text-dark text-start w-100"
+            onClick={() =>
+              document.querySelector<HTMLInputElement>(".avatar-input")?.click()
+            }
+          >
+            Upload Photo
+          </button>
+          <button
+            className="btn btn-link text-danger text-start w-100"
+            onClick={handleRemoveAvatar}
+          >
+            Remove Photo
+          </button>
+          </div>
+      )} */}
+
+      <div className="mt-2">
+        {avatar ? (
+          <button
+            className="btn btn-link p-0 editProfile"
+            onClick={handleRemoveAvatar}
+          >
+            Remove Profile
+          </button>
+        ) : (
+          <button
+            className="btn btn-link p-0 editProfile"
+            onClick={() =>
+              document.querySelector<HTMLInputElement>(".avatar-input")?.click()
+            }
+          >
+            Upload Photo
+          </button>
+        )}
+      </div>
     </div>
   );
 };
