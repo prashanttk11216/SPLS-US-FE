@@ -76,13 +76,20 @@ const Profile: React.FC = () => {
     setCompletedSteps([]); // Clear all completed steps
   };
 
-  const onAvatarChange = async (file: File) => {
-    const result = await uploadAvatar(file); // Use the new uploadAvatar service
-    if (result.success) {
-      setValue("avatarUrl", result.data.path);
-      toast.success(
-        "Avatar updated successfully. Please save the profile to apply changes."
-      );
+  const onAvatarChange = async (file: File | null) => {
+    if (file) {
+      // Upload avatar
+      const result = await uploadAvatar(file);
+      if (result.success) {
+        setValue("avatarUrl", result.data.path);
+        toast.success(
+          "Avatar updated successfully. Please save the profile to apply changes."
+        );
+      }
+    } else {
+      // Handle avatar removal
+      setValue("avatarUrl", "");
+      toast.success("Avatar removed. Please save the profile to apply changes.");
     }
   };
 
@@ -480,7 +487,7 @@ const Profile: React.FC = () => {
         <Loading />
       ) : (
         <div className="profile-form">
-          <div className="mb-4">
+          <div className="mb-5">
             <ProfileAvatar
               email={user.email}
               firstName={user.firstName}
