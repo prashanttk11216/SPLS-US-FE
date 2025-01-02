@@ -23,6 +23,7 @@ import {
   toggleActiveShipper,
 } from "../../../../../services/shipper/shipperService";
 import ShipperDetailsModal from "../ShipperDetailsModal/ShipperDetailsModal";
+import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 
 const ShipperList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -61,7 +62,7 @@ const ShipperList: React.FC = () => {
     deleteDataService: deleteShipper,
     updateDataService: toggleActiveShipper,
   });
-
+  
   const fetchShippersData = useCallback(
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return;
@@ -219,7 +220,9 @@ const ShipperList: React.FC = () => {
       _id: shipper._id,
       name: `${shipper.firstName} ${shipper.lastName}`,
       email: shipper.email,
-      contact: shipper.primaryNumber || "N/A",
+      contact: shipper.primaryNumber
+      ? formatPhoneNumber(shipper.primaryNumber)
+      : "N/A",
       shippingHours: shipper.shippingHours,
       status: shipper.isActive ? "Active" : "Inactive",
       actions: getActions(shipper),

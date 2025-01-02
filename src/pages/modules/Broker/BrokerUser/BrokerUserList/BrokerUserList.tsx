@@ -23,6 +23,7 @@ import Pagination, {
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import BrokerDetailsModal from "../BrokerDetailsModal/BrokerDetailsModal";
 import ChangePassowrd from "../../../../Auth/ChangePassword/ChangePassword";
+import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 
 const BrokerUserList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -117,10 +118,10 @@ const BrokerUserList: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const closeModal = (refresh: boolean= false) => {
+  const closeModal = (refresh: boolean = false) => {
     setIsModalOpen(false);
     setBrokerUserData(null);
-    if(refresh) fetchBrokerUsersData();
+    if (refresh) fetchBrokerUsersData();
   };
 
   // View Details Option Added
@@ -236,7 +237,9 @@ const BrokerUserList: React.FC = () => {
       ),
       employeeId: broker.employeeId,
       email: broker.email,
-      contact: broker.primaryNumber || "N/A",
+      contact: broker.primaryNumber
+        ? formatPhoneNumber(broker.primaryNumber)
+        : "N/A",
       company: broker.company || "N/A",
       status: broker.isActive ? "Active" : "Inactive",
       actions: getActionsForBroker(broker),

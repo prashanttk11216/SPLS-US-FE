@@ -23,6 +23,7 @@ import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import "./CarrierList.scss";
 import CarrierDetailsModal from "../CarrierDetailsModal/CarrierDetailsModal";
 import ChangePassowrd from "../../../../Auth/ChangePassword/ChangePassword";
+import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 
 const CarrierList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -214,7 +215,9 @@ const CarrierList: React.FC = () => {
         </div>
       ),
       email: carrier.email,
-      contact: carrier.primaryNumber || "N/A",
+      contact: carrier.primaryNumber
+        ? formatPhoneNumber(carrier.primaryNumber)
+        : "N/A",
       company: carrier.company || "N/A",
       status: carrier.isActive ? "Active" : "Inactive",
       actions: getActionsForCarrier(carrier),
