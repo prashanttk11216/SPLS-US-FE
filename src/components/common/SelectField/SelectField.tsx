@@ -20,6 +20,7 @@ type SelectFieldProps = {
   customStyles?: any;
   customTheme?: any;
   isLoading?: boolean; // For indicating loading state
+  onChangeOption?: (selectedOption: SelectOption | null) => void; // Callback function
 } & Omit<SelectProps<SelectOption>, "name" | "options" | "defaultValue">;
 
 const SelectField: React.FC<SelectFieldProps> = ({
@@ -34,6 +35,7 @@ const SelectField: React.FC<SelectFieldProps> = ({
   customStyles = customSelectStyles,
   customTheme = customSelectTheme,
   isLoading = false,
+  onChangeOption,
   ...rest
 }) => {
   const [filteredOptions, setFilteredOptions] = useState<SelectOption[]>([]);
@@ -50,7 +52,7 @@ const SelectField: React.FC<SelectFieldProps> = ({
       {label && (
         <label className="form-label text-dark-blue">
           {label}
-          {required && " *"}
+          {rules?.required && " *"}
         </label>
       )}
       <Controller
@@ -74,8 +76,12 @@ const SelectField: React.FC<SelectFieldProps> = ({
                 }),
               }}
               theme={customTheme}
-              onChange={(selectedOption: any) =>
-                field.onChange(selectedOption?.value || "")
+              onChange={(selectedOption: any) => {
+                field.onChange(selectedOption?.value || "");
+                if (onChangeOption) {
+                  onChangeOption(selectedOption); // Call parent method
+                }
+              }
               }
               value={
                 filteredOptions.find(

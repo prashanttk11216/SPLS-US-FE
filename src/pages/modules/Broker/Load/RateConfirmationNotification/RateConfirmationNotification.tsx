@@ -55,7 +55,7 @@ export const RateConfirmationNotification: FC<
    */
   const fetchCustomersData = useCallback(async () => {
     try {
-      const query = `?role=${UserRole.CUSTOMER}`;
+      const query = `?role=${UserRole.CUSTOMER}&isActive=true`;
       const result = await fetchUsers(query);
       if (result.success) {
         const users = result?.data?.map((user) => ({
@@ -192,7 +192,7 @@ export const RateConfirmationNotification: FC<
             options={customersList}
             isClearable={true}
             isDisabled={!!emailsInput?.trim()}
-            required
+            rules={{required: "Field is required"}} 
           />
         </div>
 

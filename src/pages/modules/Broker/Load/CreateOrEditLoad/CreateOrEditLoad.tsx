@@ -158,14 +158,14 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   };
 
   const fetchUsersData = async () => {
-    let query = `?role=${UserRole.BROKER_USER}`;
+    let query = `?role=${UserRole.BROKER_USER}&isActive=true`;
     const result = await fetchUsers(query);
     if (result.success) {
       let users: any = [];
       result?.data?.forEach((user) => {
         users.push({
           value: user._id,
-          label: `${user.firstName} ${user.lastName}`,
+          label: `${user.firstName} ${user.lastName} (${user.email})`,
         });
       });
       setUsersList(users);
@@ -250,7 +250,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
         toast.success(
           loadId ? "Load updated successfully." : "Load created successfully."
         );
-        navigate("/broker/load");
+        navigate("/broker/load-board");
       } else {
         throw new Error(result.message || "Action failed.");
       }
@@ -328,7 +328,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                   lng: details.lng!,
                 });
               }}
-              required
             />
           </div>
           {/* Origin Early Pickup Date*/}
@@ -427,9 +426,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                         lng: details.lng!,
                       });
                     }}
-                    
-                    required
-                  />
+                   />
                 </div>
                 {/* Origin Early Pickup Date*/}
                 <div className="col-2">
@@ -521,7 +518,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                   lng: details.lng!,
                 });
               }}
-              required
             />
           </div>
           {/* Destination Early drop-off Date*/}
@@ -615,7 +611,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                         lng: details.lng!,
                       });
                     }}
-                    required
                   />
                 </div>
                 {/* Early Drop-off Date */}
@@ -698,7 +693,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               control={control}
               options={equipmentOptions}
               rules={{ required: "Please select Equipment" }} // Example validation
-              required
             />
           </div>
 
@@ -711,7 +705,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               control={control}
               options={modeOptions}
               rules={{ required: "Please select Mode" }} // Example validation
-              required
             />
           </div>
 

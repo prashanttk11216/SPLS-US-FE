@@ -271,7 +271,6 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
                     control={control}
                     placeholder="Enter address"
                     rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
-                    required
                     onPlaceSelect={handlePlaceSelect}
                   />
                 </div>
@@ -388,7 +387,6 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
               control={control}
               placeholder="Enter Primary Billing Address"
               rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
-              required
               onPlaceSelect={(details) => handlePlaceSelect(details, true)}
             />
           </div>

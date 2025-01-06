@@ -205,7 +205,7 @@ const LoadList: React.FC = () => {
         <button
           className="btn btn-accent d-flex align-items-center ms-auto"
           type="button"
-          onClick={() => navigate(`load/create`)}
+          onClick={() => navigate(`load-board/create`)}
         >
           <img src={PlusIcon} height={16} width={16} className="me-2" />
           Create

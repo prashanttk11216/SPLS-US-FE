@@ -296,7 +296,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                   lng: details.lng!,
                 });
               }}
-              required
             />
           </div>
           {/* Origin Early Pickup Date*/}
@@ -395,7 +394,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                           lng: details.lng!,
                         });
                       }}
-                      required
                     />
                   </div>
                   {/* Origin Early Pickup Date*/}
@@ -489,7 +487,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                   lng: details.lng!,
                 });
               }}
-              required
             />
           </div>
           {/* Destination Early drop-off Date*/}
@@ -584,7 +581,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                           lng: details.lng!,
                         });
                       }}
-                      required
                     />
                   </div>
                   {/* Early Drop-off Date */}
@@ -668,7 +664,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               control={control}
               options={equipmentOptions}
               rules={{ required: "Please select Equipment" }} // Example validation
-              required
             />
           </div>
 
@@ -681,7 +676,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               control={control}
               options={modeOptions}
               rules={{ required: "Please select Mode" }} // Example validation
-              required
             />
           </div>
 

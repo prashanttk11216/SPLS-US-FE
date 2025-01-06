@@ -62,7 +62,7 @@ export const LoadCreationAlert: FC<LoadCreationAlertProps> = ({
    */
   const fetchCarriersData = useCallback(async () => {
     try {
-      const query = `?role=${UserRole.CARRIER}`;
+      const query = `?role=${UserRole.CARRIER}&isActive=true`;
       const result = await fetchUsers(query);
       if (result.success) {
         const users = result?.data?.map((user) => ({

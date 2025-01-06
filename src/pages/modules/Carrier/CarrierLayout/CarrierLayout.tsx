@@ -16,7 +16,7 @@ const CarrierLayout = () => {
     { 
       name: "Load", 
       icon: BrokerIcon, 
-      path: "/carrier/load",
+      path: "/carrier/load-board",
       isVisible: true 
     },
     { 

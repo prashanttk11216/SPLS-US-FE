@@ -26,6 +26,8 @@ import CustomerLoadList from "../pages/modules/Customer/Load/LoadList/LoadList";
 import CarrierLoadList from "../pages/modules/Carrier/Load/LoadList/LoadList";
 import TruckList from "../pages/modules/Carrier/Truck/TruckList/TruckList";
 import TruckMatches from "../pages/modules/Broker/Load/TruckMatches/TruckMatches";
+import DispatchLoadList from "../pages/modules/Broker/DispatchLoad/DispatchLoadList/DispatchLoadList";
+import CreateOrEditDispatchLoad from "../pages/modules/Broker/DispatchLoad/CreateOrEditDispatchLoad/CreateOrEditDispatchLoad";
 
 // Define the routes using createBrowserRouter
 export const routes = createBrowserRouter([
@@ -48,7 +50,7 @@ export const routes = createBrowserRouter([
             element: <CustomerLoadList />,
           },
           {
-            path: "load/create/:loadId?",
+            path: "load-board/create/:loadId?",
             element: <CustomerCreateOrEditLoad />
           },
           {
@@ -75,12 +77,20 @@ export const routes = createBrowserRouter([
             element: <Profile />,
           },
           {
-            path: "load", // Matches /broker
+            path: "load-board", // Matches /broker
             element: <BrokerLoadList />,
           },
           {
-            path: "load/create/:loadId?",
+            path: "load-board/create/:loadId?",
             element: <CreateOrEditLoad />
+          },
+          {
+            path: "dispatch-board", // Matches /broker
+            element: <DispatchLoadList />,
+          },
+          {
+            path: "dispatch-board/create/:loadId?",
+            element: <CreateOrEditDispatchLoad />
           },
           {
             path: "truck/matches/:loadId",
@@ -122,7 +132,7 @@ export const routes = createBrowserRouter([
             element: <Profile />, // Carrier Profile
           },
           {
-            path: "load", // Matches /broker
+            path: "load-board", // Matches /broker
             element: <CarrierLoadList />,
           },
           {

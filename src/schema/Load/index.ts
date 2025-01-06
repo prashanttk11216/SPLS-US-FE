@@ -1,7 +1,8 @@
 import { z } from "zod";
-import { Equipment } from "../enums/Equipment";
-import { Mode } from "../enums/Mode";
-import { Commodity } from "../enums/Commodity";
+import { Equipment } from "../../enums/Equipment";
+import { Mode } from "../../enums/Mode";
+import { Commodity } from "../../enums/Commodity";
+
 
 
 // Common schema for Stop objects

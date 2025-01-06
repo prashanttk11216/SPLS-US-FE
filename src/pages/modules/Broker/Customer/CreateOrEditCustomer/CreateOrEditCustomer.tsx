@@ -337,7 +337,6 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                 control={control}
                 placeholder="Enter address"
                 rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
-                required
                 onPlaceSelect={(details) => handlePlaceSelect(details)}
               />
             </div>
@@ -453,7 +452,6 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
                 control={control}
                 placeholder="Enter Primary Billing Address"
                 rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
-                required
                 onPlaceSelect={(details) => handlePlaceSelect(details, true)}
               />
             </div>

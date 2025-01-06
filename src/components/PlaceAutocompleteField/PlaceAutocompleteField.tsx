@@ -124,7 +124,7 @@ const PlaceAutocompleteField = ({
       {label && (
         <label className="form-label text-dark-blue" htmlFor={`autocomplete-${name}`}>
           {label}
-          {required && " *"}
+          {rules.required && " *"}
         </label>
       )}
       <Controller

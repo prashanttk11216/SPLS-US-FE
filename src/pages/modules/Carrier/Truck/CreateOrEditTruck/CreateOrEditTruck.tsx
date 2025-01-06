@@ -172,7 +172,6 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
                   lng: details.lng!,
                 });
               }}
-              required
             />
           </div>
           {/* Destination */}
@@ -217,7 +216,6 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
               control={control}
               options={equipmentOptions}
               rules={{ required: "Please select Equipment" }} // Example validation
-              required
             />
           </div>
           {/* weight */}

@@ -280,7 +280,6 @@ const CreateOrEditShipper: FC<CreateOrEditShipperProps> = ({
                 control={control}
                 placeholder="Enter address"
                 rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
-                required
                 onPlaceSelect={handlePlaceSelect}
               />
             </div>

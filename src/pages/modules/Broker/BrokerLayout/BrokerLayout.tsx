@@ -19,7 +19,13 @@ const BrokerLayout = () => {
     { 
       name: "Load", 
       icon: BrokerIcon, 
-      path: "/broker/load",
+      path: "/broker/load-board",
+      isVisible: true 
+    },
+    { 
+      name: "Distpatch Load", 
+      icon: BrokerIcon, 
+      path: "/broker/dispatch-board",
       isVisible: true 
     },
     { name: "Settings", icon: HomeIcon, path: "/broker/shipper", isVisible: true, subMenu: [
