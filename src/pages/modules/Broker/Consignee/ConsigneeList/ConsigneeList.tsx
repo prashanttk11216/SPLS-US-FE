@@ -21,6 +21,7 @@ import {
 } from "../../../../../services/consignee/consigneeService";
 import CreateOrEditConsignee from "../CreateOrEditConsignee/CreateOrEditConsignee";
 import ConsigneeDetailsModal from "../ConsigneeDetailsModal/ConsigneeDetailsModal";
+import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 
 const ConsigneeList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -217,7 +218,9 @@ const ConsigneeList: React.FC = () => {
       _id: consignee._id,
       name: `${consignee.firstName} ${consignee.lastName}`,
       email: consignee.email,
-      contact: consignee.primaryNumber || "N/A",
+      contact: consignee.primaryNumber
+        ? formatPhoneNumber(consignee.primaryNumber)
+        : "N/A",
       shippingHours: consignee.shippingHours,
       status: consignee.isActive ? "Active" : "Inactive",
       actions: getActions(consignee),

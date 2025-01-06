@@ -23,6 +23,7 @@ import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import "./CustomerList.scss";
 import CustomerDetailsModal from "../CustomerDetailsModal/CustomerDetailsModal";
 import ChangePassowrd from "../../../../Auth/ChangePassword/ChangePassword";
+import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 
 const CustomerList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -216,7 +217,9 @@ const CustomerList: React.FC = () => {
         </div>
       ),
       email: customer.email,
-      contact: customer.primaryNumber || "N/A",
+      contact: customer.primaryNumber
+      ? formatPhoneNumber(customer.primaryNumber)
+      : "N/A",
       company: customer.company || "N/A",
       status: customer.isActive ? "Active" : "Inactive",
       actions: getActionsForCustomer(customer),

@@ -1,7 +1,7 @@
 import React from "react";
-import { PhoneNumberFormat, PhoneNumberUtil } from "google-libphonenumber";
 import { Consignee } from "../../../../../types/Consignee";
 import DetailsModal from "../../../../../components/common/DetailsModal/DetailsModal";
+import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 
 const ConsigneeDetailsModal: React.FC<{
   isOpen: boolean;
@@ -9,18 +9,6 @@ const ConsigneeDetailsModal: React.FC<{
   onClose: () => void;
 }> = ({ isOpen, consignee, onClose }) => {
   if (!consignee) return null;
-
-  const formatPhoneNumber = (phoneNumber: string | undefined): string => {
-    if (!phoneNumber) return "N/A";
-
-    try {
-      const phoneUtil = PhoneNumberUtil.getInstance();
-      const number = phoneUtil.parse(phoneNumber, "US");
-      return phoneUtil.format(number, PhoneNumberFormat.INTERNATIONAL);
-    } catch {
-      return phoneNumber;
-    }
-  };
 
   const details = [
     {

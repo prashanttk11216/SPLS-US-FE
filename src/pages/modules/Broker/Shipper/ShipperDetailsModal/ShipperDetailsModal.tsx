@@ -1,7 +1,7 @@
 import React from "react";
-import { PhoneNumberFormat, PhoneNumberUtil } from "google-libphonenumber";
 import { Shipper } from "../../../../../types/Shipper";
 import DetailsModal from "../../../../../components/common/DetailsModal/DetailsModal";
+import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 
 const ShipperDetailsModal: React.FC<{
   isOpen: boolean;
@@ -9,18 +9,6 @@ const ShipperDetailsModal: React.FC<{
   onClose: () => void;
 }> = ({ isOpen, shipper, onClose }) => {
   if (!shipper) return null;
-
-  const formatPhoneNumber = (phoneNumber: string | undefined): string => {
-    if (!phoneNumber) return "N/A";
-
-    try {
-      const phoneUtil = PhoneNumberUtil.getInstance();
-      const number = phoneUtil.parse(phoneNumber, "US");
-      return phoneUtil.format(number, PhoneNumberFormat.INTERNATIONAL);
-    } catch {
-      return phoneNumber;
-    }
-  };
 
   const details = [
     {
