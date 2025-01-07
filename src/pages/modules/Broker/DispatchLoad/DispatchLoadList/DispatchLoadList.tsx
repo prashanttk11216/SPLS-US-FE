@@ -11,7 +11,6 @@ import Pagination, {
   Meta,
 } from "../../../../../components/common/Pagination/Pagination";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
-import { Load } from "../../../../../types/Load";
 import {
   deleteLoad,
   getloads,
@@ -49,20 +48,7 @@ const DispatchLoadList: React.FC = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
   const [dispatchDetails, setDispatchDetails] =
     useState<Partial<IDispatch> | null>(null);
-  const [loadDetails, setLoadDetails] = useState<Partial<Load> | null>(null);
-  const [selectedLoad, setSelectedLoad] = useState<string | null>(null);
-  const [selectedLoads, setSelectedLoads] = useState<string[] | null>(null);
 
-  const closeModal = () => {
-    setSelectedLoad(null);
-    setIsDetailsModalOpen(false);
-    setLoadDetails(null);
-  };
-
-  const closeLoadCreationModal = () => {
-    setSelectedLoads(null);
-    fetchLoadsData();
-  };
 
   const openDetailsModal = (dispatchData: Partial<IDispatch>) => {
     setDispatchDetails(dispatchData);
@@ -224,8 +210,6 @@ const DispatchLoadList: React.FC = () => {
 
   const handleRowClick = async (row: Record<string, any>) => {
     if (row) {
-      setLoadDetails(row);
-      setIsDetailsModalOpen(true);
       openDetailsModal(row);
     }
   };
@@ -280,11 +264,6 @@ const DispatchLoadList: React.FC = () => {
         let ids: string[] = [];
         selectedData.map((item: any) => ids.push(item._id));
         refreshAgeCall({ ids });
-        break;
-      case "Notify Carrier":
-        let loadIds: string[] = [];
-        selectedData.map((item: any) => loadIds.push(item._id));
-        setSelectedLoads(loadIds);
         break;
       default:
         break;
@@ -409,11 +388,13 @@ const DispatchLoadList: React.FC = () => {
           )}
         </>
       )}
-      <DispatchDetailsModal
-        isOpen={isDetailsModalOpen}
-        dispatch={dispatchDetails}
-        onClose={() => setIsDetailsModalOpen(false)}
-      />
+      {
+        isDetailsModalOpen && (<DispatchDetailsModal
+          isOpen={isDetailsModalOpen}
+          dispatch={dispatchDetails}
+          onClose={() => setIsDetailsModalOpen(false)}
+        />)
+      }
     </div>
   );
 };

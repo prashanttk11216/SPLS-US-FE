@@ -6,7 +6,6 @@ interface PlaceAutocompleteFieldProps {
   name: string; // Field name for react-hook-form
   label: string;
   placeholder?: string;
-  required?: boolean;
   rules?: any;
   control?: any;
   disabled?: boolean;
@@ -31,7 +30,6 @@ const PlaceAutocompleteField = ({
   rules,
   control,
   disabled= false,
-  required = false,
   onPlaceSelect,
   className = "",
 }: PlaceAutocompleteFieldProps) => {

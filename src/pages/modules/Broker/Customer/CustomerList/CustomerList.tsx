@@ -117,7 +117,7 @@ const CustomerList: React.FC = () => {
     { width: "210px", key: "email", label: "Email", sortable: true },
     { width: "150px", key: "contact", label: "Contact", sortable: true },
     { width: "150px", key: "company", label: "Company", sortable: true },
-    { width: "90px", key: "status", label: "Status", sortable: true },
+    { width: "90px", key: "isActive", label: "Status", sortable: true },
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
@@ -221,7 +221,7 @@ const CustomerList: React.FC = () => {
       ? formatPhoneNumber(customer.primaryNumber)
       : "N/A",
       company: customer.company || "N/A",
-      status: customer.isActive ? "Active" : "Inactive",
+      isActive: customer.isActive ? "Active" : "Inactive",
       actions: getActionsForCustomer(customer),
     }));
   };

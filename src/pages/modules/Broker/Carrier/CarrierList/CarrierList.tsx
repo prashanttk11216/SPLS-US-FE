@@ -117,7 +117,7 @@ const CarrierList: React.FC = () => {
     { width: "210px", key: "email", label: "Email", sortable: true },
     { width: "150px", key: "contact", label: "Contact", sortable: true },
     { width: "150px", key: "company", label: "Company", sortable: true },
-    { width: "90px", key: "status", label: "Status",sortable: true },
+    { width: "90px", key: "isActive", label: "Status",sortable: true },
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
@@ -219,7 +219,7 @@ const CarrierList: React.FC = () => {
         ? formatPhoneNumber(carrier.primaryNumber)
         : "N/A",
       company: carrier.company || "N/A",
-      status: carrier.isActive ? "Active" : "Inactive",
+      isActive: carrier.isActive ? "Active" : "Inactive",
       actions: getActionsForCarrier(carrier),
     }));
   };

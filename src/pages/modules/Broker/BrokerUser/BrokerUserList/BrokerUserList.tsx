@@ -206,7 +206,7 @@ const BrokerUserList: React.FC = () => {
     { width: "210px", key: "email", label: "Email", sortable: true },
     { width: "150px", key: "contact", label: "Contact", sortable: true },
     { width: "150px", key: "company", label: "Company", sortable: true },
-    { width: "90px", key: "status", label: "Status",sortable: true },
+    { width: "90px", key: "isActive", label: "Status",sortable: true },
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
@@ -241,7 +241,7 @@ const BrokerUserList: React.FC = () => {
         ? formatPhoneNumber(broker.primaryNumber)
         : "N/A",
       company: broker.company || "N/A",
-      status: broker.isActive ? "Active" : "Inactive",
+      isActive: broker.isActive ? "Active" : "Inactive",
       actions: getActionsForBroker(broker),
     }));
   };

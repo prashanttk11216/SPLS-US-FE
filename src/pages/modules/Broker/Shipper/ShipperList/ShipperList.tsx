@@ -203,7 +203,7 @@ const ShipperList: React.FC = () => {
       label: "Shipping Hours",
       sortable: true,
     },
-    { width: "90px", key: "status", label: "Status", sortable: true },
+    { width: "90px", key: "isActive", label: "Status", sortable: true },
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
@@ -224,7 +224,7 @@ const ShipperList: React.FC = () => {
       ? formatPhoneNumber(shipper.primaryNumber)
       : "N/A",
       shippingHours: shipper.shippingHours,
-      status: shipper.isActive ? "Active" : "Inactive",
+      isActive: shipper.isActive ? "Active" : "Inactive",
       actions: getActions(shipper),
     }));
   };

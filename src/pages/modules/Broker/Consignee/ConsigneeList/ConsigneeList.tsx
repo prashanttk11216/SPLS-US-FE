@@ -201,7 +201,7 @@ const ConsigneeList: React.FC = () => {
       label: "Shipping Hours",
       sortable: true,
     },
-    { width: "90px", key: "status", label: "Status", sortable: true },
+    { width: "90px", key: "isActive", label: "Status", sortable: true },
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
@@ -222,7 +222,7 @@ const ConsigneeList: React.FC = () => {
         ? formatPhoneNumber(consignee.primaryNumber)
         : "N/A",
       shippingHours: consignee.shippingHours,
-      status: consignee.isActive ? "Active" : "Inactive",
+      isActive: consignee.isActive ? "Active" : "Inactive",
       actions: getActions(consignee),
     }));
   };
