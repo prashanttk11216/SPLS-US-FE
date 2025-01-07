@@ -201,7 +201,7 @@ const ConsigneeList: React.FC = () => {
       label: "Shipping Hours",
       sortable: true,
     },
-    { width: "90px", key: "status", label: "Status" },
+    { width: "90px", key: "status", label: "Status", sortable: true },
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 

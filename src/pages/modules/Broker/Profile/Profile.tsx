@@ -89,7 +89,9 @@ const Profile: React.FC = () => {
     } else {
       // Handle avatar removal
       setValue("avatarUrl", "");
-      toast.success("Avatar removed. Please save the profile to apply changes.");
+      toast.success(
+        "Avatar removed. Please save the profile to apply changes."
+      );
     }
   };
 
@@ -126,10 +128,7 @@ const Profile: React.FC = () => {
     }
   };
 
-  const handlePlaceSelect = (
-    details: Address,
-    isBilling: boolean = false
-  ) => {
+  const handlePlaceSelect = (details: Address, isBilling: boolean = false) => {
     console.log("Selected Place Details:", details);
     if (isBilling) {
       setValue("billingAddress", {
@@ -486,11 +485,24 @@ const Profile: React.FC = () => {
       ) : (
         <div className="profile-form">
           <div className="mb-5">
+            <div className="text-end mb-3 mt-5 mx-auto">
+              <button
+                className="btn btn-primary"
+                onClick={handleSubmit(submit)}
+                disabled={!isValid || activeStep < steps.length - 1}
+              >
+                Save Profile
+              </button>
+            </div>
             <ProfileAvatar
               email={user.email}
               firstName={user.firstName}
               lastName={user.lastName}
-              avatarUrl={user.avatarUrl ? `${import.meta.env.VITE_SERVER_URL}/${user.avatarUrl}` : ""}
+              avatarUrl={
+                user.avatarUrl
+                  ? `${import.meta.env.VITE_SERVER_URL}/${user.avatarUrl}`
+                  : ""
+              }
               onAvatarChange={onAvatarChange}
             />
           </div>
@@ -503,7 +515,7 @@ const Profile: React.FC = () => {
             completedSteps={completedSteps}
             linear
           />
-          <div className="row">
+          <div className="row mb-4 mx-auto">
             <div className="col-6 text-start">
               <button
                 className="btn btn-secondary"
@@ -515,24 +527,13 @@ const Profile: React.FC = () => {
               </button>
             </div>
             <div className="col-6 text-end">
-              {activeStep < steps.length - 1 ? (
-                <button
-                  className="btn btn-primary"
-                  type="button"
-                  onClick={nextStep}
-                >
-                  Next
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  onClick={handleSubmit(submit)}
-                  disabled={!isValid}
-                >
-                  Save
-                </button>
-              )}
+              <button
+                className="btn btn-primary"
+                onClick={nextStep}
+                disabled={activeStep === steps.length - 1}
+              >
+                Next
+              </button>
             </div>
           </div>
         </div>

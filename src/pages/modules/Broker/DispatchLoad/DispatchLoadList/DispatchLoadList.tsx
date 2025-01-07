@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { formatDate } from "../../../../../utils/dateFormat";
 import { DispatchLoadStatus } from "../../../../../enums/DispatchLoadStatus";
 import { IDispatch } from "../../../../../types/Dispatch";
+import DispatchDetailsModal from "../DispatchDetailsModal/DispatchDetailsModal";
 
 const DispatchLoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -37,13 +38,17 @@ const DispatchLoadList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const savedActiveTab = localStorage.getItem("activeTab");
   const [activeTab, setActiveTab] = useState<DispatchLoadStatus>(
-    savedActiveTab ? (savedActiveTab as DispatchLoadStatus) : DispatchLoadStatus.Published
+    savedActiveTab
+      ? (savedActiveTab as DispatchLoadStatus)
+      : DispatchLoadStatus.Published
   );
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "asc" | "desc";
   } | null>({ key: "age", direction: "desc" });
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
+  const [dispatchDetails, setDispatchDetails] =
+    useState<Partial<IDispatch> | null>(null);
   const [loadDetails, setLoadDetails] = useState<Partial<Load> | null>(null);
   const [selectedLoad, setSelectedLoad] = useState<string | null>(null);
   const [selectedLoads, setSelectedLoads] = useState<string[] | null>(null);
@@ -57,6 +62,11 @@ const DispatchLoadList: React.FC = () => {
   const closeLoadCreationModal = () => {
     setSelectedLoads(null);
     fetchLoadsData();
+  };
+
+  const openDetailsModal = (dispatchData: Partial<IDispatch>) => {
+    setDispatchDetails(dispatchData);
+    setIsDetailsModalOpen(true);
   };
 
   const {
@@ -127,11 +137,12 @@ const DispatchLoadList: React.FC = () => {
   }, [activeTab]);
 
   const columns = [
-    { width: "90px", 
-      key: "age", 
-      label: "Age", 
+    {
+      width: "90px",
+      key: "age",
+      label: "Age",
       sortable: true,
-      render: (row: any) => <strong>{row.age}</strong>
+      render: (row: any) => <strong>{row.age}</strong>,
     },
     {
       width: "130px",
@@ -140,10 +151,10 @@ const DispatchLoadList: React.FC = () => {
       sortable: true,
     },
     {
-        width: "130px",
-        key: "WONumber",
-        label: "W/O",
-        sortable: true,
+      width: "130px",
+      key: "WONumber",
+      label: "W/O",
+      sortable: true,
     },
     { width: "150px", key: "shipper.address", label: "Origin", sortable: true },
     {
@@ -159,10 +170,10 @@ const DispatchLoadList: React.FC = () => {
       sortable: true,
     },
     {
-        width: "120px",
-        key: "consignee.date",
-        label: "Del Date",
-        sortable: true,
+      width: "120px",
+      key: "consignee.date",
+      label: "Del Date",
+      sortable: true,
     },
     { width: "150px", key: "equipment", label: "Equipment", sortable: true },
     { width: "140px", key: "allInRate", label: "Rate", sortable: true },
@@ -194,7 +205,7 @@ const DispatchLoadList: React.FC = () => {
           toast.error("Failed to delete customer.");
         }
         break;
-      
+
       case "Delete":
         try {
           const result = await deleteLoads(row._id);
@@ -215,6 +226,7 @@ const DispatchLoadList: React.FC = () => {
     if (row) {
       setLoadDetails(row);
       setIsDetailsModalOpen(true);
+      openDetailsModal(row);
     }
   };
 
@@ -247,11 +259,9 @@ const DispatchLoadList: React.FC = () => {
       age: load.formattedAge || "N/A",
       "shipper.address": load.shipper.address.str || "N/A",
       "consignee.address": load.consignee.address.str || "N/A",
-      "shipper.date":
-        formatDate(load.shipper.date, "MM/dd/yyyy") || "N/A",
-       "consignee.date":
-        formatDate(load.consignee.date, "MM/dd/yyyy") || "N/A",
-      
+      "shipper.date": formatDate(load.shipper.date, "MM/dd/yyyy") || "N/A",
+      "consignee.date": formatDate(load.consignee.date, "MM/dd/yyyy") || "N/A",
+
       equipment: load.equipment || "N/A",
       allInRate: load.allInRate ? `${load.allInRate} $` : "N/A",
       WONumber: load.WONumber || "N/A",
@@ -356,7 +366,7 @@ const DispatchLoadList: React.FC = () => {
                   }`}
                   href="#"
                 >
-                 Completed
+                  Completed
                 </a>
               </li>
               <li
@@ -399,12 +409,11 @@ const DispatchLoadList: React.FC = () => {
           )}
         </>
       )}
-
-      {/* <LoadDetailsModal
-        load={loadDetails}
-        onClose={closeModal}
+      <DispatchDetailsModal
         isOpen={isDetailsModalOpen}
-      /> */}
+        dispatch={dispatchDetails}
+        onClose={() => setIsDetailsModalOpen(false)}
+      />
     </div>
   );
 };

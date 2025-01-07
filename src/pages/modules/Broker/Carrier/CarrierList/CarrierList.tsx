@@ -117,7 +117,7 @@ const CarrierList: React.FC = () => {
     { width: "210px", key: "email", label: "Email", sortable: true },
     { width: "150px", key: "contact", label: "Contact", sortable: true },
     { width: "150px", key: "company", label: "Company", sortable: true },
-    { width: "90px", key: "status", label: "Status" },
+    { width: "90px", key: "status", label: "Status",sortable: true },
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 

@@ -564,7 +564,7 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
                 completedSteps={completedSteps}
                 linear
               />
-              <div className="row">
+              <div className="row mx-auto">
                 <div className="col-6 text-start">
                   <button
                     className="btn btn-secondary"
