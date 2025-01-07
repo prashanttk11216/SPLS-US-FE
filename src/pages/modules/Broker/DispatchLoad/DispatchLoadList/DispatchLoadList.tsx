@@ -35,7 +35,7 @@ const DispatchLoadList: React.FC = () => {
   }); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const savedActiveTab = localStorage.getItem("activeTab");
+  const savedActiveTab = localStorage.getItem("dispatchActiveTab");
   const [activeTab, setActiveTab] = useState<DispatchLoadStatus>(
     savedActiveTab
       ? (savedActiveTab as DispatchLoadStatus)
@@ -119,7 +119,7 @@ const DispatchLoadList: React.FC = () => {
 
   // Update active tab in localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem("activeTab", activeTab);
+    localStorage.setItem("dispatchActiveTab", activeTab);
   }, [activeTab]);
 
   const columns = [
@@ -142,9 +142,9 @@ const DispatchLoadList: React.FC = () => {
       label: "W/O",
       sortable: true,
     },
-    { width: "150px", key: "shipper.address", label: "Origin", sortable: true },
+    { width: "250px", key: "shipper.address", label: "Origin", sortable: true },
     {
-      width: "150px",
+      width: "250px",
       key: "consignee.address",
       label: "Destination",
       sortable: true,

@@ -38,7 +38,7 @@ const LoadList: React.FC = () => {
   }); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const savedActiveTab = localStorage.getItem("activeTab");
+  const savedActiveTab = localStorage.getItem("loadActiveTab");
   const [activeTab, setActiveTab] = useState<LoadStatus>(
     savedActiveTab ? (savedActiveTab as LoadStatus) : LoadStatus.Published
   );
@@ -126,7 +126,7 @@ const LoadList: React.FC = () => {
 
   // Update active tab in localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem("activeTab", activeTab);
+    localStorage.setItem("loadActiveTab", activeTab);
   }, [activeTab]);
 
   const columns = [
