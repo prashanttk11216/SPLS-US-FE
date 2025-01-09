@@ -1,3 +1,5 @@
+import { DispatchLoadStatus } from "../enums/DispatchLoadStatus";
+import { DispatchLoadType } from "../enums/DispatchLoadType";
 import { Equipment } from "../enums/Equipment";
 import { Consignee } from "./Consignee";
 import { Shipper } from "./Shipper";
@@ -37,6 +39,38 @@ export interface IShipper {
   PO?: number;
 }
 
+export interface IFsc {
+  type: string,
+  value: number
+}
+
+export interface IOtherChargeBreakdown {
+  description: string;
+  amount: number;
+  isAdvance: boolean;
+  date: Date
+}
+
+export interface IOtherCharge {
+  totalAmount: number;
+  breakdown: IOtherChargeBreakdown[];
+}
+
+export interface ICarrierFeeBreakdown {
+  type: DispatchLoadType,
+  rate: number,
+  PDs: number,
+  fuelServiceCharge: IFsc,
+  units: number;
+  totalRate: number;
+  OtherChargeSchema: IOtherChargeBreakdown[]
+}
+
+export interface ICarrierFee {
+  totalAmount: number;
+  breakdown: ICarrierFeeBreakdown;
+}
+
 export interface IDispatch extends Document {
   _id: string;
   brokerId?: string | User;
@@ -44,6 +78,13 @@ export interface IDispatch extends Document {
   WONumber: number;
   customerId?: string | User;
   carrierId?: string | User;
+  salesRep: string | User;
+  type: DispatchLoadType;
+  units: number,
+  PDs: number;
+  fuelServiceCharge: IFsc;
+  otherCharges: IOtherCharge;
+  carrierFee: ICarrierFee
   equipment: Equipment;
   allInRate?: number;
   customerRate?: number;
@@ -51,7 +92,7 @@ export interface IDispatch extends Document {
   consignee: IConsignee;
   shipper: IShipper;
   postedBy?: string | User;
-  status: "Draft" | "Published" | "Pending Response" | "Deal Closed" | "Cancelled";
+  status: DispatchLoadStatus;
   age?: Date;
   formattedAge?: string; // Virtual field
   createdAt?: Date;

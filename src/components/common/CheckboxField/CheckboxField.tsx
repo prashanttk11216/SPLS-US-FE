@@ -49,6 +49,7 @@ const CheckboxField: React.FC<CheckboxFieldProps> = ({
                 id={id}
                 disabled={disabled}
                 {...field}
+                checked={field.value}
                 onChange={(e) => {
                   field.onChange(e); // react-hook-form's onChange handler
                   onChange?.(e); // Custom onChange handler if provided

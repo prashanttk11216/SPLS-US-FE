@@ -24,6 +24,7 @@ import SelectField from "../../../../../components/common/SelectField/SelectFiel
 import { Equipment } from "../../../../../enums/Equipment";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
+import { equipmentOptions } from "../../../../../utils/dropdownOptions";
 
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -299,10 +300,6 @@ const LoadList: React.FC = () => {
     });
   }
 
-  const equipmentOptions = Object.entries(Equipment).map(([_, value]) => ({
-      value: value,
-      label: value,
-    }));
 
   return (
     <div className="customers-list-wrapper">

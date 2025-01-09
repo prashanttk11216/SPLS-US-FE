@@ -29,6 +29,13 @@ import {
 } from "../../../../../services/dispatch/dispatchServices";
 import { getShipper } from "../../../../../services/shipper/shipperService";
 import { getConsignee } from "../../../../../services/consignee/consigneeService";
+import { DispatchLoadType } from "../../../../../enums/DispatchLoadType";
+import CheckboxField from "../../../../../components/common/CheckboxField/CheckboxField";
+import PlusIcon from "../../../../../assets/icons/plus.svg";
+import OtherChargesModal from "../OtherChargesModal/OtherChargesModal";
+import CarrierFeeChargeBreakDownModal from "../CarrierFeeChargeBreakDownModal/CarrierFeeChargeBreakDownModal";
+import { DispatchLoadTypeOptions, equipmentOptions } from "../../../../../utils/dropdownOptions";
+import { calculatePercentage, calculatePercentageByUnit } from "../../../../../utils/globalHelper";
 
 export type AddressForm = {
   str: string; // Address string representation
@@ -37,8 +44,8 @@ export type AddressForm = {
 };
 
 export type ConsigneeForm = {
-  consigneeId: string; // ObjectId as string
-  address: AddressForm;
+  consigneeId: string; // Consignee ID as string
+  address: AddressForm; // Consignee address
   date: Date; // Date of consignee
   time?: Date; // Optional time
   description?: string; // Optional description
@@ -51,8 +58,8 @@ export type ConsigneeForm = {
 };
 
 export type ShipperForm = {
-  shipperId: string; // ObjectId as string
-  address: AddressForm;
+  shipperId: string; // Shipper ID as string
+  address: AddressForm; // Shipper address
   date: Date; // Date of shipper
   time?: Date; // Optional time
   description?: string; // Optional description
@@ -64,6 +71,38 @@ export type ShipperForm = {
   PO?: number; // Optional PO number
 };
 
+export type FscForm = {
+  isPercentage: boolean; // Type of FSC
+  value: number; // value of FSC
+};
+
+export type OtherChargeBreakdownForm = {
+  description: string | undefined; // Charge description
+  amount: number | undefined; // Charge amount
+  isAdvance: boolean; // Flag for advance charges
+  date: Date | undefined; // Date of charge
+};
+
+export type OtherChargeForm = {
+  totalAmount: number; // Total charge amount
+  breakdown: OtherChargeBreakdownForm[]; // Breakdown of charges
+};
+
+export type CarrierFeeBreakdownForm = {
+  type: DispatchLoadType; // Type of dispatch load
+  rate: number; // Agreed rate
+  PDs: number; // Number of picks/drops
+  units: number;
+  fuelServiceCharge?: FscForm; // FSC details
+  totalRate?: number; // Total rate after FSC and other adjustments
+  OtherChargeSchema?: OtherChargeBreakdownForm[]; // Breakdown of other charges
+};
+
+export type CarrierFeeForm = {
+  totalAmount: number; // Total carrier fee
+  breakdown: CarrierFeeBreakdownForm; // Carrier fee breakdown
+};
+
 export type DispatchLoadForm = {
   _id?: string; // Optional load ID
   brokerId?: string; // Optional broker ID
@@ -71,16 +110,29 @@ export type DispatchLoadForm = {
   WONumber?: number; // Optional unique WO number
   customerId?: string; // Optional customer ID
   carrierId?: string; // Optional carrier ID
+  salesRep: string; // Sales rep ID (assuming string for now)
+  type: DispatchLoadType; // Type of dispatch load
+  PDs: number; // Number of PDs (drops/pickups)
+  fuelServiceCharge: FscForm; // Fuel service charge
+  otherCharges: OtherChargeForm; // Other charges
+  carrierFee: CarrierFeeForm; // Carrier fee details
   equipment: Equipment; // Equipment type (enum)
   allInRate?: number; // Optional all-in rate
+  customerRate?: number; // Optional customer rate
+  units?: number;
   carrierRate?: number; // Optional carrier rate
   consignee: ConsigneeForm; // Consignee details
   shipper: ShipperForm; // Shipper details
   postedBy?: string; // Optional posted by user ID
-  status?: DispatchLoadStatus; // Status enum
+  status?: DispatchLoadStatus; // Status of the load
+  age?: Date; // Age of the load
+  formattedAge?: string; // Virtual field for formatted age
+  createdAt?: Date; // Timestamp of creation
+  updatedAt?: Date; // Timestamp of last update
 };
 
 interface CreateOrEditDispatchLoadProps {}
+
 
 const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
   const user = useSelector((state: RootState) => state.user);
@@ -89,25 +141,22 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
   const [searchParams] = useSearchParams();
   const isDraft = searchParams.get("draft");
   const [loadData, setLoadData] = useState<DispatchLoadForm>();
-  const [usersList, setUsersList] = useState<any[]>([]);
   const [customersList, setCustomersList] = useState<any[]>([]);
   const [brokersList, setBrokersList] = useState<any[]>([]);
   const [carriersList, setCarriersList] = useState<any[]>([]);
   const [consigneeList, setConsigneeList] = useState<any[]>([]);
   const [shipperList, setShipperList] = useState<any[]>([]);
-
-
-  const equipmentOptions = Object.entries(Equipment).map(([_, value]) => ({
-    value: value,
-    label: value,
-  }));
+  const [isOtherChargeOpen, setIsOtherChargeOpen] = useState(false);
+  const [isCarrierFeeOpen, setIsCarrierFeeOpen] = useState(false);
 
   const {
     handleSubmit,
     control,
     setValue,
+    getValues,
     formState: { isValid },
     reset,
+    watch,
   } = useForm<DispatchLoadForm>({
     mode: "onBlur",
   });
@@ -157,8 +206,8 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
       users.unshift({
         value: user._id,
         label: `${user.firstName} ${user.lastName} (${user.email}) (Admin)`,
-      })
-      setUsersList(users);
+      });
+      setBrokersList(users);
     }
   };
 
@@ -174,21 +223,6 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
         });
       });
       setCustomersList(users);
-    }
-  };
-
-  const fetchBrokersData = async () => {
-    let query = `?role=${UserRole.BROKER_ADMIN}&isActive=true`;
-    const result = await fetchUsers(query);
-    if (result.success) {
-      let users: any = [];
-      result?.data?.forEach((user) => {
-        users.push({
-          value: user._id,
-          label: `${user.company} (${user.email})`,
-        });
-      });
-      setBrokersList(users);
     }
   };
 
@@ -252,7 +286,6 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
   useEffect(() => {
     fetchUsersData();
     fetchCustomersData();
-    fetchBrokersData();
     fetchCarriersData();
     fetchConsigneeData();
     fetchShipperData();
@@ -298,6 +331,101 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
     });
   };
 
+  const DispatchLoadTypeValue = watch("type");
+  const customerRateValue = watch("customerRate");
+  const unitsValue = watch("units");
+  const PDs = watch("PDs");
+  const fuelServiceCharge = watch("fuelServiceCharge");
+  const otherCharges = watch("otherCharges");
+
+
+  const calculateFuelServiceCharge = () => {
+    if(customerRateValue){
+      if (unitsValue) {
+        return calculatePercentageByUnit(customerRateValue, fuelServiceCharge.value, unitsValue)
+      } 
+      return calculatePercentage(customerRateValue, fuelServiceCharge.value);
+    }
+    return false;
+  };
+
+  const calculateOtherBreakDownCharge = (
+    charges: OtherChargeBreakdownForm[]
+  ) => {    
+    if (charges?.length) {
+      let totalOtherCharges = charges
+        .filter((charge) => !charge.isAdvance) // Exclude advance charges
+        .reduce((sum, charge) => sum + charge.amount!, 0);
+      let totalAdvance =
+        charges
+          ?.filter((charge) => charge.isAdvance) // Include only advance charges
+          .reduce((sum, charge) => sum + charge.amount!, 0) || 0;
+
+      const finalTotalCharges = totalOtherCharges - totalAdvance;
+      console.log(charges);
+      
+
+      let data = {
+        totalAmount: finalTotalCharges,
+        breakdown: charges
+      }
+
+      setValue("otherCharges", data);
+      setIsOtherChargeOpen(false);
+    }
+  };
+
+  const calculateCarrierFeeBreakDownCharge = (charges: CarrierFeeBreakdownForm)=>{
+    let data: CarrierFeeForm = {
+      totalAmount: charges.totalRate!,
+      breakdown: charges
+    }
+    setValue("carrierFee", data);
+    setIsCarrierFeeOpen(false);
+  }
+  let finalAllInRate = 0;
+
+  if(customerRateValue){
+    if(unitsValue){
+      finalAllInRate += (customerRateValue * unitsValue)
+    }else{
+      finalAllInRate += customerRateValue;
+    }
+  }
+  if(PDs){
+    finalAllInRate += PDs;
+  }
+  if(fuelServiceCharge?.value){
+    if(fuelServiceCharge.isPercentage && customerRateValue){
+      if(unitsValue){
+        finalAllInRate += calculatePercentageByUnit(customerRateValue, fuelServiceCharge.value, unitsValue)
+      }else{
+        finalAllInRate += calculatePercentage(customerRateValue, fuelServiceCharge.value);
+      }
+    }else{
+      finalAllInRate += fuelServiceCharge.value;
+    }
+  }
+  if(otherCharges?.totalAmount){
+    finalAllInRate += otherCharges.totalAmount;
+  }
+
+  if(finalAllInRate) setValue("allInRate", finalAllInRate);
+
+
+  const calculateMarginPercentage = () => {
+    const allInRate = watch("allInRate"); // Ensure numeric values
+    const carrierFee = watch("carrierFee");
+  
+    if (!(allInRate || allInRate === 0)) {
+      return 0; // Avoid division by zero
+    }
+  
+    const marginPercentage = ((allInRate - (carrierFee.totalAmount || 0)) / allInRate) * 100;
+    return marginPercentage.toFixed(2); // Return percentage with 2 decimal places
+  };
+  
+
   return (
     <>
       <h2 className="fw-bold">
@@ -327,6 +455,9 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               placeholder="Select Customer"
               control={control}
               options={customersList}
+              rules={{
+                required: "Please select a customer",
+              }}
             />
           </div>
           {/* Dispatcher */}
@@ -339,39 +470,14 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               options={brokersList}
             />
           </div>
-          {/* Equipment */}
+          {/* Sales Rep */}
           <div className="col-3">
             <SelectField
-              label="Equipment"
-              name="equipment"
-              placeholder="Select Equipment"
+              label="Sales Rep"
+              name="salesRep"
+              placeholder="Select Sales Rep"
               control={control}
-              options={equipmentOptions}
-              rules={{ required: "Please select Equipment" }}
-            />
-          </div>
-          {/* All-in Rate*/}
-          <div className="col-3">
-            <NumberInput
-              label="All-in Rate"
-              id="allInRate"
-              name="allInRate"
-              placeholder="Enter All-in Rate"
-              control={control}
-              currency
-              rules={{
-                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
-              }}
-            />
-          </div>
-          {/* Carrier */}
-          <div className="col-3">
-            <SelectField
-              label="Select Carrier"
-              name="carrierId"
-              placeholder="Select Carrier"
-              control={control}
-              options={carriersList}
+              options={brokersList}
             />
           </div>
           {/* W/O Number */}
@@ -387,6 +493,173 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
                 min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
               }}
             />
+          </div>
+          {/* Type */}
+          <div className="col-3">
+            <SelectField
+              label="Type"
+              name="type"
+              placeholder="Select Type"
+              control={control}
+              options={DispatchLoadTypeOptions}
+            />
+          </div>
+          {/* Customer All-in Rate*/}
+          <div className="col-3">
+            <NumberInput
+              label="Rate"
+              id="customerRate"
+              name="customerRate"
+              placeholder="Enter Rate"
+              control={control}
+              currency
+              rules={{
+                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+              }}
+            />
+          </div>
+          {/* Conditionally show Unit Number if 'Pallets' is selected */}
+          {DispatchLoadTypeValue === DispatchLoadType.PALLETS && (
+            <div className="col-3">
+              <NumberInput
+                label="Units"
+                id="units"
+                name="units"
+                placeholder="Enter units"
+                control={control}
+                rules={{
+                  min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+                }}
+              />
+            </div>
+          )}
+          {/* Picks/Drops */}
+          <div className="col-3">
+            <NumberInput
+              label="P/Ds"
+              id="PDs"
+              name="PDs"
+              placeholder="Enter Picks/Drops"
+              control={control}
+              rules={{
+                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+              }}
+            />
+          </div>
+          {/* F.S.C */}
+          <div className="col-4 position-relative">
+            <NumberInput
+              label="F.S.C"
+              id="fuelServiceCharge.value"
+              name="fuelServiceCharge.value"
+              placeholder={
+                watch("fuelServiceCharge.isPercentage")
+                  ? "Enter Percentage"
+                  : "Enter F.S.C"
+              }
+              control={control}
+              rules={{
+                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+                max: {
+                  value: watch("fuelServiceCharge.isPercentage")
+                    ? 100
+                    : Infinity,
+                  message: VALIDATION_MESSAGES.percentageRange,
+                },
+              }}
+            />
+
+            <div className="position-absolute top-0 end-0">
+              <CheckboxField
+                label="Rate %"
+                id="fuelServiceCharge.isPercentage"
+                name="fuelServiceCharge.isPercentage"
+                control={control}
+                onChange={() => setValue("fuelServiceCharge.value", 0)}
+              />
+            </div>
+          </div>
+          {watch("fuelServiceCharge.isPercentage") &&
+            calculateFuelServiceCharge() && (
+              <div className="col-1 d-flex align-items-center">
+                = {calculateFuelServiceCharge()}
+              </div>
+            )}
+          <div className="col-4 position-relative">
+            <NumberInput
+              label="Other Charges"
+              id="otherCharges.totalAmount"
+              name="otherCharges.totalAmount"
+              placeholder="Enter Other Charges"
+              control={control}
+            />
+            <div className="position-absolute top-0 end-0">
+              <img
+                src={PlusIcon}
+                height={20}
+                width={20}
+                className="bg-primary p-1 rounded"
+                onClick={() => setIsOtherChargeOpen(true)}
+              />
+            </div>
+          </div>
+          {/* All-in Rate*/}
+          <div className="col-3">
+            <NumberInput
+              label="All-in Rate"
+              id="allInRate"
+              name="allInRate"
+              placeholder="Enter All-in Rate"
+              control={control}
+              currency
+            />
+          </div>
+          <div className="col-1">
+            <div>Percent</div>
+            <div className="fw-bold">{calculateMarginPercentage()} %</div>
+          </div>
+          {/* Equipment */}
+          <div className="col-3">
+            <SelectField
+              label="Equipment"
+              name="equipment"
+              placeholder="Select Equipment"
+              control={control}
+              options={equipmentOptions}
+              rules={{ required: "Please select Equipment" }}
+            />
+          </div>
+          {/* Carrier */}
+          <div className="col-3">
+            <SelectField
+              label="Select Carrier"
+              name="carrierId"
+              placeholder="Select Carrier"
+              control={control}
+              options={carriersList}
+              rules={{
+                required: "Please select a carrier",
+              }}
+            />
+          </div>
+          {/* Carrier Fee */}
+          <div className="col-4 position-relative">
+            <NumberInput
+              label="Carrier Fee"
+              id="carrierFee.totalAmount"
+              name="carrierFee.totalAmount"
+              placeholder="Enter Carrier Fee"
+              control={control}
+            />
+            <div className="position-absolute top-0 end-0">
+              <img
+                src={PlusIcon}
+                height={20}
+                width={20}
+                className="bg-primary p-1 rounded"
+                onClick={() => setIsCarrierFeeOpen(true)}
+              />
+            </div>
           </div>
           {/* Load/Reference Number */}
           <div className="col-3">
@@ -409,7 +682,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               name="postedBy"
               placeholder="Select User"
               control={control}
-              options={usersList}
+              options={brokersList}
             />
           </div>
 
@@ -441,7 +714,6 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               label="Location"
               control={control}
               placeholder="Enter address"
-              rules={{ required: VALIDATION_MESSAGES.addressRequired }}
               onPlaceSelect={handlePlaceSelect}
             />
           </div>
@@ -453,9 +725,6 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               label="Date"
               required={true}
               placeholder="Choose a date"
-              rules={{
-                required: VALIDATION_MESSAGES.dateRequired,
-              }}
               datePickerProps={{
                 dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
                 minDate: new Date(), // Disable past dates
@@ -591,7 +860,6 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               label="Location"
               control={control}
               placeholder="Enter address"
-              rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
               onPlaceSelect={handlePlaceSelect}
             />
           </div>
@@ -603,9 +871,6 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               label="Date"
               required={true}
               placeholder="Choose a date"
-              rules={{
-                required: VALIDATION_MESSAGES.dateRequired,
-              }}
               datePickerProps={{
                 dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
                 minDate: new Date(), // Disable past dates
@@ -726,6 +991,28 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
           </div>
         </div>
       </form>
+
+      {isOtherChargeOpen && (
+        <OtherChargesModal
+          isOpen={isOtherChargeOpen}
+          title="Other Charges"
+          calculateOtherBreakDownCharge={calculateOtherBreakDownCharge}
+          data={getValues("otherCharges.breakdown")}
+          onClose={() => setIsOtherChargeOpen(false)}
+        />
+      )}
+
+      {isCarrierFeeOpen && (
+        <CarrierFeeChargeBreakDownModal
+          isOpen={isCarrierFeeOpen}
+          title="Carrier Charges"
+          calculateCarrierFeeBreakDownCharge={
+            calculateCarrierFeeBreakDownCharge
+          }
+          data={getValues("carrierFee.breakdown")}
+          onClose={() => setIsCarrierFeeOpen(false)}
+        />
+      )}
     </>
   );
 };

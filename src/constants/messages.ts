@@ -18,6 +18,7 @@ export const VALIDATION_MESSAGES = {
     cityRequired: "City is required.",
     zipRequired: "Zip code is required.",
     nonNegative: "Value must be non-negative",
+    percentageRange: "Percentage must be between 0 and 100.",
 
 
     //load 

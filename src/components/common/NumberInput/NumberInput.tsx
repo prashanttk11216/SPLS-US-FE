@@ -99,11 +99,21 @@ const NumberInput: React.FC<NumberInputProps> = ({
                 {...field}
                 value={formatNumber(field.value)}
                 onChange={(e) => {
-                  // Remove formatting for internal state and update raw number value
-                  const rawValue = e.target.value.replace(/,/g, "");
-                  const numberValue = parseFloat(rawValue);
-                  if (!isNaN(numberValue) || rawValue === "") {
-                    field.onChange(rawValue === "" ? undefined : numberValue); // Update with raw value or undefined if empty
+                  const rawValue = e.target.value;
+                
+                  // Allow intermediate states like "-" or "" without processing them
+                  if (rawValue === "-" || rawValue === "") {
+                    field.onChange(rawValue); // Update raw value
+                    return;
+                  }
+                
+                  // Remove formatting and parse the number
+                  const cleanedValue = rawValue.replace(/,/g, "");
+                  const numberValue = parseFloat(cleanedValue);
+                
+                  // Only update with valid numbers or undefined if empty
+                  if (!isNaN(numberValue)) {
+                    field.onChange(numberValue);
                   }
                 }}
               />

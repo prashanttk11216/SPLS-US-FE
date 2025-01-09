@@ -35,3 +35,7 @@ export const getInitials = ({
 
   return "";
 };
+
+
+export const calculatePercentage = (value: number, percentage: number) => (percentage / 100) * value;
+export const calculatePercentageByUnit = (value: number, percentage: number, unit: number) => (percentage / 100) * (value * unit);

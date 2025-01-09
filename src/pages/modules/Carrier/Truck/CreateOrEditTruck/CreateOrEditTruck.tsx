@@ -17,6 +17,7 @@ import NumberInput from "../../../../../components/common/NumberInput/NumberInpu
 import Input from "../../../../../components/common/Input/Input";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import { filterObjectKeys } from "../../../../../utils/globalHelper";
+import { equipmentOptions } from "../../../../../utils/dropdownOptions";
 
 export type truckForm = {
   origin: {
@@ -54,10 +55,6 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
   truckData,
   closeModal,
 }) => {
-  const equipmentOptions = Object.entries(Equipment).map(([_, value]) => ({
-    value: value,
-    label: value,
-  }));
 
   const {
     handleSubmit,

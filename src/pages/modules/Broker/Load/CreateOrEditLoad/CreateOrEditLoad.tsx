@@ -28,6 +28,7 @@ import calculateDistance, {
   formatDistance,
 } from "../../../../../utils/distanceCalculator";
 import MapModal from "../../../../../components/common/MapModal/MapModal";
+import { commodityOptions, equipmentOptions, loadOptions, modeOptions } from "../../../../../utils/dropdownOptions";
 
 export type loadForm = {
   _id: string;
@@ -102,25 +103,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const toggleMapModal = () => setIsMapModalOpen((prev) => !prev);
 
-  const equipmentOptions = Object.entries(Equipment).map(([_, value]) => ({
-    value: value,
-    label: value,
-  }));
-
-  const modeOptions = Object.entries(Mode).map(([_, value]) => ({
-    value: value,
-    label: value,
-  }));
-
-  const loadOptions = Object.entries(LoadOption).map(([_, value]) => ({
-    value: value,
-    label: value,
-  }));
-
-  const commodityOptions = Object.entries(Commodity).map(([_, value]) => ({
-    value: value,
-    label: value,
-  }));
+  
 
   const {
     handleSubmit,
