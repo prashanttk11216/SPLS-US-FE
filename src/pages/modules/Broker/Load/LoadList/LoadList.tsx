@@ -328,9 +328,9 @@ const LoadList: React.FC = () => {
       equipment: load.equipment || "N/A",
       miles: load.miles ? `${formatNumber(load.miles)} mi` : "N/A",
       mode: load.mode || "N/A",
-      allInRate: load.allInRate ? `${formatNumber(load.allInRate)} $` : "N/A",
+      allInRate: load.allInRate ? `$ ${formatNumber(load.allInRate)}` : "N/A",
       customerRate: load.customerRate
-        ? `${formatNumber(load.customerRate)} $`
+        ? `$ ${formatNumber(load.customerRate)}`
         : "N/A",
       weight: load.weight ? `${formatNumber(load.weight)} lbs` : "N/A",
       length: load.length ? `${formatNumber(load.length)} ft` : "N/A",

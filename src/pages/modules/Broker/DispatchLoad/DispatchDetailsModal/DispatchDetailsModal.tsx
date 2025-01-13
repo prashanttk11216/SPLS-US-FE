@@ -42,7 +42,7 @@ const DispatchDetailsModal: React.FC<{
         {
           label: "All-in Rate",
           value:
-            (dispatch.allInRate && `${formatNumber(dispatch.allInRate)} $`) ||
+            (dispatch.allInRate && `$ ${formatNumber(dispatch.allInRate)}`) ||
             "N/A",
         },
         { label: "Load/Reference Number", value: dispatch.loadNumber || "N/A" },
@@ -77,7 +77,7 @@ const DispatchDetailsModal: React.FC<{
           label: "Value",
           value:
             (dispatch.shipper?.value &&
-              `${formatNumber(dispatch.shipper.value)} $`) ||
+              `$ ${formatNumber(dispatch.shipper.value)}`) ||
             "N/A",
         },
         {
@@ -118,7 +118,7 @@ const DispatchDetailsModal: React.FC<{
           label: "Value",
           value:
             (dispatch.consignee?.value &&
-              `${formatNumber(dispatch.consignee.value)} $`) ||
+              `$ ${formatNumber(dispatch.consignee.value)}`) ||
             "N/A",
         },
         {

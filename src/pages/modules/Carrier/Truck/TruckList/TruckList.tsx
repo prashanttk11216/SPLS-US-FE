@@ -220,7 +220,9 @@ const TruckList: React.FC = () => {
       "destination.str": truck?.destination?.str || "Anywhere",
       availableDate: formatDate(truck.availableDate, "MM/dd/yyyy") || "N/A",
       equipment: truck.equipment || "N/A",
-      allInRate: truck.allInRate ? `${formatNumber(truck.allInRate)} $` : "N/A",
+      allInRate: truck.allInRate
+      ? `$ ${formatNumber(truck.allInRate)}`
+      : "N/A",
       weight: truck.weight ? `${formatNumber(truck.weight)} lbs` : "N/A",
       length: truck.length ? `${formatNumber(truck.length)} ft` : "N/A",
       actions: getActions(truck),

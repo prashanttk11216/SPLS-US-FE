@@ -84,7 +84,7 @@ const LoadDetailsModal: React.FC<{
         {
           label: "Customer Rate",
           value: load.customerRate
-            ? `${formatNumber(load.customerRate)} $`
+            ? `$ ${formatNumber(load.customerRate)}`
             : "N/A",
         },
         {

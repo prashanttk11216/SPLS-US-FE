@@ -92,12 +92,12 @@ const LoadDetailsModal: React.FC<{
         { label: "Mode", value: load.mode || "N/A" },
         {
           label: "Broker Rate",
-          value: load.allInRate ? `${formatNumber(load.allInRate)} $` : "N/A",
+          value: load.allInRate ? `$ ${formatNumber(load.allInRate)}` : "N/A",
         },
         {
           label: "Customer Rate",
           value: load.customerRate
-            ? `${formatNumber(load.customerRate)} $`
+            ? `$ ${formatNumber(load.customerRate)}`
             : "N/A",
         },
         {

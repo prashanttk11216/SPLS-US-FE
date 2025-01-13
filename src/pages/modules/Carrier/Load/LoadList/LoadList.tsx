@@ -204,7 +204,7 @@ const LoadList: React.FC = () => {
           load.brokerId && typeof load.brokerId === "object"
             ? load.brokerId.company
             : "N/A",
-        allInRate: load.allInRate ? `${formatNumber(load.allInRate)} $` : "N/A",
+        allInRate: load.allInRate ? `$ ${formatNumber(load.allInRate)}` : "N/A",
         weight: load.weight ? `${formatNumber(load.weight)} lbs` : "N/A",
         length: load.length ? `${formatNumber(load.length)} ft` : "N/A",
         width: load.width ? `${formatNumber(load.width)} ft` : "N/A",

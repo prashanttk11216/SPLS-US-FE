@@ -65,7 +65,7 @@ const TruckDetailsModal: React.FC<{
         
         {
           label: "All-In Rate",
-          value: truckData.allInRate ? `$${formatNumber(truckData.allInRate)}` : "N/A",
+          value: truckData.allInRate ? `$ ${formatNumber(truckData.allInRate)}` : "N/A",
         },
         {
           label: "Assign User",

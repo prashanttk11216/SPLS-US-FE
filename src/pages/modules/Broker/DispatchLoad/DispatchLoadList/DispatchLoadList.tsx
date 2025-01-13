@@ -248,7 +248,7 @@ const DispatchLoadList: React.FC = () => {
       "consignee.date": formatDate(load.consignee.date, "MM/dd/yyyy") || "N/A",
 
       equipment: load.equipment || "N/A",
-      allInRate: load.allInRate ? `${formatNumber(load.allInRate)} $` : "N/A",
+      allInRate: load.allInRate ? `$ ${formatNumber(load.allInRate)}` : "N/A",
       WONumber: load.WONumber || "N/A",
       loadNumber: load.loadNumber || "N/A",
       actions: getActionsForLoad(load),
