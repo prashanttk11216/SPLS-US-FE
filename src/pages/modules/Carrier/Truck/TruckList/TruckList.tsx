@@ -20,6 +20,7 @@ import {
 import CreateOrEditTruck from "../CreateOrEditTruck/CreateOrEditTruck";
 import TruckDetailsModal from "../TruckDetailsModal/TruckDetailsModal";
 import { formatDate } from "../../../../../utils/dateFormat";
+import { formatNumber } from "../../../../../utils/numberUtils";
 
 const TruckList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -36,9 +37,9 @@ const TruckList: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortConfig, setSortConfig] = useState<{
-      key: string;
-      direction: "asc" | "desc";
-    } | null>({ key: "age", direction: "desc" });
+    key: string;
+    direction: "asc" | "desc";
+  } | null>({ key: "age", direction: "desc" });
 
   // View Details Option Added
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
@@ -167,7 +168,13 @@ const TruckList: React.FC = () => {
   };
 
   const columns = [
-    { width: "90px", key: "age", label: "Age", sortable: true, render: (row: any) => <strong>{row.age}</strong> },
+    {
+      width: "90px",
+      key: "age",
+      label: "Age",
+      sortable: true,
+      render: (row: any) => <strong>{row.age}</strong>,
+    },
     {
       width: "130px",
       key: "referenceNumber",
@@ -206,15 +213,18 @@ const TruckList: React.FC = () => {
     return trucks.map((truck) => ({
       _id: truck._id,
       age: truck.formattedAge || "N/A",
-      referenceNumber: truck.referenceNumber || "N/A",
+      referenceNumber: truck.referenceNumber
+        ? formatNumber(truck.referenceNumber)
+        : "N/A",
       "origin.str": truck.origin.str,
       "destination.str": truck?.destination?.str || "Anywhere",
-      availableDate:
-        formatDate(truck.availableDate, "MM/dd/yyyy") || "N/A",
+      availableDate: formatDate(truck.availableDate, "MM/dd/yyyy") || "N/A",
       equipment: truck.equipment || "N/A",
-      allInRate: truck.allInRate || "N/A",
-      weight: truck.weight || "N/A",
-      length: truck.length || "N/A",
+      allInRate: truck.allInRate
+      ? `$ ${formatNumber(truck.allInRate)}`
+      : "N/A",
+      weight: truck.weight ? `${formatNumber(truck.weight)} lbs` : "N/A",
+      length: truck.length ? `${formatNumber(truck.length)} ft` : "N/A",
       actions: getActions(truck),
     }));
   };

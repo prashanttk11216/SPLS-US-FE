@@ -3,6 +3,7 @@ import DetailsModal from "../../../../../components/common/DetailsModal/DetailsM
 import { IDispatch } from "../../../../../types/Dispatch";
 import { formatDate } from "../../../../../utils/dateFormat";
 import { User } from "../../../../../types/User";
+import { formatNumber } from "../../../../../utils/numberUtils";
 
 const DispatchDetailsModal: React.FC<{
   isOpen: boolean;
@@ -40,7 +41,9 @@ const DispatchDetailsModal: React.FC<{
         },
         {
           label: "All-in Rate",
-          value: (dispatch.allInRate && `${dispatch.allInRate} $`) || "N/A",
+          value:
+            (dispatch.allInRate && `$ ${formatNumber(dispatch.allInRate)}`) ||
+            "N/A",
         },
         { label: "Load/Reference Number", value: dispatch.loadNumber || "N/A" },
         {
@@ -58,23 +61,30 @@ const DispatchDetailsModal: React.FC<{
         },
         {
           label: "Quantity",
-          value: dispatch.shipper?.qty || "N/A",
+          value:
+            (dispatch.shipper?.qty &&
+              `${formatNumber(dispatch.shipper.qty)}`) ||
+            "N/A",
         },
         {
           label: "Weight",
           value:
-            (dispatch.shipper?.weight && dispatch.shipper?.weight + " lbs") ||
+            (dispatch.shipper?.weight &&
+              `${formatNumber(dispatch.shipper.weight)} lbs`) ||
             "N/A",
         },
         {
           label: "Value",
           value:
-            (dispatch.shipper?.value && `${dispatch.shipper?.value} $`) ||
+            (dispatch.shipper?.value &&
+              `$ ${formatNumber(dispatch.shipper.value)}`) ||
             "N/A",
         },
         {
           label: "P/O Number",
-          value: dispatch.shipper?.PO || "N/A",
+          value:
+            (dispatch.shipper?.PO && `${formatNumber(dispatch.shipper.PO)}`) ||
+            "N/A",
         },
         {
           label: "Shipping Notes",
@@ -92,29 +102,36 @@ const DispatchDetailsModal: React.FC<{
         },
         {
           label: "Quantity",
-          value: dispatch.consignee?.qty || "N/A",
+          value:
+            (dispatch.consignee?.qty &&
+              `${formatNumber(dispatch.consignee.qty)}`) ||
+            "N/A",
         },
         {
           label: "Weight",
           value:
             (dispatch.consignee?.weight &&
-              dispatch.consignee?.weight + " lbs") ||
+              `${formatNumber(dispatch.consignee.weight)} lbs`) ||
             "N/A",
         },
         {
           label: "Value",
           value:
-            (dispatch.consignee?.value && `${dispatch.consignee?.value} $`) ||
+            (dispatch.consignee?.value &&
+              `$ ${formatNumber(dispatch.consignee.value)}`) ||
             "N/A",
         },
         {
           label: "P/O Number",
-          value: dispatch.consignee?.PO || "N/A",
+          value:
+            (dispatch.consignee?.PO &&
+              `${formatNumber(dispatch.consignee.PO)}`) ||
+            "N/A",
         },
         {
-            label: "Shipping Notes",
-            value: dispatch.consignee?.notes || "N/A",
-          },
+          label: "Shipping Notes",
+          value: dispatch.consignee?.notes || "N/A",
+        },
       ],
     },
   ];

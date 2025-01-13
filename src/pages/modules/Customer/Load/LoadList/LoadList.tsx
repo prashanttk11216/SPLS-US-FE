@@ -12,16 +12,15 @@ import Pagination, {
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import "./LoadList.scss";
 import { Load } from "../../../../../types/Load";
-import {
-  getloads,
-} from "../../../../../services/load/loadServices";
+import { getloads } from "../../../../../services/load/loadServices";
 import { useNavigate } from "react-router-dom";
 import { formatDate } from "../../../../../utils/dateFormat";
 import LoadDetailsModal from "../LoadDetailsModal/LoadDetailsModal";
+import { formatNumber } from "../../../../../utils/numberUtils";
 
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [loads, setLoads] = useState<Load[]>([]);
   const [meta, setMeta] = useState({
     page: 1,
@@ -37,12 +36,9 @@ const LoadList: React.FC = () => {
     direction: "asc" | "desc";
   } | null>(null);
 
-   // View Details Option Added
-   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
-   const [loadDetails, setLoadDetails] = useState<Partial<Load> | null>(
-     null
-   );
-
+  // View Details Option Added
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
+  const [loadDetails, setLoadDetails] = useState<Partial<Load> | null>(null);
 
   const {
     fetchData: fetchLoads,
@@ -96,8 +92,13 @@ const LoadList: React.FC = () => {
       label: "Ref No",
       sortable: true,
     },
-    { width: "250px", key: "origin", label: "Origin", sortable: true},
-    { width: "250px", key: "destination", label: "Destination", sortable: true},
+    { width: "250px", key: "origin", label: "Origin", sortable: true },
+    {
+      width: "250px",
+      key: "destination",
+      label: "Destination",
+      sortable: true,
+    },
     {
       width: "150px",
       key: "originEarlyPickupDate",
@@ -114,22 +115,27 @@ const LoadList: React.FC = () => {
     { width: "150px", key: "miles", label: "Miles", sortable: true },
     { width: "150px", key: "mode", label: "Mode" },
     { width: "140px", key: "allInRate", label: "Broker Rate", sortable: true },
-    { width: "160px", key: "customerRate", label: "Customer Rate", sortable: true },
+    {
+      width: "160px",
+      key: "customerRate",
+      label: "Customer Rate",
+      sortable: true,
+    },
     { width: "120px", key: "weight", label: "Weight", sortable: true },
     { width: "120px", key: "length", label: "Length", sortable: true },
     { width: "120px", key: "width", label: "Width", sortable: true },
     { width: "120px", key: "height", label: "Height", sortable: true },
-    { width: "120px", key: "loadOption", label: "Load Option"},
+    { width: "120px", key: "loadOption", label: "Load Option" },
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
   const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
       case "View Details":
-        handleRowClick(row)
+        handleRowClick(row);
         break;
       case "view":
-      break;
+        break;
       default:
         toast.info(`Action "${action}" is not yet implemented.`);
     }
@@ -165,19 +171,23 @@ const LoadList: React.FC = () => {
       _id: load._id,
       origin: load.origin.str,
       destination: load.destination.str || "N/A",
-      originEarlyPickupDate: formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
-      originEarlyPickupTime: formatDate(load.originEarlyPickupDate, "h:mm aa") || "N/A",
+      originEarlyPickupDate:
+        formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
+      originEarlyPickupTime:
+        formatDate(load.originEarlyPickupDate, "h:mm aa") || "N/A",
       equipment: load.equipment || "N/A",
       mode: load.mode || "N/A",
-      miles: load.miles|| "N/A",
-      allInRate: load.allInRate ? `${load.allInRate} $` : "N/A",
-      customerRate: load.customerRate? `${load.customerRate} $` : "N/A",
-      weight: (load.weight && (load.weight + " lbs")) || "N/A",
-      length: (load.length && (load.length + " ft")) || "N/A",
-      width: (load.width && load.width + " ft") || "N/A",
-      height: (load.height && load.height + " ft") || "N/A",
+      miles: load.miles ? `${formatNumber(load.miles)} mi` : "N/A",
+      allInRate: load.allInRate ? `$ ${formatNumber(load.allInRate)}` : "N/A",
+      customerRate: load.customerRate
+        ? `$ ${formatNumber(load.customerRate)}`
+        : "N/A",
+      weight: load.weight ? `${formatNumber(load.weight)} lbs` : "N/A",
+      length: load.length ? `${formatNumber(load.length)} ft` : "N/A",
+      width: load.width ? `${formatNumber(load.width)} ft` : "N/A",
+      height: load.height ? `${formatNumber(load.height)} ft` : "N/A",
       loadOption: load.loadOption || "N/A",
-      loadNumber: load.loadNumber || "N/A",
+      loadNumber: load.loadNumber ? `${formatNumber(+load.loadNumber)}` : "N/A",
       actions: getActionsForLoad(load),
     }));
   };
@@ -191,12 +201,10 @@ const LoadList: React.FC = () => {
     setSearchQuery(query);
   };
 
-
   return (
     <div className="customers-list-wrapper">
       <h2 className="fw-bolder">SPLS Load Board</h2>
       <div className="d-flex align-items-center my-3">
-    
         {/* Search Bar */}
         <div className="searchbar-container">
           <SearchBar onSearch={handleSearch} />
@@ -230,17 +238,17 @@ const LoadList: React.FC = () => {
           />
           {loads?.length > 0 && (
             <div className="pagination-container">
-            {/* Pagination Component */}
-            <Pagination
-              meta={meta}
-              onPageChange={handlePageChange}
-              onItemsPerPageChange={handleItemsPerPageChange}
-            />
-          </div>
+              {/* Pagination Component */}
+              <Pagination
+                meta={meta}
+                onPageChange={handlePageChange}
+                onItemsPerPageChange={handleItemsPerPageChange}
+              />
+            </div>
           )}
         </>
       )}
-       <LoadDetailsModal
+      <LoadDetailsModal
         isOpen={isDetailsModalOpen}
         load={loadDetails}
         onClose={() => setIsDetailsModalOpen(false)}
