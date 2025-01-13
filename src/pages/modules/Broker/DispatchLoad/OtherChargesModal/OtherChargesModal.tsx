@@ -20,7 +20,6 @@ const OtherChargesModal: React.FC<{
   const {
     handleSubmit,
     control,
-    setValue,
     getValues,
     watch,
     reset,
@@ -132,7 +131,6 @@ const OtherChargesModal: React.FC<{
                   name={`breakdown.${index}.date`}
                   control={control}
                   label="Date"
-                  required={true}
                   placeholder="date"
                   datePickerProps={{
                     dateFormat: "MM/dd/yyyy",

@@ -3,7 +3,6 @@ import Modal from "../../../../../components/common/Modal/Modal";
 import {
   CarrierFeeBreakdownForm,
   CarrierFeeForm,
-  OtherChargeForm,
 } from "../CreateOrEditDispatchLoad/CreateOrEditDispatchLoad";
 import Input from "../../../../../components/common/Input/Input";
 import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
@@ -324,7 +323,6 @@ const CarrierFeeChargeBreakDownModal: React.FC<{
                   name={`breakdown.OtherChargeSchema.${index}.date`}
                   control={control}
                   label="Date"
-                  required={true}
                   placeholder="date"
                   datePickerProps={{
                     dateFormat: "MM/dd/yyyy",
