@@ -22,6 +22,7 @@ import { formatDate } from "../../../../../utils/dateFormat";
 import { DispatchLoadStatus } from "../../../../../enums/DispatchLoadStatus";
 import { IDispatch } from "../../../../../types/Dispatch";
 import DispatchDetailsModal from "../DispatchDetailsModal/DispatchDetailsModal";
+import { formatNumber } from "../../../../../utils/numberUtils";
 
 const DispatchLoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -247,7 +248,7 @@ const DispatchLoadList: React.FC = () => {
       "consignee.date": formatDate(load.consignee.date, "MM/dd/yyyy") || "N/A",
 
       equipment: load.equipment || "N/A",
-      allInRate: load.allInRate ? `${load.allInRate} $` : "N/A",
+      allInRate: load.allInRate ? `${formatNumber(load.allInRate)} $` : "N/A",
       WONumber: load.WONumber || "N/A",
       loadNumber: load.loadNumber || "N/A",
       actions: getActionsForLoad(load),

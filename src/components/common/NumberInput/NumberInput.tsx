@@ -1,6 +1,7 @@
 import React from "react";
 import { Controller } from "react-hook-form";
 import "./NumberInput.scss";
+import { formatNumber } from "../../../utils/numberUtils";
 
 interface NumberInputProps {
   label: string;
@@ -18,7 +19,6 @@ interface NumberInputProps {
   defaultCurrency?: string;
   onCurrencyChange?: (currency: string) => void;
   numberFormatOptions?: Intl.NumberFormatOptions;
-  locale?: string;
 }
 
 const NumberInput: React.FC<NumberInputProps> = ({
@@ -34,7 +34,6 @@ const NumberInput: React.FC<NumberInputProps> = ({
   currency = false,
   onCurrencyChange,
   numberFormatOptions = {},
-  locale = "en-US",
 }) => {
   const validationRules = {
     setValueAs: (value: any) => {
@@ -48,15 +47,6 @@ const NumberInput: React.FC<NumberInputProps> = ({
   ) => {
     onCurrencyChange?.(event.target.value);
   };
-
-  const formatNumber = (value: number | string) => {
-    if (value === undefined || value === null || value === "") return "";
-    const number =
-      typeof value === "string" ? parseFloat(value.replace(/,/g, "")) : value;
-    if (isNaN(number)) return value;
-    return new Intl.NumberFormat(locale, numberFormatOptions).format(number);
-  };
-
   rules = { ...rules, ...validationRules };
   return (
     <div className="mb-3">
