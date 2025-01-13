@@ -694,7 +694,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
           {/* All-in Rate*/}
           <div className="col-3">
             <NumberInput
-              label="Broker All-in Rate"
+              label="Carrier All-in Rate"
               id="allInRate"
               name="allInRate"
               placeholder="Enter All-in Rate"

@@ -17,6 +17,7 @@ import {
   calculatePercentage,
   calculatePercentageByUnit,
 } from "../../../../../utils/globalHelper";
+import { useEffect, useMemo, useState } from "react";
 
 const CarrierFeeChargeBreakDownModal: React.FC<{
   isOpen: boolean;
@@ -25,6 +26,8 @@ const CarrierFeeChargeBreakDownModal: React.FC<{
   data?: CarrierFeeBreakdownForm;
   calculateCarrierFeeBreakDownCharge: (data: CarrierFeeBreakdownForm) => void;
 }> = ({ isOpen, onClose, title, data, calculateCarrierFeeBreakDownCharge }) => {
+    const [finalAllInRate, setFinalAllInRate] = useState(0);
+
   const {
     handleSubmit,
     control,
@@ -87,11 +90,10 @@ const CarrierFeeChargeBreakDownModal: React.FC<{
     const values = getValues(); // Get current values
     const updatedBreakdown = [...values.breakdown?.OtherChargeSchema!]; // Clone the array
     updatedBreakdown[index].date = undefined; // Reset the specific field
-    reset({
-      breakdown: {
-        OtherChargeSchema: updatedBreakdown,
-      },
-    }); // Reset the form with updated values
+    reset({...values, breakdown: {
+      ...values.breakdown,
+      OtherChargeSchema: updatedBreakdown,
+    }}); // Reset the form with updated values
   };
 
   const DispatchLoadTypeValue = watch("breakdown.type");
@@ -101,63 +103,71 @@ const CarrierFeeChargeBreakDownModal: React.FC<{
   const fuelServiceCharge = watch("breakdown.fuelServiceCharge")!;
   const OtherChargeSchema = watch("breakdown.OtherChargeSchema");
 
-  const calculateFuelServiceCharge = () => {
+  const calculateFuelServiceCharge = useMemo(() => {
+      if (carrierRateValue) {
+        if (unitsValue) {
+          return calculatePercentageByUnit(carrierRateValue, fuelServiceCharge.value, unitsValue) || 0;
+        }
+        return calculatePercentage(carrierRateValue, fuelServiceCharge.value) || 0;
+      }
+      return 0;
+    }, [carrierRateValue, fuelServiceCharge?.value, unitsValue]);
+
+  const otherChargeAmounts = OtherChargeSchema?.map((charge) => ({
+    amount: charge.amount || 0,
+    isAdvance: charge.isAdvance,
+  })) || [];
+  
+
+  // useEffect for all-in rate calculation
+  useEffect(() => {
+    let calculatedRate = 0;
+
     if (carrierRateValue) {
-      if (unitsValue) {
-        return calculatePercentageByUnit(
-          carrierRateValue,
-          fuelServiceCharge.value,
-          unitsValue
-        );
-      }
-      return calculatePercentage(carrierRateValue, fuelServiceCharge.value);
+      calculatedRate +=
+        unitsValue && !isNaN(unitsValue)
+          ? carrierRateValue * unitsValue
+          : carrierRateValue;
     }
-    return false;
-  };
 
-  let finalAllInRate = 0;
-
-  if (carrierRateValue) {
-    if (unitsValue) {
-      finalAllInRate += carrierRateValue * unitsValue;
-    } else {
-      finalAllInRate += carrierRateValue;
+    if (PDs) {
+      calculatedRate += PDs;
     }
-  }
-  if (PDs) {
-    finalAllInRate += PDs;
-  }
-  if (fuelServiceCharge?.value) {
-    if (fuelServiceCharge.isPercentage && carrierRateValue) {
-      if (unitsValue) {
-        finalAllInRate += calculatePercentageByUnit(
-          carrierRateValue,
-          fuelServiceCharge.value,
-          unitsValue
-        );
+
+    if (fuelServiceCharge?.value) {
+      if (fuelServiceCharge.isPercentage && carrierRateValue) {
+        calculatedRate += unitsValue
+          ? calculatePercentageByUnit(
+              carrierRateValue,
+              fuelServiceCharge.value,
+              unitsValue
+            )
+          : calculatePercentage(carrierRateValue, fuelServiceCharge.value);
       } else {
-        finalAllInRate += calculatePercentage(
-          carrierRateValue,
-          fuelServiceCharge.value
-        );
+        calculatedRate += fuelServiceCharge.value;
       }
-    } else {
-      finalAllInRate += fuelServiceCharge.value;
     }
-  }
-  if (OtherChargeSchema?.length) {
-    let totalOtherCharges = OtherChargeSchema.filter(
-      (charge) => !charge.isAdvance
-    ) // Exclude advance charges
-      .reduce((sum, charge) => sum + charge.amount!, 0);
-    let totalAdvance =
-      OtherChargeSchema?.filter((charge) => charge.isAdvance) // Include only advance charges
-        .reduce((sum, charge) => sum + charge.amount!, 0) || 0;
 
-    finalAllInRate = finalAllInRate + totalOtherCharges - totalAdvance;
-  }
+    if (OtherChargeSchema?.length) {
+      let totalOtherCharges = OtherChargeSchema.filter((charge) => !charge.isAdvance).reduce((sum, charge) => sum + (charge.amount || 0), 0) || 0;
+      let totalAdvance = OtherChargeSchema?.filter((charge) => charge.isAdvance).reduce((sum, charge) => sum + (charge.amount || 0), 0) || 0;
+      calculatedRate = (calculatedRate + totalOtherCharges) - totalAdvance;
+    }
 
-  if (finalAllInRate) setValue("breakdown.totalRate", finalAllInRate);
+    // Update the final all-in rate if it changes
+    if (calculatedRate !== finalAllInRate) {
+      setFinalAllInRate(calculatedRate);
+      setValue("breakdown.totalRate", calculatedRate);
+    }
+  }, [
+    carrierRateValue,
+    unitsValue,
+    PDs,
+    fuelServiceCharge?.value,
+    otherChargeAmounts,
+    finalAllInRate, // Prevent redundant updates
+    setValue
+  ]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} size="lg">
@@ -250,12 +260,12 @@ const CarrierFeeChargeBreakDownModal: React.FC<{
               />
             </div>
           </div>
-          {watch("breakdown.fuelServiceCharge.isPercentage") &&
-            calculateFuelServiceCharge() && (
-              <div className="col-2 d-flex align-items-center">
-                = {calculateFuelServiceCharge()}
-              </div>
-            )}
+          {fuelServiceCharge?.isPercentage && (
+            <div className="col-2">
+              <div>Amount</div>
+              <div className="fw-bold">{calculateFuelServiceCharge} $</div>
+            </div>
+          )}
         </div>
 
         <hr />

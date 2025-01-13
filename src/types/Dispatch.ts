@@ -88,7 +88,6 @@ export interface IDispatch extends Document {
   equipment: Equipment;
   allInRate?: number;
   customerRate?: number;
-  carrierRate?: number;
   consignee: IConsignee;
   shipper: IShipper;
   postedBy?: string | User;

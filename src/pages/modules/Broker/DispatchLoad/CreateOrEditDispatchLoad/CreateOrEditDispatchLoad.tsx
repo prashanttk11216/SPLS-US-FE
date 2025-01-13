@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
@@ -120,7 +120,6 @@ export type DispatchLoadForm = {
   allInRate?: number; // Optional all-in rate
   customerRate?: number; // Optional customer rate
   units?: number;
-  carrierRate?: number; // Optional carrier rate
   consignee: ConsigneeForm; // Consignee details
   shipper: ShipperForm; // Shipper details
   postedBy?: string; // Optional posted by user ID
@@ -148,6 +147,8 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
   const [shipperList, setShipperList] = useState<any[]>([]);
   const [isOtherChargeOpen, setIsOtherChargeOpen] = useState(false);
   const [isCarrierFeeOpen, setIsCarrierFeeOpen] = useState(false);
+  const [finalAllInRate, setFinalAllInRate] = useState(0);
+
 
   const {
     handleSubmit,
@@ -337,17 +338,9 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
   const PDs = watch("PDs");
   const fuelServiceCharge = watch("fuelServiceCharge");
   const otherCharges = watch("otherCharges");
+  const allInRate = watch("allInRate"); // Ensure numeric values
+  const carrierFee = watch("carrierFee");
 
-
-  const calculateFuelServiceCharge = () => {
-    if(customerRateValue){
-      if (unitsValue) {
-        return calculatePercentageByUnit(customerRateValue, fuelServiceCharge.value, unitsValue)
-      } 
-      return calculatePercentage(customerRateValue, fuelServiceCharge.value);
-    }
-    return false;
-  };
 
   const calculateOtherBreakDownCharge = (
     charges: OtherChargeBreakdownForm[]
@@ -362,8 +355,6 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
           .reduce((sum, charge) => sum + charge.amount!, 0) || 0;
 
       const finalTotalCharges = totalOtherCharges - totalAdvance;
-      console.log(charges);
-      
 
       let data = {
         totalAmount: finalTotalCharges,
@@ -375,56 +366,81 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
     }
   };
 
-  const calculateCarrierFeeBreakDownCharge = (charges: CarrierFeeBreakdownForm)=>{
-    let data: CarrierFeeForm = {
-      totalAmount: charges.totalRate!,
-      breakdown: charges
-    }
-    setValue("carrierFee", data);
+  const calculateCarrierFeeBreakDownCharge = (charges: CarrierFeeBreakdownForm) => {
+    setValue("carrierFee", {
+      totalAmount: charges.totalRate || 0,
+      breakdown: charges,
+    });
     setIsCarrierFeeOpen(false);
-  }
-  let finalAllInRate = 0;
+  };
 
-  if(customerRateValue){
-    if(unitsValue){
-      finalAllInRate += (customerRateValue * unitsValue)
-    }else{
-      finalAllInRate += customerRateValue;
+  // useEffect for all-in rate calculation
+  useEffect(() => {
+    let calculatedRate = 0;
+
+    if (customerRateValue) {
+      calculatedRate +=
+        unitsValue && !isNaN(unitsValue)
+          ? customerRateValue * unitsValue
+          : customerRateValue;
     }
-  }
-  if(PDs){
-    finalAllInRate += PDs;
-  }
-  if(fuelServiceCharge?.value){
-    if(fuelServiceCharge.isPercentage && customerRateValue){
-      if(unitsValue){
-        finalAllInRate += calculatePercentageByUnit(customerRateValue, fuelServiceCharge.value, unitsValue)
-      }else{
-        finalAllInRate += calculatePercentage(customerRateValue, fuelServiceCharge.value);
+
+    if (PDs) {
+      calculatedRate += PDs;
+    }
+
+    if (fuelServiceCharge?.value) {
+      if (fuelServiceCharge.isPercentage && customerRateValue) {
+        calculatedRate += unitsValue
+          ? calculatePercentageByUnit(
+              customerRateValue,
+              fuelServiceCharge.value,
+              unitsValue
+            )
+          : calculatePercentage(customerRateValue, fuelServiceCharge.value);
+      } else {
+        calculatedRate += fuelServiceCharge.value;
       }
-    }else{
-      finalAllInRate += fuelServiceCharge.value;
     }
-  }
-  if(otherCharges?.totalAmount){
-    finalAllInRate += otherCharges.totalAmount;
-  }
 
-  if(finalAllInRate) setValue("allInRate", finalAllInRate);
+    if (otherCharges?.totalAmount) {
+      calculatedRate += otherCharges.totalAmount;
+    }
 
-
-  const calculateMarginPercentage = () => {
-    const allInRate = watch("allInRate"); // Ensure numeric values
-    const carrierFee = watch("carrierFee");
+    // Update the final all-in rate if it changes
+    if (calculatedRate !== finalAllInRate) {
+      setFinalAllInRate(calculatedRate);
+      setValue("allInRate", calculatedRate);
+    }
+  }, [
+    customerRateValue,
+    unitsValue,
+    PDs,
+    fuelServiceCharge?.value,
+    otherCharges?.totalAmount,
+    finalAllInRate, // Prevent redundant updates
+    setValue
+  ]);
   
+  // UseMemo to optimize the computation
+  const marginPercentage = useMemo(() => {
     if (!(allInRate || allInRate === 0)) {
       return 0; // Avoid division by zero
     }
+    const totalCarrierFee = carrierFee?.totalAmount || 0;
+    const margin = ((allInRate - totalCarrierFee) / allInRate) * 100;
+    return margin.toFixed(2); // Return percentage with 2 decimal places
+  }, [allInRate, carrierFee?.totalAmount]);
   
-    const marginPercentage = ((allInRate - (carrierFee.totalAmount || 0)) / allInRate) * 100;
-    return marginPercentage.toFixed(2); // Return percentage with 2 decimal places
-  };
-  
+  const calculateFuelServiceCharge = useMemo(() => {
+    if (customerRateValue) {
+      if (unitsValue) {
+        return calculatePercentageByUnit(customerRateValue, fuelServiceCharge.value, unitsValue) || 0;
+      }
+      return calculatePercentage(customerRateValue, fuelServiceCharge.value) || 0;
+    }
+    return 0;
+  }, [customerRateValue, fuelServiceCharge?.value, unitsValue]);
 
   return (
     <>
@@ -447,6 +463,20 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
 
       <form onSubmit={handleSubmit(submit)}>
         <div className="row">
+          {/* Load/Reference Number */}
+          <div className="col-3">
+            <NumberInput
+              label="Load / Reference Number"
+              id="loadNumber"
+              name="loadNumber"
+              disabled={loadId ? true : false}
+              placeholder="Enter Load / Reference Number"
+              control={control}
+              rules={{
+                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+              }}
+            />
+          </div>
           {/* Bill To */}
           <div className="col-3">
             <SelectField
@@ -505,7 +535,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
             />
           </div>
           {/* Customer All-in Rate*/}
-          <div className="col-3">
+          <div className="col-2">
             <NumberInput
               label="Rate"
               id="customerRate"
@@ -520,7 +550,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
           </div>
           {/* Conditionally show Unit Number if 'Pallets' is selected */}
           {DispatchLoadTypeValue === DispatchLoadType.PALLETS && (
-            <div className="col-3">
+            <div className="col-2">
               <NumberInput
                 label="Units"
                 id="units"
@@ -534,7 +564,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
             </div>
           )}
           {/* Picks/Drops */}
-          <div className="col-3">
+          <div className="col-2">
             <NumberInput
               label="P/Ds"
               id="PDs"
@@ -547,7 +577,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
             />
           </div>
           {/* F.S.C */}
-          <div className="col-4 position-relative">
+          <div className="col-2 position-relative">
             <NumberInput
               label="F.S.C"
               id="fuelServiceCharge.value"
@@ -579,13 +609,14 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               />
             </div>
           </div>
-          {watch("fuelServiceCharge.isPercentage") &&
-            calculateFuelServiceCharge() && (
-              <div className="col-1 d-flex align-items-center">
-                = {calculateFuelServiceCharge()}
-              </div>
-            )}
-          <div className="col-4 position-relative">
+          {fuelServiceCharge?.isPercentage && (
+            <div className="col-1">
+            <div>Amount</div>
+            <div className="fw-bold">{calculateFuelServiceCharge} $</div>
+          </div>
+          )}
+          {/* Other Charge */}
+          <div className="col-2 position-relative">
             <NumberInput
               label="Other Charges"
               id="otherCharges.totalAmount"
@@ -593,7 +624,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               placeholder="Enter Other Charges"
               control={control}
             />
-            <div className="position-absolute top-0 end-0">
+            <div className="position-absolute top-0" style={{right:"15px"}}>
               <img
                 src={PlusIcon}
                 height={20}
@@ -604,7 +635,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
             </div>
           </div>
           {/* All-in Rate*/}
-          <div className="col-3">
+          <div className="col-2">
             <NumberInput
               label="All-in Rate"
               id="allInRate"
@@ -614,9 +645,10 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               currency
             />
           </div>
+          
           <div className="col-1">
             <div>Percent</div>
-            <div className="fw-bold">{calculateMarginPercentage()} %</div>
+            <div className="fw-bold">{marginPercentage} %</div>
           </div>
           {/* Equipment */}
           <div className="col-3">
@@ -651,7 +683,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               placeholder="Enter Carrier Fee"
               control={control}
             />
-            <div className="position-absolute top-0 end-0">
+            <div className="position-absolute top-0" style={{right:"15px"}}>
               <img
                 src={PlusIcon}
                 height={20}
@@ -660,20 +692,6 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
                 onClick={() => setIsCarrierFeeOpen(true)}
               />
             </div>
-          </div>
-          {/* Load/Reference Number */}
-          <div className="col-3">
-            <NumberInput
-              label="Load / Reference Number"
-              id="loadNumber"
-              name="loadNumber"
-              disabled={loadId ? true : false}
-              placeholder="Enter Load / Reference Number"
-              control={control}
-              rules={{
-                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
-              }}
-            />
           </div>
           {/* Assign User */}
           <div className="col-3">

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Equipment } from "../../enums/Equipment";
 import { DispatchLoadType } from "../../enums/DispatchLoadType";
+import { DispatchLoadStatus } from "../../enums/DispatchLoadStatus";
 
 // Address Schema
 const addressSchema = z.object({
@@ -47,19 +48,19 @@ const FscSchema = z.object({
 
 // Other Charges Schema
 const OtherChargeSchema = z.object({
-  description: z.string({ required_error: "Description is required" }),
+  description: z.string({ required_error: "Description is required" }).optional(),
   amount: z.number().min(0, { message: "Amount must be 0 or greater" }),
   isAdvance: z.boolean().optional(),
-  date: z.date().optional(),
+  date: z.string().optional(),
 });
 
 const CarrierFeeBreakdownSchema = z.object({
-  type: z.string({ required_error: "Agreed rate type is required" }), // Example: "Flat Rate", "Per Mile"
+  type: z.string({ required_error: "Agreed rate type is required" }).optional(), // Example: "Flat Rate", "Per Mile"
   units: z.number().min(0).optional(),
-  rate: z.number().min(0, { message: "Rate must be 0 or greater" }),
-  PDs: z.number().min(0).default(0),
-  fuelServiceCharge: FscSchema,
-  totalRate: z.number().min(0).optional(),
+  rate: z.number().min(0, { message: "Rate must be 0 or greater" }).optional(),
+  PDs: z.number().min(0).default(0).optional(),
+  fuelServiceCharge: FscSchema.optional(),
+  totalRate: z.number().min(0, { message: "Rate must be 0 or greater" }),
   OtherChargeSchema: z.array(OtherChargeSchema).optional(),
 });
 
@@ -67,16 +68,16 @@ const CarrierFeeBreakdownSchema = z.object({
 const baseDispatchSchema = z.object({
   brokerId: z.string(),
   loadNumber: z.number().int().optional(),
-  WONumber: z.number().int().optional(),
+  WONumber: z.number().int(),
   customerId: z.string(),
   carrierId: z.string(),
   salesRep: z.string(),
   type: z.nativeEnum(DispatchLoadType, { required_error: "Type is required" }),
   units: z.number().min(0).optional(),
-  PDs: z.number().min(0).optional(),
-  fuelServiceCharge: FscSchema.optional(),
+  PDs: z.number().min(0),
+  fuelServiceCharge: FscSchema,
   otherCharges: z.object({
-    totalAmount: z.number().min(0, { message: "Direct amount must be 0 or greater" }).optional(),
+    totalAmount: z.number().min(0, { message: "Direct amount must be 0 or greater" }),
     breakdown: z.array(OtherChargeSchema).optional(),
   }).optional(), 
   carrierFee: z.object({
@@ -84,13 +85,12 @@ const baseDispatchSchema = z.object({
     breakdown: CarrierFeeBreakdownSchema.optional(),
   }).optional(),
   equipment: z.nativeEnum(Equipment, { required_error: "Equipment is required" }),
-  allInRate: z.number().min(0).optional(),
-  customerRate: z.number().min(0).optional(),
-  carrierRate: z.number().min(0).optional(),
-  consignee: consigneeSchema.optional(),
-  shipper: shipperSchema.optional(),
+  allInRate: z.number().min(0),
+  customerRate: z.number().min(0),
+  consignee: consigneeSchema,
+  shipper: shipperSchema,
   postedBy: z.string().optional(),
-  status: z.enum(["Draft", "Published", "Pending Response", "Deal Closed", "Cancelled"]).optional(),
+  status: z.nativeEnum(DispatchLoadStatus).optional(),
   age: z.string().optional(),
 });
 
