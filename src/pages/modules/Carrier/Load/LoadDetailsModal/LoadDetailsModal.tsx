@@ -3,6 +3,7 @@ import { Load } from "../../../../../types/Load";
 import DetailsModal from "../../../../../components/common/DetailsModal/DetailsModal";
 import { User } from "../../../../../types/User";
 import { formatDate } from "../../../../../utils/dateFormat";
+import { formatNumber } from "../../../../../utils/numberUtils";
 
 const LoadDetailsModal: React.FC<{
   isOpen: boolean;
@@ -19,20 +20,20 @@ const LoadDetailsModal: React.FC<{
         {
           label: "Pick-Up",
           value: load.originEarlyPickupDate
-            ? formatDate(load.originEarlyPickupDate, 'MM/dd/yyyy') 
+            ? formatDate(load.originEarlyPickupDate, "MM/dd/yyyy")
             : "N/A",
           fullWidth: true,
         },
         {
           label: "Pick-Up Time",
           value: load.originEarlyPickupTime
-            ? formatDate(load.originEarlyPickupTime, 'h:mm aa')  
+            ? formatDate(load.originEarlyPickupTime, "h:mm aa")
             : "N/A",
           fullWidth: true,
         },
         {
           label: "Miles",
-          value: String(load.miles || "N/A"),
+          value: load.miles ? `${formatNumber(load.miles)} mi` : "N/A",
           fullWidth: true,
         },
       ],
@@ -48,28 +49,28 @@ const LoadDetailsModal: React.FC<{
         {
           label: "Early Drop-off Date",
           value: load.destinationEarlyDropoffDate
-            ? formatDate(load.destinationEarlyDropoffDate, 'MM/dd/yyyy') 
+            ? formatDate(load.destinationEarlyDropoffDate, "MM/dd/yyyy")
             : "N/A",
           fullWidth: true,
         },
         {
           label: "Early Drop-off Time",
           value: load.destinationEarlyDropoffTime
-            ? formatDate(load.destinationEarlyDropoffTime, 'h:mm aa')
+            ? formatDate(load.destinationEarlyDropoffTime, "h:mm aa")
             : "N/A",
           fullWidth: true,
         },
         {
           label: "Late Drop-off Date",
           value: load.destinationLateDropoffDate
-            ? formatDate(load.destinationLateDropoffDate, 'MM/dd/yyyy') 
+            ? formatDate(load.destinationLateDropoffDate, "MM/dd/yyyy")
             : "N/A",
           fullWidth: true,
         },
         {
           label: "Late Drop-off Time",
           value: load.destinationLateDropoffTime
-            ? formatDate(load.destinationLateDropoffTime, 'h:mm aa')  
+            ? formatDate(load.destinationLateDropoffTime, "h:mm aa")
             : "N/A",
           fullWidth: true,
         },
@@ -80,18 +81,48 @@ const LoadDetailsModal: React.FC<{
       rows: [
         { label: "Equipment", value: load.equipment || "N/A" },
         { label: "Mode", value: load.mode || "N/A" },
-        { label: "Broker Rate", value: (load.allInRate && `${load.allInRate} $`) || "N/A"},
-        { label: "Weight", value: (load.weight && (load.weight + " lbs")) || "N/A" },
-        { label: "Length", value: (load.length && (load.length + " ft")) || "N/A" },
-        { label: "Width", value: (load.width && (load.width + " ft")) || "N/A"   },
-        { label: "Height", value: (load.height && (load.height + " ft")) || "N/A"},
-        { label: "Distance(Miles)", value: load.miles || "N/A" },
-        { label: "Pieces", value: load.pieces || "N/A" },
-        { label: "Pallets", value: load.pallets || "N/A" },
+        {
+          label: "Broker Rate",
+          value: load.allInRate ? `${formatNumber(load.allInRate)} $` : "N/A",
+        },
+        {
+          label: "Weight",
+          value: load.weight ? `${formatNumber(load.weight)} lbs` : "N/A",
+        },
+        {
+          label: "Length",
+          value: load.length ? `${formatNumber(load.length)} ft` : "N/A",
+        },
+        {
+          label: "Width",
+          value: load.width ? `${formatNumber(load.width)} ft` : "N/A",
+        },
+        {
+          label: "Height",
+          value: load.height ? `${formatNumber(load.height)} ft` : "N/A",
+        },
+        // {
+        //   label: "Distance(Miles)",
+        //   value: load.miles ? `${formatNumber(load.miles)} mi` : "N/A",
+        // },
+        {
+          label: "Pieces",
+          value: load.pieces ? formatNumber(load.pieces) : "N/A",
+        },
+        {
+          label: "Pallets",
+          value: load.pallets ? formatNumber(load.pallets) : "N/A",
+        },
         { label: "Load Option", value: load.loadOption || "N/A" },
         { label: "Commodity", value: load.commodity || "N/A" },
-        { label: "Load Number", value: load.loadNumber || "N/A" },
-        { label: "Assign User", value: (load.postedBy as User)?.company || "N/A" },
+        {
+          label: "Load Number",
+          value: load.loadNumber ? formatNumber(load.loadNumber) : "N/A",
+        },
+        {
+          label: "Assign User",
+          value: (load.postedBy as User)?.company || "N/A",
+        },
         { label: "Special Info", value: load.specialInstructions || "N/A" },
       ],
     },

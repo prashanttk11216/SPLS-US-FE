@@ -4,6 +4,7 @@ import DetailsModal from "../../../../../components/common/DetailsModal/DetailsM
 import { Truck } from "../../../../../types/Truck";
 import { User } from "../../../../../types/User";
 import { formatDate } from "../../../../../utils/dateFormat";
+import { formatNumber } from "../../../../../utils/numberUtils";
 
 const TruckDetailsModal: React.FC<{
   isOpen: boolean;
@@ -36,7 +37,7 @@ const TruckDetailsModal: React.FC<{
         },
         {
           label: "Ref Number",
-          value: truckData.referenceNumber || "N/A",
+          value: truckData.referenceNumber ? formatNumber(truckData.referenceNumber) : "N/A",
         },
       ],
     },
@@ -49,19 +50,22 @@ const TruckDetailsModal: React.FC<{
         },
         {
           label: "Weight",
-          value: truckData.weight ? `${truckData.weight} lbs` : "N/A",
+          value: truckData.weight ? `${formatNumber(truckData.weight)} lbs` : "N/A",
         },
+        
         {
           label: "Length",
-          value: truckData.length ? `${truckData.length} ft` : "N/A",
+          value: truckData.length ? `${formatNumber(truckData.length)} ft` : "N/A",
         },
+        
         {
           label: "Miles",
-          value: truckData.miles ? `${truckData.miles} mi` : "N/A",
+          value: truckData.miles ? `${formatNumber(truckData.miles)} mi` : "N/A",
         },
+        
         {
           label: "All-In Rate",
-          value: truckData.allInRate ? `$${truckData.allInRate}` : "N/A",
+          value: truckData.allInRate ? `$${formatNumber(truckData.allInRate)}` : "N/A",
         },
         {
           label: "Assign User",
