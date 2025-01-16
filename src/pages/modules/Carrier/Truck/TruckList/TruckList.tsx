@@ -36,6 +36,7 @@ const TruckList: React.FC = () => {
   }); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchField, setSearchField] = useState<string>("referenceNumber");
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "asc" | "desc";
@@ -63,8 +64,10 @@ const TruckList: React.FC = () => {
         let query = `?&page=${page}&limit=${limit}`;
 
         //Search Functionality
-        if (searchQuery) {
-          query += `&search=${encodeURIComponent(searchQuery)}`;
+        if (searchQuery && searchField) {
+          query += `&search=${encodeURIComponent(
+            searchQuery
+          )}&searchField=${searchField}`;
         }
 
         if (user.role === UserRole.BROKER_USER) {
@@ -239,7 +242,15 @@ const TruckList: React.FC = () => {
       <div className="d-flex align-items-center my-3">
         {/* Search Bar */}
         <div className="searchbar-container">
-          <SearchBar onSearch={handleSearch} />
+          <SearchBar
+            onSearch={handleSearch}
+            searchFieldOptions={[
+              { label: "Ref No", value: "referenceNumber" },
+              { label: "Equipment", value: "equipment" },
+            ]}
+            defaultField={searchField}
+            onSearchFieldChange={(value) => setSearchField(value?.value!)}
+          />
         </div>
 
         <button

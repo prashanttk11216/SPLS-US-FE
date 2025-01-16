@@ -30,6 +30,7 @@ const LoadList: React.FC = () => {
   }); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchField, setSearchField] = useState<string>("loadNumber");
 
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -56,9 +57,12 @@ const LoadList: React.FC = () => {
         let query = `?page=${page}&limit=${limit}`;
 
         //Search Functionality
-        if (searchQuery) {
-          query += `&search=${encodeURIComponent(searchQuery)}`;
+        if (searchQuery && searchField) {
+          query += `&search=${encodeURIComponent(
+            searchQuery
+          )}&searchField=${searchField}`;
         }
+        
         if (sortConfig) {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
@@ -207,7 +211,15 @@ const LoadList: React.FC = () => {
       <div className="d-flex align-items-center my-3">
         {/* Search Bar */}
         <div className="searchbar-container">
-          <SearchBar onSearch={handleSearch} />
+          <SearchBar
+            onSearch={handleSearch}
+            searchFieldOptions={[
+              { label: "Ref No", value: "loadNumber" },
+              { label: "Equipment", value: "equipment" },
+            ]}
+            defaultField={searchField}
+            onSearchFieldChange={(value) => setSearchField(value?.value!)}
+          />
         </div>
 
         <button

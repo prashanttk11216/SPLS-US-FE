@@ -36,6 +36,7 @@ const DispatchLoadList: React.FC = () => {
   }); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchField, setSearchField] = useState<string>("loadNumber");
   const savedActiveTab = localStorage.getItem("dispatchActiveTab");
   const [activeTab, setActiveTab] = useState<DispatchLoadStatus>(
     savedActiveTab
@@ -76,8 +77,10 @@ const DispatchLoadList: React.FC = () => {
         let query = `?page=${page}&limit=${limit}&status=${activeTab}`;
 
         //Search Functionality
-        if (searchQuery) {
-          query += `&search=${encodeURIComponent(searchQuery)}`;
+        if (searchQuery && searchField) {
+          query += `&search=${encodeURIComponent(
+            searchQuery
+          )}&searchField=${searchField}`;
         }
 
         if (sortConfig) {
@@ -278,7 +281,15 @@ const DispatchLoadList: React.FC = () => {
       <div className="d-flex align-items-center my-3">
         {/* Search Bar */}
         <div className="searchbar-container">
-          <SearchBar onSearch={handleSearch} />
+          <SearchBar
+            onSearch={handleSearch}
+            searchFieldOptions={[
+              { label: "Ref No", value: "loadNumber" },
+              { label: "Equipment", value: "equipment" },
+            ]}
+            defaultField={searchField}
+            onSearchFieldChange={(value) => setSearchField(value?.value!)}
+          />
         </div>
 
         <div className="ms-auto d-flex align-items-center">

@@ -43,7 +43,6 @@ const CustomerList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("email");
 
-
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "asc" | "desc";
@@ -80,7 +79,9 @@ const CustomerList: React.FC = () => {
 
         //Search Functionality
         if (searchQuery && searchField) {
-          query += `&search=${encodeURIComponent(searchQuery)}&searchField=${searchField}`;
+          query += `&search=${encodeURIComponent(
+            searchQuery
+          )}&searchField=${searchField}`;
         }
 
         if (user.role === UserRole.BROKER_USER) {
@@ -220,8 +221,8 @@ const CustomerList: React.FC = () => {
       ),
       email: customer.email,
       contact: customer.primaryNumber
-      ? formatPhoneNumber(customer.primaryNumber)
-      : "N/A",
+        ? formatPhoneNumber(customer.primaryNumber)
+        : "N/A",
       company: customer.company || "N/A",
       isActive: customer.isActive ? "Active" : "Inactive",
       actions: getActionsForCustomer(customer),
@@ -260,7 +261,17 @@ const CustomerList: React.FC = () => {
       <div className="d-flex align-items-center my-3">
         {/* Search Bar */}
         <div className="searchbar-container">
-          <SearchBar onSearch={handleSearch} searchFieldOptions={[{label: "Email", value: "email"}, {label: "Company", value: "company"}]} defaultField={searchField} onSearchFieldChange={(value)=>setSearchField(value?.value!)}/>
+          <SearchBar
+            onSearch={handleSearch}
+            searchFieldOptions={[
+              { label: "Email", value: "email" },
+              { label: "Name", value: "name" },
+              { label: "Company", value: "company" },
+              { label: "Contact", value: "contact" },
+            ]}
+            defaultField={searchField}
+            onSearchFieldChange={(value) => setSearchField(value?.value!)}
+          />
         </div>
 
         <button
