@@ -10,6 +10,7 @@ import {
 import { toast } from "react-toastify";
 import { VALIDATION_MESSAGES } from "../../../constants/messages";
 import { REGEX_PATTERNS } from "../../../constants/patterns";
+import MenWithBox from "../../../assets/images/menWithBox.svg";
 
 export type ForgotPasswordForm = {
   email: string;
@@ -70,96 +71,101 @@ const ForgotPassword: React.FC = () => {
 
   return (
     <div className="forgot-container container vh-100 d-flex align-items-center justify-content-center">
-      <div className="forgot-form w-50 mx-auto">
-        <form onSubmit={handleSubmit(handlePasswordReset)}>
-          <div className="row">
-            <div className="col-12 mb-1">
-              <Input
-                label="Email"
-                type="email"
-                id="email"
-                name="email"
-                placeholder="name@example.com"
-                control={control}
-                disabled={isEmailVerified}
-                rules={{
-                  required: VALIDATION_MESSAGES.emailRequired,
-                  pattern: {
-                    value: REGEX_PATTERNS.password,
-                    message: VALIDATION_MESSAGES.emailInvalid,
-                  },
-                }}
-              />
-            </div>
+      <div className="row align-items-center w-100">
+        <div className="d-none d-lg-block col-lg-8">
+          <img src={MenWithBox} alt="Men with Box" />
+        </div>
+        <div className="col-12 col-lg-4">
+          <form onSubmit={handleSubmit(handlePasswordReset)}>
+            <div className="row">
+              <div className="col-12 mb-1">
+                <Input
+                  label="Email"
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="name@example.com"
+                  control={control}
+                  disabled={isEmailVerified}
+                  rules={{
+                    required: VALIDATION_MESSAGES.emailRequired,
+                    pattern: {
+                      value: REGEX_PATTERNS.password,
+                      message: VALIDATION_MESSAGES.emailInvalid,
+                    },
+                  }}
+                />
+              </div>
 
-            {isEmailVerified && (
-              <>
-                <div className="col-12 mb-1">
-                  <Input
-                    label="Password"
-                    type="password"
-                    id="password"
-                    name="password"
-                    placeholder="Enter Password"
-                    showEyeIcon={true}
-                    control={control}
-                    rules={{
-                      required: VALIDATION_MESSAGES.passwordRequired,
-                      pattern: {
-                        value: REGEX_PATTERNS.password,
-                        message: VALIDATION_MESSAGES.passwordPattern,
-                      },
-                    }}
-                  />
-                </div>
+              {isEmailVerified && (
+                <>
+                  <div className="col-12 mb-1">
+                    <Input
+                      label="Password"
+                      type="password"
+                      id="password"
+                      name="password"
+                      placeholder="Enter Password"
+                      showEyeIcon={true}
+                      control={control}
+                      rules={{
+                        required: VALIDATION_MESSAGES.passwordRequired,
+                        pattern: {
+                          value: REGEX_PATTERNS.password,
+                          message: VALIDATION_MESSAGES.passwordPattern,
+                        },
+                      }}
+                    />
+                  </div>
 
-                <div className="col-12 mb-1">
-                  <Input
-                    label="Confirm Password"
-                    type="password"
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    placeholder="Confirm Password"
-                    showEyeIcon={true}
-                    control={control}
-                    rules={{
-                      required: VALIDATION_MESSAGES.confirmPasswordRequired,
-                      validate: validatePassword,
-                    }}
-                  />
-                </div>
-              </>
-            )}
+                  <div className="col-12 mb-1">
+                    <Input
+                      label="Confirm Password"
+                      type="password"
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      placeholder="Confirm Password"
+                      showEyeIcon={true}
+                      control={control}
+                      rules={{
+                        required: VALIDATION_MESSAGES.confirmPasswordRequired,
+                        validate: validatePassword,
+                      }}
+                    />
+                  </div>
+                </>
+              )}
 
-            <div className="col-12 text-center">
-              {isEmailVerified ? (
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={!isValid}
-                >
-                  Reset Password
-                </button>
-              ) : (
+              <div className="col-12 text-center">
+                {isEmailVerified ? (
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={!isValid}
+                  >
+                    Reset Password
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => handleEmailVerification(watch("email"))}
+                    disabled={!isValid}
+                  >
+                    Verify Email
+                  </button>
+                )}
                 <button
                   type="button"
-                  className="btn btn-primary"
-                  onClick={() => handleEmailVerification(watch("email"))}
-                  disabled={!isValid}
+                  className="btn btn-danger ms-2"
+                  onClick={() => navigate("/login")}
                 >
-                  Verify Email
+                  Cancel
                 </button>
-              )}
-              <button
-                type="button"
-                className="btn btn-danger ms-2"
-                onClick={() => navigate("/login")}
-              >
-                Cancel
-              </button>
+              </div>
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -9,7 +9,6 @@ import MenWithBox from "../../../assets/images/menWithBox.svg";
 import "./VerifyUser.scss";
 import { verifyUser } from "../../../services/auth/authService";
 import useFetchData from "../../../hooks/useFetchData/useFetchData";
-import { UserRole } from "../../../enums/UserRole";
 
 export interface VerifyUserForm {
   email: string;
@@ -22,7 +21,6 @@ const VerifyUser: React.FC = () => {
 
   const navigate = useNavigate();
   const {
-    register,
     handleSubmit,
     setValue,
     formState: { isValid },
@@ -46,7 +44,7 @@ const VerifyUser: React.FC = () => {
       if (result.success) {
         toast.success(result.message);
         navigate(`/login`, { replace: true });
-      } 
+      }
     } catch (error) {
       console.error("OTP Verification Error:", error);
       toast.error("An error occurred. Please try again.");
@@ -66,7 +64,9 @@ const VerifyUser: React.FC = () => {
         <div className="col-12 col-lg-6">
           <div className="verify-user-form mx-auto w-75">
             <h2 className="fw-bolder text-center mb-2">Verify Account</h2>
-            <p className="text-dark-gray-2">We will send you a <b>One Time Password</b> on your phone number</p>
+            <p className="text-dark-gray-2">
+              We will send you a <b>One Time Password</b> on your phone number
+            </p>
             <form onSubmit={handleSubmit(handleOtpSubmit)} noValidate>
               <div className="row">
                 {/* OTP Input */}
@@ -84,7 +84,10 @@ const VerifyUser: React.FC = () => {
                     {loading ? "Verifying..." : "Verify"}
                   </button>
                 </div>
-                <div className="fw-bold text-center resend-otp">Didn't get the verification OTP? <span className="pe-auto text-sky-blue">Resend again</span></div>
+                <div className="fw-bold text-center resend-otp">
+                  Didn't get the verification OTP?{" "}
+                  <span className="pe-auto text-sky-blue">Resend again</span>
+                </div>
               </div>
             </form>
           </div>
