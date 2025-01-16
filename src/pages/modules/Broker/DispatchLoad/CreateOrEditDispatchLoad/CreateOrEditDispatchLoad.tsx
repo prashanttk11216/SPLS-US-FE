@@ -19,7 +19,7 @@ import { DispatchLoadStatus } from "../../../../../enums/DispatchLoadStatus";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import Input from "../../../../../components/common/Input/Input";
 import {
-  createDispatchSchema,
+  transformedCreateDispatchSchema,
   updateDispatchSchema,
 } from "../../../../../schema/Dispatch";
 import {
@@ -34,19 +34,19 @@ import CheckboxField from "../../../../../components/common/CheckboxField/Checkb
 import PlusIcon from "../../../../../assets/icons/plus.svg";
 import OtherChargesModal from "../OtherChargesModal/OtherChargesModal";
 import CarrierFeeChargeBreakDownModal from "../CarrierFeeChargeBreakDownModal/CarrierFeeChargeBreakDownModal";
-import { DispatchLoadTypeOptions, equipmentOptions } from "../../../../../utils/dropdownOptions";
+import { DispatchLoadStatusOptions, DispatchLoadTypeOptions, equipmentOptions } from "../../../../../utils/dropdownOptions";
 import { calculatePercentage, calculatePercentageByUnit } from "../../../../../utils/globalHelper";
 
 export type AddressForm = {
-  str: string; // Address string representation
-  lat: number; // Latitude
-  lng: number; // Longitude
+  str?: string; // Address string representation
+  lat?: number; // Latitude
+  lng?: number; // Longitude
 };
 
 export type ConsigneeForm = {
-  consigneeId: string; // Consignee ID as string
-  address: AddressForm; // Consignee address
-  date: Date; // Date of consignee
+  consigneeId?: string; // Consignee ID as string
+  address?: AddressForm; // Consignee address
+  date?: Date; // Date of consignee
   time?: Date; // Optional time
   description?: string; // Optional description
   type?: string; // Optional type
@@ -58,9 +58,9 @@ export type ConsigneeForm = {
 };
 
 export type ShipperForm = {
-  shipperId: string; // Shipper ID as string
-  address: AddressForm; // Shipper address
-  date: Date; // Date of shipper
+  shipperId?: string; // Shipper ID as string
+  address?: AddressForm; // Shipper address
+  date?: Date; // Date of shipper
   time?: Date; // Optional time
   description?: string; // Optional description
   type?: string; // Optional type
@@ -72,15 +72,15 @@ export type ShipperForm = {
 };
 
 export type FscForm = {
-  isPercentage: boolean; // Type of FSC
-  value: number; // value of FSC
+  isPercentage?: boolean; // Type of FSC
+  value?: number; // value of FSC
 };
 
 export type OtherChargeBreakdownForm = {
-  description: string | undefined; // Charge description
-  amount: number | undefined; // Charge amount
-  isAdvance: boolean; // Flag for advance charges
-  date: Date | undefined; // Date of charge
+  description?: string | undefined; // Charge description
+  amount?: number | undefined; // Charge amount
+  isAdvance?: boolean; // Flag for advance charges
+  date?: Date | undefined; // Date of charge
 };
 
 export type OtherChargeForm = {
@@ -89,18 +89,18 @@ export type OtherChargeForm = {
 };
 
 export type CarrierFeeBreakdownForm = {
-  type: DispatchLoadType; // Type of dispatch load
-  rate: number; // Agreed rate
-  PDs: number; // Number of picks/drops
-  units: number;
+  type?: DispatchLoadType; // Type of dispatch load
+  rate?: number; // Agreed rate
+  PDs?: number; // Number of picks/drops
+  units?: number;
   fuelServiceCharge?: FscForm; // FSC details
   totalRate?: number; // Total rate after FSC and other adjustments
   OtherChargeSchema?: OtherChargeBreakdownForm[]; // Breakdown of other charges
 };
 
 export type CarrierFeeForm = {
-  totalAmount: number; // Total carrier fee
-  breakdown: CarrierFeeBreakdownForm; // Carrier fee breakdown
+  totalAmount?: number; // Total carrier fee
+  breakdown?: CarrierFeeBreakdownForm; // Carrier fee breakdown
 };
 
 export type DispatchLoadForm = {
@@ -110,17 +110,17 @@ export type DispatchLoadForm = {
   WONumber?: number; // Optional unique WO number
   customerId?: string; // Optional customer ID
   carrierId?: string; // Optional carrier ID
-  salesRep: string; // Sales rep ID (assuming string for now)
-  type: DispatchLoadType; // Type of dispatch load
-  PDs: number; // Number of PDs (drops/pickups)
-  fuelServiceCharge: FscForm; // Fuel service charge
-  otherCharges: OtherChargeForm; // Other charges
-  carrierFee: CarrierFeeForm; // Carrier fee details
-  equipment: Equipment; // Equipment type (enum)
+  salesRep?: string; // Sales rep ID (assuming string for now)
+  type?: DispatchLoadType; // Type of dispatch load
+  PDs?: number; // Number of PDs (drops/pickups)
+  fuelServiceCharge?: FscForm; // Fuel service charge
+  otherCharges?: OtherChargeForm; // Other charges
+  carrierFee?: CarrierFeeForm; // Carrier fee details
+  equipment?: Equipment; // Equipment type (enum)
   allInRate?: number; // Optional all-in rate
   customerRate?: number; // Optional customer rate
   units?: number;
-  consignee: ConsigneeForm; // Consignee details
+  consignee?: ConsigneeForm; // Consignee details
   shipper: ShipperForm; // Shipper details
   postedBy?: string; // Optional posted by user ID
   status?: DispatchLoadStatus; // Status of the load
@@ -159,7 +159,10 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
     reset,
     watch,
   } = useForm<DispatchLoadForm>({
-    mode: "onBlur",
+    mode: "onBlur", 
+    defaultValues: {
+      brokerId: user._id
+    }
   });
 
   const {
@@ -303,9 +306,11 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
         const validatedData = updateDispatchSchema.parse(data);
         result = await updateLoad(loadData._id!, validatedData);
       } else {
-        const validatedData = createDispatchSchema.parse(data);
-        if (!isDraft) {
-          validatedData.status = DispatchLoadStatus.Published;
+        const validatedData = transformedCreateDispatchSchema.parse(data);
+        if (isDraft) {
+          validatedData.status = DispatchLoadStatus.Draft;
+        }else{
+            validatedData.status = DispatchLoadStatus.Published;
         }
         result = await newLoad(validatedData);
       }
@@ -340,7 +345,6 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
   const otherCharges = watch("otherCharges");
   const allInRate = watch("allInRate"); // Ensure numeric values
   const carrierFee = watch("carrierFee");
-
 
   const calculateOtherBreakDownCharge = (
     charges: OtherChargeBreakdownForm[]
@@ -435,9 +439,9 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
   const calculateFuelServiceCharge = useMemo(() => {
     if (customerRateValue) {
       if (unitsValue) {
-        return calculatePercentageByUnit(customerRateValue, fuelServiceCharge.value, unitsValue) || 0;
+        return calculatePercentageByUnit(customerRateValue, fuelServiceCharge?.value!, unitsValue) || 0;
       }
-      return calculatePercentage(customerRateValue, fuelServiceCharge.value) || 0;
+      return calculatePercentage(customerRateValue, fuelServiceCharge?.value!) || 0;
     }
     return 0;
   }, [customerRateValue, fuelServiceCharge?.value, unitsValue]);
@@ -469,7 +473,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               label="Load / Reference Number"
               id="loadNumber"
               name="loadNumber"
-              disabled={loadId ? true : false}
+              disabled={loadId && !isDraft ? true : false}
               placeholder="Enter Load / Reference Number"
               control={control}
               rules={{
@@ -486,7 +490,14 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               control={control}
               options={customersList}
               rules={{
-                required: "Please select a customer",
+                required:{
+                  value: loadId 
+                  ? isDraft 
+                    ? watch("status") === DispatchLoadStatus.Published 
+                    : true 
+                  : !isDraft,
+                  message: "Please select a customer",
+                },
               }}
             />
           </div>
@@ -510,13 +521,34 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               options={brokersList}
             />
           </div>
+          {/* status */}
+
+          {loadId && (
+            <div className="col-3">
+              <SelectField
+                label="Status"
+                name="status"
+                placeholder="Select Status"
+                control={control}
+                options={
+                  watch("status") == DispatchLoadStatus.Draft
+                    ? DispatchLoadStatusOptions.filter(
+                        (s) => s.value == DispatchLoadStatus.Published
+                      )
+                    : DispatchLoadStatusOptions.filter(
+                        (s) => s.value !== DispatchLoadStatus.Draft
+                      )
+                }
+              />
+            </div>
+          )}
+
           {/* W/O Number */}
           <div className="col-3">
             <NumberInput
               label="W/O Number"
               id="WONumber"
               name="WONumber"
-              disabled={loadId ? true : false}
               placeholder="Enter W/O Number"
               control={control}
               rules={{
@@ -611,9 +643,9 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
           </div>
           {fuelServiceCharge?.isPercentage && (
             <div className="col-1">
-            <div>Amount</div>
-            <div className="fw-bold">{calculateFuelServiceCharge} $</div>
-          </div>
+              <div>Amount</div>
+              <div className="fw-bold">{calculateFuelServiceCharge} $</div>
+            </div>
           )}
           {/* Other Charge */}
           <div className="col-2 position-relative">
@@ -624,7 +656,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               placeholder="Enter Other Charges"
               control={control}
             />
-            <div className="position-absolute top-0" style={{right:"15px"}}>
+            <div className="position-absolute top-0" style={{ right: "15px" }}>
               <img
                 src={PlusIcon}
                 height={20}
@@ -645,7 +677,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               currency
             />
           </div>
-          
+
           <div className="col-1">
             <div>Percent</div>
             <div className="fw-bold">{marginPercentage} %</div>
@@ -658,7 +690,16 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               placeholder="Select Equipment"
               control={control}
               options={equipmentOptions}
-              rules={{ required: "Please select Equipment" }}
+              rules={{
+                required:{
+                  value: loadId 
+                  ? isDraft 
+                    ? watch("status") === DispatchLoadStatus.Published 
+                    : true 
+                  : !isDraft,
+                  message: "Please select Equipment",
+                },
+              }}
             />
           </div>
           {/* Carrier */}
@@ -670,7 +711,14 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               control={control}
               options={carriersList}
               rules={{
-                required: "Please select a carrier",
+                required:{
+                  value: loadId 
+                  ? isDraft 
+                    ? watch("status") === DispatchLoadStatus.Published 
+                    : true 
+                  : !isDraft,
+                  message: "Please select a carrier",
+                },
               }}
             />
           </div>
@@ -683,7 +731,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               placeholder="Enter Carrier Fee"
               control={control}
             />
-            <div className="position-absolute top-0" style={{right:"15px"}}>
+            <div className="position-absolute top-0" style={{ right: "15px" }}>
               <img
                 src={PlusIcon}
                 height={20}
@@ -741,7 +789,6 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               name="shipper.date"
               control={control}
               label="Date"
-              required={true}
               placeholder="Choose a date"
               datePickerProps={{
                 dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
@@ -887,7 +934,6 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               name="consignee.date"
               control={control}
               label="Date"
-              required={true}
               placeholder="Choose a date"
               datePickerProps={{
                 dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date

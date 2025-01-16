@@ -1,4 +1,5 @@
 import { Commodity } from "../enums/Commodity";
+import { DispatchLoadStatus } from "../enums/DispatchLoadStatus";
 import { DispatchLoadType } from "../enums/DispatchLoadType";
 import { Equipment } from "../enums/Equipment";
 import { LoadOption } from "../enums/LoadOption";
@@ -26,6 +27,13 @@ export const equipmentOptions = Object.entries(Equipment).map(([_, value]) => ({
 
 
   export const DispatchLoadTypeOptions = Object.entries(DispatchLoadType).map(
+    ([_, value]) => ({
+      value: value,
+      label: value,
+    })
+  );
+
+  export const DispatchLoadStatusOptions = Object.entries(DispatchLoadStatus).map(
     ([_, value]) => ({
       value: value,
       label: value,

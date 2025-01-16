@@ -647,7 +647,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               placeholder="Select Equipment"
               control={control}
               options={equipmentOptions}
-              rules={{ required: "Please select Equipment" }} // Example validation
+              rules={{ required: {
+                value: true,
+                message: "Please select Equipment"
+              }}}
             />
           </div>
 
@@ -659,7 +662,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               placeholder="Select Mode"
               control={control}
               options={modeOptions}
-              rules={{ required: "Please select Mode" }} // Example validation
+              rules={{ required: {
+                value: true,
+                message: "Please select Mode"
+              }}}
             />
           </div>
 

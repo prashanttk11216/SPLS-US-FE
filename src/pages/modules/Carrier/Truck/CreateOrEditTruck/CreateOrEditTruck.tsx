@@ -212,7 +212,10 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
               placeholder="Select Equipment"
               control={control}
               options={equipmentOptions}
-              rules={{ required: "Please select Equipment" }} // Example validation
+              rules={{ required: {
+                value: true,
+                message: "Please select Equipment"
+              }}}
             />
           </div>
           {/* weight */}

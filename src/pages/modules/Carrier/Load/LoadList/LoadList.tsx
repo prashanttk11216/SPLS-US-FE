@@ -21,7 +21,6 @@ import NumberInput from "../../../../../components/common/NumberInput/NumberInpu
 import { useForm } from "react-hook-form";
 import arrowRightArrowLeft from "../../../../../assets/icons/arrowRightArrowLeft.svg";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
-import { Equipment } from "../../../../../enums/Equipment";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
 import { equipmentOptions } from "../../../../../utils/dropdownOptions";
@@ -172,7 +171,7 @@ const LoadList: React.FC = () => {
     setSortConfig(sortStr); // Updates the sort query to trigger API call
   };
 
-  const getActionsForLoad = (load: Load): string[] => {
+  const getActionsForLoad = (_: Load): string[] => {
     const actions = ["View Details", "Send Request"];
     return actions;
   };

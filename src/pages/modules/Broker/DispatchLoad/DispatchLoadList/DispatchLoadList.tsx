@@ -241,16 +241,16 @@ const DispatchLoadList: React.FC = () => {
   const getRowData = () => {
     return loads.map((load) => ({
       _id: load._id,
-      age: load.formattedAge || "N/A",
-      "shipper.address": load.shipper.address.str || "N/A",
-      "consignee.address": load.consignee.address.str || "N/A",
-      "shipper.date": formatDate(load.shipper.date, "MM/dd/yyyy") || "N/A",
-      "consignee.date": formatDate(load.consignee.date, "MM/dd/yyyy") || "N/A",
+      age: load?.formattedAge || "N/A",
+      "shipper.address": load?.shipper?.address?.str || "N/A",
+      "consignee.address": load?.consignee?.address?.str || "N/A",
+      "shipper.date": load?.shipper?.date ? formatDate(load?.shipper?.date, "MM/dd/yyyy") : "N/A",
+      "consignee.date": load?.consignee?.date ? formatDate(load?.consignee?.date, "MM/dd/yyyy") : "N/A",
 
-      equipment: load.equipment || "N/A",
-      allInRate: load.allInRate ? `$ ${formatNumber(load.allInRate)}` : "N/A",
-      WONumber: load.WONumber || "N/A",
-      loadNumber: load.loadNumber || "N/A",
+      equipment: load?.equipment || "N/A",
+      allInRate: load?.allInRate ? `$ ${formatNumber(load.allInRate)}` : "N/A",
+      WONumber: load?.WONumber || "N/A",
+      loadNumber: load?.loadNumber || "N/A",
       actions: getActionsForLoad(load),
     }));
   };

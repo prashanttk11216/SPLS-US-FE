@@ -28,7 +28,7 @@ const SelectField: React.FC<SelectFieldProps> = ({
   options,
   control,
   rules,
-  defaultValue,
+  defaultValue = undefined,
   label,
   required,
   placeholder,
@@ -45,20 +45,20 @@ const SelectField: React.FC<SelectFieldProps> = ({
     if (options?.length) {
       setFilteredOptions(options);
     }
-  }, [options]);
+  }, [options]);  
 
   return (
     <div>
       {label && (
         <label className="form-label text-dark-blue">
           {label}
-          {rules?.required && " *"}
+          {rules?.required?.value && " *"}
         </label>
       )}
       <Controller
         name={name}
         control={control}
-        defaultValue={defaultValue || ""}
+        defaultValue={defaultValue}
         rules={rules}
         render={({ field, fieldState }) => (
           <div>
@@ -77,7 +77,7 @@ const SelectField: React.FC<SelectFieldProps> = ({
               }}
               theme={customTheme}
               onChange={(selectedOption: any) => {
-                field.onChange(selectedOption?.value || "");
+                field.onChange(selectedOption?.value || undefined);
                 if (onChangeOption) {
                   onChangeOption(selectedOption); // Call parent method
                 }
@@ -86,7 +86,7 @@ const SelectField: React.FC<SelectFieldProps> = ({
               value={
                 filteredOptions.find(
                   (option) => option.value === field.value
-                ) || null
+                ) || undefined
               }
               {...rest}
             />

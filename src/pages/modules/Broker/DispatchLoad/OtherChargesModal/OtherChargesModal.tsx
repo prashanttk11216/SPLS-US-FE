@@ -23,7 +23,6 @@ const OtherChargesModal: React.FC<{
     getValues,
     watch,
     reset,
-    formState: { isValid },
   } = useForm<Partial<OtherChargeForm>>({
     mode: "onBlur",
     defaultValues: {
@@ -122,7 +121,7 @@ const OtherChargesModal: React.FC<{
                 id={`breakdown.${index}.isAdvance`}
                 name={`breakdown.${index}.isAdvance`}
                 control={control}
-                onChange={(event) => resetDate(index)}
+                onChange={() => resetDate(index)}
               />
             </div>
             {watch(`breakdown.${index}.isAdvance`) && (

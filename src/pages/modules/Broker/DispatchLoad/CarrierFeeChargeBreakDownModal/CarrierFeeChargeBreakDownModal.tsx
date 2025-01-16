@@ -34,7 +34,6 @@ const CarrierFeeChargeBreakDownModal: React.FC<{
     getValues,
     watch,
     reset,
-    formState: { isValid },
   } = useForm<Partial<CarrierFeeForm>>({
     mode: "onBlur",
     defaultValues: {
@@ -105,9 +104,9 @@ const CarrierFeeChargeBreakDownModal: React.FC<{
   const calculateFuelServiceCharge = useMemo(() => {
       if (carrierRateValue) {
         if (unitsValue) {
-          return calculatePercentageByUnit(carrierRateValue, fuelServiceCharge.value, unitsValue) || 0;
+          return calculatePercentageByUnit(carrierRateValue, fuelServiceCharge?.value!, unitsValue) || 0;
         }
-        return calculatePercentage(carrierRateValue, fuelServiceCharge.value) || 0;
+        return calculatePercentage(carrierRateValue, fuelServiceCharge?.value!) || 0;
       }
       return 0;
     }, [carrierRateValue, fuelServiceCharge?.value, unitsValue]);
@@ -314,7 +313,7 @@ const CarrierFeeChargeBreakDownModal: React.FC<{
                 id={`breakdown.OtherChargeSchema.${index}.isAdvance`}
                 name={`breakdown.OtherChargeSchema.${index}.isAdvance`}
                 control={control}
-                onChange={(event) => resetDate(index)}
+                onChange={() => resetDate(index)}
               />
             </div>
             {watch(`breakdown.OtherChargeSchema.${index}.isAdvance`) && (

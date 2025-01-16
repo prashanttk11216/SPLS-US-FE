@@ -192,7 +192,10 @@ export const RateConfirmationNotification: FC<
             options={customersList}
             isClearable={true}
             isDisabled={!!emailsInput?.trim()}
-            rules={{required: "Field is required"}} 
+            rules={{ required: {
+              value: true,
+              message: "Field is required"
+            }}}
           />
         </div>
 

@@ -33,7 +33,6 @@ const NumberInput: React.FC<NumberInputProps> = ({
   defaultCurrency = "$",
   currency = false,
   onCurrencyChange,
-  numberFormatOptions = {},
 }) => {
   const validationRules = {
     setValueAs: (value: any) => {
