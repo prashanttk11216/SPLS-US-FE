@@ -267,7 +267,7 @@ const CustomerList: React.FC = () => {
               { label: "Email", value: "email" },
               { label: "Name", value: "name" },
               { label: "Company", value: "company" },
-              { label: "Contact", value: "contact" },
+              { label: "Contact", value: "primaryNumber" },
             ]}
             defaultField={searchField}
             onSearchFieldChange={(value) => setSearchField(value?.value!)}

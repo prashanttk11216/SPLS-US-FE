@@ -248,7 +248,7 @@ const ShipperList: React.FC = () => {
               { label: "Email", value: "email" },
               { label: "Name", value: "name" },
               { label: "Shipping Hours", value: "shippingHours" },
-              { label: "Contact", value: "contact" },
+              { label: "Contact", value: "primaryNumber" },
             ]}
             defaultField={searchField}
             onSearchFieldChange={(value) => setSearchField(value?.value!)}
