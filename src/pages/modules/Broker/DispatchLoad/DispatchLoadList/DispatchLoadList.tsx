@@ -356,6 +356,19 @@ const DispatchLoadList: React.FC = () => {
               </li>
               <li
                 className="nav-item"
+                onClick={() => setActiveTab(DispatchLoadStatus.InTransit)}
+              >
+                <a
+                  className={`nav-link ${
+                    DispatchLoadStatus.InTransit == activeTab && "active"
+                  }`}
+                  href="#"
+                >
+                  In Transit
+                </a>
+              </li>
+              <li
+                className="nav-item"
                 onClick={() => setActiveTab(DispatchLoadStatus.Completed)}
               >
                 <a
