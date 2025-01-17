@@ -247,6 +247,9 @@ const TruckList: React.FC = () => {
             searchFieldOptions={[
               { label: "Ref No", value: "referenceNumber" },
               { label: "Equipment", value: "equipment" },
+              { label: "All-in Rate", value: "allInRate" }, 
+              { label: "Weight", value: "weight" }, 
+              { label: "Length", value: "length" }, 
             ]}
             defaultField={searchField}
             onSearchFieldChange={(value) => setSearchField(value?.value!)}
