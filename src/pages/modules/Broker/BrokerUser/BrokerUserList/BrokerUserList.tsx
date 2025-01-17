@@ -256,7 +256,17 @@ const BrokerUserList: React.FC = () => {
 
   return (
     <div className="broker-list-wrapper">
+      <div className="d-flex align-items-center">
       <h2 className="fw-bolder">Broker Users</h2>
+        <button
+            className="btn btn-accent d-flex align-items-center ms-auto"
+            type="button"
+            onClick={openCreateModal}
+          >
+            <img src={PlusIcon} height={16} width={16} className="me-2" />
+            Create
+          </button>
+      </div>
       <div className="d-flex align-items-center my-3">
         {/* Search Bar */}
         <div className="searchbar-container">
@@ -273,15 +283,6 @@ const BrokerUserList: React.FC = () => {
             onSearchFieldChange={(value) => setSearchField(value?.value!)}
           />
         </div>
-
-        <button
-          className="btn btn-accent d-flex align-items-center ms-auto"
-          type="button"
-          onClick={openCreateModal}
-        >
-          <img src={PlusIcon} height={16} width={16} className="me-2" />
-          Create
-        </button>
       </div>
 
       {loading ? (
