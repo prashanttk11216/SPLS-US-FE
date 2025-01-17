@@ -51,7 +51,6 @@ const DispatchLoadList: React.FC = () => {
   const [dispatchDetails, setDispatchDetails] =
     useState<Partial<IDispatch> | null>(null);
 
-
   const openDetailsModal = (dispatchData: Partial<IDispatch>) => {
     setDispatchDetails(dispatchData);
     setIsDetailsModalOpen(true);
@@ -247,8 +246,12 @@ const DispatchLoadList: React.FC = () => {
       age: load?.formattedAge || "N/A",
       "shipper.address": load?.shipper?.address?.str || "N/A",
       "consignee.address": load?.consignee?.address?.str || "N/A",
-      "shipper.date": load?.shipper?.date ? formatDate(load?.shipper?.date, "MM/dd/yyyy") : "N/A",
-      "consignee.date": load?.consignee?.date ? formatDate(load?.consignee?.date, "MM/dd/yyyy") : "N/A",
+      "shipper.date": load?.shipper?.date
+        ? formatDate(load?.shipper?.date, "MM/dd/yyyy")
+        : "N/A",
+      "consignee.date": load?.consignee?.date
+        ? formatDate(load?.consignee?.date, "MM/dd/yyyy")
+        : "N/A",
 
       equipment: load?.equipment || "N/A",
       allInRate: load?.allInRate ? `$ ${formatNumber(load.allInRate)}` : "N/A",
@@ -285,7 +288,11 @@ const DispatchLoadList: React.FC = () => {
             onSearch={handleSearch}
             searchFieldOptions={[
               { label: "Ref No", value: "loadNumber" },
+              { label: "W/O", value: "WONumber" },
               { label: "Equipment", value: "equipment" },
+              { label: "Rate", value: "allInRate" },  
+              { label: "Shipper Weight", value: "shipper.weight" }, 
+              { label: "Consignee Weight", value: "consignee.weight" }, 
             ]}
             defaultField={searchField}
             onSearchFieldChange={(value) => setSearchField(value?.value!)}
@@ -400,13 +407,13 @@ const DispatchLoadList: React.FC = () => {
           )}
         </>
       )}
-      {
-        isDetailsModalOpen && (<DispatchDetailsModal
+      {isDetailsModalOpen && (
+        <DispatchDetailsModal
           isOpen={isDetailsModalOpen}
           dispatch={dispatchDetails}
           onClose={() => setIsDetailsModalOpen(false)}
-        />)
-      }
+        />
+      )}
     </div>
   );
 };
