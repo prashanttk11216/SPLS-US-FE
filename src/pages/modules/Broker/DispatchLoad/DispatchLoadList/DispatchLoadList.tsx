@@ -30,7 +30,7 @@ import SelectField from "../../../../../components/common/SelectField/SelectFiel
 const DispatchLoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
-  const { control } = useForm();
+  const { control, getValues, reset } = useForm<any>();
 
   const [loads, setLoads] = useState<IDispatch[]>([]);
   const [meta, setMeta] = useState({
@@ -57,12 +57,6 @@ const DispatchLoadList: React.FC = () => {
     useState<Partial<IDispatch> | null>(null);
 
   const [dateField, setDateField] = useState<string>("consignee.date"); // Default to "Delivery Date"
-  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
-    null,
-    null,
-  ]);
-
-  const [applyFilter, setApplyFilter] = useState<boolean>(false);
 
   const openDetailsModal = (dispatchData: Partial<IDispatch>) => {
     setDispatchDetails(dispatchData);
@@ -96,8 +90,15 @@ const DispatchLoadList: React.FC = () => {
         }
 
         // Date Range Filter
-        if (dateField && dateRange[0] && dateRange[1]) {
-          query += `&dateField=${dateField}&fromDate=${dateRange[0].toISOString()}&toDate=${dateRange[1].toISOString()}`;
+        if (dateField && getValues("dateRange")) {
+          const dateRange = getValues("dateRange");
+          query += `&dateField=${dateField}`;
+          if(dateRange[0]){
+            query += `&fromDate=${dateRange[0].toISOString()}`
+          }
+          if(dateRange[1]){
+            query += `&toDate=${dateRange[1].toISOString()}`
+          }
         }
 
         if (sortConfig) {
@@ -118,7 +119,7 @@ const DispatchLoadList: React.FC = () => {
         toast.error("Error fetching customer data.");
       }
     },
-    [fetchLoads, searchQuery, user, activeTab, sortConfig, dateField, dateRange]
+    [fetchLoads, searchQuery, user, activeTab, sortConfig, dateField]
   );
 
   const refreshAgeCall = async (data: any) => {
@@ -135,16 +136,12 @@ const DispatchLoadList: React.FC = () => {
   useEffect(() => {
     if (user && user._id) {
       fetchLoadsData();
-      setApplyFilter(false);
     }
   }, [
     user,
     searchQuery,
     activeTab,
     sortConfig,
-    dateField,
-    dateRange,
-    applyFilter,
   ]);
 
   // Update active tab in localStorage whenever it changes
@@ -292,49 +289,6 @@ const DispatchLoadList: React.FC = () => {
     setSearchQuery(query);
   };
 
-  const handleSearchForm = (data: any) => {
-    // Initialize query object
-    let query: { [key: string]: any } = {};
-  
-    // Handle delivery date range
-    if (data.deliveryDateRange?.length > 0) {
-      query.deliveryFromDate = data.deliveryDateRange[0]?.toISOString();
-      query.deliveryToDate = data.deliveryDateRange[1]?.toISOString();
-    }
-  
-    // Handle shipping date range
-    if (data.shippingDateRange?.length > 0) {
-      query.shippingFromDate = data.shippingDateRange[0]?.toISOString();
-      query.shippingToDate = data.shippingDateRange[1]?.toISOString();
-    }
-  
-    // Other filters like origin, destination, etc. (if needed)
-    if (data.origin?.str) {
-      query.originLat = data.origin?.lat;
-      query.originLng = data.origin?.lng;
-    }
-    if (data.destination?.str) {
-      query.destinationLat = data.destination?.lat;
-      query.destinationLng = data.destination?.lng;
-    }
-  
-    console.log(data);  // For debugging
-  
-    // Use URLSearchParams to generate the query string, excluding undefined fields
-    const searchParams = new URLSearchParams();
-    Object.entries(query).forEach(([key, value]) => {
-      if (value !== undefined) {
-        searchParams.append(key, value.toString());
-      }
-    });
-  
-    // Output the query string
-    const queryString = `${searchParams.toString()}`;
-    setFormQuery(queryString); // Store the query string
-  };
-
-  
-
   const handleGeneralAction = (action: any, selectedData: any) => {
     switch (action) {
       case "Refresh Loads":
@@ -346,6 +300,13 @@ const DispatchLoadList: React.FC = () => {
         break;
     }
     console.log(`General Action: ${action}`, selectedData);
+  };
+
+  const resetFilter = () => {
+    reset({
+      dateRange: undefined,
+    });
+    fetchLoadsData();
   };
 
   return (
@@ -374,8 +335,8 @@ const DispatchLoadList: React.FC = () => {
           </button>
         </div>
       </div>
-
       <div className="d-flex align-items-center my-3">
+
         {/* Search Bar */}
         <div className="searchbar-container">
           <SearchBar
@@ -394,7 +355,7 @@ const DispatchLoadList: React.FC = () => {
         </div>
 
         {/* Date Field Select */}
-        <div style={{ width: "200px" }} className="ms-2">
+        <div style={{ width: "170px" }} className="ms-2">
           <SelectField
             label=""
             name="dateField"
@@ -404,19 +365,13 @@ const DispatchLoadList: React.FC = () => {
               { label: "Delivery Date", value: "consignee.date" },
               { label: "Shipping Date", value: "shipper.date" },
             ]}
-            onChange={(value) => setDateField(value?.value || "")}
-            value={{
-              label:
-                dateField === "consignee.date"
-                  ? "Delivery Date"
-                  : "Shipping Date",
-              value: dateField,
-            }}
+            onChangeOption={(value) => setDateField(value?.value!)}
+            defaultValue={dateField}
           />
         </div>
 
         {/* Date Range Picker */}
-        <div className="mx-3">
+        <div className="mx-2">
           <DateInput
             name="dateRange"
             control={control} // Pass the control object from react-hook-form
@@ -425,21 +380,23 @@ const DispatchLoadList: React.FC = () => {
             datePickerProps={{
               dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
               isClearable: true,
-              selectsRange: true,
-              onChange: (update: [Date | null, Date | null]) => {
-                setDateRange(update);
-              },
+              selectsRange: true
             }}
           />
         </div>
 
-        <button
-          className="btn btn-primary"
-          onClick={() => setApplyFilter(true)} // Trigger fetch with filters
-        >
+        <button className="btn btn-primary" onClick={()=>fetchLoadsData()}>
           Apply Filter
         </button>
+        <button
+            type="button"
+            className="btn btn-outline-secondary ms-3"
+            onClick={resetFilter}
+          >
+            Reset
+          </button>
       </div>
+
 
       {loading ? (
         <Loading />
