@@ -23,10 +23,15 @@ import { DispatchLoadStatus } from "../../../../../enums/DispatchLoadStatus";
 import { IDispatch } from "../../../../../types/Dispatch";
 import DispatchDetailsModal from "../DispatchDetailsModal/DispatchDetailsModal";
 import { formatNumber } from "../../../../../utils/numberUtils";
+import { useForm } from "react-hook-form";
+import DateInput from "../../../../../components/common/DateInput/DateInput";
+import SelectField from "../../../../../components/common/SelectField/SelectField";
 
 const DispatchLoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
+  const { control } = useForm();
+
   const [loads, setLoads] = useState<IDispatch[]>([]);
   const [meta, setMeta] = useState({
     page: 1,
@@ -50,6 +55,14 @@ const DispatchLoadList: React.FC = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
   const [dispatchDetails, setDispatchDetails] =
     useState<Partial<IDispatch> | null>(null);
+
+  const [dateField, setDateField] = useState<string>("consignee.date"); // Default to "Delivery Date"
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
+    null,
+    null,
+  ]);
+
+  const [applyFilter, setApplyFilter] = useState<boolean>(false);
 
   const openDetailsModal = (dispatchData: Partial<IDispatch>) => {
     setDispatchDetails(dispatchData);
@@ -82,6 +95,11 @@ const DispatchLoadList: React.FC = () => {
           )}&searchField=${searchField}`;
         }
 
+        // Date Range Filter
+        if (dateField && dateRange[0] && dateRange[1]) {
+          query += `&dateField=${dateField}&fromDate=${dateRange[0].toISOString()}&toDate=${dateRange[1].toISOString()}`;
+        }
+
         if (sortConfig) {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
@@ -100,7 +118,7 @@ const DispatchLoadList: React.FC = () => {
         toast.error("Error fetching customer data.");
       }
     },
-    [fetchLoads, searchQuery, user, activeTab, sortConfig]
+    [fetchLoads, searchQuery, user, activeTab, sortConfig, dateField, dateRange]
   );
 
   const refreshAgeCall = async (data: any) => {
@@ -117,8 +135,17 @@ const DispatchLoadList: React.FC = () => {
   useEffect(() => {
     if (user && user._id) {
       fetchLoadsData();
+      setApplyFilter(false);
     }
-  }, [user, searchQuery, activeTab, sortConfig]);
+  }, [
+    user,
+    searchQuery,
+    activeTab,
+    sortConfig,
+    dateField,
+    dateRange,
+    applyFilter,
+  ]);
 
   // Update active tab in localStorage whenever it changes
   useEffect(() => {
@@ -265,6 +292,49 @@ const DispatchLoadList: React.FC = () => {
     setSearchQuery(query);
   };
 
+  const handleSearchForm = (data: any) => {
+    // Initialize query object
+    let query: { [key: string]: any } = {};
+  
+    // Handle delivery date range
+    if (data.deliveryDateRange?.length > 0) {
+      query.deliveryFromDate = data.deliveryDateRange[0]?.toISOString();
+      query.deliveryToDate = data.deliveryDateRange[1]?.toISOString();
+    }
+  
+    // Handle shipping date range
+    if (data.shippingDateRange?.length > 0) {
+      query.shippingFromDate = data.shippingDateRange[0]?.toISOString();
+      query.shippingToDate = data.shippingDateRange[1]?.toISOString();
+    }
+  
+    // Other filters like origin, destination, etc. (if needed)
+    if (data.origin?.str) {
+      query.originLat = data.origin?.lat;
+      query.originLng = data.origin?.lng;
+    }
+    if (data.destination?.str) {
+      query.destinationLat = data.destination?.lat;
+      query.destinationLng = data.destination?.lng;
+    }
+  
+    console.log(data);  // For debugging
+  
+    // Use URLSearchParams to generate the query string, excluding undefined fields
+    const searchParams = new URLSearchParams();
+    Object.entries(query).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.append(key, value.toString());
+      }
+    });
+  
+    // Output the query string
+    const queryString = `${searchParams.toString()}`;
+    setFormQuery(queryString); // Store the query string
+  };
+
+  
+
   const handleGeneralAction = (action: any, selectedData: any) => {
     switch (action) {
       case "Refresh Loads":
@@ -280,26 +350,12 @@ const DispatchLoadList: React.FC = () => {
 
   return (
     <div className="customers-list-wrapper">
-      <h2 className="fw-bolder">SPLS Dispatch Board</h2>
-      <div className="d-flex align-items-center my-3">
-        {/* Search Bar */}
-        <div className="searchbar-container">
-          <SearchBar
-            onSearch={handleSearch}
-            searchFieldOptions={[
-              { label: "Ref No", value: "loadNumber" },
-              { label: "W/O", value: "WONumber" },
-              { label: "Equipment", value: "equipment" },
-              { label: "Rate", value: "allInRate" },  
-              { label: "Shipper Weight", value: "shipper.weight" }, 
-              { label: "Consignee Weight", value: "consignee.weight" }, 
-            ]}
-            defaultField={searchField}
-            onSearchFieldChange={(value) => setSearchField(value?.value!)}
-          />
-        </div>
+      <div className="d-flex align-items-center justify-content-between my-3">
+        {/* Heading */}
+        <h2 className="fw-bolder">SPLS Dispatch Board</h2>
 
-        <div className="ms-auto d-flex align-items-center">
+        {/* Buttons */}
+        <div className="d-flex align-items-center">
           <button
             className="btn btn-accent d-flex align-items-center"
             type="button"
@@ -317,6 +373,72 @@ const DispatchLoadList: React.FC = () => {
             New Pending Load
           </button>
         </div>
+      </div>
+
+      <div className="d-flex align-items-center my-3">
+        {/* Search Bar */}
+        <div className="searchbar-container">
+          <SearchBar
+            onSearch={handleSearch}
+            searchFieldOptions={[
+              { label: "Ref No", value: "loadNumber" },
+              { label: "W/O", value: "WONumber" },
+              { label: "Equipment", value: "equipment" },
+              { label: "Rate", value: "allInRate" },
+              { label: "Shipper Weight", value: "shipper.weight" },
+              { label: "Consignee Weight", value: "consignee.weight" },
+            ]}
+            defaultField={searchField}
+            onSearchFieldChange={(value) => setSearchField(value?.value!)}
+          />
+        </div>
+
+        {/* Date Field Select */}
+        <div style={{ width: "200px" }} className="ms-2">
+          <SelectField
+            label=""
+            name="dateField"
+            placeholder="Select Date Field"
+            control={control}
+            options={[
+              { label: "Delivery Date", value: "consignee.date" },
+              { label: "Shipping Date", value: "shipper.date" },
+            ]}
+            onChange={(value) => setDateField(value?.value || "")}
+            value={{
+              label:
+                dateField === "consignee.date"
+                  ? "Delivery Date"
+                  : "Shipping Date",
+              value: dateField,
+            }}
+          />
+        </div>
+
+        {/* Date Range Picker */}
+        <div className="mx-3">
+          <DateInput
+            name="dateRange"
+            control={control} // Pass the control object from react-hook-form
+            isRange={true}
+            required={true}
+            datePickerProps={{
+              dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+              isClearable: true,
+              selectsRange: true,
+              onChange: (update: [Date | null, Date | null]) => {
+                setDateRange(update);
+              },
+            }}
+          />
+        </div>
+
+        <button
+          className="btn btn-primary"
+          onClick={() => setApplyFilter(true)} // Trigger fetch with filters
+        >
+          Apply Filter
+        </button>
       </div>
 
       {loading ? (
