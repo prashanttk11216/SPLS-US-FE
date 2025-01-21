@@ -291,50 +291,7 @@ const DispatchLoadList: React.FC = () => {
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   };
-
-  const handleSearchForm = (data: any) => {
-    // Initialize query object
-    let query: { [key: string]: any } = {};
   
-    // Handle delivery date range
-    if (data.deliveryDateRange?.length > 0) {
-      query.deliveryFromDate = data.deliveryDateRange[0]?.toISOString();
-      query.deliveryToDate = data.deliveryDateRange[1]?.toISOString();
-    }
-  
-    // Handle shipping date range
-    if (data.shippingDateRange?.length > 0) {
-      query.shippingFromDate = data.shippingDateRange[0]?.toISOString();
-      query.shippingToDate = data.shippingDateRange[1]?.toISOString();
-    }
-  
-    // Other filters like origin, destination, etc. (if needed)
-    if (data.origin?.str) {
-      query.originLat = data.origin?.lat;
-      query.originLng = data.origin?.lng;
-    }
-    if (data.destination?.str) {
-      query.destinationLat = data.destination?.lat;
-      query.destinationLng = data.destination?.lng;
-    }
-  
-    console.log(data);  // For debugging
-  
-    // Use URLSearchParams to generate the query string, excluding undefined fields
-    const searchParams = new URLSearchParams();
-    Object.entries(query).forEach(([key, value]) => {
-      if (value !== undefined) {
-        searchParams.append(key, value.toString());
-      }
-    });
-  
-    // Output the query string
-    const queryString = `${searchParams.toString()}`;
-    setFormQuery(queryString); // Store the query string
-  };
-
-  
-
   const handleGeneralAction = (action: any, selectedData: any) => {
     switch (action) {
       case "Refresh Loads":
