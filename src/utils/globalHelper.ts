@@ -39,3 +39,26 @@ export const getInitials = ({
 
 export const calculatePercentage = (value: number, percentage: number) => (percentage / 100) * value;
 export const calculatePercentageByUnit = (value: number, percentage: number, unit: number) => (percentage / 100) * (value * unit);
+
+export const downloadFile = (
+  blob: Blob,
+  fileName: string = 'downloaded-file'
+): void => {
+  try {
+    // Create a URL for the Blob
+    const urlBlob = window.URL.createObjectURL(blob);
+
+    // Create and trigger a temporary anchor element
+    const anchor = document.createElement('a');
+    anchor.href = urlBlob;
+    anchor.download = fileName;
+    document.body.appendChild(anchor);
+    anchor.click();
+
+    // Cleanup
+    anchor.remove();
+    window.URL.revokeObjectURL(urlBlob);
+  } catch (error) {
+    console.error('Error during file download:', error);
+  }
+};

@@ -78,3 +78,12 @@ export const refreshAgeforLoad = async (data: any): Promise<ApiResponse> => {
     return handleAxiosError(error, "failed");
   }
 };
+
+export const rateConfirmationforLoad = async (loadId: string): Promise<ApiResponse> => {
+  try {
+    const response = await axiosApi.post<ApiResponse>("/dispatch/rate-confirmation/" + loadId, {}, {responseType: "blob"});
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "failed");
+  }
+};
