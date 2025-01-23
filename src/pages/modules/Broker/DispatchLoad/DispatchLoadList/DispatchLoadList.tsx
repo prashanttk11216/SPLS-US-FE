@@ -14,7 +14,6 @@ import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import {
   deleteLoad,
   getloads,
-  rateConfirmationforLoad,
   refreshAgeforLoad,
   updateLoadStatus,
 } from "../../../../../services/dispatch/dispatchServices";
@@ -27,7 +26,6 @@ import { formatNumber } from "../../../../../utils/numberUtils";
 import { useForm } from "react-hook-form";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
-import { downloadFile } from "../../../../../utils/globalHelper";
 
 const DispatchLoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -311,18 +309,18 @@ const DispatchLoadList: React.FC = () => {
     fetchLoadsData();
   };
 
-  const handleDownload = async () => {
-    try {
-      let result: any = await rateConfirmationforLoad("678129965f153c7d2668a498"); 
-      if(result){
-        const blob = new Blob([result], { type: "application/pdf" });
-        downloadFile(blob, "678129965f153c7d2668a498.pdf");
-      }
-    } catch (err) {
-      console.log(err);
-      toast.error("Error downloading pdf.");
-    }
-  }
+  // const handleDownload = async () => {
+  //   try {
+  //     let result: any = await rateConfirmationforLoad("678129965f153c7d2668a498"); 
+  //     if(result){
+  //       const blob = new Blob([result], { type: "application/pdf" });
+  //       downloadFile(blob, "678129965f153c7d2668a498.pdf");
+  //     }
+  //   } catch (err) {
+  //     console.log(err);
+  //     toast.error("Error downloading pdf.");
+  //   }
+  // }
 
   return (
     <div className="customers-list-wrapper">

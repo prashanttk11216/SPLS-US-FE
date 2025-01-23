@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Controller,
-  FieldErrors,
   Control,
   RegisterOptions,
   FieldValues,

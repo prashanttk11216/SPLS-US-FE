@@ -19,7 +19,7 @@ const Pagination: React.FC<PaginationProps> = ({
   onPageChange,
   onItemsPerPageChange,
 }) => {
-  const { page, limit, totalPages, totalItems } = meta;
+  const { page, limit, totalPages } = meta;
   const [inputPage, setInputPage] = useState(page); // Local state for the input field
   const debounceTimer = useRef<NodeJS.Timeout | null>(null); // Timer for debouncing
 

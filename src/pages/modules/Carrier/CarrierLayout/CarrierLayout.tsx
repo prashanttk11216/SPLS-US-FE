@@ -4,12 +4,8 @@ import HomeIcon from "../../../../assets/icons/home.svg";
 import BrokerIcon from "../../../../assets/icons/broker.svg";
 import { Outlet } from "react-router-dom";
 import "./CarrierLayout.scss";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../../store/store";
 
 const CarrierLayout = () => {
-  const user = useSelector((state: RootState) => state.user);
-
   // Dynamically determine visibility based on user's role
   const menuItems = [
     { name: "Dashboard", icon: HomeIcon, path: "/carrier", isVisible: true },

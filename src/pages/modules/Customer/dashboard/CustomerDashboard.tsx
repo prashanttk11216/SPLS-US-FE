@@ -1,12 +1,9 @@
 // src/pages/CustomerDashboard.tsx
 import React from 'react';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../../store/store';
 import { useNavigate } from 'react-router-dom';
 import PlusIcon from "../../../../assets/icons/plus.svg";
 
 const CustomerDashboard: React.FC = () => {
-  const user = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
   return (
     <div className='d-flex align-items-center'>

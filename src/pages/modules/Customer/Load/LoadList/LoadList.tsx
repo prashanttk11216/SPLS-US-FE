@@ -157,7 +157,7 @@ const LoadList: React.FC = () => {
     setSortConfig(sortStr); // Updates the sort query to trigger API call
   };
 
-  const getActionsForLoad = (load: Load): string[] => {
+  const getActionsForLoad = (_: Load): string[] => {
     const actions = ["View Details"];
     return actions;
   };

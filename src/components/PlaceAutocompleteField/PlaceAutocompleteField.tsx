@@ -29,7 +29,6 @@ const PlaceAutocompleteField = ({
   placeholder = "Enter your address",
   rules,
   control,
-  disabled= false,
   onPlaceSelect,
   className = "",
 }: PlaceAutocompleteFieldProps) => {

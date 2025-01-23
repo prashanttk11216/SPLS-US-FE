@@ -27,7 +27,6 @@ const ChangePassowrd: React.FC<ChangePasswordProps> = ({
     control,
     formState: { isValid },
     watch,
-    reset,
   } = useForm<ResetPasswordForm>({ mode: "onBlur" });
 
   /**
