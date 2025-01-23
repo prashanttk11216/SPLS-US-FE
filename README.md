@@ -2,6 +2,28 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+
+
+# Start the development server in "my-local" mode
+npm run dev:local
+
+# Start the development server in "development" mode
+npm run dev:development
+
+# Build the project for production
+npm run build
+
+# Build the project for development
+npm run build:dev
+
+# Run the linter
+npm run lint
+
+# Preview the production build
+npm run preview
+
+
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
