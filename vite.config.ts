@@ -15,7 +15,8 @@ export default defineConfig(({ mode }) => {
 
     // Optimize build output for production
     build: {
-      outDir: 'dist',
+      outDir: 'build',
+      envFile: mode === 'production' ? '.env.production': '.env.development', 
       sourcemap: mode === 'development', // Enable source maps in development
       rollupOptions: {
         output: {
