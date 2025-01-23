@@ -1,0 +1,22 @@
+.pagination-wrapper {
+  margin-top: 20px;
+}
+
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  flex-grow: 1;
+}
+
+.btn-pagination {
+  margin: 0 5px;
+
+
+  &.active {
+    background-color: $dark-blue;
+    color: $white;
+  }
+}
+
+

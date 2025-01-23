@@ -1,0 +1,29 @@
+
+/* Input.scss */
+.currency-dropdown {
+     max-width: 35px;
+    -webkit-appearance: none; /* Remove default arrows in WebKit */
+    -moz-appearance: none; /* Remove default arrows in Firefox */
+    appearance: none; /* Remove default arrows in all modern browsers */
+    background-image: none; /* Ensure no custom arrow is added */
+    padding: 0px 10px;
+    box-shadow: none !important;
+  }
+  
+  input::placeholder {
+    font-size: 14px;
+  }
+  
+  input:focus {
+    box-shadow: none !important;
+  }
+  
+  textarea:focus {
+    box-shadow: none !important;
+  }
+
+  .form-control.is-invalid.with-icon {
+    background-image: none;
+  }
+  
+  

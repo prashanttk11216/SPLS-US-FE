@@ -1,0 +1,23 @@
+.edit-icon {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.avatar-container:hover .edit-icon {
+  opacity: 1;
+}
+
+.editProfile {
+  text-decoration: none;
+  color: $dark-blue;
+}
+.editProfile:hover {
+  text-decoration: underline;
+  color: $accent-color;
+}

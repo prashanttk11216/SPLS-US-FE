@@ -1,0 +1,18 @@
+
+//input classes
+.phone-input.form-control.is-invalid:focus {
+    border-color: transparent;
+}
+
+.phone-is-invalid {
+    border:1px solid red !important; /* Red border for invalid input */
+    border-radius: 0.5rem;
+}
+
+.text-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    display: block;
+}
