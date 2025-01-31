@@ -264,8 +264,7 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
             <div className="row">
               {/* Address */}
               <div className="col-12 col-md-4">
-                <div className="col-12 col-md-6">
-                  <PlaceAutocompleteField
+                 <PlaceAutocompleteField
                     name="address"
                     label="Address"
                     control={control}
@@ -273,7 +272,6 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
                     rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
                     onPlaceSelect={handlePlaceSelect}
                   />
-                </div>
               </div>
               {/* Address Line 2 */}
               <div className="col-12 col-md-4">
