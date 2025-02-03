@@ -16,6 +16,7 @@ interface InputProps {
   isTextArea?: boolean;
   showEyeIcon?: boolean;
   rows?: number;
+  isOnlyLowerCase?: boolean;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -30,6 +31,7 @@ const Input: React.FC<InputProps> = ({
   isTextArea = false,
   showEyeIcon = false,
   rows = 4,
+  isOnlyLowerCase = false
 }) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   return (
@@ -82,6 +84,11 @@ const Input: React.FC<InputProps> = ({
                       disabled={disabled}
                       {...field}
                       value={field.value || ""} // Ensure controlled behavior
+                      onChange={(e) =>
+                        field.onChange(
+                          isOnlyLowerCase ? e.target.value.toLowerCase() : e.target.value
+                        )
+                      }
                     />
                     {showEyeIcon && (
                       <span

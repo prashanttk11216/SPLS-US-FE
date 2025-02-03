@@ -153,8 +153,8 @@ const Table: FC<TableProps> = ({
                 }`}
                 onClick={() => column.sortable && handleSort(column.key)}
               >
-                <div className="column-header">
-                  {column.label}
+                <div className="column-header d-inline-flex align-items-center">
+                  <span>{column.label}</span>
                   {column.sortable && (
                     <img
                       src={

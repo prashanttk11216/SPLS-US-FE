@@ -108,6 +108,7 @@ const Login: React.FC<LoginProps> = () => {
                       id="email"
                       name="email"
                       placeholder="name@example.com"
+                      isOnlyLowerCase={true}
                       control={control}
                       rules={{
                         required: VALIDATION_MESSAGES.emailRequired,

@@ -42,6 +42,7 @@ export type ShipperForm = {
   isAppointments: boolean;
   isActive: boolean;
   brokerId?: string;
+  postedBy?: string;
 };
 
 interface CreateOrEditShipperProps {
@@ -98,6 +99,7 @@ const CreateOrEditShipper: FC<CreateOrEditShipperProps> = ({
       } else {
         // Create Shipper User with role assigned
         data.brokerId = user._id;
+        data.postedBy = user._id;
         result = await newShipper(data);
       }
 
@@ -172,11 +174,6 @@ const CreateOrEditShipper: FC<CreateOrEditShipperProps> = ({
   };
   const handlePlaceSelect = (details: Address) => {
     console.log("Selected Place Details:", details);
-    setValue("address", {
-      str: details.formatted_address!,
-      lat: details.lat!,
-      lng: details.lng!,
-    });
     setValue("country", details.country!);
     setValue("state", details.state!);
     setValue("city", details.city!);
@@ -241,6 +238,7 @@ const CreateOrEditShipper: FC<CreateOrEditShipperProps> = ({
                 name="email"
                 placeholder="name@example.com"
                 control={control}
+                isOnlyLowerCase={true}
                 rules={{
                   required: VALIDATION_MESSAGES.emailRequired,
                   pattern: {
@@ -278,8 +276,12 @@ const CreateOrEditShipper: FC<CreateOrEditShipperProps> = ({
                 name="address"
                 label="Address"
                 control={control}
+                setValue={setValue}
                 placeholder="Enter address"
-                rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
+                rules={{ 
+                  required: VALIDATION_MESSAGES.addressRequired,
+                  validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.addressRequired)
+                }}
                 onPlaceSelect={handlePlaceSelect}
               />
             </div>

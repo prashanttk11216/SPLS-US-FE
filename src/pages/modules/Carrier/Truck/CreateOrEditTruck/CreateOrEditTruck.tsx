@@ -161,13 +161,10 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
               label="Origin City & State, or Zip Code"
               control={control}
               placeholder="Enter Origin City & State, or Zip Code"
-              rules={{ required: VALIDATION_MESSAGES.originRequired }} // Example validation
-              onPlaceSelect={(details) => {
-                setValue("origin", {
-                  str: details.formatted_address!,
-                  lat: details.lat!,
-                  lng: details.lng!,
-                });
+              setValue={setValue}
+              rules={{ 
+                required: VALIDATION_MESSAGES.addressRequired,
+                validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.addressRequired)
               }}
             />
           </div>
@@ -178,13 +175,7 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
               label="Destination City & State, or Zip Code"
               control={control}
               placeholder="Enter Destination City & State, or Zip Code"
-              onPlaceSelect={(details) => {
-                setValue("destination", {
-                  str: details.formatted_address!,
-                  lat: details.lat!,
-                  lng: details.lng!,
-                });
-              }}
+              setValue={setValue}
             />
           </div>
           {/* Origin Early Pickup Date*/}

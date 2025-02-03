@@ -303,13 +303,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               label="Origin City & State, or Zip Code"
               control={control}
               placeholder="Enter Origin City & State, or Zip Code"
-              rules={{ required: VALIDATION_MESSAGES.originRequired }} // Example validation
-              onPlaceSelect={(details) => {
-                setValue("origin", {
-                  str: details.formatted_address!,
-                  lat: details.lat!,
-                  lng: details.lng!,
-                });
+              setValue={setValue}
+              rules={{ 
+                required: VALIDATION_MESSAGES.originRequired,
+                validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.originRequired)
               }}
             />
           </div>
@@ -400,14 +397,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                     placeholder={`Enter Stop ${
                       index + 1
                     } City & State, or Zip Code`}
-                    rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
-                    
-                    onPlaceSelect={(details) => {
-                      setValue(`originStops.${index}.address`, {
-                        str: details.formatted_address!,
-                        lat: details.lat!,
-                        lng: details.lng!,
-                      });
+                    setValue={setValue}
+                    rules={{ 
+                      required: VALIDATION_MESSAGES.originRequired,
+                      validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.originRequired)
                     }}
                    />
                 </div>
@@ -493,13 +486,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               label="Destination City & State, or Zip Code"
               control={control}
               placeholder="Enter Destination City & State, or Zip Code"
-              rules={{ required: VALIDATION_MESSAGES.destinationRequired }} // Example validation
-              onPlaceSelect={(details) => {
-                setValue("destination", {
-                  str: details.formatted_address!,
-                  lat: details.lat!,
-                  lng: details.lng!,
-                });
+              setValue={setValue}
+              rules={{ 
+                required: VALIDATION_MESSAGES.destinationRequired,
+                validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.destinationRequired)
               }}
             />
           </div>
@@ -586,13 +576,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                     placeholder={`Enter Stop ${
                       index + 1
                     } City & State, or Zip Code`}
-                    rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
-                    onPlaceSelect={(details) => {
-                      setValue(`destinationStops.${index}.address`, {
-                        str: details.formatted_address!,
-                        lat: details.lat!,
-                        lng: details.lng!,
-                      });
+                    setValue={setValue}
+                    rules={{ 
+                      required: VALIDATION_MESSAGES.destinationRequired,
+                      validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.destinationRequired)
                     }}
                   />
                 </div>

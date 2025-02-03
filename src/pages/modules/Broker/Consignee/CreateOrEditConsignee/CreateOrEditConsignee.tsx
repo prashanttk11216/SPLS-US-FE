@@ -42,6 +42,7 @@ export type ConsigneeForm = {
   isAppointments: boolean;
   isActive: boolean;
   brokerId?: string;
+  postedBy?: string;
 };
 
 interface CreateOrEditConsigneeProps {
@@ -98,6 +99,7 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
       } else {
         // Create Consignee User with role assigned
         data.brokerId = user._id;
+        data.postedBy = user._id;
         result = await newConsignee(data);
       }
 
@@ -173,11 +175,6 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
 
   const handlePlaceSelect = (details: Address) => {
     console.log("Selected Place Details:", details);
-    setValue("address", {
-      str: details.formatted_address!,
-      lat: details.lat!,
-      lng: details.lng!,
-    });
     setValue("country", details.country!);
     setValue("state", details.state!);
     setValue("city", details.city!);
@@ -241,6 +238,7 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
                 id="email"
                 name="email"
                 placeholder="name@example.com"
+                isOnlyLowerCase={true}
                 control={control}
                 rules={{
                   required: VALIDATION_MESSAGES.emailRequired,
@@ -281,8 +279,12 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
                 label="Address"
                 control={control}
                 placeholder="Enter address"
-                rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
                 onPlaceSelect={handlePlaceSelect}
+                setValue={setValue}
+                rules={{ 
+                  required: VALIDATION_MESSAGES.addressRequired,
+                  validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.addressRequired)
+                }}
               />
             </div>
             {/* Address Line 2 */}

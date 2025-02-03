@@ -137,11 +137,6 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
   };
 
   const handlePlaceSelect = (details: Address) => {
-    setValue("address", {
-      str: details.formatted_address!,
-      lat: details.lat!,
-      lng: details.lng!,
-    });
     setValue("country", details.country!);
     setValue("state", details.state!);
     setValue("city", details.city!);
@@ -228,6 +223,7 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
                 name="email"
                 placeholder="name@example.com"
                 control={control}
+                isOnlyLowerCase={true}
                 rules={{
                   required: VALIDATION_MESSAGES.emailRequired,
                   pattern: {
@@ -268,8 +264,12 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
                 label="Address"
                 control={control}
                 placeholder="Enter address"
-                rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
                 onPlaceSelect={handlePlaceSelect}
+                setValue={setValue}
+                rules={{ 
+                  required: VALIDATION_MESSAGES.addressRequired,
+                  validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.addressRequired)
+                }}
               />
             </div>
             {/* Address Line 2 */}

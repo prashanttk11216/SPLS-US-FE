@@ -14,7 +14,6 @@ import NumberInput from "../../../../../components/common/NumberInput/NumberInpu
 import { UserRole } from "../../../../../enums/UserRole";
 import { getUsers } from "../../../../../services/user/userService";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
-import { Address } from "../../../../../types/Address";
 import { DispatchLoadStatus } from "../../../../../enums/DispatchLoadStatus";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import Input from "../../../../../components/common/Input/Input";
@@ -327,14 +326,6 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
       console.error("Error:", err);
       toast.error("An unexpected error occurred. Please try again.");
     }
-  };
-
-  const handlePlaceSelect = (details: Address) => {
-    setValue("shipper.address", {
-      str: details.formatted_address!,
-      lat: details.lat!,
-      lng: details.lng!,
-    });
   };
 
   const DispatchLoadTypeValue = watch("type");
@@ -780,7 +771,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               label="Location"
               control={control}
               placeholder="Enter address"
-              onPlaceSelect={handlePlaceSelect}
+              setValue={setValue}
             />
           </div>
           {/* Pickup Date*/}
@@ -925,7 +916,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               label="Location"
               control={control}
               placeholder="Enter address"
-              onPlaceSelect={handlePlaceSelect}
+              setValue={setValue}
             />
           </div>
           {/* Delivery Date*/}

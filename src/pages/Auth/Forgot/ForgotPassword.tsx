@@ -87,6 +87,7 @@ const ForgotPassword: React.FC = () => {
                   placeholder="name@example.com"
                   control={control}
                   disabled={isEmailVerified}
+                  isOnlyLowerCase={true}
                   rules={{
                     required: VALIDATION_MESSAGES.emailRequired,
                     pattern: {

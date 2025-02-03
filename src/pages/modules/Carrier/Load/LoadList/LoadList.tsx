@@ -100,17 +100,17 @@ const LoadList: React.FC = () => {
 
   const columns = [
     {
-      width: "130px",
+      width: "95px",
       key: "loadNumber",
       label: "Ref No",
       sortable: true,
     },
-    { width: "250px", key: "origin", label: "Origin", sortable: true },
+    { width: "150px", key: "origin", label: "Origin", sortable: true },
     ...(loads.some((load) => load.dhoDistance) // Add column conditionally
       ? [{ width: "75px", key: "dhoDistance", label: "DHO" }]
       : []),
     {
-      width: "250px",
+      width: "150px",
       key: "destination",
       label: "Destination",
       sortable: true,
@@ -119,27 +119,15 @@ const LoadList: React.FC = () => {
       ? [{ width: "75px", key: "dhdDistance", label: "DHD" }]
       : []),
     {
-      width: "150px",
+      width: "120px",
       key: "originEarlyPickupDate",
       label: "Pick-up",
       sortable: true,
     },
-    {
-      width: "150px",
-      key: "originEarlyPickupTime",
-      label: "Pick-up Time",
-      sortable: true,
-    },
-    { width: "150px", key: "equipment", label: "Equipment" },
-    { width: "110px", key: "miles", label: "Miles", sortable: true },
-    { width: "150px", key: "mode", label: "Mode" },
-    { width: "150px", key: "postedBy", label: "Posted By" },
-    { width: "140px", key: "allInRate", label: "Broker Rate", sortable: true },
-    { width: "120px", key: "weight", label: "Weight", sortable: true },
-    { width: "120px", key: "length", label: "Length", sortable: true },
-    { width: "120px", key: "width", label: "Width", sortable: true },
-    { width: "120px", key: "height", label: "Height", sortable: true },
-    { width: "120px", key: "loadOption", label: "Load Option" },
+    { width: "130px", key: "equipment", label: "Equipment", sortable: true },
+    { width: "100px", key: "miles", label: "Miles", sortable: true },
+    { width: "100px", key: "postedBy", label: "Posted By" },
+    { width: "120px", key: "allInRate", label: "Broker Rate", sortable: true },
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
@@ -194,21 +182,13 @@ const LoadList: React.FC = () => {
         dhdDistance: load.dhdDistance || "N/A", // Add dhdDistance conditionally
         originEarlyPickupDate:
           formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
-        originEarlyPickupTime:
-          formatDate(load.originEarlyPickupDate, "h:mm aa") || "N/A",
         equipment: load.equipment || "N/A",
         miles: load.miles ? `${formatNumber(load.miles)} mi` : "N/A",
-        mode: load.mode || "N/A",
         postedBy:
           load.brokerId && typeof load.brokerId === "object"
             ? load.brokerId.company
             : "N/A",
         allInRate: load.allInRate ? `$ ${formatNumber(load.allInRate)}` : "N/A",
-        weight: load.weight ? `${formatNumber(load.weight)} lbs` : "N/A",
-        length: load.length ? `${formatNumber(load.length)} ft` : "N/A",
-        width: load.width ? `${formatNumber(load.width)} ft` : "N/A",
-        height: load.height ? `${formatNumber(load.height)} ft` : "N/A",
-        loadOption: load.loadOption || "N/A",
         loadNumber: load.loadNumber ? `${formatNumber(+load.loadNumber)}` : "N/A",
         actions: getActionsForLoad(load),
       };
@@ -309,13 +289,7 @@ const LoadList: React.FC = () => {
               label=""
               control={control}
               placeholder="Origin"
-              onPlaceSelect={(details) => {
-                setValue("origin", {
-                  str: details.formatted_address!,
-                  lat: details.lat!,
-                  lng: details.lng!,
-                });
-              }}
+              setValue={setValue} 
             />
           </div>
           {/* DH-O */}
@@ -345,13 +319,7 @@ const LoadList: React.FC = () => {
               label=""
               control={control}
               placeholder="Destination"
-              onPlaceSelect={(details) => {
-                setValue("destination", {
-                  str: details.formatted_address!,
-                  lat: details.lat!,
-                  lng: details.lng!,
-                });
-              }}
+              setValue={setValue}
             />
           </div>
           {/* DH-D */}

@@ -268,6 +268,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                 name="email"
                 placeholder="name@example.com"
                 control={control}
+                isOnlyLowerCase={true}
                 rules={{
                   required: VALIDATION_MESSAGES.emailRequired,
                   pattern: {
@@ -308,8 +309,12 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                 label="Address"
                 control={control}
                 placeholder="Enter address"
-                rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
                 onPlaceSelect={(details) => handlePlaceSelect(details)}
+                setValue={setValue}
+                rules={{ 
+                  required: VALIDATION_MESSAGES.addressRequired,
+                  validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.addressRequired)
+                }}
               />
             </div>
             {/* Address Line 2 */}
@@ -423,8 +428,12 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                 label="Billing Address"
                 control={control}
                 placeholder="Enter Primary Billing Address"
-                rules={{ required: VALIDATION_MESSAGES.addressRequired }} // Example validation
                 onPlaceSelect={(details) => handlePlaceSelect(details, true)}
+                setValue={setValue}
+                rules={{ 
+                  required: VALIDATION_MESSAGES.addressRequired,
+                  validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.addressRequired)
+                }}
               />
             </div>
             {/* Billing Address Line 2 */}
@@ -575,21 +584,11 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
   ) => {
     console.log("Selected Place Details:", details);
     if (isBilling) {
-      setValue("billingAddress", {
-        str: details.formatted_address!,
-        lat: details.lat!,
-        lng: details.lng!,
-      });
       setValue("billingCountry", details.country!);
       setValue("billingState", details.state!);
       setValue("billingCity", details.city!);
       setValue("billingZip", details.postal_code!);
     } else {
-      setValue("address", {
-        str: details.formatted_address!,
-        lat: details.lat!,
-        lng: details.lng!,
-      });
       setValue("country", details.country!);
       setValue("state", details.state!);
       setValue("city", details.city!);

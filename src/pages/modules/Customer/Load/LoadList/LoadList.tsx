@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { formatDate } from "../../../../../utils/dateFormat";
 import LoadDetailsModal from "../LoadDetailsModal/LoadDetailsModal";
 import { formatNumber } from "../../../../../utils/numberUtils";
+import { LoadStatus } from "../../../../../enums/LoadStatus";
 
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -91,45 +92,32 @@ const LoadList: React.FC = () => {
 
   const columns = [
     {
-      width: "130px",
+      width: "95px",
       key: "loadNumber",
       label: "Ref No",
       sortable: true,
     },
-    { width: "250px", key: "origin", label: "Origin", sortable: true },
+    { width: "160px", key: "origin", label: "Origin", sortable: true },
     {
-      width: "250px",
+      width: "160px",
       key: "destination",
       label: "Destination",
       sortable: true,
     },
     {
-      width: "150px",
+      width: "120px",
       key: "originEarlyPickupDate",
       label: "Pick-up",
       sortable: true,
     },
+    { width: "130px", key: "equipment", label: "Equipment" },
+    { width: "100px", key: "miles", label: "Miles", sortable: true },
     {
-      width: "150px",
-      key: "originEarlyPickupTime",
-      label: "Pick-up Time",
-      sortable: true,
-    },
-    { width: "150px", key: "equipment", label: "Equipment" },
-    { width: "150px", key: "miles", label: "Miles", sortable: true },
-    { width: "150px", key: "mode", label: "Mode" },
-    { width: "140px", key: "allInRate", label: "Broker Rate", sortable: true },
-    {
-      width: "160px",
+      width: "100px",
       key: "customerRate",
-      label: "Customer Rate",
+      label: "Rate",
       sortable: true,
     },
-    { width: "120px", key: "weight", label: "Weight", sortable: true },
-    { width: "120px", key: "length", label: "Length", sortable: true },
-    { width: "120px", key: "width", label: "Width", sortable: true },
-    { width: "120px", key: "height", label: "Height", sortable: true },
-    { width: "120px", key: "loadOption", label: "Load Option" },
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
@@ -138,7 +126,8 @@ const LoadList: React.FC = () => {
       case "View Details":
         handleRowClick(row);
         break;
-      case "view":
+      case "Edit":
+        navigate(`load-board/create/${row._id}${row.status === LoadStatus.Draft ? "?draft=true" : ""}`);
         break;
       default:
         toast.info(`Action "${action}" is not yet implemented.`);
@@ -157,8 +146,11 @@ const LoadList: React.FC = () => {
     setSortConfig(sortStr); // Updates the sort query to trigger API call
   };
 
-  const getActionsForLoad = (_: Load): string[] => {
+  const getActionsForLoad = (load: Load): string[] => {
     const actions = ["View Details"];
+    if (load.status == LoadStatus.Draft) {
+          actions.push("Edit");
+    }
     return actions;
   };
 
@@ -177,20 +169,11 @@ const LoadList: React.FC = () => {
       destination: load.destination.str || "N/A",
       originEarlyPickupDate:
         formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
-      originEarlyPickupTime:
-        formatDate(load.originEarlyPickupDate, "h:mm aa") || "N/A",
       equipment: load.equipment || "N/A",
-      mode: load.mode || "N/A",
       miles: load.miles ? `${formatNumber(load.miles)} mi` : "N/A",
-      allInRate: load.allInRate ? `$ ${formatNumber(load.allInRate)}` : "N/A",
       customerRate: load.customerRate
         ? `$ ${formatNumber(load.customerRate)}`
         : "N/A",
-      weight: load.weight ? `${formatNumber(load.weight)} lbs` : "N/A",
-      length: load.length ? `${formatNumber(load.length)} ft` : "N/A",
-      width: load.width ? `${formatNumber(load.width)} ft` : "N/A",
-      height: load.height ? `${formatNumber(load.height)} ft` : "N/A",
-      loadOption: load.loadOption || "N/A",
       loadNumber: load.loadNumber ? `${formatNumber(+load.loadNumber)}` : "N/A",
       actions: getActionsForLoad(load),
     }));

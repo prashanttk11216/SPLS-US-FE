@@ -135,14 +135,14 @@ const LoadList: React.FC = () => {
 
   const columns = [
     {
-      width: "90px",
+      width: "80px",
       key: "age",
       label: "Age",
       sortable: true,
       render: (row: any) => <strong>{row.age}</strong>,
     },
     {
-      width: "130px",
+      width: "95px",
       key: "loadNumber",
       label: "Ref No",
       sortable: true,
@@ -160,29 +160,10 @@ const LoadList: React.FC = () => {
       label: "Pick-up",
       sortable: true,
     },
+    { width: "130px", key: "equipment", label: "Equipment", sortable: true },
+    { width: "100px", key: "miles", label: "Miles", sortable: true },
     {
-      width: "150px",
-      key: "originEarlyPickupTime",
-      label: "Pick-up Time",
-      sortable: true,
-    },
-    { width: "150px", key: "equipment", label: "Equipment", sortable: true },
-    { width: "120px", key: "miles", label: "Miles", sortable: true },
-    { width: "120px", key: "mode", label: "Mode", sortable: true },
-    { width: "140px", key: "allInRate", label: "Broker Rate", sortable: true },
-    {
-      width: "160px",
-      key: "customerRate",
-      label: "Customer Rate",
-      sortable: true,
-    },
-    { width: "120px", key: "weight", label: "Weight", sortable: true },
-    { width: "120px", key: "length", label: "Length", sortable: true },
-    { width: "120px", key: "width", label: "Width", sortable: true },
-    { width: "120px", key: "height", label: "Height", sortable: true },
-    { width: "120px", key: "loadOption", label: "Load Option" },
-    {
-      width: "150px",
+      width: "90px",
       key: "truckMatch",
       label: "Matches",
       render: (row: any) => (
@@ -190,7 +171,7 @@ const LoadList: React.FC = () => {
           to={`../truck/matches/${row._id}`}
           className="link-accent text-decoration-none fw-bold"
         >
-          View Trucks
+          View
         </Link>
       ),
     },
@@ -326,20 +307,8 @@ const LoadList: React.FC = () => {
       "destination.str": load.destination.str || "N/A",
       originEarlyPickupDate:
         formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
-      originEarlyPickupTime:
-        formatDate(load.originEarlyPickupDate, "h:mm aa") || "N/A",
       equipment: load.equipment || "N/A",
       miles: load.miles ? `${formatNumber(load.miles)} mi` : "N/A",
-      mode: load.mode || "N/A",
-      allInRate: load.allInRate ? `$ ${formatNumber(load.allInRate)}` : "N/A",
-      customerRate: load.customerRate
-        ? `$ ${formatNumber(load.customerRate)}`
-        : "N/A",
-      weight: load.weight ? `${formatNumber(load.weight)} lbs` : "N/A",
-      length: load.length ? `${formatNumber(load.length)} ft` : "N/A",
-      width: load.width ? `${formatNumber(load.width)} ft` : "N/A",
-      height: load.height ? `${formatNumber(load.height)} ft` : "N/A",
-      loadOption: load.loadOption || "N/A",
       loadNumber: load.loadNumber || "N/A",
       actions: getActionsForLoad(load),
     }));

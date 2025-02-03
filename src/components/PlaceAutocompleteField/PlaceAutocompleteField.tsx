@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
-import { Controller, useWatch } from "react-hook-form";
+import { Controller, UseFormSetValue, useWatch } from "react-hook-form";
 
 interface PlaceAutocompleteFieldProps {
   name: string; // Field name for react-hook-form
@@ -8,6 +8,7 @@ interface PlaceAutocompleteFieldProps {
   placeholder?: string;
   rules?: any;
   control?: any;
+  setValue: UseFormSetValue<any>;
   disabled?: boolean;
   onPlaceSelect?: (placeDetails: {
     formatted_address: string | null;
@@ -28,11 +29,12 @@ const PlaceAutocompleteField = ({
   label,
   placeholder = "Enter your address",
   rules,
+  setValue,
   control,
   onPlaceSelect,
   className = "",
 }: PlaceAutocompleteFieldProps) => {
-  const [inputValue, setInputValue] = useState<string>(""); // Internal state for display
+  const [inputValue, setInputValue] = useState<string>("");
   const [placeAutocomplete, setPlaceAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
   let inputRef = useRef<HTMLInputElement | null>(null);
   const places = useMapsLibrary("places");
@@ -40,13 +42,9 @@ const PlaceAutocompleteField = ({
   // Watch the field value to reset internal state when form resets
   const fieldValue = useWatch({ control, name });
 
-  // Sync `inputValue` with the external field value
+  // Sync internal input state with field value
   useEffect(() => {
-    if (fieldValue?.str === undefined || fieldValue?.str === null) {
-      setInputValue(""); // Reset internal state
-    } else {
-      setInputValue(fieldValue.str); // Sync with external field value
-    }
+    setInputValue(fieldValue?.str || ""); // Use 'str' from the object
   }, [fieldValue]);
 
   // Initialize the Autocomplete API on component mount
@@ -54,14 +52,7 @@ const PlaceAutocompleteField = ({
     if (!places || !inputRef.current) return;
 
     const options = {
-      fields: [
-        "address_components",
-        "geometry",
-        "formatted_address",
-        "name",
-        "place_id",
-        "types",
-      ],
+      fields: ["address_components", "geometry", "formatted_address", "place_id", "types"],
     };
 
     const autocompleteInstance = new places.Autocomplete(inputRef.current, options);
@@ -70,7 +61,7 @@ const PlaceAutocompleteField = ({
     return () => {
       // Cleanup: clear all event listeners on the instance
       if (autocompleteInstance) {
-        google.maps.event.clearInstanceListeners(autocompleteInstance);
+      google.maps.event.clearInstanceListeners(autocompleteInstance);
       }
     };
   }, [places]);
@@ -82,11 +73,17 @@ const PlaceAutocompleteField = ({
     const handlePlaceChanged = () => {
       const place = placeAutocomplete.getPlace();
       if (place) {
-        console.log(place);
-        
         const details = extractPlaceDetails(place);
-        setInputValue(details.formatted_address || ""); // Update internal input display
-        if (onPlaceSelect) onPlaceSelect(details); // Trigger parent callback
+        setInputValue(details.formatted_address || "");
+
+        // Use setValue from props instead of control.setValue
+        setValue(name, {
+          str: details.formatted_address!,
+          lat: details.lat!,
+          lng: details.lng!,
+        },  { shouldValidate: true });
+
+        if (onPlaceSelect) onPlaceSelect(details);
       }
     };
 
@@ -95,9 +92,8 @@ const PlaceAutocompleteField = ({
     return () => {
       google.maps.event.clearInstanceListeners(placeAutocomplete);
     };
-  }, [placeAutocomplete, onPlaceSelect]);
+  }, [placeAutocomplete, onPlaceSelect, control, name]);
 
-  // Extract relevant place details
   const extractPlaceDetails = useCallback((place: google.maps.places.PlaceResult) => {
     const addressComponents = place.address_components || [];
     const getComponent = (type: string) =>
@@ -124,7 +120,10 @@ const PlaceAutocompleteField = ({
           {rules?.required && " *"}
         </label>
       )}
-      <Controller
+      {
+        control && (
+
+          <Controller
         name={name}
         control={control}
         rules={rules}
@@ -142,21 +141,27 @@ const PlaceAutocompleteField = ({
               disabled={field.disabled}
               name={field.name}
               value={inputValue}
-              autoComplete="off"
+              autoComplete="new-password" // Most effective way to disable autocomplete
+              spellCheck="false" 
+              aria-autocomplete="none"
               onChange={(e) => {
-                setInputValue(e.target.value); // Update display value
-                field.onChange({ str: e.target.value }); // Update form state
+                setInputValue(e.target.value);
+                field.onChange({
+                  str: e.target.value, // Maintain object format
+                  lat: field.value?.lat || null,
+                  lng: field.value?.lng || null,
+                });
               }}
             />
-            {fieldState?.error && (
-              <span className="text-danger">{fieldState?.error?.message}</span>
-            )}
+            {fieldState?.error && <span className="text-danger">{fieldState.error.message}</span>}
           </>
         )}
       />
+
+        )
+      }
     </div>
   );
 };
 
 export default PlaceAutocompleteField;
-
