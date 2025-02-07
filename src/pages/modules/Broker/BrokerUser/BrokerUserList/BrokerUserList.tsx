@@ -88,7 +88,7 @@ const BrokerUserList: React.FC = () => {
 
         const result = await fetchBrokerUsers(query);
         if (result.success) {
-          let userData = result.data as User[];
+          const userData = result.data as User[];
 
           // setCustomers(result.data as User[]);
           setBrokerUsers(userData);

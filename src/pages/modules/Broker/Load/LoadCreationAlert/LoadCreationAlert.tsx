@@ -99,7 +99,7 @@ export const LoadCreationAlert: FC<LoadCreationAlertProps> = ({
    * Form submission handler
    */
   const onSubmit = async () => {
-    let emails: string[] = [];
+    const emails: string[] = [];
     const inputEmails = processEmailsInput();
 
     // Handle selected carriers

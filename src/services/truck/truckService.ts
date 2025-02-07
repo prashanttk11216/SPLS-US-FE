@@ -8,7 +8,7 @@ import { handleAxiosError } from "../../utils/errorHandler";
 export const getTrucks = async (query?: string): Promise<ApiResponse> => {
     try {
         // Construct endpoint based on presence of userId and/or role
-        let endpoint = "/truck" + query;
+        const endpoint = "/truck" + query;
     
         const response = await axiosApi.get(endpoint);
         return handleResponse(response);
@@ -71,7 +71,7 @@ export const getMatchesTrucks = async (
   loadId: string, query?: string
 ): Promise<ApiResponse> => {
   try {
-    let endpoint = `/truck/matches/${loadId}` + query;
+    const endpoint = `/truck/matches/${loadId}` + query;
     const response = await axiosApi.get(endpoint);
     return handleResponse(response);
   } catch (error) {

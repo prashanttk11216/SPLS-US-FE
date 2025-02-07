@@ -93,7 +93,7 @@ const CustomerList: React.FC = () => {
         }
         const result = await fetchCustomers(query);
         if (result.success) {
-          let userData = result.data as User[];
+          const userData = result.data as User[];
 
           // setCustomers(result.data as User[]);
           setCustomers(userData);

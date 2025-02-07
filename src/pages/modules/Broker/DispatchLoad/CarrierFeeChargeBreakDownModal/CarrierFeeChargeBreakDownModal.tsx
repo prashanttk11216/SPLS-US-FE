@@ -148,8 +148,8 @@ const CarrierFeeChargeBreakDownModal: React.FC<{
     }
 
     if (OtherChargeSchema?.length) {
-      let totalOtherCharges = OtherChargeSchema.filter((charge) => !charge.isAdvance).reduce((sum, charge) => sum + (charge.amount || 0), 0) || 0;
-      let totalAdvance = OtherChargeSchema?.filter((charge) => charge.isAdvance).reduce((sum, charge) => sum + (charge.amount || 0), 0) || 0;
+      const totalOtherCharges = OtherChargeSchema.filter((charge) => !charge.isAdvance).reduce((sum, charge) => sum + (charge.amount || 0), 0) || 0;
+      const totalAdvance = OtherChargeSchema?.filter((charge) => charge.isAdvance).reduce((sum, charge) => sum + (charge.amount || 0), 0) || 0;
       calculatedRate = (calculatedRate + totalOtherCharges) - totalAdvance;
     }
 

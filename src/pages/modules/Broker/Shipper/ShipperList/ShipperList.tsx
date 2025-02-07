@@ -87,7 +87,7 @@ const ShipperList: React.FC = () => {
 
         const result = await fetchShippers(query);
         if (result.success) {
-          let userData = result.data as Shipper[];
+          const userData = result.data as Shipper[];
 
           // setCustomers(result.data as User[]);
           setShippers(userData);

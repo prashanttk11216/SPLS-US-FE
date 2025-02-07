@@ -36,7 +36,7 @@ const PlaceAutocompleteField = ({
 }: PlaceAutocompleteFieldProps) => {
   const [inputValue, setInputValue] = useState<string>("");
   const [placeAutocomplete, setPlaceAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
-  let inputRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const places = useMapsLibrary("places");
 
   // Watch the field value to reset internal state when form resets

@@ -10,7 +10,7 @@ export const getUsers = async (
 ): Promise<ApiResponse> => {
   try {
     // Construct endpoint based on presence of userId and/or role
-    let endpoint = "/user" + query;
+    const endpoint = "/user" + query;
 
     const response = await axiosApi.get(endpoint);
     return handleResponse(response);

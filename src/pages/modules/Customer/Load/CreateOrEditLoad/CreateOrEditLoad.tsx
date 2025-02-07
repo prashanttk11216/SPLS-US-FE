@@ -238,7 +238,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   useEffect(() => {
     const calculateDistance = async () => {
       if (origin && destination) {
-        let distance: number = await getDistance();
+        const distance: number = await getDistance();
         setValue("miles", formatDistance(distance));
       }
     };

@@ -198,10 +198,10 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
   };
 
   const fetchUsersData = async () => {
-    let query = `?role=${UserRole.BROKER_USER}&isActive=true`;
+    const query = `?role=${UserRole.BROKER_USER}&isActive=true`;
     const result = await fetchUsers(query);
     if (result.success) {
-      let users: any = [];
+      const users: any = [];
       result?.data?.forEach((user) => {
         users.push({
           value: user._id,
@@ -217,10 +217,10 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
   };
 
   const fetchCustomersData = async () => {
-    let query = `?role=${UserRole.CUSTOMER}&isActive=true`;
+    const query = `?role=${UserRole.CUSTOMER}&isActive=true`;
     const result = await fetchUsers(query);
     if (result.success) {
-      let users: any = [];
+      const users: any = [];
       result?.data?.forEach((user) => {
         users.push({
           value: user._id,
@@ -232,10 +232,10 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
   };
 
   const fetchCarriersData = async () => {
-    let query = `?role=${UserRole.CARRIER}&isActive=true`;
+    const query = `?role=${UserRole.CARRIER}&isActive=true`;
     const result = await fetchUsers(query);
     if (result.success) {
-      let users: any = [];
+      const users: any = [];
       result?.data?.forEach((user) => {
         users.push({
           value: user._id,
@@ -247,10 +247,10 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
   };
 
   const fetchConsigneeData = async () => {
-    let query = `?isActive=true`;
+    const query = `?isActive=true`;
     const result = await fetchConsignee(query);
     if (result.success) {
-      let consignees: any = [];
+      const consignees: any = [];
       result?.data?.forEach((consignee) => {
         consignees.push({
           value: consignee._id,
@@ -263,10 +263,10 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
   };
 
   const fetchShipperData = async () => {
-    let query = `?isActive=true`;
+    const query = `?isActive=true`;
     const result = await fetchShipper(query);
     if (result.success) {
-      let shippers: any = [];
+      const shippers: any = [];
       result?.data?.forEach((shipper) => {
         shippers.push({
           value: shipper._id,
@@ -343,17 +343,17 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
     charges: OtherChargeBreakdownForm[]
   ) => {    
     if (charges?.length) {
-      let totalOtherCharges = charges
+      const totalOtherCharges = charges
         .filter((charge) => !charge.isAdvance) // Exclude advance charges
         .reduce((sum, charge) => sum + charge.amount!, 0);
-      let totalAdvance =
+      const totalAdvance =
         charges
           ?.filter((charge) => charge.isAdvance) // Include only advance charges
           .reduce((sum, charge) => sum + charge.amount!, 0) || 0;
 
       const finalTotalCharges = totalOtherCharges - totalAdvance;
 
-      let data = {
+      const data = {
         totalAmount: finalTotalCharges,
         breakdown: charges
       }

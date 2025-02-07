@@ -93,7 +93,7 @@ const CarrierList: React.FC = () => {
 
         const result = await fetchCarriers(query);
         if (result.success) {
-          let userData = result.data as User[];
+          const userData = result.data as User[];
 
           // setCustomers(result.data as User[]);
           setCarriers(userData);

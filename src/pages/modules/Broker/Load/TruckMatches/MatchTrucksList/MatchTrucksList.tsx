@@ -55,7 +55,7 @@ const MatcheTrucksList: React.FC = () => {
 
         const result = await fetchTrucks(loadId!, query);
         if (result.success) {
-          let userData = result.data as Truck[];
+          const userData = result.data as Truck[];
 
           // setCustomers(result.data as User[]);
           setTruck(userData);
@@ -157,7 +157,7 @@ const MatcheTrucksList: React.FC = () => {
 
   const getRowData = () => {
     return trucks.map((truck) => {
-      let row: any = {
+      const row: any = {
         _id: truck._id,
         age: truck.formattedAge || "N/A",
         referenceNumber: truck.referenceNumber || "N/A",

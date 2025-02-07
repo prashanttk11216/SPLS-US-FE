@@ -86,7 +86,7 @@ const ConsigneeList: React.FC = () => {
 
         const result = await fetchConsignees(query);
         if (result.success) {
-          let userData = result.data as Consignee[];
+          const userData = result.data as Consignee[];
 
           // setCustomers(result.data as User[]);
           setConsignee(userData);

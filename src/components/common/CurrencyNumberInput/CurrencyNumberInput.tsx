@@ -86,7 +86,7 @@ const CurrencyNumberInput: React.FC<CurrencyNumberInputProps> = ({
                   if (value === "") {
                     field.onChange(undefined);
                   }
-                  let lastChar = value.charAt(value.length - 1); // Get only the last typed character
+                  const lastChar = value.charAt(value.length - 1); // Get only the last typed character
   
                   // Allow only valid characters
                   value = value.replace(/[^0-9.-]/g, "");

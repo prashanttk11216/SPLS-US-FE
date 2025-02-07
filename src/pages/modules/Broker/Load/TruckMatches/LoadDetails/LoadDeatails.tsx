@@ -23,7 +23,7 @@ const LoadDetails: React.FC = () => {
     try {
       const result = await fetchLoad(loadId!);
       if (result.success) {
-        let loadData = result.data as Load[];
+        const loadData = result.data as Load[];
         setLoadDetails(loadData);
       } else {
         toast.error(result.message || "Failed to fetch Consignee Users.");

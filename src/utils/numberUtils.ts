@@ -5,10 +5,10 @@ export const formatNumber = (
 ): string => {
   if (value == null || value === "") return ""; // Handle null, undefined, and empty string
 
-  let stringValue = String(value); // Convert numbers to string for processing
+  const stringValue = String(value); // Convert numbers to string for processing
   
   // Remove all commas before processing
-  let rawValue = stringValue.replace(/,/g, "");
+  const rawValue = stringValue.replace(/,/g, "");
 
   // Handle case when user is typing a negative sign (-) at the beginning
   if (rawValue === "-") return "-";

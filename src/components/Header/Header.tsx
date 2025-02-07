@@ -20,7 +20,7 @@ const Header: React.FC<HeaderProps> = () => {
   const logout = (role: UserRole) => {
     clearStorage();
     dispatch(resetUser());
-    let url = role == UserRole.BROKER_USER ? "/login?role=broker" : "/login";
+    const url = role == UserRole.BROKER_USER ? "/login?role=broker" : "/login";
     navigate(url);
   };
   return (

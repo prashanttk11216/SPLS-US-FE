@@ -76,7 +76,7 @@ const LoadList: React.FC = () => {
 
         const result = await fetchLoads(query);
         if (result.success) {
-          let loadData = result.data as Load[];
+          const loadData = result.data as Load[];
 
           // setCustomers(result.data as User[]);
           setLoads(loadData);
@@ -215,7 +215,7 @@ const LoadList: React.FC = () => {
 
   const handleSearchForm = (data: any) => {
     // Initialize query object
-    let query: { [key: string]: any } = {};
+    const query: { [key: string]: any } = {};
 
     // Populate the query object based on data
     if (data.origin?.str) {

@@ -107,7 +107,7 @@ const DispatchLoadList: React.FC = () => {
         
         const result = await fetchLoads(query);
         if (result.success) {
-          let loadData = result.data as IDispatch[];
+          const loadData = result.data as IDispatch[];
 
           // setCustomers(result.data as User[]);
           setLoads(loadData);
@@ -292,7 +292,7 @@ const DispatchLoadList: React.FC = () => {
   const handleGeneralAction = (action: any, selectedData: any) => {
     switch (action) {
       case "Refresh Loads":
-        let ids: string[] = [];
+        const ids: string[] = [];
         selectedData.map((item: any) => ids.push(item._id));
         refreshAgeCall({ ids });
         break;

@@ -142,10 +142,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   };
 
   const fetchUsersData = async () => {
-    let query = `?role=${UserRole.BROKER_USER}&isActive=true`;
+    const query = `?role=${UserRole.BROKER_USER}&isActive=true`;
     const result = await fetchUsers(query);
     if (result.success) {
-      let users: any = [];
+      const users: any = [];
       result?.data?.forEach((user) => {
         users.push({
           value: user._id,
@@ -269,7 +269,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   useEffect(() => {
     const calculateDistance = async () => {
       if (origin && destination) {
-        let distance: number = await getDistance();
+        const distance: number = await getDistance();
         setValue("miles", formatDistance(distance));
       }
     };

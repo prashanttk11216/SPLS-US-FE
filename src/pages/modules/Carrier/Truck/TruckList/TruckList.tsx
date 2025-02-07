@@ -80,7 +80,7 @@ const TruckList: React.FC = () => {
 
         const result = await fetchTrucks(query);
         if (result.success) {
-          let userData = result.data as Truck[];
+          const userData = result.data as Truck[];
 
           // setCustomers(result.data as User[]);
           setTruck(userData);

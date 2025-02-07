@@ -96,7 +96,7 @@ const LoadList: React.FC = () => {
 
         const result = await fetchLoads(query);
         if (result.success) {
-          let loadData = result.data as Load[];
+          const loadData = result.data as Load[];
 
           // setCustomers(result.data as User[]);
           setLoads(loadData);
@@ -321,12 +321,12 @@ const LoadList: React.FC = () => {
   const handleGeneralAction = (action: any, selectedData: any) => {
     switch (action) {
       case "Refresh Loads":
-        let ids: string[] = [];
+        const ids: string[] = [];
         selectedData.map((item: any) => ids.push(item._id));
         refreshAgeCall({ ids });
         break;
       case "Notify Carrier":
-        let loadIds: string[] = [];
+        const loadIds: string[] = [];
         selectedData.map((item: any) => loadIds.push(item._id));
         setSelectedLoads(loadIds);
         break;

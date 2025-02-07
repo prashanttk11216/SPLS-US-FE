@@ -8,7 +8,7 @@ import { handleAxiosError } from "../../utils/errorHandler";
 export const getConsignee = async (query?: string): Promise<ApiResponse> => {
     try {
         // Construct endpoint based on presence of userId and/or role
-        let endpoint = "/consignee" + query;
+        const endpoint = "/consignee" + query;
     
         const response = await axiosApi.get(endpoint);
         return handleResponse(response);

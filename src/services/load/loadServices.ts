@@ -6,7 +6,7 @@ import { handleAxiosError } from "../../utils/errorHandler";
 
 export const getloads = async (query?: string): Promise<ApiResponse> => {
   try {
-    let endpoint = "/load" + query;
+    const endpoint = "/load" + query;
 
     const response = await axiosApi.get(endpoint);
     return handleResponse(response);
@@ -17,7 +17,7 @@ export const getloads = async (query?: string): Promise<ApiResponse> => {
 
 export const getLoadById = async (loadId: string): Promise<ApiResponse> => {
   try {
-    let endpoint = "/load/" + loadId;
+    const endpoint = "/load/" + loadId;
 
     const response = await axiosApi.get(endpoint);
     return handleResponse(response);

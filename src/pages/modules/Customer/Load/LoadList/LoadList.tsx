@@ -70,7 +70,7 @@ const LoadList: React.FC = () => {
 
         const result = await fetchLoads(query);
         if (result.success) {
-          let loadData = result.data as Load[];
+          const loadData = result.data as Load[];
 
           // setCustomers(result.data as User[]);
           setLoads(loadData);
