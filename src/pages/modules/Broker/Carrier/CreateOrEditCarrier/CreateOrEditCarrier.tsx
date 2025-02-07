@@ -21,6 +21,7 @@ import CheckboxField from "../../../../../components/common/CheckboxField/Checkb
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 import PhoneInputField from "../../../../../components/common/PhoneInputField/PhoneInputField";
 import { Address } from "../../../../../types/Address";
+import PasswordInput from "../../../../../components/common/PasswordInput/PasswordInput";
 
 interface CreateOrEditCarrierProps {
   isModalOpen: boolean; // Controls modal visibility
@@ -537,13 +538,11 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
             {/* Password (only for creating) */}
             <>
               <div className="col-12 col-md-6">
-                <Input
+                <PasswordInput
                   label="Password"
-                  type="password"
                   id="password"
                   name="password"
                   placeholder="Enter Password"
-                  showEyeIcon={true}
                   control={control}
                   rules={{
                     required: VALIDATION_MESSAGES.passwordRequired,
@@ -556,12 +555,10 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
               </div>
 
               <div className="col-12 col-md-6">
-                <Input
+                <PasswordInput
                   label="Confirm Password"
-                  type="password"
                   id="confirmPassword"
                   name="confirmPassword"
-                  showEyeIcon={true}
                   placeholder="Confirm Password"
                   control={control}
                   rules={{

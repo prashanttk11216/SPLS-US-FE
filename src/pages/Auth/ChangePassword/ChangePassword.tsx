@@ -5,6 +5,7 @@ import { REGEX_PATTERNS } from "../../../constants/patterns";
 import Modal from "../../../components/common/Modal/Modal";
 import { resetPassword } from "../../../services/auth/authService";
 import { toast } from "react-toastify";
+import PasswordInput from "../../../components/common/PasswordInput/PasswordInput";
 
 interface ChangePasswordProps {
   email: string;
@@ -63,38 +64,34 @@ const ChangePassowrd: React.FC<ChangePasswordProps> = ({
             {/* Password (only for creating) */}
             <>
               <div className="col-12 col-md-6">
-                <Input
-                  label="Password"
-                  type="password"
-                  id="password"
-                  name="password"
-                  placeholder="Enter Password"
-                  showEyeIcon={true}
-                  control={control}
-                  rules={{
-                    required: VALIDATION_MESSAGES.passwordRequired,
-                    pattern: {
-                      value: REGEX_PATTERNS.password,
-                      message: VALIDATION_MESSAGES.passwordPattern,
-                    },
-                  }}
-                />
+                <PasswordInput
+                    label="Password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter Password"
+                    control={control}
+                    rules={{
+                      required: VALIDATION_MESSAGES.passwordRequired,
+                      pattern: {
+                        value: REGEX_PATTERNS.password,
+                        message: VALIDATION_MESSAGES.passwordPattern,
+                      },
+                    }}
+                  />
               </div>
 
               <div className="col-12 col-md-6">
-                <Input
-                  label="Confirm Password"
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  placeholder="Confirm Password"
-                  control={control}
-                  showEyeIcon={true}
-                  rules={{
-                    required: VALIDATION_MESSAGES.confirmPasswordRequired,
-                    validate: validatePassword,
-                  }}
-                />
+                <PasswordInput
+                    label="Confirm Password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    placeholder="Confirm Password"
+                    control={control}
+                    rules={{
+                      required: VALIDATION_MESSAGES.confirmPasswordRequired,
+                      validate: validatePassword,
+                    }}
+                  />
               </div>
             </>
           </div>

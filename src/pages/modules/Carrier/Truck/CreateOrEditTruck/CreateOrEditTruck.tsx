@@ -14,11 +14,11 @@ import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteF
 import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
 import NumberInput from "../../../../../components/common/NumberInput/NumberInput";
-import Input from "../../../../../components/common/Input/Input";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import { filterObjectKeys } from "../../../../../utils/globalHelper";
 import { equipmentOptions } from "../../../../../utils/dropdownOptions";
 import CurrencyNumberInput from "../../../../../components/common/CurrencyNumberInput/CurrencyNumberInput";
+import TextAreaBox from "../../../../../components/common/TextAreaBox/TextAreaBox";
 
 export type truckForm = {
   origin: {
@@ -260,13 +260,12 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
 
           {/* Comments */}
           <div className="col-12">
-            <Input
+            <TextAreaBox
               label="Comments"
               id="comments"
               name="comments"
               placeholder="Comments"
               control={control}
-              isTextArea
               rows={3}
             />
           </div>

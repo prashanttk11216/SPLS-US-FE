@@ -14,7 +14,6 @@ import {
 } from "../../../../../services/load/loadServices";
 import { useNavigate, useParams } from "react-router-dom";
 import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
-import Input from "../../../../../components/common/Input/Input";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
 import NumberInput from "../../../../../components/common/NumberInput/NumberInput";
@@ -26,6 +25,7 @@ import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteF
 import MapModal from "../../../../../components/common/MapModal/MapModal";
 import { commodityOptions, equipmentOptions, loadOptions, modeOptions } from "../../../../../utils/dropdownOptions";
 import CurrencyNumberInput from "../../../../../components/common/CurrencyNumberInput/CurrencyNumberInput";
+import TextAreaBox from "../../../../../components/common/TextAreaBox/TextAreaBox";
 
 export type loadForm = {
   _id: string;
@@ -770,13 +770,12 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
           </div>
           {/* Special Information */}
           <div className="col-12">
-            <Input
+            <TextAreaBox
               label="Special Information"
               id="specialInstructions"
               name="specialInstructions"
               placeholder="Enter a detailed description"
               control={control}
-              isTextArea
               rows={3}
             />
           </div>

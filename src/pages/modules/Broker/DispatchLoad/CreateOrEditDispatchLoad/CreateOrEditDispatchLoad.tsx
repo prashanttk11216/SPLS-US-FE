@@ -36,6 +36,7 @@ import CarrierFeeChargeBreakDownModal from "../CarrierFeeChargeBreakDownModal/Ca
 import { DispatchLoadStatusOptions, DispatchLoadTypeOptions, equipmentOptions } from "../../../../../utils/dropdownOptions";
 import { calculatePercentage, calculatePercentageByUnit } from "../../../../../utils/globalHelper";
 import CurrencyNumberInput from "../../../../../components/common/CurrencyNumberInput/CurrencyNumberInput";
+import TextAreaBox from "../../../../../components/common/TextAreaBox/TextAreaBox";
 
 export type AddressForm = {
   str?: string; // Address string representation
@@ -813,25 +814,23 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
           </div>
           {/* Description */}
           <div className="col-6">
-            <Input
+            <TextAreaBox
               label="Description"
               id="shipper.description"
               name="shipper.description"
               placeholder="Enter a detailed description"
               control={control}
-              isTextArea
               rows={3}
             />
           </div>
           {/* Notes */}
           <div className="col-6">
-            <Input
+            <TextAreaBox
               label="Shipping Notes"
               id="shipper.notes"
               name="shipper.notes"
               placeholder="Enter a detailed notes"
               control={control}
-              isTextArea
               rows={3}
             />
           </div>
@@ -958,25 +957,23 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
           </div>
           {/* Description */}
           <div className="col-6">
-            <Input
+            <TextAreaBox
               label="Description"
               id="consignee.description"
               name="consignee.description"
               placeholder="Enter a detailed description"
               control={control}
-              isTextArea
               rows={3}
             />
           </div>
           {/* Notes */}
           <div className="col-6">
-            <Input
+            <TextAreaBox
               label="Delivery Notes"
               id="consignee.notes"
               name="consignee.notes"
               placeholder="Enter a detailed notes"
               control={control}
-              isTextArea
               rows={3}
             />
           </div>

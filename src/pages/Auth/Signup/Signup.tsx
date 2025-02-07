@@ -15,6 +15,7 @@ import CheckboxField from "../../../components/common/CheckboxField/CheckboxFiel
 import PlaceAutocompleteField from "../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 import PhoneInputField from "../../../components/common/PhoneInputField/PhoneInputField";
 import { Address } from "../../../types/Address";
+import PasswordInput from "../../../components/common/PasswordInput/PasswordInput";
 
 interface SignupProps {
   role?: UserRole | null;
@@ -484,13 +485,11 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
             {/* Password (only for creating) */}
             <>
               <div className="col-12 col-md-6">
-                <Input
+                <PasswordInput
                   label="Password"
-                  type="password"
                   id="password"
                   name="password"
                   placeholder="Enter Password"
-                  showEyeIcon={true}
                   control={control}
                   rules={{
                     required: VALIDATION_MESSAGES.passwordRequired,
@@ -503,13 +502,11 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
               </div>
 
               <div className="col-12 col-md-6">
-                <Input
+                <PasswordInput
                   label="Confirm Password"
-                  type="password"
                   id="confirmPassword"
                   name="confirmPassword"
                   placeholder="Confirm Password"
-                  showEyeIcon={true}
                   control={control}
                   rules={{
                     required: VALIDATION_MESSAGES.confirmPasswordRequired,

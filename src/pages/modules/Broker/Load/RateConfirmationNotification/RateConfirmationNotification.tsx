@@ -7,7 +7,7 @@ import { getUsers } from "../../../../../services/user/userService";
 import { UserRole } from "../../../../../enums/UserRole";
 import { toast } from "react-toastify";
 import { notifyCustomerLoad } from "../../../../../services/load/loadServices";
-import Input from "../../../../../components/common/Input/Input";
+import TextAreaBox from "../../../../../components/common/TextAreaBox/TextAreaBox";
 
 /**
  * Props for RateConfirmationNotification component
@@ -164,13 +164,12 @@ export const RateConfirmationNotification: FC<
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* Textarea Input */}
         <div className="mb-3">
-          <Input
+          <TextAreaBox
             label="Enter email addresses"
             id="emailsInput"
             name="emailsInput"
             placeholder="Enter emails separated by commas, spaces, or semicolons."
             control={control}
-            isTextArea
             rows={3}
             disabled={!!customerSelected}
             rules={{

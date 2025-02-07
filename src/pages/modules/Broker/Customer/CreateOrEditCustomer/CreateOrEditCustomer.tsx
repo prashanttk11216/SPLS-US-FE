@@ -21,6 +21,7 @@ import CheckboxField from "../../../../../components/common/CheckboxField/Checkb
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 import PhoneInputField from "../../../../../components/common/PhoneInputField/PhoneInputField";
 import { Address } from "../../../../../types/Address";
+import PasswordInput from "../../../../../components/common/PasswordInput/PasswordInput";
 
 interface CreateOrEditCustomerProps {
   isModalOpen: boolean; // Controls modal visibility
@@ -555,12 +556,10 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
             {/* Password (only for creating) */}
             <>
               <div className="col-12 col-md-6">
-                <Input
+                <PasswordInput
                   label="Password"
-                  type="password"
                   id="password"
                   name="password"
-                  showEyeIcon={true}
                   placeholder="Enter Password"
                   control={control}
                   rules={{
@@ -574,11 +573,9 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
               </div>
 
               <div className="col-12 col-md-6">
-                <Input
+                <PasswordInput
                   label="Confirm Password"
-                  type="password"
                   id="confirmPassword"
-                  showEyeIcon={true}
                   name="confirmPassword"
                   placeholder="Confirm Password"
                   control={control}

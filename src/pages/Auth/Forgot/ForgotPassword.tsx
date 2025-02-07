@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import { VALIDATION_MESSAGES } from "../../../constants/messages";
 import { REGEX_PATTERNS } from "../../../constants/patterns";
 import MenWithBox from "../../../assets/images/menWithBox.svg";
+import PasswordInput from "../../../components/common/PasswordInput/PasswordInput";
 
 export type ForgotPasswordForm = {
   email: string;
@@ -101,13 +102,11 @@ const ForgotPassword: React.FC = () => {
               {isEmailVerified && (
                 <>
                   <div className="col-12 mb-1">
-                    <Input
+                    <PasswordInput
                       label="Password"
-                      type="password"
                       id="password"
                       name="password"
                       placeholder="Enter Password"
-                      showEyeIcon={true}
                       control={control}
                       rules={{
                         required: VALIDATION_MESSAGES.passwordRequired,
@@ -120,13 +119,11 @@ const ForgotPassword: React.FC = () => {
                   </div>
 
                   <div className="col-12 mb-1">
-                    <Input
+                    <PasswordInput
                       label="Confirm Password"
-                      type="password"
                       id="confirmPassword"
                       name="confirmPassword"
                       placeholder="Confirm Password"
-                      showEyeIcon={true}
                       control={control}
                       rules={{
                         required: VALIDATION_MESSAGES.confirmPasswordRequired,

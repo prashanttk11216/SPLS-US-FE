@@ -10,6 +10,7 @@ export type SelectOption = {
 
 type SelectFieldProps = {
   name: string;
+  disabled?: boolean;
   options: SelectOption[];
   control: any;
   rules?: any;
@@ -35,6 +36,7 @@ const SelectField: React.FC<SelectFieldProps> = ({
   customStyles = customSelectStyles,
   customTheme = customSelectTheme,
   isLoading = false,
+  disabled = false,
   onChangeOption,
   ...rest
 }) => {
@@ -60,10 +62,13 @@ const SelectField: React.FC<SelectFieldProps> = ({
         control={control}
         defaultValue={defaultValue}
         rules={rules}
+        disabled={disabled}
         render={({ field, fieldState }) => (
           <div>
             <Select
               {...field}
+              isClearable
+              isDisabled={disabled}
               options={filteredOptions}
               placeholder={placeholder || (isLoading ? "Loading..." : "Select")}
               classNamePrefix="select"

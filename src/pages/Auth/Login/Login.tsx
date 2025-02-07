@@ -17,6 +17,7 @@ import { VALIDATION_MESSAGES } from "../../../constants/messages";
 import { REGEX_PATTERNS } from "../../../constants/patterns";
 import { UserRole } from "../../../enums/UserRole";
 import MenWithBox from "../../../assets/images/menWithBox.svg";
+import PasswordInput from "../../../components/common/PasswordInput/PasswordInput";
 
 interface LoginProps {
   role?: UserRole | null;
@@ -123,14 +124,12 @@ const Login: React.FC<LoginProps> = () => {
 
                 {/* Password Input */}
                 <div className="col-12">
-                  <Input
+                  <PasswordInput
                     label="Password"
-                    type="password"
                     id="password"
                     name="password"
                     placeholder="Enter Password"
                     control={control}
-                    showEyeIcon={true}
                     rules={{
                       required: VALIDATION_MESSAGES.passwordRequired,
                     }}
