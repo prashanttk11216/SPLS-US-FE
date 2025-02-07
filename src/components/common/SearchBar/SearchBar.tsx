@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useDeferredValue } from "react";
 import "./SearchBar.scss";
-import useDebounce from "../../../hooks/useDebounce";
 import SearchIcon from "../../../assets/icons/Search.svg";
 import SelectField, { SelectOption } from "../SelectField/SelectField";
 import { useForm } from "react-hook-form";
@@ -19,16 +18,16 @@ const SearchBar: React.FC<SearchBarProps> = ({
   onSearchFieldChange,
 }) => {
   const [inputValue, setInputValue] = useState<string>(""); // Local state for input
-  const debouncedValue = useDebounce(inputValue, 500); // Debounce input value with 500ms delay
+  const deferredValue = useDeferredValue(inputValue); // Deferred input value
 
   const { control } = useForm<any>({
     mode: "onBlur",
   });
 
-  // Trigger `onSearch` with the debounced value
+  // Trigger `onSearch` with the deferred value
   useEffect(() => {
-    onSearch(debouncedValue);
-  }, [debouncedValue, onSearch]);
+    onSearch(deferredValue);
+  }, [deferredValue]);
 
   return (
     <div className="d-flex">

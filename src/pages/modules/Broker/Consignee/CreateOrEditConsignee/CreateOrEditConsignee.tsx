@@ -19,8 +19,8 @@ import {
 } from "../../../../../services/consignee/consigneeService";
 import { Consignee } from "../../../../../types/Consignee";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
-import PhoneInputField from "../../../../../components/common/PhoneInputField/PhoneInputField";
 import { Address } from "../../../../../types/Address";
+import PhoneNumberInput from "../../../../../components/common/PhoneNumberInput/PhoneNumberInput";
 
 export type ConsigneeForm = {
   firstName: string;
@@ -219,7 +219,7 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
 
             {/* Primary Number */}
             <div className="col-12 col-md-6">
-              <PhoneInputField
+              <PhoneNumberInput
                 label={"Primary Number"}
                 name={"primaryNumber"}
                 control={control}

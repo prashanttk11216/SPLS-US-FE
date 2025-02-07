@@ -19,8 +19,8 @@ import {
   editShipper,
 } from "../../../../../services/shipper/shipperService";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
-import PhoneInputField from "../../../../../components/common/PhoneInputField/PhoneInputField";
 import { Address } from "../../../../../types/Address";
+import PhoneNumberInput from "../../../../../components/common/PhoneNumberInput/PhoneNumberInput";
 
 export type ShipperForm = {
   firstName: string;
@@ -218,7 +218,7 @@ const CreateOrEditShipper: FC<CreateOrEditShipperProps> = ({
 
             {/* Primary Number */}
             <div className="col-12 col-md-6">
-              <PhoneInputField
+              <PhoneNumberInput
                 label={"Primary Number"}
                 name={"primaryNumber"}
                 control={control}

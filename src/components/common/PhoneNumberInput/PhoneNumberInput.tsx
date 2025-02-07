@@ -2,20 +2,22 @@ import React from "react";
 import { Controller, Control } from "react-hook-form";
 import { PhoneInput } from "react-international-phone";
 
-interface PhoneInputFieldProps {
+interface PhoneNumberInputProps {
   label: string;
   name: string;
+  disabled?: boolean;
   control: Control<any>; // Replace `any` with your form data type
   defaultCountry?: string;
   rules?: any;
 }
 
-const PhoneInputField: React.FC<PhoneInputFieldProps> = ({
+const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
   label,
   name,
   control,
   defaultCountry = "us",
   rules,
+  disabled = false,
 }) => {
   return (
     <div className="form-group">
@@ -27,6 +29,7 @@ const PhoneInputField: React.FC<PhoneInputFieldProps> = ({
         name={name}
         control={control}
         rules={rules}
+        disabled={disabled}
         render={({ field, fieldState }) => (
           <>
             <PhoneInput
@@ -36,7 +39,6 @@ const PhoneInputField: React.FC<PhoneInputFieldProps> = ({
               inputClassName={`w-100 phone-input form-control ${
                 fieldState?.error ? "is-invalid" : ""
               }`}
-              onChange={(phone) => field.onChange(phone)} // Update the value in react-hook-form
             />
             {fieldState.error && (
               <div className="text-danger">{fieldState?.error?.message}</div>
@@ -48,4 +50,4 @@ const PhoneInputField: React.FC<PhoneInputFieldProps> = ({
   );
 };
 
-export default PhoneInputField;
+export default PhoneNumberInput;

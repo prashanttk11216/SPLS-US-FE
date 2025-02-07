@@ -12,7 +12,6 @@ import { RootState } from "../../../../store/store";
 import { useDispatch, useSelector } from "react-redux";
 import ProfileAvatar from "../../../../components/ProfileAvatar/ProfileAvatar";
 import { validatePhoneNumber } from "../../../../utils/phoneValidate";
-import PhoneInputField from "../../../../components/common/PhoneInputField/PhoneInputField";
 import Stepper, { Step } from "../../../../components/common/Stepper/Stepper";
 import PlaceAutocompleteField from "../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 import CheckboxField from "../../../../components/common/CheckboxField/CheckboxField";
@@ -22,6 +21,7 @@ import { setUser } from "../../../../features/user/userSlice";
 import { setUserDataInStorage } from "../../../../utils/authHelplers";
 import Loading from "../../../../components/common/Loading/Loading";
 import { Address } from "../../../../types/Address";
+import PhoneNumberInput from "../../../../components/common/PhoneNumberInput/PhoneNumberInput";
 
 const Profile: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -181,7 +181,7 @@ const Profile: React.FC = () => {
 
             {/* Primary Number */}
             <div className="col-12 col-md-6">
-              <PhoneInputField
+              <PhoneNumberInput
                 label={"Primary Number"}
                 name={"primaryNumber"}
                 control={control}

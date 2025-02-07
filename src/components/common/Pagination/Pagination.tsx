@@ -38,17 +38,10 @@ const Pagination: React.FC<PaginationProps> = ({
       } else {
         setInputPage(page); // Reset input if invalid
       }
-    }, 1000); // Reduced debounce time for faster UX
+    }, 500); // Reduced debounce time for faster UX
   };
 
-  const handleItemsPerPageChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const newItemsPerPage = Number(event.target.value);
-    if (newItemsPerPage !== limit) {
-      onItemsPerPageChange(newItemsPerPage);
-    }
-  };
+  const handleItemsPerPageChange = (event: React.ChangeEvent<HTMLSelectElement>) => Number(event.target.value) !== limit && onItemsPerPageChange(Number(event.target.value));
 
   const getPageNumbers = () => {
     const maxButtons = 5;
@@ -81,12 +74,10 @@ const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <div className="pagination-wrapper d-flex align-items-center justify-content-between">
+    <div className="custom-pagination-wrapper">
       {/* Left: Items per page selector */}
-      <div className="d-flex align-items-center">
-        <div className="me-2">Items per Page:</div>
+      <div className="items-per-page">
         <select
-        style={{width:"80px"}}
           className="form-select form-select-lg"
           value={limit}
           onChange={handleItemsPerPageChange}
@@ -99,8 +90,9 @@ const Pagination: React.FC<PaginationProps> = ({
 
       {/* Center: Pagination buttons */}
       <div className="pagination">
+        {/* Previous page */}
         <button
-          className="btn btn-white btn-lg btn-pagination"
+          className="btn btn-white btn-lg btn-custom-pagination"
           disabled={page === 1}
           aria-label="Previous page"
           onClick={() => onPageChange(page - 1)}
@@ -111,7 +103,7 @@ const Pagination: React.FC<PaginationProps> = ({
           pageNumber === "..." ? (
             <button
               key={index}
-              className="btn btn-white btn-lg ellipsis btn-pagination"
+              className="btn btn-white btn-lg ellipsis btn-custom-pagination"
               aria-label={`Jump ${index === 0 ? "backward" : "forward"}`}
               onClick={() =>
                 handleEllipsisClick(index === 0 ? "left" : "right")
@@ -122,7 +114,7 @@ const Pagination: React.FC<PaginationProps> = ({
           ) : (
             <button
               key={pageNumber}
-              className={`btn btn-white btn-lg btn-pagination ${
+              className={`btn btn-white btn-lg btn-custom-pagination ${
                 page === pageNumber ? "active" : ""
               }`}
               aria-current={page === pageNumber ? "page" : undefined}
@@ -133,8 +125,9 @@ const Pagination: React.FC<PaginationProps> = ({
           )
         )}
 
+        {/* Next page */}
         <button
-          className="btn btn-white btn-lg btn-pagination"
+          className="btn btn-white btn-lg btn-custom-pagination"
           disabled={page === totalPages}
           aria-label="Next page"
           onClick={() => onPageChange(page + 1)}
@@ -146,7 +139,7 @@ const Pagination: React.FC<PaginationProps> = ({
       {/* Right: Page status */}
       <div className="d-flex align-items-center gap-2">
         <div>Page:</div>
-        <div style={{ width: "80px" }}>
+        <div>
           <input
             type="number"
             className="form-control form-control-lg"

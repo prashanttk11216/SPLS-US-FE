@@ -21,9 +21,9 @@ import Stepper, {
   Step,
 } from "../../../../../components/common/Stepper/Stepper";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
-import PhoneInputField from "../../../../../components/common/PhoneInputField/PhoneInputField";
 import { Address } from "../../../../../types/Address";
 import PasswordInput from "../../../../../components/common/PasswordInput/PasswordInput";
+import PhoneNumberInput from "../../../../../components/common/PhoneNumberInput/PhoneNumberInput";
 
 interface CreateOrEditBrokerUserProps {
   isModalOpen: boolean; // Controls modal visibility
@@ -204,7 +204,7 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
 
             {/* Primary Number */}
             <div className="col-12 col-md-6">
-              <PhoneInputField
+              <PhoneNumberInput
                 label={"Primary Number"}
                 name={"primaryNumber"}
                 control={control}
