@@ -280,7 +280,7 @@ const BrokerUserList: React.FC = () => {
               { label: "Employee ID", value: "employeeId" },
             ]}
             defaultField={searchField}
-            onSearchFieldChange={(value) => setSearchField(value?.value!)}
+            onSearchFieldChange={(value) => setSearchField(value.value)}
           />
         </div>
       </div>

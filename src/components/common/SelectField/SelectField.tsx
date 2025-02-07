@@ -21,7 +21,7 @@ type SelectFieldProps = {
   customStyles?: any;
   customTheme?: any;
   isLoading?: boolean; // For indicating loading state
-  onChangeOption?: (selectedOption: SelectOption | null) => void; // Callback function
+  onChangeOption?: (selectedOption: SelectOption) => void; // Callback function
 } & Omit<SelectProps<SelectOption>, "name" | "options" | "defaultValue">;
 
 const SelectField: React.FC<SelectFieldProps> = ({

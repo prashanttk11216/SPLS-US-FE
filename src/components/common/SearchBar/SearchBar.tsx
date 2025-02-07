@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 
 interface SearchBarProps {
   searchFieldOptions: { label: string; value: string }[];
-  onSearchFieldChange: (selectedOption: SelectOption | null) => void;
+  onSearchFieldChange: (selectedOption: SelectOption) => void;
   defaultField: string;
   onSearch: (query: string) => void; // Function to handle search
 }

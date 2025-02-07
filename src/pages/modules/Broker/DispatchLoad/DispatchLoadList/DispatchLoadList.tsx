@@ -363,7 +363,7 @@ const DispatchLoadList: React.FC = () => {
               { label: "Consignee Weight", value: "consignee.weight" },
             ]}
             defaultField={searchField}
-            onSearchFieldChange={(value) => setSearchField(value?.value!)}
+            onSearchFieldChange={(value) => setSearchField(value.value)}
           />
         </div>
 

@@ -366,7 +366,7 @@ const LoadList: React.FC = () => {
               { label: "Load Option", value: "loadOption" },
             ]}
             defaultField={searchField}
-            onSearchFieldChange={(value) => setSearchField(value?.value!)}
+            onSearchFieldChange={(value) => setSearchField(value.value)}
           />
         </div>
       </div>

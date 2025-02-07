@@ -259,7 +259,7 @@ const ConsigneeList: React.FC = () => {
               { label: "Contact", value: "primaryNumber" },
             ]}
             defaultField={searchField}
-            onSearchFieldChange={(value) => setSearchField(value?.value!)}
+            onSearchFieldChange={(value) => setSearchField(value.value)}
           />
         </div>
       </div>

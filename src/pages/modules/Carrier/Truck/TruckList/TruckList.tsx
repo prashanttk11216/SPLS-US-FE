@@ -262,7 +262,7 @@ const TruckList: React.FC = () => {
               { label: "Length", value: "length" }, 
             ]}
             defaultField={searchField}
-            onSearchFieldChange={(value) => setSearchField(value?.value!)}
+            onSearchFieldChange={(value) => setSearchField(value.value)}
           />
         </div>
       </div>
