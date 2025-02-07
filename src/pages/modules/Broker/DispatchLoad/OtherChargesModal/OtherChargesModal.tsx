@@ -6,9 +6,9 @@ import {
 } from "../CreateOrEditDispatchLoad/CreateOrEditDispatchLoad";
 import Input from "../../../../../components/common/Input/Input";
 import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
-import NumberInput from "../../../../../components/common/NumberInput/NumberInput";
 import CheckboxField from "../../../../../components/common/CheckboxField/CheckboxField";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
+import CurrencyNumberInput from "../../../../../components/common/CurrencyNumberInput/CurrencyNumberInput";
 
 const OtherChargesModal: React.FC<{
   isOpen: boolean;
@@ -103,7 +103,7 @@ const OtherChargesModal: React.FC<{
               />
             </div>
             <div className="col-3">
-              <NumberInput
+              <CurrencyNumberInput
                 label="Amount"
                 id={`breakdown.${index}.amount`}
                 name={`breakdown.${index}.amount`}

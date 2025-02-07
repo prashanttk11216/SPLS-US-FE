@@ -75,7 +75,7 @@ export interface IDispatch extends Document {
   _id: string;
   brokerId?: string | User;
   loadNumber: number;
-  WONumber: number;
+  WONumber: string;
   customerId?: string | User;
   carrierId?: string | User;
   salesRep: string | User;

@@ -25,6 +25,7 @@ import calculateDistance, {
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 import MapModal from "../../../../../components/common/MapModal/MapModal";
 import { commodityOptions, equipmentOptions, loadOptions, modeOptions } from "../../../../../utils/dropdownOptions";
+import CurrencyNumberInput from "../../../../../components/common/CurrencyNumberInput/CurrencyNumberInput";
 
 export type loadForm = {
   _id: string;
@@ -659,7 +660,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
 
           {/* Customer Rate */}
           <div className="col-2">
-            <NumberInput
+            <CurrencyNumberInput
               label="Customer Rate"
               id="customerRate"
               name="customerRate"

@@ -29,6 +29,7 @@ import calculateDistance, {
 } from "../../../../../utils/distanceCalculator";
 import MapModal from "../../../../../components/common/MapModal/MapModal";
 import { commodityOptions, equipmentOptions, loadOptions, modeOptions } from "../../../../../utils/dropdownOptions";
+import CurrencyNumberInput from "../../../../../components/common/CurrencyNumberInput/CurrencyNumberInput";
 
 export type loadForm = {
   _id: string;
@@ -686,7 +687,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
 
           {/* All-in Rate*/}
           <div className="col-3">
-            <NumberInput
+            <CurrencyNumberInput
               label="Carrier All-in Rate"
               id="allInRate"
               name="allInRate"
@@ -699,7 +700,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
 
           {/* Customer Rate */}
           <div className="col-3">
-            <NumberInput
+            <CurrencyNumberInput
               label="Customer Rate"
               id="customerRate"
               name="customerRate"

@@ -35,6 +35,7 @@ import OtherChargesModal from "../OtherChargesModal/OtherChargesModal";
 import CarrierFeeChargeBreakDownModal from "../CarrierFeeChargeBreakDownModal/CarrierFeeChargeBreakDownModal";
 import { DispatchLoadStatusOptions, DispatchLoadTypeOptions, equipmentOptions } from "../../../../../utils/dropdownOptions";
 import { calculatePercentage, calculatePercentageByUnit } from "../../../../../utils/globalHelper";
+import CurrencyNumberInput from "../../../../../components/common/CurrencyNumberInput/CurrencyNumberInput";
 
 export type AddressForm = {
   str?: string; // Address string representation
@@ -106,7 +107,7 @@ export type DispatchLoadForm = {
   _id?: string; // Optional load ID
   brokerId?: string; // Optional broker ID
   loadNumber?: number; // Optional unique load number
-  WONumber?: number; // Optional unique WO number
+  WONumber?: string; // Optional unique WO number
   customerId?: string; // Optional customer ID
   carrierId?: string; // Optional carrier ID
   salesRep?: string; // Sales rep ID (assuming string for now)
@@ -536,16 +537,14 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
 
           {/* W/O Number */}
           <div className="col-3">
-            <NumberInput
-              label="W/O Number"
-              id="WONumber"
-              name="WONumber"
-              placeholder="Enter W/O Number"
-              control={control}
-              rules={{
-                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
-              }}
-            />
+            <Input
+                  label="W/O Number"
+                  type="text"
+                  id="WONumber"
+                  name="WONumber"
+                  placeholder="Enter W/O Number"
+                  control={control}
+                />
           </div>
           {/* Type */}
           <div className="col-3">
@@ -559,7 +558,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
           </div>
           {/* Customer All-in Rate*/}
           <div className="col-2">
-            <NumberInput
+            <CurrencyNumberInput
               label="Rate"
               id="customerRate"
               name="customerRate"
@@ -659,7 +658,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
           </div>
           {/* All-in Rate*/}
           <div className="col-2">
-            <NumberInput
+            <CurrencyNumberInput
               label="All-in Rate"
               id="allInRate"
               name="allInRate"

@@ -17,6 +17,7 @@ import {
   calculatePercentageByUnit,
 } from "../../../../../utils/globalHelper";
 import { useEffect, useMemo, useState } from "react";
+import CurrencyNumberInput from "../../../../../components/common/CurrencyNumberInput/CurrencyNumberInput";
 
 const CarrierFeeChargeBreakDownModal: React.FC<{
   isOpen: boolean;
@@ -183,7 +184,7 @@ const CarrierFeeChargeBreakDownModal: React.FC<{
           </div>
           {/* Carrier All-in Rate*/}
           <div className="col-3">
-            <NumberInput
+            <CurrencyNumberInput
               label="Rate"
               id="breakdown.rate"
               name="breakdown.rate"
@@ -295,7 +296,7 @@ const CarrierFeeChargeBreakDownModal: React.FC<{
               />
             </div>
             <div className="col-3">
-              <NumberInput
+              <CurrencyNumberInput
                 label="Amount"
                 id={`breakdown.OtherChargeSchema.${index}.amount`}
                 name={`breakdown.OtherChargeSchema.${index}.amount`}
@@ -343,7 +344,7 @@ const CarrierFeeChargeBreakDownModal: React.FC<{
         <hr />
         <div className="row">
           <div className="col-3">
-            <NumberInput
+            <CurrencyNumberInput
               label="Total Rate"
               id="breakdown.totalRate"
               name="breakdown.totalRate"

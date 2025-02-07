@@ -18,6 +18,7 @@ import Input from "../../../../../components/common/Input/Input";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import { filterObjectKeys } from "../../../../../utils/globalHelper";
 import { equipmentOptions } from "../../../../../utils/dropdownOptions";
+import CurrencyNumberInput from "../../../../../components/common/CurrencyNumberInput/CurrencyNumberInput";
 
 export type truckForm = {
   origin: {
@@ -233,7 +234,7 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
           </div>
           {/* All-in Rate*/}
           <div className="col-4">
-            <NumberInput
+            <CurrencyNumberInput
               label="All-in Rate"
               id="allInRate"
               name="allInRate"

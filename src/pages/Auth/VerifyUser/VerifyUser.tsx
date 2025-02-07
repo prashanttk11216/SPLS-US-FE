@@ -7,7 +7,7 @@ import OTPInput from "../../../components/common/OTPInput/OTPInput";
 import MenWithBox from "../../../assets/images/menWithBox.svg";
 
 import "./VerifyUser.scss";
-import { verifyUser } from "../../../services/auth/authService";
+import { resendVerificationOTP, verifyUser } from "../../../services/auth/authService";
 import useFetchData from "../../../hooks/useFetchData/useFetchData";
 
 export interface VerifyUserForm {
@@ -55,6 +55,21 @@ const VerifyUser: React.FC = () => {
     setValue("otp", otp, { shouldValidate: true });
   };
 
+  const resendOTP = async () => {
+    try {
+      const result = await resendVerificationOTP({ email: email! });
+
+      if (result.success) {
+        toast.success(result.message);
+      }else{
+        toast.error(result.message);
+      }
+    } catch (error) {
+      console.error("OTP Verification Error:", error);
+      toast.error("An error occurred. Please try again.");
+    }
+  };
+
   return (
     <div className="verify-user-container container vh-100 d-flex align-items-center justify-content-center">
       <div className="row align-items-center w-100">
@@ -86,7 +101,7 @@ const VerifyUser: React.FC = () => {
                 </div>
                 <div className="fw-bold text-center resend-otp">
                   Didn't get the verification OTP?{" "}
-                  <span className="pe-auto text-sky-blue">Resend again</span>
+                  <span className="pe-auto text-sky-blue" onClick={resendOTP}>Resend</span>
                 </div>
               </div>
             </form>

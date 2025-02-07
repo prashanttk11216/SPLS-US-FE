@@ -60,3 +60,13 @@ export const verifyUser = async (data: VerifyUserForm): Promise<ApiResponse> => 
     return handleAxiosError(error, "Verification failed");
   }
 };
+
+// verify User - public API (no token needed)
+export const resendVerificationOTP = async (data: { email: string}): Promise<ApiResponse> => {
+  try {
+    const response = await publicApi.post<ApiResponse>("/otp/resend", data);
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "Verification failed");
+  }
+};

@@ -8,17 +8,11 @@ interface NumberInputProps {
   id: string;
   name: string;
   placeholder?: string;
+  decimalPlaces?: number;
   control: any; // Replace with the actual type from react-hook-form
-  required?: boolean;
   disabled?: boolean;
-  min?: number;
-  max?: number;
   rules?: any;
-  currencyOptions?: string[];
-  currency?: boolean;
-  defaultCurrency?: string;
-  onCurrencyChange?: (currency: string) => void;
-  numberFormatOptions?: Intl.NumberFormatOptions;
+  format?: boolean
 }
 
 const NumberInput: React.FC<NumberInputProps> = ({
@@ -27,26 +21,12 @@ const NumberInput: React.FC<NumberInputProps> = ({
   name,
   placeholder,
   control,
+  decimalPlaces = 2,
   disabled = false,
   rules,
-  currencyOptions = ["$", "€", "£", "₹"],
-  defaultCurrency = "$",
-  currency = false,
-  onCurrencyChange,
+  format = false
 }) => {
-  const validationRules = {
-    setValueAs: (value: any) => {
-      const strValue = value?.toString().replace(/,/g, "") || "";
-      return strValue === "" ? undefined : parseFloat(strValue);
-    },
-  };
 
-  const handleCurrencyChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    onCurrencyChange?.(event.target.value);
-  };
-  rules = { ...rules, ...validationRules };
   return (
     <div className="mb-3">
       {label && (
@@ -63,50 +43,43 @@ const NumberInput: React.FC<NumberInputProps> = ({
         disabled={disabled}
         render={({ field, fieldState }) => (
           <>
-            <div className="input-group">
-              {currency && currencyOptions && (
-                <select
-                  className="form-select form-select-lg currency-dropdown"
-                  defaultValue={defaultCurrency}
-                  onChange={handleCurrencyChange}
-                  disabled={true}
-                >
-                  {currencyOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              )}
-              <input
-                type="text"
-                className={`form-control form-control-lg ${
-                  fieldState?.error ? "is-invalid" : ""
-                }`}
-                id={id}
-                placeholder={placeholder}
-                {...field}
-                value={formatNumber(field.value)}
-                onChange={(e) => {
-                  const rawValue = e.target.value;
-                
-                  // Allow intermediate states like "-" or "" without processing them
-                  if (rawValue === "-" || rawValue === "") {
-                    field.onChange(rawValue); // Update raw value
-                    return;
-                  }
-                
-                  // Remove formatting and parse the number
-                  const cleanedValue = rawValue.replace(/,/g, "");
-                  const numberValue = parseFloat(cleanedValue);
-                
-                  // Only update with valid numbers or undefined if empty
-                  if (!isNaN(numberValue)) {
-                    field.onChange(numberValue);
-                  }
-                }}
-              />
-            </div>
+            <input
+              type="text"
+              className={`form-control form-control-lg ${
+                fieldState?.error ? "is-invalid" : ""
+              }`}
+              id={id}
+              placeholder={placeholder}
+              {...field}
+              disabled={disabled}
+              value={format ? (formatNumber(field.value) ?? "") : (field.value ?? "")} // Ensures a controlled value
+              onChange={(e) => {
+                let value = e.target.value;
+                if (value === "") {
+                  field.onChange(undefined);
+                }
+                let lastChar = value.charAt(value.length - 1); // Get only the last typed character
+
+                // Allow only valid characters
+                value = value.replace(/[^0-9.-]/g, "");
+                // Ensure only one decimal point
+                value = value.replace(/(\.)(?=.*\.)/g, "");
+                // Ensure only one negative sign at the start
+                value = value.replace(/(?!^)-/g, "");
+
+                // Ensures that when a user inputs a decimal number, it doesn't exceed the allowed number of decimal places.
+                if (value && value.includes(".")) {
+                  const [intPart, decimalPart] = value.split(".");
+                  value = `${intPart}.${decimalPart.slice(0, decimalPlaces)}`;
+                }
+
+                if(lastChar === "." || lastChar === "-") {
+                  field.onChange(value ?  value : undefined);
+                }else{
+                  field.onChange(value ?  parseFloat(value) : undefined);
+                }
+              }}
+            />
             {fieldState?.error && (
               <div className="text-danger">{fieldState?.error?.message}</div>
             )}
