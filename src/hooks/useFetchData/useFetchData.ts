@@ -2,134 +2,97 @@ import { useState, useCallback } from "react";
 import { toast } from "react-toastify";
 import { ApiResponse } from "../../types/responseTypes";
 
-interface UseFetchDataProps<T, U = T> {
-  fetchDataService?: (params?: any) => Promise<ApiResponse<T[]>>;
-  fetchByIdService?: (id: string, params?: any) => Promise<ApiResponse<T>>;
-  createDataService?: (data: U) => Promise<ApiResponse<T>>;
-  updateDataService?: (id: string, data: T) => Promise<ApiResponse<T>>;
-  deleteDataService?: (id: string) => Promise<ApiResponse<null>>;
+interface ApiServices<T, U = T> {
+  getAll?: { [key: string]: (params?: any) => Promise<ApiResponse<T[]>> };
+  getById?: { [key: string]: (id: string, params?: any) => Promise<ApiResponse<T>> };
+  create?: { [key: string]: (data: U) => Promise<ApiResponse<T>> };
+  update?: { [key: string]: (id: string, data: T) => Promise<ApiResponse<T>> };
+  remove?: { [key: string]: (id: string) => Promise<ApiResponse<null>> };
 }
 
-const useFetchData = <T, U = T>({
-  fetchDataService,
-  fetchByIdService,
-  createDataService,
-  updateDataService,
-  deleteDataService,
-}: UseFetchDataProps<T, U>) => {
+const useFetchData = <T, U = T>(services: ApiServices<T, U>) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
   const handleError = (err: any, fallbackMessage: string): ApiResponse => {
-    const errorMessage = err.message || fallbackMessage;
+    const errorMessage = err?.message || fallbackMessage;
     console.error(errorMessage);
     setError(errorMessage);
     toast.error(errorMessage);
-    return {
-      success: false,
-      code: 500, // Default error code (can be adjusted based on the API)
-      message: errorMessage,
-      data: null,
-      meta: {},
-    };
+    return { success: false, code: 500, message: errorMessage, data: null, meta: {} };
   };
 
-  const fetchData = useCallback(async (params?: any): Promise<ApiResponse<T[]>> => {
-    if (!fetchDataService) {
-      return handleError(null, "fetchDataService is not defined");
-    }
+  const getData = useCallback(async (key: string, params?: any): Promise<ApiResponse<T[]>> => {
+    if (!services.getAll?.[key]) return handleError(null, `Service '${key}' is not defined`);
+    
     setLoading(true);
     setError("");
     try {
-      const result = await fetchDataService(params);
-      if (!result.success) {
-        throw new Error(result.message || "Failed to fetch data");
-      }
-      return result;
+      return await services.getAll[key](params);
     } catch (err) {
-      return handleError(err, "Failed to fetch data");
+      return handleError(err, `Failed to fetch '${key}' data`);
     } finally {
       setLoading(false);
     }
-  }, [fetchDataService]);
+  }, [services.getAll]);
 
-  const fetchDataById = useCallback(async (id: string, params?: any): Promise<ApiResponse<T>> => {
-    if (!fetchByIdService) {
-      return handleError(null, "fetchByIdService is not defined");
-    }
+  const getDataById = useCallback(async (key: string, id: string, params?: any): Promise<ApiResponse<T>> => {
+    if (!services.getById?.[key]) return handleError(null, `Service '${key}' is not defined`);
+    
     setLoading(true);
     setError("");
     try {
-      const result = await fetchByIdService(id, params);
-      if (!result.success) {
-        throw new Error(result.message || "Failed to fetch data by id");
-      }
-      return result;
+      return await services.getById[key](id, params);
     } catch (err) {
-      return handleError(err, "Failed to fetch data by id");
+      return handleError(err, `Failed to fetch '${key}' data by ID`);
     } finally {
       setLoading(false);
     }
-  }, [fetchByIdService]);
+  }, [services.getById]);
 
-  const createData = useCallback(async (data: U): Promise<ApiResponse<T>> => {
-    if (!createDataService) {
-      return handleError(null, "createDataService is not defined");
-    }
+  const createData = useCallback(async (key: string, data: U): Promise<ApiResponse<T>> => {
+    if (!services.create?.[key]) return handleError(null, `Service '${key}' is not defined`);
+    
     setLoading(true);
     setError("");
     try {
-      const result = await createDataService(data);
-      if (!result.success) {
-        throw new Error(result.message || "Failed to create data");
-      }
-      return result;
+      return await services.create[key](data);
     } catch (err) {
-      return handleError(err, "Failed to create data");
+      return handleError(err, `Failed to create '${key}'`);
     } finally {
       setLoading(false);
     }
-  }, [createDataService]);
+  }, [services.create]);
 
-  const updateData = useCallback(async (id: string, data: T): Promise<ApiResponse<T>> => {
-    if (!updateDataService) {
-      return handleError(null, "updateDataService is not defined");
-    }
+  const updateData = useCallback(async (key: string, id: string, data: T): Promise<ApiResponse<T>> => {
+    if (!services.update?.[key]) return handleError(null, `Service '${key}' is not defined`);
+    
     setLoading(true);
     setError("");
     try {
-      const result = await updateDataService(id, data);
-      if (!result.success) {
-        throw new Error(result.message || "Failed to update data");
-      }
-      return result;
+      return await services.update[key](id, data);
     } catch (err) {
-      return handleError(err, "Failed to update data");
+      return handleError(err, `Failed to update '${key}'`);
     } finally {
       setLoading(false);
     }
-  }, [updateDataService]);
+  }, [services.update]);
 
-  const deleteDataById = useCallback(async (id: string): Promise<ApiResponse<null>> => {
-    if (!deleteDataService) {
-      return handleError(null, "deleteDataService is not defined");
-    }
+  const deleteData = useCallback(async (key: string, id: string): Promise<ApiResponse<null>> => {
+    if (!services.remove?.[key]) return handleError(null, `Service '${key}' is not defined`);
+    
     setLoading(true);
     setError("");
     try {
-      const result = await deleteDataService(id);
-      if (!result.success) {
-        throw new Error(result.message || "Failed to delete data");
-      }
-      return result;
+      return await services.remove[key](id);
     } catch (err) {
-      return handleError(err, "Failed to delete data");
+      return handleError(err, `Failed to delete '${key}'`);
     } finally {
       setLoading(false);
     }
-  }, [deleteDataService]);
+  }, [services.remove]);
 
-  return { fetchData, fetchDataById, createData, updateData, deleteDataById, loading, error };
+  return { getData, getDataById, createData, updateData, deleteData, loading, error };
 };
 
 export default useFetchData;

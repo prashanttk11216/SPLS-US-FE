@@ -18,6 +18,8 @@ import { formatDate } from "../../../../../utils/dateFormat";
 import LoadDetailsModal from "../LoadDetailsModal/LoadDetailsModal";
 import { formatNumber } from "../../../../../utils/numberUtils";
 import { LoadStatus } from "../../../../../enums/LoadStatus";
+import { Equipment } from "../../../../../enums/Equipment";
+import { getEnumValue } from "../../../../../utils/globalHelper";
 
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -42,12 +44,11 @@ const LoadList: React.FC = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
   const [loadDetails, setLoadDetails] = useState<Partial<Load> | null>(null);
 
-  const {
-    fetchData: fetchLoads,
-    loading,
-    error,
-  } = useFetchData<any>({
-    fetchDataService: getloads,
+  
+  const { getData, loading, error } = useFetchData<any>({
+    getAll: { 
+      load: getloads,
+     },
   });
 
   // Fetch Load data
@@ -68,7 +69,7 @@ const LoadList: React.FC = () => {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
 
-        const result = await fetchLoads(query);
+        const result = await getData("load", query);
         if (result.success) {
           const loadData = result.data as Load[];
 
@@ -80,7 +81,7 @@ const LoadList: React.FC = () => {
         toast.error("Error fetching Loads data.");
       }
     },
-    [fetchLoads, searchQuery, user, sortConfig]
+    [getData, searchQuery, user, sortConfig]
   );
 
   // Trigger fetch when user is populated
@@ -169,7 +170,7 @@ const LoadList: React.FC = () => {
       destination: load.destination.str || "N/A",
       originEarlyPickupDate:
         formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
-      equipment: load.equipment || "N/A",
+      equipment:  getEnumValue(Equipment, load.equipment),   
       miles: load.miles ? `${formatNumber(load.miles)} mi` : "N/A",
       customerRate: load.customerRate
         ? `$ ${formatNumber(load.customerRate)}`

@@ -38,13 +38,14 @@ export const RateConfirmationNotification: FC<
   >([]);
   const { handleSubmit, control, watch, getValues } = useForm<FormInputs>();
 
-  const {
-    fetchData: fetchUsers,
-    updateData: notifyCustomer,
-    loading,
-  } = useFetchData({
-    fetchDataService: getUsers,
-    updateDataService: notifyCustomerLoad,
+
+  const { getData, updateData, loading } = useFetchData<any>({
+    getAll: { 
+      user: getUsers,
+     },
+     update: {
+      load: notifyCustomerLoad,
+     },
   });
 
   const emailsInput = watch("emailsInput", "");
@@ -56,7 +57,7 @@ export const RateConfirmationNotification: FC<
   const fetchCustomersData = useCallback(async () => {
     try {
       const query = `?role=${UserRole.CUSTOMER}&isActive=true`;
-      const result = await fetchUsers(query);
+      const result = await getData("user", query);
       if (result.success) {
         const users = result?.data?.map((user) => ({
           value: user._id,
@@ -71,7 +72,7 @@ export const RateConfirmationNotification: FC<
       console.error(error);
       toast.error("An error occurred while fetching customers.");
     }
-  }, [fetchUsers]);
+  }, [getData]);
 
   /**
    * On component mount, fetch customer data
@@ -121,7 +122,7 @@ export const RateConfirmationNotification: FC<
     }
 
     try {
-      const response = await notifyCustomer(selectedLoad, { emails });
+      const response = await updateData("load", selectedLoad, { emails });
       if (response.success) {
         toast.success(response.message || "Notification sent successfully.");
         closeModal();

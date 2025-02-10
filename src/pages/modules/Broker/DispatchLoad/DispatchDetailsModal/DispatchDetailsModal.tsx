@@ -4,6 +4,8 @@ import { IDispatch } from "../../../../../types/Dispatch";
 import { formatDate } from "../../../../../utils/dateFormat";
 import { User } from "../../../../../types/User";
 import { formatNumber } from "../../../../../utils/numberUtils";
+import { getEnumValue } from "../../../../../utils/globalHelper";
+import { Equipment } from "../../../../../enums/Equipment";
 
 const DispatchDetailsModal: React.FC<{
   isOpen: boolean;
@@ -37,7 +39,7 @@ const DispatchDetailsModal: React.FC<{
         },
         {
           label: "Equipment",
-          value: dispatch.equipment || "N/A",
+          value: getEnumValue(Equipment, dispatch.equipment),
         },
         {
           label: "All-in Rate",

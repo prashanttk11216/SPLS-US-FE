@@ -14,6 +14,8 @@ import TruckDetailsModal from "../../../../Carrier/Truck/TruckDetailsModal/Truck
 import { UserRole } from "../../../../../../enums/UserRole";
 import { formatDate } from "../../../../../../utils/dateFormat";
 import { useParams } from "react-router-dom";
+import { getEnumValue } from "../../../../../../utils/globalHelper";
+import { Equipment } from "../../../../../../enums/Equipment";
 
 const MatcheTrucksList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -35,8 +37,11 @@ const MatcheTrucksList: React.FC = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
   const [truckDetails, setTruckDetails] = useState<Partial<Truck> | null>(null);
 
-  const { fetchDataById: fetchTrucks, loading } = useFetchData<any>({
-    fetchByIdService: getMatchesTrucks,
+
+  const { getDataById, loading } = useFetchData<any>({
+    getById: { 
+      truck: getMatchesTrucks,
+     }
   });
 
   const fetchTrucksData = useCallback(
@@ -53,7 +58,7 @@ const MatcheTrucksList: React.FC = () => {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
 
-        const result = await fetchTrucks(loadId!, query);
+        const result = await getDataById("truck", loadId!, query);
         if (result.success) {
           const userData = result.data as Truck[];
 
@@ -65,7 +70,7 @@ const MatcheTrucksList: React.FC = () => {
         toast.error("Error fetching Consignee data.");
       }
     },
-    [fetchTrucks, user, sortConfig]
+    [getDataById, user, sortConfig]
   );
 
   useEffect(() => {
@@ -166,7 +171,7 @@ const MatcheTrucksList: React.FC = () => {
         "destination.str": truck?.destination?.str || "Anywhere",
         dhdDistance: truck.dhdDistance || "N/A", // Add dhoDistance conditionally
         availableDate: formatDate(truck.availableDate, "MM/dd/yyyy") || "N/A",
-        equipment: truck.equipment || "N/A",
+        equipment:  getEnumValue(Equipment, truck.equipment),   
         allInRate: truck.allInRate ? `${truck.allInRate} $` : "N/A",
         weight: (truck.weight && (truck.weight + " lbs")) || "N/A",
         length: (truck.length && (truck.length + " ft")) || "N/A",

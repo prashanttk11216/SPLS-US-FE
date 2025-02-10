@@ -56,14 +56,13 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
     defaultValues: customerData || {}, // Pre-fill form when editing
   });
 
-  const {
-    createData: createCustomer,
-    updateData: updateCustomer,
-    loading,
-    error,
-  } = useFetchData<any>({
-    createDataService: createUser,
-    updateDataService: editUser,
+  const { createData, updateData, loading, error } = useFetchData<any>({
+    create: { 
+      user: createUser,
+     },
+     update: {
+      user: editUser,
+     },
   });
 
   /**
@@ -75,12 +74,12 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
       let result;
       if (isEditing && customerData?._id) {
         // Update customer if editing
-        result = await updateCustomer(customerData._id, data);
+        result = await updateData("user", customerData._id, data);
       } else {
         // Create customer with role assigned
         data.role = UserRole.CUSTOMER;
         data.brokerId = user._id;
-        result = await createCustomer(data);
+        result = await createData("user", data);
       }
 
       if (result.success) {

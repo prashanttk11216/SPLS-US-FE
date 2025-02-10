@@ -12,14 +12,11 @@ import Pagination, {
   Meta,
 } from "../../../../../components/common/Pagination/Pagination";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
-import CreateOrEditShipper, {
-  ShipperForm,
-} from "../CreateOrEditShipper/CreateOrEditShipper";
+import CreateOrEditShipper from "../CreateOrEditShipper/CreateOrEditShipper";
 import { Shipper } from "../../../../../types/Shipper";
 import {
   deleteShipper,
   getShipper,
-  getShipperById,
   toggleActiveShipper,
 } from "../../../../../services/shipper/shipperService";
 import ShipperDetailsModal from "../ShipperDetailsModal/ShipperDetailsModal";
@@ -29,7 +26,7 @@ const ShipperList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [shipperData, setShipperData] = useState<ShipperForm | null>(null);
+  const [shipperData, setShipperData] = useState<Partial<Shipper> | null>(null);
   const [shippers, setShippers] = useState<Shipper[]>([]);
   const [meta, setMeta] = useState({
     page: 1,
@@ -51,17 +48,16 @@ const ShipperList: React.FC = () => {
     null
   );
 
-  const {
-    fetchData: fetchShippers,
-    fetchDataById: fetchShipperById,
-    deleteDataById: deleteDataById,
-    updateData: updateStatus,
-    loading,
-  } = useFetchData<any>({
-    fetchDataService: getShipper,
-    fetchByIdService: getShipperById,
-    deleteDataService: deleteShipper,
-    updateDataService: toggleActiveShipper,
+  const { getData, updateData, deleteData, loading } = useFetchData<any>({
+    getAll: { 
+      shipper: getShipper,
+     },
+     update: {
+      shipper: toggleActiveShipper,
+     },
+     remove: {
+      shipper: deleteShipper,
+     }
   });
   
   const fetchShippersData = useCallback(
@@ -85,7 +81,7 @@ const ShipperList: React.FC = () => {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
 
-        const result = await fetchShippers(query);
+        const result = await getData("shipper", query);
         if (result.success) {
           const userData = result.data as Shipper[];
 
@@ -99,7 +95,7 @@ const ShipperList: React.FC = () => {
         toast.error("Error fetching Shipper data.");
       }
     },
-    [fetchShippers, searchQuery, user, sortConfig]
+    [getData, searchQuery, user, sortConfig]
   );
 
   useEffect(() => {
@@ -114,7 +110,7 @@ const ShipperList: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (data: ShipperForm) => {
+  const openEditModal = (data: Partial<Shipper>) => {
     setIsEditing(true);
     setShipperData(data);
     setIsModalOpen(true);
@@ -139,15 +135,14 @@ const ShipperList: React.FC = () => {
 
       case "Edit":
         try {
-          const result = await fetchShipperById(row._id);
-          openEditModal(result.data);
+          openEditModal(row);
         } catch {
           toast.error("Failed to fetch user details for editing.");
         }
         break;
       case "Delete":
         try {
-          const result = await deleteDataById(row._id);
+          const result = await deleteData("shipper", row._id);
           if (result.success) {
             toast.success(result.message);
             fetchShippersData();
@@ -159,7 +154,7 @@ const ShipperList: React.FC = () => {
       case "Activate":
       case "Deactivate":
         try {
-          const result = await updateStatus(row._id, {});
+          const result = await updateData("shipper", row._id, {});
           if (result.success) {
             toast.success(result.message);
             fetchShippersData();

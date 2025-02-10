@@ -4,7 +4,6 @@ import Table from "../../../../../components/common/Table/Table";
 import PlusIcon from "../../../../../assets/icons/plus.svg";
 import {
   deleteUser,
-  getUserById,
   getUsers,
   toggleActiveStatus,
 } from "../../../../../services/user/userService";
@@ -56,18 +55,18 @@ const CustomerList: React.FC = () => {
 
   const [changePasswordModel, setchangePasswordModel] = useState(false);
 
-  const {
-    fetchData: fetchCustomers,
-    fetchDataById: fetchCustomer,
-    deleteDataById: deleteCustomer,
-    updateData: updateStatus,
-    loading,
-    error,
-  } = useFetchData<any>({
-    fetchDataService: getUsers,
-    fetchByIdService: getUserById,
-    deleteDataService: deleteUser,
-    updateDataService: toggleActiveStatus,
+ 
+
+  const { getData, updateData, deleteData, loading, error } = useFetchData<any>({
+    getAll: { 
+      user: getUsers,
+     },
+     update: {
+      user: toggleActiveStatus,
+     },
+     remove: {
+      user: deleteUser,
+     }
   });
 
   // Fetch customers data
@@ -91,7 +90,7 @@ const CustomerList: React.FC = () => {
         if (sortConfig) {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
-        const result = await fetchCustomers(query);
+        const result = await getData("user", query);
         if (result.success) {
           const userData = result.data as User[];
 
@@ -105,7 +104,7 @@ const CustomerList: React.FC = () => {
         toast.error("Error fetching customer data.");
       }
     },
-    [fetchCustomers, searchQuery, user, sortConfig]
+    [getData, searchQuery, user, sortConfig]
   );
 
   // Trigger fetch when user is populated
@@ -132,8 +131,7 @@ const CustomerList: React.FC = () => {
 
       case "Edit":
         try {
-          const customerData = await fetchCustomer(row._id);
-          openEditModal(customerData.data);
+          openEditModal(row);
         } catch (err) {
           toast.error("Failed to fetch customer details for editing.");
         }
@@ -144,7 +142,7 @@ const CustomerList: React.FC = () => {
         break;
       case "Delete":
         try {
-          const result = await deleteCustomer(row._id);
+          const result = await deleteData("user", row._id);
           if (result.success) {
             toast.success(result.message);
             fetchCustomersData();
@@ -156,7 +154,7 @@ const CustomerList: React.FC = () => {
       case "Activate":
       case "Deactivate":
         try {
-          const result = await updateStatus(row._id, {});
+          const result = await updateData("user", row._id, {});
           if (result.success) {
             toast.success(result.message);
             fetchCustomersData();

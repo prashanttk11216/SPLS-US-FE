@@ -54,13 +54,14 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
     mode: "onBlur",
   });
 
-  const {
-    createData: createBrokerUser,
-    updateData: updateBrokerUser,
-    loading,
-  } = useFetchData<any>({
-    createDataService: createBroker,
-    updateDataService: editUser,
+
+  const { createData, updateData, loading } = useFetchData<any>({
+    create: { 
+      user: createBroker,
+     },
+     update: {
+      user: editUser,
+     },
   });
 
   /**
@@ -71,12 +72,12 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
     let result;
     if (isEditing && brokerUserData?._id) {
       // Update Broker if editing
-      result = await updateBrokerUser(brokerUserData._id, data);
+      result = await updateData("user", brokerUserData._id, data);
     } else {
       // Create Broker User with role assigned
       data.role = UserRole.BROKER_USER;
       data.brokerId = user._id;
-      result = await createBrokerUser(data);
+      result = await createData("user",data);
     }
     if (result.success) {
       toast.success(

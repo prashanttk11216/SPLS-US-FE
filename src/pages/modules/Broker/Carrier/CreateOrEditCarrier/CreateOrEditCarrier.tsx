@@ -55,14 +55,14 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
     mode: "onBlur",
     defaultValues: carrierData || {}, // Pre-fill form when editing
   });
-  const {
-    createData: createCarrier,
-    updateData: updateCarrier,
-    loading,
-    error,
-  } = useFetchData<any>({
-    createDataService: createUser,
-    updateDataService: editUser,
+
+  const { createData, updateData, loading, error } = useFetchData<any>({
+    create: { 
+      user: createUser,
+     },
+     update: {
+      user: editUser,
+     },
   });
 
   /**
@@ -75,12 +75,12 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
       let result;
       if (isEditing && carrierData?._id) {
         // Update carrier if editing
-        result = await updateCarrier(carrierData._id, data);
+        result = await updateData("user", carrierData._id, data);
       } else {
         // Create carrier with role assigned
         data.role = UserRole.CARRIER;
         data.brokerId = user._id;
-        result = await createCarrier(data);
+        result = await createData("user", data);
       }
 
       if (result.success) {

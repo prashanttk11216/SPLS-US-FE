@@ -14,13 +14,14 @@ import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import { Truck } from "../../../../../types/Truck";
 import {
   deleteTruck,
-  getTruckById,
   getTrucks,
 } from "../../../../../services/truck/truckService";
 import CreateOrEditTruck from "../CreateOrEditTruck/CreateOrEditTruck";
 import TruckDetailsModal from "../TruckDetailsModal/TruckDetailsModal";
 import { formatDate } from "../../../../../utils/dateFormat";
 import { formatNumber } from "../../../../../utils/numberUtils";
+import { getEnumValue } from "../../../../../utils/globalHelper";
+import { Equipment } from "../../../../../enums/Equipment";
 
 const TruckList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -46,15 +47,14 @@ const TruckList: React.FC = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
   const [truckDetails, setTruckDetails] = useState<Partial<Truck> | null>(null);
 
-  const {
-    fetchData: fetchTrucks,
-    fetchDataById: fetchTruckById,
-    deleteDataById: deleteDataById,
-    loading,
-  } = useFetchData<any>({
-    fetchDataService: getTrucks,
-    fetchByIdService: getTruckById,
-    deleteDataService: deleteTruck,
+
+  const { getData, deleteData, loading } = useFetchData<any>({
+    getAll: { 
+      truck: getTrucks,
+     },
+     remove: {
+      truck: deleteTruck
+     }
   });
 
   const fetchTrucksData = useCallback(
@@ -78,7 +78,7 @@ const TruckList: React.FC = () => {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
 
-        const result = await fetchTrucks(query);
+        const result = await getData("truck", query);
         if (result.success) {
           const userData = result.data as Truck[];
 
@@ -92,7 +92,7 @@ const TruckList: React.FC = () => {
         toast.error("Error fetching Consignee data.");
       }
     },
-    [fetchTrucks, searchQuery, user, sortConfig]
+    [getData, searchQuery, user, sortConfig]
   );
 
   useEffect(() => {
@@ -131,15 +131,14 @@ const TruckList: React.FC = () => {
         break;
       case "Edit":
         try {
-          const result = await fetchTruckById(row._id);
-          openEditModal(result.data);
+          openEditModal(row);
         } catch {
           toast.error("Failed to fetch user details for editing.");
         }
         break;
       case "Delete":
         try {
-          const result = await deleteDataById(row._id);
+          const result = await deleteData("truck", row._id);
           if (result.success) {
             toast.success(result.message);
             fetchTrucksData();
@@ -222,7 +221,7 @@ const TruckList: React.FC = () => {
       "origin.str": truck.origin.str,
       "destination.str": truck?.destination?.str || "Anywhere",
       availableDate: formatDate(truck.availableDate, "MM/dd/yyyy") || "N/A",
-      equipment: truck.equipment || "N/A",
+      equipment:  getEnumValue(Equipment, truck.equipment),   
       allInRate: truck.allInRate
       ? `$ ${formatNumber(truck.allInRate)}`
       : "N/A",

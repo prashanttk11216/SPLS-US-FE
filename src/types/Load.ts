@@ -1,8 +1,8 @@
-import { Mode } from "fs";
 import { Equipment } from "../enums/Equipment";
 import { Commodity } from "../enums/Commodity";
 import { LoadOption } from "../enums/LoadOption";
 import { User } from "./User";
+import { Mode } from "../enums/Mode";
 
 export interface Load {
   _id: string;

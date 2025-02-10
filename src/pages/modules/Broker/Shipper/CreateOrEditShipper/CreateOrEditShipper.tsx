@@ -76,14 +76,14 @@ const CreateOrEditShipper: FC<CreateOrEditShipperProps> = ({
     defaultValues: shipperData || {}, // Pre-fill form when editing
   });
 
-  const {
-    createData: newShipper,
-    updateData: updateShipper,
-    loading,
-    error,
-  } = useFetchData<any>({
-    createDataService: createShipper,
-    updateDataService: editShipper,
+
+  const { createData, updateData, loading, error } = useFetchData<any>({
+    create: { 
+      shipper: createShipper,
+     },
+     update: {
+      shipper: editShipper,
+     }
   });
 
   /**
@@ -95,12 +95,12 @@ const CreateOrEditShipper: FC<CreateOrEditShipperProps> = ({
       let result;
       if (isEditing && shipperData?._id) {
         // Update Shipper if editing
-        result = await updateShipper(shipperData._id, data);
+        result = await updateData("shipper", shipperData._id, data);
       } else {
         // Create Shipper User with role assigned
         data.brokerId = user._id;
         data.postedBy = user._id;
-        result = await newShipper(data);
+        result = await createData("shipper", data);
       }
 
       if (result.success) {

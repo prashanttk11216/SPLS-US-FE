@@ -16,7 +16,6 @@ import { Consignee } from "../../../../../types/Consignee";
 import {
   deleteConsignee,
   getConsignee,
-  getConsigneeById,
   toggleActiveConsignee,
 } from "../../../../../services/consignee/consigneeService";
 import CreateOrEditConsignee from "../CreateOrEditConsignee/CreateOrEditConsignee";
@@ -50,17 +49,18 @@ const ConsigneeList: React.FC = () => {
   const [consigneeDetails, setConsigneeDetails] =
     useState<Partial<Consignee> | null>(null);
 
-  const {
-    fetchData: fetchConsignees,
-    fetchDataById: fetchConsigneeById,
-    deleteDataById: deleteDataById,
-    updateData: updateStatus,
-    loading,
-  } = useFetchData<any>({
-    fetchDataService: getConsignee,
-    fetchByIdService: getConsigneeById,
-    deleteDataService: deleteConsignee,
-    updateDataService: toggleActiveConsignee,
+
+
+  const { getData, updateData, deleteData, loading } = useFetchData<any>({
+    getAll: { 
+      user: getConsignee,
+     },
+     update: {
+      user: toggleActiveConsignee,
+     },
+     remove: {
+      user: deleteConsignee,
+     }
   });
 
   const fetchConsigneesData = useCallback(
@@ -84,7 +84,7 @@ const ConsigneeList: React.FC = () => {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
 
-        const result = await fetchConsignees(query);
+        const result = await getData("user", query);
         if (result.success) {
           const userData = result.data as Consignee[];
 
@@ -98,7 +98,7 @@ const ConsigneeList: React.FC = () => {
         toast.error("Error fetching Consignee data.");
       }
     },
-    [fetchConsignees, searchQuery, user, sortConfig]
+    [getData, searchQuery, user, sortConfig]
   );
 
   useEffect(() => {
@@ -137,15 +137,14 @@ const ConsigneeList: React.FC = () => {
         break;
       case "Edit":
         try {
-          const result = await fetchConsigneeById(row._id);
-          openEditModal(result.data);
+          openEditModal(row);
         } catch {
           toast.error("Failed to fetch user details for editing.");
         }
         break;
       case "Delete":
         try {
-          const result = await deleteDataById(row._id);
+          const result = await deleteData("user",row._id);
           if (result.success) {
             toast.success(result.message);
             fetchConsigneesData();
@@ -157,7 +156,7 @@ const ConsigneeList: React.FC = () => {
       case "Activate":
       case "Deactivate":
         try {
-          const result = await updateStatus(row._id, {});
+          const result = await updateData("user", row._id, {});
           if (result.success) {
             toast.success(result.message);
             fetchConsigneesData();

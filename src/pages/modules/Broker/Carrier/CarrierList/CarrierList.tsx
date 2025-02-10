@@ -5,7 +5,6 @@ import { UserRole } from "../../../../../enums/UserRole";
 import { toast } from "react-toastify";
 import {
   deleteUser,
-  getUserById,
   getUsers,
   toggleActiveStatus,
 } from "../../../../../services/user/userService";
@@ -55,18 +54,17 @@ const CarrierList: React.FC = () => {
   );
   const [changePasswordModel, setchangePasswordModel] = useState(false);
 
-  const {
-    fetchData: fetchCarriers,
-    fetchDataById: fetchCarrier,
-    deleteDataById: deleteCarrier,
-    updateData: updateStatus,
-    loading,
-    error,
-  } = useFetchData<any>({
-    fetchDataService: getUsers,
-    fetchByIdService: getUserById,
-    deleteDataService: deleteUser,
-    updateDataService: toggleActiveStatus,
+
+  const { getData, updateData, deleteData, loading, error } = useFetchData<any>({
+    getAll: { 
+      user: getUsers,
+     },
+     update: {
+      user: toggleActiveStatus,
+     },
+     remove: {
+      user: deleteUser,
+     }
   });
 
   // Fetch Carrier data
@@ -91,7 +89,7 @@ const CarrierList: React.FC = () => {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
 
-        const result = await fetchCarriers(query);
+        const result = await getData("user", query);
         if (result.success) {
           const userData = result.data as User[];
 
@@ -105,7 +103,7 @@ const CarrierList: React.FC = () => {
         toast.error("Error fetching carrier data.");
       }
     },
-    [fetchCarriers, searchQuery, user, sortConfig]
+    [getData, searchQuery, user, sortConfig]
   );
 
   // Use a single fetch on initial render and when currentPage, itemsPerPage, or user changes
@@ -131,8 +129,7 @@ const CarrierList: React.FC = () => {
         break;
       case "Edit":
         try {
-          const carrierData = await fetchCarrier(row._id);
-          openEditModal(carrierData.data);
+          openEditModal(row);
         } catch (err) {
           toast.error("Failed to fetch carrier details for editing.");
         }
@@ -143,7 +140,7 @@ const CarrierList: React.FC = () => {
         break;
       case "Delete":
         try {
-          const result = await deleteCarrier(row._id);
+          const result = await deleteData("user", row._id);
           if (result.success) {
             toast.success(result.message);
             fetchCarrierData();
@@ -155,7 +152,7 @@ const CarrierList: React.FC = () => {
       case "Activate":
       case "Deactivate":
         try {
-          const result = await updateStatus(row._id, {});
+          const result = await updateData("user",row._id, {});
           if (result.success) {
             toast.success(result.message);
             fetchCarrierData();

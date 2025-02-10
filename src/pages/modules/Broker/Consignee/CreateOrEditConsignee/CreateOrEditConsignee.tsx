@@ -76,15 +76,19 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
     defaultValues: consigneeData || {}, // Pre-fill form when editing
   });
 
-  const {
-    createData: newConsignee,
-    updateData: updateConsignee,
-    loading,
-    error,
-  } = useFetchData<any>({
-    createDataService: createConsignee,
-    updateDataService: editConsignee,
+  
+
+  const { createData, updateData, loading, error } = useFetchData<any>({
+    create: { 
+      consignee: createConsignee,
+     },
+     update: {
+      consignee: editConsignee,
+     }
   });
+
+
+
 
   /**
    * Handles form submission for creating or editing a ConsigneeUser.
@@ -95,12 +99,12 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
       let result;
       if (isEditing && consigneeData?._id) {
         // Update Consignee if editing
-        result = await updateConsignee(consigneeData._id, data);
+        result = await updateData("consignee", consigneeData._id, data);
       } else {
         // Create Consignee User with role assigned
         data.brokerId = user._id;
         data.postedBy = user._id;
-        result = await newConsignee(data);
+        result = await createData("consignee",data);
       }
 
       if (result.success) {

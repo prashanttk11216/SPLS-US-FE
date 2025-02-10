@@ -166,32 +166,29 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
     }
   });
 
-  const {
-    createData: newLoad,
-    updateData: updateLoad,
-    fetchDataById: fetchLoadById,
-    loading,
-    error,
-  } = useFetchData<any>({
-    createDataService: createLoad,
-    updateDataService: editLoad,
-    fetchByIdService: getLoadById,
+
+  const { getData,getDataById, createData, updateData, loading, error } = useFetchData<any>({
+    getAll: { 
+      user: getUsers,
+      shipper: getShipper,
+      consignee: getConsignee
+     },
+     getById: {
+      load: getLoadById,
+     },
+     create: {
+      load: createLoad
+     },
+     update: {
+      load: editLoad,
+     }
   });
 
-  const { fetchData: fetchShipper } = useFetchData<any>({
-    fetchDataService: getShipper,
-  });
 
-  const { fetchData: fetchConsignee } = useFetchData<any>({
-    fetchDataService: getConsignee,
-  });
 
-  const { fetchData: fetchUsers } = useFetchData<any>({
-    fetchDataService: getUsers,
-  });
 
   const fetchLoad = async (loadId: string) => {
-    const result = await fetchLoadById(loadId);
+    const result = await getDataById("load",loadId);
     if (result.success) {
       setLoadData(result.data);
     }
@@ -199,7 +196,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
 
   const fetchUsersData = async () => {
     const query = `?role=${UserRole.BROKER_USER}&isActive=true`;
-    const result = await fetchUsers(query);
+    const result = await getData("user", query);
     if (result.success) {
       const users: any = [];
       result?.data?.forEach((user) => {
@@ -218,7 +215,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
 
   const fetchCustomersData = async () => {
     const query = `?role=${UserRole.CUSTOMER}&isActive=true`;
-    const result = await fetchUsers(query);
+    const result = await getData("user", query);
     if (result.success) {
       const users: any = [];
       result?.data?.forEach((user) => {
@@ -233,7 +230,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
 
   const fetchCarriersData = async () => {
     const query = `?role=${UserRole.CARRIER}&isActive=true`;
-    const result = await fetchUsers(query);
+    const result = await getData("user", query);
     if (result.success) {
       const users: any = [];
       result?.data?.forEach((user) => {
@@ -248,7 +245,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
 
   const fetchConsigneeData = async () => {
     const query = `?isActive=true`;
-    const result = await fetchConsignee(query);
+    const result = await getData("consignee",query);
     if (result.success) {
       const consignees: any = [];
       result?.data?.forEach((consignee) => {
@@ -264,7 +261,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
 
   const fetchShipperData = async () => {
     const query = `?isActive=true`;
-    const result = await fetchShipper(query);
+    const result = await getData("shipper", query);
     if (result.success) {
       const shippers: any = [];
       result?.data?.forEach((shipper) => {
@@ -305,7 +302,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
       let result;
       if (loadId && loadData) {
         const validatedData = updateDispatchSchema.parse(data);
-        result = await updateLoad(loadData._id!, validatedData);
+        result = await updateData("load", loadData._id!, validatedData);
       } else {
         const validatedData = transformedCreateDispatchSchema.parse(data);
         if (isDraft) {
@@ -313,7 +310,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
         }else{
             validatedData.status = DispatchLoadStatus.Published;
         }
-        result = await newLoad(validatedData);
+        result = await createData("load",validatedData);
       }
 
       if (result.success) {

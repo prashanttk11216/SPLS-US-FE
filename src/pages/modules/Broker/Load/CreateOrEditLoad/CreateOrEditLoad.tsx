@@ -5,10 +5,6 @@ import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import Loading from "../../../../../components/common/Loading/Loading";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../../store/store";
-import { Equipment } from "../../../../../enums/Equipment";
-import { LoadOption } from "../../../../../enums/LoadOption";
-import { Commodity } from "../../../../../enums/Commodity";
-import { Mode } from "../../../../../enums/Mode";
 import {
   createLoad,
   editLoad,
@@ -17,11 +13,11 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
-import SelectField from "../../../../../components/common/SelectField/SelectField";
+import SelectField, { SelectOption } from "../../../../../components/common/SelectField/SelectField";
 import NumberInput from "../../../../../components/common/NumberInput/NumberInput";
 import { UserRole } from "../../../../../enums/UserRole";
 import { getUsers } from "../../../../../services/user/userService";
-import { createLoadSchema, updateLoadSchema } from "../../../../../schema/Load";
+import { baseLoadSchema, createLoadSchema, updateLoadSchema } from "../../../../../schema/Load";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 import calculateDistance, {
   formatDistance,
@@ -30,67 +26,9 @@ import MapModal from "../../../../../components/common/MapModal/MapModal";
 import { commodityOptions, equipmentOptions, loadOptions, modeOptions } from "../../../../../utils/dropdownOptions";
 import CurrencyNumberInput from "../../../../../components/common/CurrencyNumberInput/CurrencyNumberInput";
 import TextAreaBox from "../../../../../components/common/TextAreaBox/TextAreaBox";
+import { z } from "zod";
 
-export type loadForm = {
-  _id: string;
-  origin: {
-    str: string; // String representation of the address
-    lat: number; // Latitude
-    lng: number; // Longitude
-  };
-  originEarlyPickupDate: Date;
-  originLatePickupDate?: Date | string;
-  originEarlyPickupTime?: Date | string;
-  originLatePickupTime?: Date | string;
-  originStops?: {
-    address: {
-      str: string; // String representation of the address
-      lat: number; // Latitude
-      lng: number; // Longitude
-    };    
-    earlyPickupDate?: Date | string;
-    latePickupDate?: Date | string;
-    earlyPickupTime?: Date | string;
-    latePickupTime?: Date | string;
-  }[];
-  destination: {
-    str: string; // String representation of the address
-    lat: number; // Latitude
-    lng: number; // Longitude
-  };
-  destinationEarlyDropoffDate?: Date | string;
-  destinationLateDropoffDate?: Date | string;
-  destinationEarlyDropoffTime?: Date | string;
-  destinationLateDropoffTime?: Date | string;
-  destinationStops?: {
-    address: {
-      str: string; // String representation of the address
-      lat: number; // Latitude
-      lng: number; // Longitude
-    };
-    earlyDropoffDate?: Date | string;
-    lateDropoffDate?: Date | string;
-    earlyDropoffTime?: Date | string;
-    lateDropoffTime?: Date | string;
-  }[];
-  equipment: Equipment;
-  mode: Mode;
-  allInRate?: number;
-  customerRate?: number;
-  weight?: number;
-  length?: number;
-  width?: number;
-  height?: number;
-  pieces?: number;
-  pallets?: number;
-  miles?: number;
-  loadOption?: LoadOption;
-  specialInstructions?: string;
-  commodity: Commodity;
-  loadNumber?: string;
-  postedBy?: string;
-  status?: string;
-};
+export type LoadForm = z.infer<typeof baseLoadSchema>;
 
 interface CreateOrEditLoadProps {}
 
@@ -98,13 +36,9 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   const user = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
   const { loadId } = useParams();
-  const [loadData, setLoadData] = useState<loadForm>();
-  const [usersList, setUsersList] = useState<any[]>([]);
-
+  const [loadData, setLoadData] = useState<LoadForm>();
+  const [usersList, setUsersList] = useState<SelectOption[]>([]);
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
-  const toggleMapModal = () => setIsMapModalOpen((prev) => !prev);
-
-  
 
   const {
     handleSubmit,
@@ -114,28 +48,35 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
     formState: { isValid },
     reset,
     watch,
-  } = useForm<loadForm>({
+  } = useForm<LoadForm>({
     mode: "onBlur",
   });
 
   const {
-    createData: newLoad,
-    updateData: updateLoad,
-    fetchDataById: fetchLoadById,
+    getData,       // Fetch all data for any entity
+    getDataById,   // Fetch a single item by ID
+    createData,    // Create new item
+    updateData,    // Update existing item
     loading,
     error,
   } = useFetchData<any>({
-    createDataService: createLoad,
-    updateDataService: editLoad,
-    fetchByIdService: getLoadById,
+    getAll: {
+      users: getUsers,
+    },
+    getById: {
+      load: getLoadById,
+    },
+    create: {
+      load: createLoad,
+    },
+    update: {
+      load: editLoad,
+    },
   });
-
-  const { fetchData: fetchUsers } = useFetchData<any>({
-    fetchDataService: getUsers,
-  });
+  
 
   const fetchLoad = async (loadId: string) => {
-    const result = await fetchLoadById(loadId);
+    const result = await getDataById("load",loadId);
     if (result.success) {
       setLoadData(result.data);
     }
@@ -143,7 +84,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
 
   const fetchUsersData = async () => {
     const query = `?role=${UserRole.BROKER_USER}&isActive=true`;
-    const result = await fetchUsers(query);
+    const result = await getData("users",query);
     if (result.success) {
       const users: any = [];
       result?.data?.forEach((user) => {
@@ -219,15 +160,15 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
    * Handles form submission for creating or editing a Load.
    * @param data - Form data
    */
-  const submit = async (data: loadForm) => {
+  const submit = async (data: LoadForm) => {
     try {
       let result;
       if (loadId && loadData) {
         const validatedData = updateLoadSchema.parse(data);
-        result = await updateLoad(loadData._id, validatedData);
+        result = await updateData("load", loadData._id!, validatedData);
       } else {
         const validatedData = createLoadSchema.parse(data);
-        result = await newLoad(validatedData);
+        result = await createData("load",validatedData);
       }
 
       if (result.success) {
@@ -663,7 +604,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               placeholder="Select Equipment"
               control={control}
               options={equipmentOptions}
-              disabled={true}
               rules={{ required: {
                 value: true,
                 message: "Please select Equipment"
@@ -861,7 +801,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               <button
                 className="btn btn-accent btn-lg"
                 type="button"
-                onClick={toggleMapModal}
+                onClick={()=> setIsMapModalOpen((prev) => !prev)}
               >
                 View Routes
               </button>
@@ -881,7 +821,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                     lat: getValues("destination").lat,
                     lng: getValues("destination").lng,
                   }}
-                  onClose={toggleMapModal}
+                  onClose={()=> setIsMapModalOpen((prev) => !prev)}
                 />
               </div>
             </>
