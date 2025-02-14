@@ -1,6 +1,8 @@
 import { Navigate } from "react-router-dom";
 import { UserRole } from "../../enums/UserRole";
 import { getRoleBasedRoute } from "../../utils/routeHelpers";
+import { hasAccess } from "../../utils/permissions";
+import { User } from "../../types/User";
 
 interface RoleBaseRoutesProps {
   roles?: UserRole[]; // Array of allowed roles
@@ -8,19 +10,19 @@ interface RoleBaseRoutesProps {
 }
 
 const RoleBaseRoutes: React.FC<RoleBaseRoutesProps> = ({ roles, children }) => {
-  const user = JSON.parse(`${localStorage.getItem("user")}`);
+  const user: User = JSON.parse(`${localStorage.getItem("user")}`);
 
   // Check if the user role is allowed for this route
-  const hasRequiredRole = user && user.role && roles?.includes(user.role);
+  const hasRequiredRole = user && user.roles && hasAccess(user.roles, {roles: roles});
 
   // If no user data or role, navigate to login
-  if (!user || !user.role) {
+  if (!user || !user.roles.length) {
     return <Navigate to="/login" replace />;
   }
 
   // Redirect based on user role if they lack required role
   if (!hasRequiredRole) {
-    const roleBasedRoute = getRoleBasedRoute(user.role);
+    const roleBasedRoute = getRoleBasedRoute(user.roles[0].name as UserRole);
     return <Navigate to={roleBasedRoute} replace />;
   }
 

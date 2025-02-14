@@ -12,24 +12,22 @@ import Pagination, {
   Meta,
 } from "../../../../../components/common/Pagination/Pagination";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
-import CreateOrEditShipper, {
-  ShipperForm,
-} from "../CreateOrEditShipper/CreateOrEditShipper";
+import CreateOrEditShipper from "../CreateOrEditShipper/CreateOrEditShipper";
 import { Shipper } from "../../../../../types/Shipper";
 import {
   deleteShipper,
   getShipper,
-  getShipperById,
   toggleActiveShipper,
 } from "../../../../../services/shipper/shipperService";
 import ShipperDetailsModal from "../ShipperDetailsModal/ShipperDetailsModal";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
+import { hasAccess } from "../../../../../utils/permissions";
 
 const ShipperList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [shipperData, setShipperData] = useState<ShipperForm | null>(null);
+  const [shipperId, setShipperId] = useState<string>();
   const [shippers, setShippers] = useState<Shipper[]>([]);
   const [meta, setMeta] = useState({
     page: 1,
@@ -51,24 +49,23 @@ const ShipperList: React.FC = () => {
     null
   );
 
-  const {
-    fetchData: fetchShippers,
-    fetchDataById: fetchShipperById,
-    deleteDataById: deleteDataById,
-    updateData: updateStatus,
-    loading,
-  } = useFetchData<any>({
-    fetchDataService: getShipper,
-    fetchByIdService: getShipperById,
-    deleteDataService: deleteShipper,
-    updateDataService: toggleActiveShipper,
+  const { getData, updateData, deleteData, loading } = useFetchData<any>({
+    getAll: {
+      shipper: getShipper,
+    },
+    update: {
+      shipper: toggleActiveShipper,
+    },
+    remove: {
+      shipper: deleteShipper,
+    }
   });
-  
+
   const fetchShippersData = useCallback(
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return;
       try {
-        let query = `?&page=${page}&limit=${limit}`;
+        let query = `?page=${page}&limit=${limit}&populate=brokerId,postedBy`;
 
         //Search Functionality
         if (searchQuery && searchField) {
@@ -77,7 +74,7 @@ const ShipperList: React.FC = () => {
           )}&searchField=${searchField}`;
         }
 
-        if (user.role === UserRole.BROKER_USER) {
+        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
           query += `&brokerId=${user._id}`;
         }
 
@@ -85,7 +82,7 @@ const ShipperList: React.FC = () => {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
 
-        const result = await fetchShippers(query);
+        const result = await getData("shipper", query);
         if (result.success) {
           const userData = result.data as Shipper[];
 
@@ -99,7 +96,7 @@ const ShipperList: React.FC = () => {
         toast.error("Error fetching Shipper data.");
       }
     },
-    [fetchShippers, searchQuery, user, sortConfig]
+    [getData, searchQuery, user, sortConfig]
   );
 
   useEffect(() => {
@@ -110,19 +107,19 @@ const ShipperList: React.FC = () => {
 
   const openCreateModal = () => {
     setIsEditing(false);
-    setShipperData(null);
+    setShipperId("");
     setIsModalOpen(true);
   };
 
-  const openEditModal = (data: ShipperForm) => {
+  const openEditModal = (_id: string) => {
     setIsEditing(true);
-    setShipperData(data);
+    setShipperId(_id);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setShipperData(null);
+    setShipperId("");
   };
 
   // View Details Option Added
@@ -136,18 +133,12 @@ const ShipperList: React.FC = () => {
       case "View Details":
         handleRowClick(row);
         break;
-
       case "Edit":
-        try {
-          const result = await fetchShipperById(row._id);
-          openEditModal(result.data);
-        } catch {
-          toast.error("Failed to fetch user details for editing.");
-        }
+        openEditModal(row._id);
         break;
       case "Delete":
         try {
-          const result = await deleteDataById(row._id);
+          const result = await deleteData("shipper", row._id);
           if (result.success) {
             toast.success(result.message);
             fetchShippersData();
@@ -159,7 +150,7 @@ const ShipperList: React.FC = () => {
       case "Activate":
       case "Deactivate":
         try {
-          const result = await updateStatus(row._id, {});
+          const result = await updateData("shipper", row._id, {});
           if (result.success) {
             toast.success(result.message);
             fetchShippersData();
@@ -224,8 +215,8 @@ const ShipperList: React.FC = () => {
       name: `${shipper.firstName} ${shipper.lastName}`,
       email: shipper.email,
       contact: shipper.primaryNumber
-      ? formatPhoneNumber(shipper.primaryNumber)
-      : "N/A",
+        ? formatPhoneNumber(shipper.primaryNumber)
+        : "N/A",
       shippingHours: shipper.shippingHours,
       isActive: shipper.isActive ? "Active" : "Inactive",
       actions: getActions(shipper),
@@ -239,15 +230,15 @@ const ShipperList: React.FC = () => {
   return (
     <div className="shipper-list-wrapper">
       <div className="d-flex align-items-center">
-      <h2 className="fw-bolder">Shippers</h2>
+        <h2 className="fw-bolder">Shippers</h2>
         <button
-            className="btn btn-accent d-flex align-items-center ms-auto"
-            type="button"
-            onClick={openCreateModal}
-          >
-            <img src={PlusIcon} height={16} width={16} className="me-2" />
-            Create
-          </button>
+          className="btn btn-accent d-flex align-items-center ms-auto"
+          type="button"
+          onClick={openCreateModal}
+        >
+          <img src={PlusIcon} height={16} width={16} className="me-2" />
+          Create
+        </button>
       </div>
       <div className="d-flex align-items-center my-3">
         {/* Search Bar */}
@@ -291,22 +282,26 @@ const ShipperList: React.FC = () => {
         </>
       )}
 
-      <CreateOrEditShipper
-        isModalOpen={isModalOpen}
-        closeModal={closeModal}
-        setIsModalOpen={(value: boolean) => {
-          setIsModalOpen(value);
-          if (!value) fetchShippersData();
-        }}
-        isEditing={isEditing}
-        shipperData={shipperData}
-      />
+      {isModalOpen && (
+        <CreateOrEditShipper
+          isModalOpen={isModalOpen}
+          closeModal={closeModal}
+          setIsModalOpen={(value: boolean) => {
+            setIsModalOpen(value);
+            if (!value) fetchShippersData();
+          }}
+          isEditing={isEditing}
+          shipperId={shipperId}
+        />
+      )}
 
-      <ShipperDetailsModal
-        isOpen={isDetailsModalOpen}
-        shipper={shipperDetails}
-        onClose={() => setIsDetailsModalOpen(false)}
-      />
+      {isDetailsModalOpen && (
+        <ShipperDetailsModal
+          isOpen={isDetailsModalOpen}
+          shipper={shipperDetails}
+          onClose={() => setIsDetailsModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

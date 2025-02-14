@@ -24,12 +24,14 @@ import "./CustomerList.scss";
 import CustomerDetailsModal from "../CustomerDetailsModal/CustomerDetailsModal";
 import ChangePassowrd from "../../../../Auth/ChangePassword/ChangePassword";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
+import { hasAccess } from "../../../../../utils/permissions";
+import { CreateUserForm } from "../../../../Auth/Signup/Signup";
 
 const CustomerList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [customerToEdit, setCustomerToEdit] = useState<Partial<User> | null>(
+  const [customerToEdit, setCustomerToEdit] = useState<Partial<CreateUserForm> | null>(
     null
   );
   const [customers, setCustomers] = useState<User[]>([]);
@@ -56,18 +58,21 @@ const CustomerList: React.FC = () => {
 
   const [changePasswordModel, setchangePasswordModel] = useState(false);
 
-  const {
-    fetchData: fetchCustomers,
-    fetchDataById: fetchCustomer,
-    deleteDataById: deleteCustomer,
-    updateData: updateStatus,
-    loading,
-    error,
-  } = useFetchData<any>({
-    fetchDataService: getUsers,
-    fetchByIdService: getUserById,
-    deleteDataService: deleteUser,
-    updateDataService: toggleActiveStatus,
+ 
+
+  const { getData, getDataById, updateData, deleteData, loading, error } = useFetchData<any>({
+    getAll: { 
+      user: getUsers,
+     },
+     getById: {
+      user: getUserById
+     },
+     update: {
+      user: toggleActiveStatus,
+     },
+     remove: {
+      user: deleteUser,
+     }
   });
 
   // Fetch customers data
@@ -84,14 +89,14 @@ const CustomerList: React.FC = () => {
           )}&searchField=${searchField}`;
         }
 
-        if (user.role === UserRole.BROKER_USER) {
+        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
           query += `&brokerId=${user._id}`;
         }
 
         if (sortConfig) {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
-        const result = await fetchCustomers(query);
+        const result = await getData("user", query);
         if (result.success) {
           const userData = result.data as User[];
 
@@ -105,7 +110,7 @@ const CustomerList: React.FC = () => {
         toast.error("Error fetching customer data.");
       }
     },
-    [fetchCustomers, searchQuery, user, sortConfig]
+    [getData, searchQuery, user, sortConfig]
   );
 
   // Trigger fetch when user is populated
@@ -132,8 +137,8 @@ const CustomerList: React.FC = () => {
 
       case "Edit":
         try {
-          const customerData = await fetchCustomer(row._id);
-          openEditModal(customerData.data);
+          const result = await getDataById("user",row._id);
+          openEditModal(result.data);
         } catch (err) {
           toast.error("Failed to fetch customer details for editing.");
         }
@@ -144,7 +149,7 @@ const CustomerList: React.FC = () => {
         break;
       case "Delete":
         try {
-          const result = await deleteCustomer(row._id);
+          const result = await deleteData("user", row._id);
           if (result.success) {
             toast.success(result.message);
             fetchCustomersData();
@@ -156,7 +161,7 @@ const CustomerList: React.FC = () => {
       case "Activate":
       case "Deactivate":
         try {
-          const result = await updateStatus(row._id, {});
+          const result = await updateData("user", row._id, {});
           if (result.success) {
             toast.success(result.message);
             fetchCustomersData();
@@ -235,7 +240,7 @@ const CustomerList: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (customerData: Partial<User>) => {
+  const openEditModal = (customerData: Partial<CreateUserForm>) => {
     setIsEditing(true);
     setCustomerToEdit(customerData);
     setIsModalOpen(true);

@@ -110,20 +110,21 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
     mode: "onBlur",
   });
 
-  const {
-    createData: newLoad,
-    updateData: updateLoad,
-    fetchDataById: fetchLoadById,
-    loading,
-    error,
-  } = useFetchData<any>({
-    createDataService: createLoad,
-    updateDataService: editLoad,
-    fetchByIdService: getLoadById,
+
+  const { createData, updateData, getDataById, loading, error } = useFetchData<any>({
+    create: { 
+      load: createLoad,
+     },
+     update: {
+      load: editLoad
+     },
+     getById: {
+      load: getLoadById
+     }
   });
 
   const fetchLoad = async (loadId: string) => {
-    const result = await fetchLoadById(loadId);
+    const result = await getDataById("load", loadId);
     if (result.success) {
       setLoadData(result.data);
     }
@@ -193,10 +194,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
       let result;
       if (loadId && loadData) {
         const validatedData = updateLoadSchema.parse(data);
-        result = await updateLoad(loadData._id, validatedData);
+        result = await updateData("load", loadData._id, validatedData);
       } else {
         const validatedData = createLoadSchema.parse(data);
-        result = await newLoad(validatedData);
+        result = await createData("load", validatedData);
       }
 
       if (result.success) {

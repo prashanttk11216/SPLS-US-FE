@@ -24,12 +24,14 @@ import "./CarrierList.scss";
 import CarrierDetailsModal from "../CarrierDetailsModal/CarrierDetailsModal";
 import ChangePassowrd from "../../../../Auth/ChangePassword/ChangePassword";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
+import { hasAccess } from "../../../../../utils/permissions";
+import { CreateUserForm } from "../../../../Auth/Signup/Signup";
 
 const CarrierList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [carrierToEdit, setCarrierToEdit] = useState<Partial<User> | null>(
+  const [carrierToEdit, setCarrierToEdit] = useState<Partial<CreateUserForm> | null>(
     null
   );
   const [carriers, setCarriers] = useState<User[]>([]);
@@ -55,18 +57,20 @@ const CarrierList: React.FC = () => {
   );
   const [changePasswordModel, setchangePasswordModel] = useState(false);
 
-  const {
-    fetchData: fetchCarriers,
-    fetchDataById: fetchCarrier,
-    deleteDataById: deleteCarrier,
-    updateData: updateStatus,
-    loading,
-    error,
-  } = useFetchData<any>({
-    fetchDataService: getUsers,
-    fetchByIdService: getUserById,
-    deleteDataService: deleteUser,
-    updateDataService: toggleActiveStatus,
+
+  const { getData, getDataById, updateData, deleteData, loading, error } = useFetchData<any>({
+    getAll: { 
+      user: getUsers,
+     },
+      getById: {
+           user: getUserById
+          },
+     update: {
+      user: toggleActiveStatus,
+     },
+     remove: {
+      user: deleteUser,
+     }
   });
 
   // Fetch Carrier data
@@ -83,7 +87,7 @@ const CarrierList: React.FC = () => {
           )}&searchField=${searchField}`;
         }
 
-        if (user.role === UserRole.BROKER_USER) {
+        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
           query += `&brokerId=${user._id}`;
         }
 
@@ -91,7 +95,7 @@ const CarrierList: React.FC = () => {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
 
-        const result = await fetchCarriers(query);
+        const result = await getData("user", query);
         if (result.success) {
           const userData = result.data as User[];
 
@@ -105,7 +109,7 @@ const CarrierList: React.FC = () => {
         toast.error("Error fetching carrier data.");
       }
     },
-    [fetchCarriers, searchQuery, user, sortConfig]
+    [getData, searchQuery, user, sortConfig]
   );
 
   // Use a single fetch on initial render and when currentPage, itemsPerPage, or user changes
@@ -131,8 +135,8 @@ const CarrierList: React.FC = () => {
         break;
       case "Edit":
         try {
-          const carrierData = await fetchCarrier(row._id);
-          openEditModal(carrierData.data);
+          const result = await getDataById("user",row._id);
+          openEditModal(result.data);
         } catch (err) {
           toast.error("Failed to fetch carrier details for editing.");
         }
@@ -143,7 +147,7 @@ const CarrierList: React.FC = () => {
         break;
       case "Delete":
         try {
-          const result = await deleteCarrier(row._id);
+          const result = await deleteData("user", row._id);
           if (result.success) {
             toast.success(result.message);
             fetchCarrierData();
@@ -155,7 +159,7 @@ const CarrierList: React.FC = () => {
       case "Activate":
       case "Deactivate":
         try {
-          const result = await updateStatus(row._id, {});
+          const result = await updateData("user",row._id, {});
           if (result.success) {
             toast.success(result.message);
             fetchCarrierData();
@@ -233,7 +237,7 @@ const CarrierList: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (carrierData: Partial<User>) => {
+  const openEditModal = (carrierData: Partial<CreateUserForm>) => {
     setIsEditing(true);
     setCarrierToEdit(carrierData);
     setIsModalOpen(true);

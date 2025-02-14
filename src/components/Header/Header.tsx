@@ -9,6 +9,8 @@ import { clearStorage } from "../../utils/authHelplers";
 import { resetUser } from "../../features/user/userSlice";
 import { UserRole } from "../../enums/UserRole";
 import "./Header.scss";
+import { hasAccess } from "../../utils/permissions";
+import { Role } from "../../types/User";
 
 interface HeaderProps {}
 
@@ -17,10 +19,10 @@ const Header: React.FC<HeaderProps> = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const logout = (role: UserRole) => {
+  const logout = (roles: Role[]) => {
     clearStorage();
     dispatch(resetUser());
-    const url = role == UserRole.BROKER_USER ? "/login?role=broker" : "/login";
+    const url = hasAccess(roles, {roles : [UserRole.BROKER_USER]}) ? "/login?role=broker" : "/login";
     navigate(url);
   };
   return (
@@ -71,7 +73,7 @@ const Header: React.FC<HeaderProps> = () => {
                 <a
                   className="dropdown-item d-flex align-items-center"
                   role="button"
-                  onClick={() => logout(user.role!)}
+                  onClick={() => logout(user.roles)}
                 >
                   <span className="me-3">
                     <img src={SignOutIcon} />

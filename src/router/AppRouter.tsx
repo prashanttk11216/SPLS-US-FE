@@ -28,6 +28,7 @@ import TruckList from "../pages/modules/Carrier/Truck/TruckList/TruckList";
 import TruckMatches from "../pages/modules/Broker/Load/TruckMatches/TruckMatches";
 import DispatchLoadList from "../pages/modules/Broker/DispatchLoad/DispatchLoadList/DispatchLoadList";
 import CreateOrEditDispatchLoad from "../pages/modules/Broker/DispatchLoad/CreateOrEditDispatchLoad/CreateOrEditDispatchLoad";
+import RoleList from "../pages/modules/Broker/Role/RoleList/RoleList";
 
 // Define the routes using createBrowserRouter
 export const routes = createBrowserRouter([
@@ -115,6 +116,10 @@ export const routes = createBrowserRouter([
           {
             path: "consignee", 
             element: <ConsigneeList />,
+          },
+          {
+            path: "roles", // Matches /broker
+            element: <RoleList />,
           },
         ],
       },

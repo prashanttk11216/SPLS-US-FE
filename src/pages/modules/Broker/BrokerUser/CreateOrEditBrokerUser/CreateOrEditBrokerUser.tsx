@@ -28,7 +28,7 @@ import PhoneNumberInput from "../../../../../components/common/PhoneNumberInput/
 interface CreateOrEditBrokerUserProps {
   isModalOpen: boolean; // Controls modal visibility
   isEditing: boolean; // Indicates if editing an existing BrokerUser
-  brokerUserData?: Partial<User> | null; // Pre-filled data for editing
+  brokerUserData?: Partial<CreateUserForm> | null; // Pre-filled data for editing
   closeModal: (refresh?: boolean) => void;
 }
 
@@ -39,6 +39,7 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
   closeModal,
 }) => {
   const user = useSelector((state: RootState) => state.user);
+  const roles = useSelector((state: RootState) => state.roles);
   const [activeStep, setActiveStep] = useState(0); // Tracks current step
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
@@ -54,13 +55,14 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
     mode: "onBlur",
   });
 
-  const {
-    createData: createBrokerUser,
-    updateData: updateBrokerUser,
-    loading,
-  } = useFetchData<any>({
-    createDataService: createBroker,
-    updateDataService: editUser,
+
+  const { createData, updateData, loading } = useFetchData<any>({
+    create: { 
+      user: createBroker,
+     },
+     update: {
+      user: editUser,
+     },
   });
 
   /**
@@ -71,12 +73,12 @@ const CreateOrEditBrokerUser: FC<CreateOrEditBrokerUserProps> = ({
     let result;
     if (isEditing && brokerUserData?._id) {
       // Update Broker if editing
-      result = await updateBrokerUser(brokerUserData._id, data);
+      result = await updateData("user", brokerUserData._id, data);
     } else {
       // Create Broker User with role assigned
-      data.role = UserRole.BROKER_USER;
+      data.roles = roles.filter((role)=> role.name === UserRole.BROKER_USER).map((role)=>role._id);
       data.brokerId = user._id;
-      result = await createBrokerUser(data);
+      result = await createData("user",data);
     }
     if (result.success) {
       toast.success(

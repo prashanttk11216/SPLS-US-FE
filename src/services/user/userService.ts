@@ -21,15 +21,15 @@ export const getUsers = async (
 
 export const getUserById = async (
   userId: string,
-  role?: string
+  query?: string
 ): Promise<ApiResponse> => {
   try {
     // Construct endpoint based on presence of userId and/or role
     let endpoint = `/user/${userId}`;
 
     // Add role as a query parameter if provided and no userId is specified
-    if (role) {
-      endpoint += `?role=${role}`;
+    if (query) {
+      endpoint += query;
     }
 
     const response = await axiosApi.get(endpoint);
@@ -39,9 +39,17 @@ export const getUserById = async (
   }
 };
 
-export const getUserProfile = async (): Promise<ApiResponse> => {
+export const getUserProfile = async (userId: string,
+  query?: string): Promise<ApiResponse> => {
   try {
-    const response = await axiosApi.get(`/user/me`);
+    // Construct endpoint based on presence of userId and/or role
+    let endpoint = `/user/me`;
+
+    // Add role as a query parameter if provided and no userId is specified
+    if (query) {
+      endpoint += query;
+    }
+    const response = await axiosApi.get(endpoint);
     return handleResponse(response);
   } catch (error) {
     return handleAxiosError(error, "Failed to retrieve user details");

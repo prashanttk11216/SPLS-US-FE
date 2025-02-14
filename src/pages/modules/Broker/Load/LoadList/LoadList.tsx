@@ -26,6 +26,9 @@ import LoadDetailsModal from "../LoadDetailsModal/LoadDetailsModal";
 import { RateConfirmationNotification } from "../RateConfirmationNotification/RateConfirmationNotification";
 import { LoadCreationAlert } from "../LoadCreationAlert/LoadCreationAlert";
 import { formatNumber } from "../../../../../utils/numberUtils";
+import { Equipment } from "../../../../../enums/Equipment";
+import { getEnumValue } from "../../../../../utils/globalHelper";
+import { hasAccess } from "../../../../../utils/permissions";
 
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -66,15 +69,25 @@ const LoadList: React.FC = () => {
   };
 
   const {
-    fetchData: fetchLoads,
-    updateData: loadStatus,
-    deleteDataById: deleteLoads,
+    getData,       // Fetch all data for any entity
+    createData,    // Create new item
+    updateData,    // Update existing item
+    deleteData,    // Delete existing item
     loading,
     error,
   } = useFetchData<any>({
-    fetchDataService: getloads,
-    updateDataService: updateLoadStatus,
-    deleteDataService: deleteLoad,
+    getAll: {
+      loads: getloads,
+    },
+    create: {
+      ageRefresh: refreshAgeforLoad,
+    },
+    update: {
+      load: updateLoadStatus,
+    },
+    remove: {
+      load: deleteLoad,
+    }
   });
 
   // Fetch Load data
@@ -94,7 +107,7 @@ const LoadList: React.FC = () => {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
 
-        const result = await fetchLoads(query);
+        const result = await getData("loads",query);
         if (result.success) {
           const loadData = result.data as Load[];
 
@@ -108,11 +121,11 @@ const LoadList: React.FC = () => {
         toast.error("Error fetching customer data.");
       }
     },
-    [fetchLoads, searchQuery, user, activeTab, sortConfig]
+    [getData, searchQuery, user, activeTab, sortConfig]
   );
 
   const refreshAgeCall = async (data: any) => {
-    const result = await refreshAgeforLoad(data);
+    const result = await createData("ageRefresh", data);
     if (result.success) {
       toast.success(result.message);
       setTimeout(() => {
@@ -192,7 +205,7 @@ const LoadList: React.FC = () => {
         break;
       case LoadStatus.Published:
         try {
-          const result = await loadStatus(row._id, {
+          const result = await updateData("load",row._id, {
             status: LoadStatus.Published,
           });
           if (result.success) {
@@ -205,7 +218,7 @@ const LoadList: React.FC = () => {
         break;
       case LoadStatus.PendingResponse:
         try {
-          const result = await loadStatus(row._id, {
+          const result = await updateData("load",row._id, {
             status: LoadStatus.PendingResponse,
           });
           if (result.success) {
@@ -218,7 +231,7 @@ const LoadList: React.FC = () => {
         break;
       case LoadStatus.DealClosed:
         try {
-          const result = await loadStatus(row._id, {
+          const result = await updateData("load", row._id, {
             status: LoadStatus.DealClosed,
           });
           if (result.success) {
@@ -231,7 +244,7 @@ const LoadList: React.FC = () => {
         break;
       case LoadStatus.Cancelled:
         try {
-          const result = await loadStatus(row._id, {
+          const result = await updateData("load", row._id, {
             status: LoadStatus.Cancelled,
           });
           if (result.success) {
@@ -247,7 +260,7 @@ const LoadList: React.FC = () => {
         break;
       case "Delete":
         try {
-          const result = await deleteLoads(row._id);
+          const result = await deleteData("load",row._id);
           if (result.success) {
             toast.success(result.message);
             fetchLoadsData();
@@ -307,7 +320,7 @@ const LoadList: React.FC = () => {
       "destination.str": load.destination.str || "N/A",
       originEarlyPickupDate:
         formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
-      equipment: load.equipment || "N/A",
+      equipment:  getEnumValue(Equipment, load.equipment), 
       miles: load.miles ? `${formatNumber(load.miles)} mi` : "N/A",
       loadNumber: load.loadNumber || "N/A",
       actions: getActionsForLoad(load),
@@ -377,7 +390,7 @@ const LoadList: React.FC = () => {
         <div className="text-danger">{error}</div>
       ) : (
         <>
-          {user.role === UserRole.BROKER_ADMIN && (
+          {hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN]}) && (
             <ul className="nav nav-tabs">
               <li
                 className="nav-item"

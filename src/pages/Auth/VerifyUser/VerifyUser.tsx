@@ -26,8 +26,11 @@ const VerifyUser: React.FC = () => {
     formState: { isValid },
   } = useForm<VerifyUserForm>({ mode: "onBlur" });
 
-  const { createData: verifyOtp, loading } = useFetchData<any>({
-    createDataService: verifyUser,
+  const { createData, loading } = useFetchData<any>({
+    create: { 
+      user: verifyUser,
+      resendOTP: resendVerificationOTP
+     },
   });
 
   const handleOtpSubmit = async (data: VerifyUserForm) => {
@@ -39,7 +42,7 @@ const VerifyUser: React.FC = () => {
     data.email = email; // Ensure email is part of the form data
 
     try {
-      const result = await verifyOtp(data);
+      const result = await createData("user",data);
 
       if (result.success) {
         toast.success(result.message);
@@ -57,7 +60,7 @@ const VerifyUser: React.FC = () => {
 
   const resendOTP = async () => {
     try {
-      const result = await resendVerificationOTP({ email: email! });
+      const result = await createData("resendOTP",{ email: email! });
 
       if (result.success) {
         toast.success(result.message);

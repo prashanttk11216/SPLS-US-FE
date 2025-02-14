@@ -16,12 +16,16 @@ import PlaceAutocompleteField from "../../../components/PlaceAutocompleteField/P
 import { Address } from "../../../types/Address";
 import PasswordInput from "../../../components/common/PasswordInput/PasswordInput";
 import PhoneNumberInput from "../../../components/common/PhoneNumberInput/PhoneNumberInput";
+import { RootState } from "../../../store/store";
+import { useSelector } from "react-redux";
+import { Role } from "../../../types/User";
 
 interface SignupProps {
   role?: UserRole | null;
 }
 
 export type CreateUserForm = {
+  _id?: string;
   // basic details
   firstName: string;
   lastName: string;
@@ -61,13 +65,14 @@ export type CreateUserForm = {
   billingZip?: string;
 
   //other details
-  role: UserRole;
+  roles: string[];
   employeeId?: string;
   brokerId: string;
   avatarUrl?: string;
 };
 
 const Signup: React.FC<SignupProps> = ({ role }) => {
+  const roles = useSelector((state: RootState) => state.roles);
   const [activeStep, setActiveStep] = useState(0); // Tracks current step
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
@@ -86,11 +91,11 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
     try {
       // Set default role based on props
       if (role === UserRole.CARRIER) {
-        data.role = UserRole.CARRIER;
+        data.roles = roles.filter((role)=> role.name === UserRole.CARRIER).map((role)=>role._id);
       } else if (role === UserRole.CUSTOMER) {
-        data.role = UserRole.CUSTOMER;
+        data.roles = roles.filter((role)=> role.name === UserRole.CUSTOMER).map((role)=>role._id);
       }
-      data.brokerId = "672b1afe59aeb9920f06690e";
+      data.brokerId = "67aa160fbcb994bc4edfbca4";
       // Call signup service
       const result = await signup(data);
 

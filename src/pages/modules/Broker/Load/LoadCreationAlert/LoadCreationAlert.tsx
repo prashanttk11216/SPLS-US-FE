@@ -44,13 +44,19 @@ export const LoadCreationAlert: FC<LoadCreationAlertProps> = ({
     getValues,
   } = useForm<FormInputs>();
 
+  
+
   const {
-    fetchData: fetchUsers,
-    createData: notifyCarrier,
+    getData,       // Fetch all data for any entity
+    createData,    // Create new item
     loading,
-  } = useFetchData({
-    fetchDataService: getUsers,
-    createDataService: notifyCarrierAboutLoad,
+  } = useFetchData<any>({
+    getAll: {
+      user: getUsers,
+    },
+    create: {
+      load: notifyCarrierAboutLoad,
+    },
   });
 
   const emailsInput = watch("emailsInput", "");
@@ -63,7 +69,7 @@ export const LoadCreationAlert: FC<LoadCreationAlertProps> = ({
   const fetchCarriersData = useCallback(async () => {
     try {
       const query = `?role=${UserRole.CARRIER}&isActive=true`;
-      const result = await fetchUsers(query);
+      const result = await getData("user", query);
       if (result.success) {
         const users = result?.data?.map((user) => ({
           value: user._id,
@@ -78,7 +84,7 @@ export const LoadCreationAlert: FC<LoadCreationAlertProps> = ({
       console.error(error);
       toast.error("An error occurred while fetching carriers.");
     }
-  }, [fetchUsers]);
+  }, [getData]);
 
   useEffect(() => {
     fetchCarriersData();
@@ -130,7 +136,7 @@ export const LoadCreationAlert: FC<LoadCreationAlertProps> = ({
     }
 
     try {
-      const response = await notifyCarrier({
+      const response = await createData("load",{
         emails,
         loadIds: selectedLoads,
         internalCarrier: notifyAll,

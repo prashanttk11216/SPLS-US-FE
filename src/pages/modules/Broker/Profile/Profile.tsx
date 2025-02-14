@@ -22,6 +22,7 @@ import { setUserDataInStorage } from "../../../../utils/authHelplers";
 import Loading from "../../../../components/common/Loading/Loading";
 import { Address } from "../../../../types/Address";
 import PhoneNumberInput from "../../../../components/common/PhoneNumberInput/PhoneNumberInput";
+import useFetchData from "../../../../hooks/useFetchData/useFetchData";
 
 const Profile: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -40,16 +41,26 @@ const Profile: React.FC = () => {
     trigger,
   } = useForm<CreateUserForm>({ mode: "onBlur" });
 
+
+  const { getDataById } = useFetchData<any>({
+    getById: { 
+      user: getUserProfile,
+     }
+  });
+
   useEffect(() => {
     getProfile();
   }, []);
 
-  const getProfile = async () => {
+  const getProfile = async (resetUserState: boolean = false) => {
     setLoading(true);
-    const result = await getUserProfile();
+    let query = resetUserState ? '?populate=roles' : ''
+    const result = await getDataById("user", '', query);
     if (result.success && result.data) {
-      dispatch(setUser(result.data));
-      setUserDataInStorage(result.data);
+      if(resetUserState){        
+        dispatch(setUser(result.data));
+        setUserDataInStorage(result.data);
+      }
       reset(result.data); // Pre-filling form data with user profile data
     }
     setLoading(false);
@@ -62,7 +73,7 @@ const Profile: React.FC = () => {
       if (response.success) {
         toast.success("Profile updated successfully");
         resetSteps();
-        getProfile();
+        getProfile(true);
       } else {
         toast.error("Failed to update profile");
       }

@@ -24,12 +24,14 @@ import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import BrokerDetailsModal from "../BrokerDetailsModal/BrokerDetailsModal";
 import ChangePassowrd from "../../../../Auth/ChangePassword/ChangePassword";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
+import { hasAccess } from "../../../../../utils/permissions";
+import { CreateUserForm } from "../../../../Auth/Signup/Signup";
 
 const BrokerUserList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [brokerUserData, setBrokerUserData] = useState<Partial<User> | null>(
+  const [brokerUserData, setBrokerUserData] = useState<Partial<CreateUserForm> | null>(
     null
   );
   const [brokerUsers, setBrokerUsers] = useState<User[]>([]);
@@ -54,15 +56,20 @@ const BrokerUserList: React.FC = () => {
   );
   const [changePasswordModel, setchangePasswordModel] = useState(false);
 
-  const {
-    fetchData: fetchBrokerUsers,
-    deleteDataById: deleteBrokerUser,
-    updateData: updateStatus,
-    loading,
-  } = useFetchData<any>({
-    fetchDataService: getUsers,
-    deleteDataService: deleteUser,
-    updateDataService: toggleActiveStatus,
+
+  const { getData,getDataById, updateData, deleteData, loading } = useFetchData<any>({
+    getAll: { 
+      user: getUsers,
+     },
+     getById: {
+      user: getUserById,
+     },
+     update: {
+      user: toggleActiveStatus,
+     },
+     remove: {
+      user: deleteUser,
+     }
   });
 
   const fetchBrokerUsersData = useCallback(
@@ -78,7 +85,7 @@ const BrokerUserList: React.FC = () => {
           )}&searchField=${searchField}`;
         }
 
-        if (user.role === UserRole.BROKER_USER) {
+        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
           query += `&brokerId=${user._id}`;
         }
 
@@ -86,7 +93,7 @@ const BrokerUserList: React.FC = () => {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
 
-        const result = await fetchBrokerUsers(query);
+        const result = await getData("user",query);
         if (result.success) {
           const userData = result.data as User[];
 
@@ -100,7 +107,7 @@ const BrokerUserList: React.FC = () => {
         toast.error("Error fetching Broker data.");
       }
     },
-    [fetchBrokerUsers, searchQuery, user, sortConfig]
+    [getData, searchQuery, user, sortConfig]
   );
 
   useEffect(() => {
@@ -115,7 +122,7 @@ const BrokerUserList: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (data: Partial<User>) => {
+  const openEditModal = (data: Partial<CreateUserForm>) => {
     setIsEditing(true);
     setBrokerUserData(data);
     setIsModalOpen(true);
@@ -141,7 +148,7 @@ const BrokerUserList: React.FC = () => {
 
       case "Edit":
         try {
-          const brokerData = await getUserById(row._id);
+          const brokerData = await getDataById("user",row._id);
           openEditModal(brokerData.data);
         } catch {
           toast.error("Failed to fetch user details for editing.");
@@ -153,7 +160,7 @@ const BrokerUserList: React.FC = () => {
         break;
       case "Delete":
         try {
-          const result = await deleteBrokerUser(row._id);
+          const result = await deleteData("user",row._id);
           if (result.success) {
             toast.success(result.message);
             fetchBrokerUsersData();
@@ -165,7 +172,7 @@ const BrokerUserList: React.FC = () => {
       case "Activate":
       case "Deactivate":
         try {
-          const result = await updateStatus(row._id, {});
+          const result = await updateData("user",row._id, {});
           if (result.success) {
             toast.success(result.message);
             fetchBrokerUsersData();

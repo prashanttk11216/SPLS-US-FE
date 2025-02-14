@@ -62,3 +62,8 @@ export const downloadFile = (
     console.error('Error during file download:', error);
   }
 };
+
+
+
+export const getEnumValue  = <T extends Record<string, any>>(enumObj: T, key: string | undefined): string => key && enumObj[key as keyof T] ? enumObj[key as keyof T] : "N/A";
+

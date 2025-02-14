@@ -5,38 +5,38 @@ import { Equipment } from "../enums/Equipment";
 import { LoadOption } from "../enums/LoadOption";
 import { Mode } from "../enums/Mode";
 
-export const equipmentOptions = Object.entries(Equipment).map(([_, value]) => ({
-    value: value,
-    label: value,
+export const equipmentOptions = Object.entries(Equipment).map(([key, label]) => ({
+    value: key,
+    label: label,
   }));
   
-  export const modeOptions = Object.entries(Mode).map(([_, value]) => ({
-    value: value,
-    label: value,
+  export const modeOptions = Object.entries(Mode).map(([key, label]) => ({
+    value: key,
+    label: label,
   }));
   
-  export const loadOptions = Object.entries(LoadOption).map(([_, value]) => ({
-    value: value,
-    label: value,
+  export const loadOptions = Object.entries(LoadOption).map(([key, label]) => ({
+    value: key,
+    label: label,
   }));
   
-  export const commodityOptions = Object.entries(Commodity).map(([_, value]) => ({
-    value: value,
-    label: value,
+  export const commodityOptions = Object.entries(Commodity).map(([key, label]) => ({
+    value: key,
+    label: label,
   }));
 
 
   export const DispatchLoadTypeOptions = Object.entries(DispatchLoadType).map(
-    ([_, value]) => ({
-      value: value,
-      label: value,
+    ([key, label]) => ({
+      value: key,
+      label: label,
     })
   );
 
   export const DispatchLoadStatusOptions = Object.entries(DispatchLoadStatus).map(
-    ([_, value]) => ({
-      value: value,
-      label: value,
+    ([key, label]) => ({
+      value: key,
+      label: label,
     })
   );
   

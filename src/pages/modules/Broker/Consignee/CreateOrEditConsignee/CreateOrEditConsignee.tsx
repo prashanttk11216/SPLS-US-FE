@@ -16,8 +16,8 @@ import Stepper, {
 import {
   createConsignee,
   editConsignee,
+  getConsigneeById,
 } from "../../../../../services/consignee/consigneeService";
-import { Consignee } from "../../../../../types/Consignee";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 import { Address } from "../../../../../types/Address";
 import PhoneNumberInput from "../../../../../components/common/PhoneNumberInput/PhoneNumberInput";
@@ -49,7 +49,7 @@ interface CreateOrEditConsigneeProps {
   isModalOpen: boolean; // Controls modal visibility
   setIsModalOpen: (value: boolean) => void; // Setter for modal visibility
   isEditing: boolean; // Indicates if editing an existing Consignee
-  consigneeData?: Partial<Consignee> | null; // Pre-filled data for editing
+  consigneeId?: string; // Pre-filled data for editing
   closeModal: () => void;
 }
 
@@ -57,7 +57,7 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
   isModalOpen,
   setIsModalOpen,
   isEditing,
-  consigneeData,
+  consigneeId,
   closeModal,
 }) => {
   const user = useSelector((state: RootState) => state.user);
@@ -73,18 +73,20 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
     trigger,
   } = useForm<ConsigneeForm>({
     mode: "onBlur",
-    defaultValues: consigneeData || {}, // Pre-fill form when editing
   });
 
-  const {
-    createData: newConsignee,
-    updateData: updateConsignee,
-    loading,
-    error,
-  } = useFetchData<any>({
-    createDataService: createConsignee,
-    updateDataService: editConsignee,
-  });
+  const { createData, getDataById, updateData, loading, error } =
+    useFetchData<any>({
+      create: {
+        consignee: createConsignee,
+      },
+      update: {
+        consignee: editConsignee,
+      },
+      getById: {
+        consignee: getConsigneeById,
+      },
+    });
 
   /**
    * Handles form submission for creating or editing a ConsigneeUser.
@@ -93,14 +95,14 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
   const submit = async (data: ConsigneeForm) => {
     try {
       let result;
-      if (isEditing && consigneeData?._id) {
+      if (isEditing && consigneeId) {
         // Update Consignee if editing
-        result = await updateConsignee(consigneeData._id, data);
+        result = await updateData("consignee", consigneeId, data);
       } else {
         // Create Consignee User with role assigned
         data.brokerId = user._id;
         data.postedBy = user._id;
-        result = await newConsignee(data);
+        result = await createData("consignee", data);
       }
 
       if (result.success) {
@@ -120,12 +122,16 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
     }
   };
 
+  const reFillData = async () => {
+    const consigneeData = await getDataById("consignee", consigneeId!);
+    if (consigneeData.success) reset(consigneeData.data);
+  };
+
   // Reset form state or pre-fill values when modal opens/closes
   useEffect(() => {
     if (isModalOpen) {
-      if (isEditing && consigneeData) {
-        // Pre-fill form when editing
-        reset(consigneeData);
+      if (isEditing && consigneeId) {
+        reFillData();
       } else {
         // Clear form when creating
         reset({
@@ -138,7 +144,7 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
           // Primary address
           address: {
             str: "", // String representation of the address
-            lat: 0,// Latitude
+            lat: 0, // Latitude
             lng: 0, // Longitude
           },
           addressLine2: "",
@@ -150,7 +156,7 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
         });
       }
     }
-  }, [isModalOpen, reset, isEditing, consigneeData]);
+  }, [isModalOpen, reset, isEditing, consigneeId]);
 
   const nextStep = async () => {
     const stepFields = steps[activeStep].fields || [];
@@ -281,9 +287,10 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
                 placeholder="Enter address"
                 onPlaceSelect={handlePlaceSelect}
                 setValue={setValue}
-                rules={{ 
+                rules={{
                   required: VALIDATION_MESSAGES.addressRequired,
-                  validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.addressRequired)
+                  validate: (value: any) =>
+                    value?.str ? true : VALIDATION_MESSAGES.addressRequired,
                 }}
               />
             </div>

@@ -8,20 +8,27 @@ import { useParams } from "react-router-dom";
 import { getLoadById } from "../../../../../../services/load/loadServices";
 import { Load } from "../../../../../../types/Load";
 import { formatDate } from "../../../../../../utils/dateFormat";
+import { getEnumValue } from "../../../../../../utils/globalHelper";
+import { Equipment } from "../../../../../../enums/Equipment";
+import { Mode } from "../../../../../../enums/Mode";
 
 const LoadDetails: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const { loadId } = useParams();
 
   const [loadDetails, setLoadDetails] = useState<Partial<Load> | null>(null);
-  const { fetchDataById: fetchLoad, loading } = useFetchData<any>({
-    fetchByIdService: getLoadById,
+  
+
+  const { getDataById, loading } = useFetchData<any>({
+    getById: { 
+      load: getLoadById,
+     }
   });
 
   const fetchLoadData = useCallback(async () => {
     if (!user || !user._id) return;
     try {
-      const result = await fetchLoad(loadId!);
+      const result = await getDataById("user", loadId!);
       if (result.success) {
         const loadData = result.data as Load[];
         setLoadDetails(loadData);
@@ -31,7 +38,7 @@ const LoadDetails: React.FC = () => {
     } catch (err) {
       toast.error("Error fetching Consignee data.");
     }
-  }, [fetchLoad, user, loadId]);
+  }, [getDataById, user, loadId]);
 
   useEffect(() => {
     if (user && user._id) {
@@ -71,11 +78,11 @@ const LoadDetails: React.FC = () => {
               <div className="col-4 mt-2">
                 <div className="d-flex">
                   <div className="fw-bold">Equipment : </div>
-                  <div className="ms-2">{loadDetails?.equipment}</div>
+                  <div className="ms-2">{getEnumValue(Equipment, loadDetails.equipment)}</div>
                 </div>
                 <div className="d-flex">
                   <div className="fw-bold">Mode : </div>
-                  <div className="ms-2">{loadDetails?.mode}</div>
+                  <div className="ms-2">{ getEnumValue(Mode, loadDetails.mode)}</div>
                 </div>
                 <div className="d-flex">
                   <div className="fw-bold">Pick-up Date : </div>

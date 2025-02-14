@@ -4,6 +4,11 @@ import DetailsModal from "../../../../../components/common/DetailsModal/DetailsM
 import { User } from "../../../../../types/User";
 import { formatDate } from "../../../../../utils/dateFormat";
 import { formatNumber } from "../../../../../utils/numberUtils";
+import { Equipment } from "../../../../../enums/Equipment";
+import { getEnumValue } from "../../../../../utils/globalHelper";
+import { Mode } from "../../../../../enums/Mode";
+import { LoadOption } from "../../../../../enums/LoadOption";
+import { Commodity } from "../../../../../enums/Commodity";
 
 const LoadDetailsModal: React.FC<{
   isOpen: boolean;
@@ -88,8 +93,9 @@ const LoadDetailsModal: React.FC<{
     {
       heading: "MORE DETAILS",
       rows: [
-        { label: "Equipment", value: load.equipment || "N/A" },
-        { label: "Mode", value: load.mode || "N/A" },
+              { label: "Equipment", value: getEnumValue(Equipment, load.equipment) },
+        
+        { label: "Mode", value: getEnumValue(Mode, load.mode) },
         {
           label: "Broker Rate",
           value: load.allInRate ? `$ ${formatNumber(load.allInRate)}` : "N/A",
@@ -128,8 +134,8 @@ const LoadDetailsModal: React.FC<{
           label: "Pallets",
           value: load.pallets ? `${formatNumber(load.pallets)}` : "N/A",
         },
-        { label: "Load Option", value: load.loadOption || "N/A" },
-        { label: "Commodity", value: load.commodity || "N/A" },
+        { label: "Load Option", value: getEnumValue(LoadOption, load.mode) },
+        { label: "Commodity", value: getEnumValue(Commodity, load.commodity) },
         {
           label: "Load Number",
           value: load.loadNumber ? `${formatNumber(+load.loadNumber)}` : "N/A",

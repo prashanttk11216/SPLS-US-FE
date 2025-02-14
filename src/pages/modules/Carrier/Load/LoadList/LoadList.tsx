@@ -25,6 +25,8 @@ import DateInput from "../../../../../components/common/DateInput/DateInput";
 import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
 import { equipmentOptions } from "../../../../../utils/dropdownOptions";
 import { formatNumber } from "../../../../../utils/numberUtils";
+import { Equipment } from "../../../../../enums/Equipment";
+import { getEnumValue } from "../../../../../utils/globalHelper";
 
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -50,14 +52,15 @@ const LoadList: React.FC = () => {
     mode: "onBlur",
   });
 
-  const {
-    fetchData: fetchLoads,
-    updateData: loadRequest,
-    loading,
-    error,
-  } = useFetchData<any>({
-    updateDataService: sendLoadRequest,
-    fetchDataService: getloads,
+  
+
+  const { getData, updateData, loading, error } = useFetchData<any>({
+    getAll: { 
+      load: getloads,
+     },
+     update: {
+      load: sendLoadRequest,
+     },
   });
 
   // Fetch Load data
@@ -74,7 +77,7 @@ const LoadList: React.FC = () => {
           query += `&${formQuery}`;
         }
 
-        const result = await fetchLoads(query);
+        const result = await getData("load", query);
         if (result.success) {
           const loadData = result.data as Load[];
 
@@ -88,7 +91,7 @@ const LoadList: React.FC = () => {
         toast.error("Error fetching customer data.");
       }
     },
-    [fetchLoads, user, sortConfig, formQuery]
+    [getData, user, sortConfig, formQuery]
   );
 
   // Trigger fetch when user is populated
@@ -137,7 +140,7 @@ const LoadList: React.FC = () => {
         handleRowClick(row);
         break;
       case "Send Request":
-        const result = await loadRequest(row._id, "");
+        const result = await updateData("load", row._id, "");
         if (result.success) {
           toast.success(result.message);
         }
@@ -182,14 +185,16 @@ const LoadList: React.FC = () => {
         dhdDistance: load.dhdDistance || "N/A", // Add dhdDistance conditionally
         originEarlyPickupDate:
           formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
-        equipment: load.equipment || "N/A",
+        equipment:  getEnumValue(Equipment, load.equipment),   
         miles: load.miles ? `${formatNumber(load.miles)} mi` : "N/A",
         postedBy:
           load.brokerId && typeof load.brokerId === "object"
             ? load.brokerId.company
             : "N/A",
         allInRate: load.allInRate ? `$ ${formatNumber(load.allInRate)}` : "N/A",
-        loadNumber: load.loadNumber ? `${formatNumber(+load.loadNumber)}` : "N/A",
+        loadNumber: load.loadNumber
+          ? `${formatNumber(+load.loadNumber)}`
+          : "N/A",
         actions: getActionsForLoad(load),
       };
 

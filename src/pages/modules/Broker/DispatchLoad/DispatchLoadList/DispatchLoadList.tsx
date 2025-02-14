@@ -26,6 +26,9 @@ import { formatNumber } from "../../../../../utils/numberUtils";
 import { useForm } from "react-hook-form";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
+import { Equipment } from "../../../../../enums/Equipment";
+import { getEnumValue } from "../../../../../utils/globalHelper";
+import { hasAccess } from "../../../../../utils/permissions";
 
 const DispatchLoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -63,16 +66,17 @@ const DispatchLoadList: React.FC = () => {
     setIsDetailsModalOpen(true);
   };
 
-  const {
-    fetchData: fetchLoads,
-    updateData: loadStatus,
-    deleteDataById: deleteLoads,
-    loading,
-    error,
-  } = useFetchData<any>({
-    fetchDataService: getloads,
-    updateDataService: updateLoadStatus,
-    deleteDataService: deleteLoad,
+
+  const { getData, updateData, deleteData, loading, error } = useFetchData<any>({
+    getAll: { 
+      load: getloads,
+     },
+     update: {
+      load: updateLoadStatus,
+     },
+     remove: {
+      load: deleteLoad
+     }
   });
 
   // Fetch Load data
@@ -105,7 +109,7 @@ const DispatchLoadList: React.FC = () => {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
         
-        const result = await fetchLoads(query);
+        const result = await getData("load", query);
         if (result.success) {
           const loadData = result.data as IDispatch[];
 
@@ -119,7 +123,7 @@ const DispatchLoadList: React.FC = () => {
         toast.error("Error fetching customer data.");
       }
     },
-    [fetchLoads, searchQuery, user, activeTab, sortConfig, dateField]
+    [getData, searchQuery, user, activeTab, sortConfig, dateField]
   );
 
   const refreshAgeCall = async (data: any) => {
@@ -207,7 +211,7 @@ const DispatchLoadList: React.FC = () => {
         break;
       case DispatchLoadStatus.Published:
         try {
-          const result = await loadStatus(row._id, {
+          const result = await updateData("load", row._id, {
             status: DispatchLoadStatus.Published,
           });
           if (result.success) {
@@ -221,7 +225,7 @@ const DispatchLoadList: React.FC = () => {
 
       case "Delete":
         try {
-          const result = await deleteLoads(row._id);
+          const result = await deleteData("load", row._id);
           if (result.success) {
             toast.success(result.message);
             fetchLoadsData();
@@ -277,8 +281,8 @@ const DispatchLoadList: React.FC = () => {
         ? formatDate(load?.consignee?.date, "MM/dd/yyyy")
         : "N/A",
 
-      equipment: load?.equipment || "N/A",
-      allInRate: load?.allInRate ? `$ ${formatNumber(load.allInRate)}` : "N/A",
+equipment:  getEnumValue(Equipment, load.equipment),   
+allInRate: load?.allInRate ? `$ ${formatNumber(load.allInRate)}` : "N/A",
       WONumber: load?.WONumber || "N/A",
       loadNumber: load?.loadNumber || "N/A",
       actions: getActionsForLoad(load),
@@ -417,7 +421,7 @@ const DispatchLoadList: React.FC = () => {
         <div className="text-danger">{error}</div>
       ) : (
         <>
-          {user.role === UserRole.BROKER_ADMIN && (
+          {hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN]})&& (
             <ul className="nav nav-tabs">
               <li
                 className="nav-item"

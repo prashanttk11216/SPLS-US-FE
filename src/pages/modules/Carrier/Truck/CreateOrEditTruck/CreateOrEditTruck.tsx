@@ -67,23 +67,24 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
     mode: "onBlur",
   });
 
-  const {
-    createData: newTruck,
-    updateData: updateTruck,
-    loading,
-    error,
-  } = useFetchData<any>({
-    createDataService: createTruck,
-    updateDataService: editTruck,
+  
+
+  const { createData, updateData, loading, error } = useFetchData<any>({
+    create: { 
+      truck: createTruck,
+     },
+     update: {
+      truck: editTruck,
+     },
   });
 
   const submit = async (data: truckForm) => {
     try {
       let result;
       if (isEditing && truckData?._id) {
-        result = await updateTruck(truckData._id, data);
+        result = await updateData("truck", truckData._id, data);
       } else {
-        result = await newTruck(data);
+        result = await createData("truck", data);
       }
 
       if (result.success) {

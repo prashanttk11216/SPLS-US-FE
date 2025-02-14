@@ -5,6 +5,8 @@ import { Truck } from "../../../../../types/Truck";
 import { User } from "../../../../../types/User";
 import { formatDate } from "../../../../../utils/dateFormat";
 import { formatNumber } from "../../../../../utils/numberUtils";
+import { getEnumValue } from "../../../../../utils/globalHelper";
+import { Equipment } from "../../../../../enums/Equipment";
 
 const TruckDetailsModal: React.FC<{
   isOpen: boolean;
@@ -44,10 +46,7 @@ const TruckDetailsModal: React.FC<{
     {
       heading: "ADDITIONAL DETAILS",
       rows: [
-        {
-          label: "Equipment",
-          value: truckData.equipment || "N/A",
-        },
+        { label: "Equipment", value: getEnumValue(Equipment, truckData.equipment) },
         {
           label: "Weight",
           value: truckData.weight ? `${formatNumber(truckData.weight)} lbs` : "N/A",
