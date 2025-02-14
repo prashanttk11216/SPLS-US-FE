@@ -28,6 +28,7 @@ import DateInput from "../../../../../components/common/DateInput/DateInput";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
 import { Equipment } from "../../../../../enums/Equipment";
 import { getEnumValue } from "../../../../../utils/globalHelper";
+import { hasAccess } from "../../../../../utils/permissions";
 
 const DispatchLoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -420,7 +421,7 @@ allInRate: load?.allInRate ? `$ ${formatNumber(load.allInRate)}` : "N/A",
         <div className="text-danger">{error}</div>
       ) : (
         <>
-          {user.role === UserRole.BROKER_ADMIN && (
+          {hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN]})&& (
             <ul className="nav nav-tabs">
               <li
                 className="nav-item"

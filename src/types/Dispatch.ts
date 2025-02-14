@@ -11,7 +11,7 @@ export interface IAddress {
   lng: number; // Longitude
 }
 
-export interface IConsignee {
+export interface IDispatchConsignee {
   consigneeId: string | Consignee;
   address: IAddress;
   date: Date;
@@ -25,7 +25,7 @@ export interface IConsignee {
   PO?: number;
 }
 
-export interface IShipper {
+export interface IDispatchShipper {
   shipperId: string | Shipper;
   address: IAddress;
   date: Date;
@@ -88,8 +88,8 @@ export interface IDispatch extends Document {
   equipment: Equipment;
   allInRate?: number;
   customerRate?: number;
-  consignee: IConsignee;
-  shipper: IShipper;
+  consignee: IDispatchConsignee;
+  shipper: IDispatchShipper;
   postedBy?: string | User;
   status: DispatchLoadStatus;
   age?: Date;

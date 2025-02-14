@@ -81,18 +81,20 @@ const SelectField: React.FC<SelectFieldProps> = ({
                 }),
               }}
               theme={customTheme}
-              onChange={(selectedOption: any) => {
-                field.onChange(selectedOption?.value || undefined);
+              onChange={(selectedOptions: any) => {
+                const values = Array.isArray(selectedOptions)
+                  ? selectedOptions.map((option) => option.value)
+                  : selectedOptions?.value || undefined;
+                field.onChange(values);
                 if (onChangeOption) {
-                  onChangeOption(selectedOption); // Call parent method
+                  onChangeOption(selectedOptions);
                 }
-              }
-              }
+              }}
               value={
-                filteredOptions.find(
-                  (option) => option.value === field.value
-                ) || undefined
-              }
+                Array.isArray(field.value)
+                  ? filteredOptions.filter((option) => field.value.includes(option.value))
+                  : filteredOptions.find((option) => option.value === field.value) || undefined
+              }              
               {...rest}
             />
             {fieldState?.error && (

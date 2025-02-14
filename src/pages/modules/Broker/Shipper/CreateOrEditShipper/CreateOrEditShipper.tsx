@@ -13,10 +13,10 @@ import { validatePhoneNumber } from "../../../../../utils/phoneValidate";
 import Stepper, {
   Step,
 } from "../../../../../components/common/Stepper/Stepper";
-import { Shipper } from "../../../../../types/Shipper";
 import {
   createShipper,
   editShipper,
+  getShipperById,
 } from "../../../../../services/shipper/shipperService";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 import { Address } from "../../../../../types/Address";
@@ -49,7 +49,7 @@ interface CreateOrEditShipperProps {
   isModalOpen: boolean; // Controls modal visibility
   setIsModalOpen: (value: boolean) => void; // Setter for modal visibility
   isEditing: boolean; // Indicates if editing an existing Shipper
-  shipperData?: Partial<Shipper> | null; // Pre-filled data for editing
+  shipperId?: string; // Pre-filled data for editing
   closeModal: () => void;
 }
 
@@ -57,7 +57,7 @@ const CreateOrEditShipper: FC<CreateOrEditShipperProps> = ({
   isModalOpen,
   setIsModalOpen,
   isEditing,
-  shipperData,
+  shipperId,
   closeModal,
 }) => {
   const user = useSelector((state: RootState) => state.user);
@@ -73,18 +73,20 @@ const CreateOrEditShipper: FC<CreateOrEditShipperProps> = ({
     trigger,
   } = useForm<ShipperForm>({
     mode: "onBlur",
-    defaultValues: shipperData || {}, // Pre-fill form when editing
   });
 
-
-  const { createData, updateData, loading, error } = useFetchData<any>({
-    create: { 
-      shipper: createShipper,
-     },
-     update: {
-      shipper: editShipper,
-     }
-  });
+  const { createData, getDataById, updateData, loading, error } =
+    useFetchData<any>({
+      create: {
+        shipper: createShipper,
+      },
+      getById: {
+        shipper: getShipperById,
+      },
+      update: {
+        shipper: editShipper,
+      },
+    });
 
   /**
    * Handles form submission for creating or editing a ShipperUser.
@@ -93,9 +95,9 @@ const CreateOrEditShipper: FC<CreateOrEditShipperProps> = ({
   const submit = async (data: ShipperForm) => {
     try {
       let result;
-      if (isEditing && shipperData?._id) {
+      if (isEditing && shipperId) {
         // Update Shipper if editing
-        result = await updateData("shipper", shipperData._id, data);
+        result = await updateData("shipper", shipperId, data);
       } else {
         // Create Shipper User with role assigned
         data.brokerId = user._id;
@@ -120,12 +122,16 @@ const CreateOrEditShipper: FC<CreateOrEditShipperProps> = ({
     }
   };
 
+  const reFillData = async () => {
+    const shipperData = await getDataById("shipper", shipperId!);
+    if (shipperData.success) reset(shipperData.data);
+  };
+
   // Reset form state or pre-fill values when modal opens/closes
   useEffect(() => {
     if (isModalOpen) {
-      if (isEditing && shipperData) {
-        // Pre-fill form when editing
-        reset(shipperData);
+      if (isEditing && shipperId) {
+        reFillData();
       } else {
         // Clear form when creating
         reset({
@@ -138,7 +144,7 @@ const CreateOrEditShipper: FC<CreateOrEditShipperProps> = ({
           // Primary address
           address: {
             str: "", // String representation of the address
-            lat: 0,// Latitude
+            lat: 0, // Latitude
             lng: 0, // Longitude
           },
           addressLine2: "",
@@ -150,7 +156,7 @@ const CreateOrEditShipper: FC<CreateOrEditShipperProps> = ({
         });
       }
     }
-  }, [isModalOpen, reset, isEditing, shipperData]);
+  }, [isModalOpen, reset, isEditing, shipperId]);
 
   const nextStep = async () => {
     const stepFields = steps[activeStep].fields || [];
@@ -278,9 +284,10 @@ const CreateOrEditShipper: FC<CreateOrEditShipperProps> = ({
                 control={control}
                 setValue={setValue}
                 placeholder="Enter address"
-                rules={{ 
+                rules={{
                   required: VALIDATION_MESSAGES.addressRequired,
-                  validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.addressRequired)
+                  validate: (value: any) =>
+                    value?.str ? true : VALIDATION_MESSAGES.addressRequired,
                 }}
                 onPlaceSelect={handlePlaceSelect}
               />

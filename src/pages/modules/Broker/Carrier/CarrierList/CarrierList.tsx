@@ -5,6 +5,7 @@ import { UserRole } from "../../../../../enums/UserRole";
 import { toast } from "react-toastify";
 import {
   deleteUser,
+  getUserById,
   getUsers,
   toggleActiveStatus,
 } from "../../../../../services/user/userService";
@@ -23,12 +24,14 @@ import "./CarrierList.scss";
 import CarrierDetailsModal from "../CarrierDetailsModal/CarrierDetailsModal";
 import ChangePassowrd from "../../../../Auth/ChangePassword/ChangePassword";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
+import { hasAccess } from "../../../../../utils/permissions";
+import { CreateUserForm } from "../../../../Auth/Signup/Signup";
 
 const CarrierList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [carrierToEdit, setCarrierToEdit] = useState<Partial<User> | null>(
+  const [carrierToEdit, setCarrierToEdit] = useState<Partial<CreateUserForm> | null>(
     null
   );
   const [carriers, setCarriers] = useState<User[]>([]);
@@ -55,10 +58,13 @@ const CarrierList: React.FC = () => {
   const [changePasswordModel, setchangePasswordModel] = useState(false);
 
 
-  const { getData, updateData, deleteData, loading, error } = useFetchData<any>({
+  const { getData, getDataById, updateData, deleteData, loading, error } = useFetchData<any>({
     getAll: { 
       user: getUsers,
      },
+      getById: {
+           user: getUserById
+          },
      update: {
       user: toggleActiveStatus,
      },
@@ -81,7 +87,7 @@ const CarrierList: React.FC = () => {
           )}&searchField=${searchField}`;
         }
 
-        if (user.role === UserRole.BROKER_USER) {
+        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
           query += `&brokerId=${user._id}`;
         }
 
@@ -129,7 +135,8 @@ const CarrierList: React.FC = () => {
         break;
       case "Edit":
         try {
-          openEditModal(row);
+          const result = await getDataById("user",row._id);
+          openEditModal(result.data);
         } catch (err) {
           toast.error("Failed to fetch carrier details for editing.");
         }
@@ -230,7 +237,7 @@ const CarrierList: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (carrierData: Partial<User>) => {
+  const openEditModal = (carrierData: Partial<CreateUserForm>) => {
     setIsEditing(true);
     setCarrierToEdit(carrierData);
     setIsModalOpen(true);

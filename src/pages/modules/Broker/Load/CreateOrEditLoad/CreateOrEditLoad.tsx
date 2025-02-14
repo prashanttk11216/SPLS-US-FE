@@ -27,6 +27,7 @@ import { commodityOptions, equipmentOptions, loadOptions, modeOptions } from "..
 import CurrencyNumberInput from "../../../../../components/common/CurrencyNumberInput/CurrencyNumberInput";
 import TextAreaBox from "../../../../../components/common/TextAreaBox/TextAreaBox";
 import { z } from "zod";
+import { hasAccess } from "../../../../../utils/permissions";
 
 export type LoadForm = z.infer<typeof baseLoadSchema>;
 
@@ -762,7 +763,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
             />
           </div>
           {/* Assign User */}
-          {user?.role == UserRole.BROKER_ADMIN && (
+          {user && hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN]})&& (
             <div className="col-3">
               <SelectField
                 label="Assign User"
@@ -776,7 +777,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
           {/* Special Information */}
           <div
             className={`${
-              user?.role == UserRole.BROKER_ADMIN ? "col-9" : "col-12"
+              user && hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN]}) ? "col-9" : "col-12"
             }`}
           >
             <TextAreaBox

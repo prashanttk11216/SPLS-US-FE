@@ -21,14 +21,13 @@ import {
 import CreateOrEditConsignee from "../CreateOrEditConsignee/CreateOrEditConsignee";
 import ConsigneeDetailsModal from "../ConsigneeDetailsModal/ConsigneeDetailsModal";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
+import { hasAccess } from "../../../../../utils/permissions";
 
 const ConsigneeList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [consigneeData, setConsigneeData] = useState<Partial<Consignee> | null>(
-    null
-  );
+  const [consigneeId, setConsigneeId] = useState<string>();
   const [consignees, setConsignee] = useState<Consignee[]>([]);
   const [meta, setMeta] = useState({
     page: 1,
@@ -67,7 +66,7 @@ const ConsigneeList: React.FC = () => {
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return;
       try {
-        let query = `?&page=${page}&limit=${limit}`;
+        let query = `?&page=${page}&limit=${limit}&populate=brokerId,postedBy`;
 
         //Search Functionality
         if (searchQuery && searchField) {
@@ -76,7 +75,7 @@ const ConsigneeList: React.FC = () => {
           )}&searchField=${searchField}`;
         }
 
-        if (user.role === UserRole.BROKER_USER) {
+        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
           query += `&brokerId=${user._id}`;
         }
 
@@ -109,19 +108,19 @@ const ConsigneeList: React.FC = () => {
 
   const openCreateModal = () => {
     setIsEditing(false);
-    setConsigneeData(null);
+    setConsigneeId('');
     setIsModalOpen(true);
   };
 
-  const openEditModal = (data: Partial<Consignee>) => {
+  const openEditModal = (_id: string) => {
     setIsEditing(true);
-    setConsigneeData(data);
+    setConsigneeId(_id);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setConsigneeData(null);
+    setConsigneeId('');
   };
 
   // View Details Option Added
@@ -136,11 +135,7 @@ const ConsigneeList: React.FC = () => {
         handleRowClick(row);
         break;
       case "Edit":
-        try {
-          openEditModal(row);
-        } catch {
-          toast.error("Failed to fetch user details for editing.");
-        }
+        openEditModal(row._id);
         break;
       case "Delete":
         try {
@@ -288,7 +283,8 @@ const ConsigneeList: React.FC = () => {
         </>
       )}
 
-      <CreateOrEditConsignee
+      {
+        isModalOpen && <CreateOrEditConsignee
         isModalOpen={isModalOpen}
         closeModal={closeModal}
         setIsModalOpen={(value: boolean) => {
@@ -296,14 +292,16 @@ const ConsigneeList: React.FC = () => {
           if (!value) fetchConsigneesData();
         }}
         isEditing={isEditing}
-        consigneeData={consigneeData}
+        consigneeId={consigneeId}
       />
+      }
 
-      <ConsigneeDetailsModal
+      
+      {isDetailsModalOpen && <ConsigneeDetailsModal
         isOpen={isDetailsModalOpen}
         consignee={consigneeDetails}
         onClose={() => setIsDetailsModalOpen(false)}
-      />
+      />}
     </div>
   );
 };

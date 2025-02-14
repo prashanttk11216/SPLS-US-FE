@@ -22,6 +22,7 @@ import { formatDate } from "../../../../../utils/dateFormat";
 import { formatNumber } from "../../../../../utils/numberUtils";
 import { getEnumValue } from "../../../../../utils/globalHelper";
 import { Equipment } from "../../../../../enums/Equipment";
+import { hasAccess } from "../../../../../utils/permissions";
 
 const TruckList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -70,7 +71,7 @@ const TruckList: React.FC = () => {
           )}&searchField=${searchField}`;
         }
 
-        if (user.role === UserRole.BROKER_USER) {
+        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
           query += `&brokerId=${user._id}`;
         }
 

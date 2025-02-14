@@ -18,6 +18,7 @@ import { REGEX_PATTERNS } from "../../../constants/patterns";
 import { UserRole } from "../../../enums/UserRole";
 import MenWithBox from "../../../assets/images/menWithBox.svg";
 import PasswordInput from "../../../components/common/PasswordInput/PasswordInput";
+import { hasAccess } from "../../../utils/permissions";
 
 interface LoginProps {
   role?: UserRole | null;
@@ -54,15 +55,12 @@ const Login: React.FC<LoginProps> = () => {
         dispatch(setUser(result.data.user));
 
         toast.success(result.message);
-        if (
-          result.data.user.role == UserRole.BROKER_ADMIN ||
-          result.data.user.role == UserRole.BROKER_USER
-        ) {
+        if (hasAccess(result.data.user.roles, { roles: [UserRole.BROKER_USER, UserRole.BROKER_ADMIN]})) {
           navigate(`/broker`, {
             replace: true,
           });
         } else {
-          navigate(`/${result.data.user.role}`, {
+          navigate(`/${result.data.user.roles[0].name}`, {
             replace: true,
           });
         }

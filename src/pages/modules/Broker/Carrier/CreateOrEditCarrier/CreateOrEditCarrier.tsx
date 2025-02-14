@@ -27,7 +27,7 @@ interface CreateOrEditCarrierProps {
   isModalOpen: boolean; // Controls modal visibility
   setIsModalOpen: (value: boolean) => void; // Setter for modal visibility
   isEditing: boolean; // Indicates if editing an existing customer
-  carrierData?: Partial<User> | null; // Pre-filled data for editing
+  carrierData?: Partial<CreateUserForm> | null; // Pre-filled data for editing
   closeModal: () => void;
 }
 
@@ -39,6 +39,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
   closeModal,
 }) => {
   const user = useSelector((state: RootState) => state.user);
+  const roles = useSelector((state: RootState) => state.roles);
   const [activeStep, setActiveStep] = useState(0); // Tracks current step
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
@@ -78,7 +79,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
         result = await updateData("user", carrierData._id, data);
       } else {
         // Create carrier with role assigned
-        data.role = UserRole.CARRIER;
+        data.roles = roles.filter((role)=> role.name === UserRole.CARRIER).map((role)=>role._id);
         data.brokerId = user._id;
         result = await createData("user", data);
       }

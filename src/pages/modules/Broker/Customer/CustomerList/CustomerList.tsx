@@ -4,6 +4,7 @@ import Table from "../../../../../components/common/Table/Table";
 import PlusIcon from "../../../../../assets/icons/plus.svg";
 import {
   deleteUser,
+  getUserById,
   getUsers,
   toggleActiveStatus,
 } from "../../../../../services/user/userService";
@@ -23,12 +24,14 @@ import "./CustomerList.scss";
 import CustomerDetailsModal from "../CustomerDetailsModal/CustomerDetailsModal";
 import ChangePassowrd from "../../../../Auth/ChangePassword/ChangePassword";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
+import { hasAccess } from "../../../../../utils/permissions";
+import { CreateUserForm } from "../../../../Auth/Signup/Signup";
 
 const CustomerList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [customerToEdit, setCustomerToEdit] = useState<Partial<User> | null>(
+  const [customerToEdit, setCustomerToEdit] = useState<Partial<CreateUserForm> | null>(
     null
   );
   const [customers, setCustomers] = useState<User[]>([]);
@@ -57,9 +60,12 @@ const CustomerList: React.FC = () => {
 
  
 
-  const { getData, updateData, deleteData, loading, error } = useFetchData<any>({
+  const { getData, getDataById, updateData, deleteData, loading, error } = useFetchData<any>({
     getAll: { 
       user: getUsers,
+     },
+     getById: {
+      user: getUserById
      },
      update: {
       user: toggleActiveStatus,
@@ -83,7 +89,7 @@ const CustomerList: React.FC = () => {
           )}&searchField=${searchField}`;
         }
 
-        if (user.role === UserRole.BROKER_USER) {
+        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
           query += `&brokerId=${user._id}`;
         }
 
@@ -131,7 +137,8 @@ const CustomerList: React.FC = () => {
 
       case "Edit":
         try {
-          openEditModal(row);
+          const result = await getDataById("user",row._id);
+          openEditModal(result.data);
         } catch (err) {
           toast.error("Failed to fetch customer details for editing.");
         }
@@ -233,7 +240,7 @@ const CustomerList: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (customerData: Partial<User>) => {
+  const openEditModal = (customerData: Partial<CreateUserForm>) => {
     setIsEditing(true);
     setCustomerToEdit(customerData);
     setIsModalOpen(true);

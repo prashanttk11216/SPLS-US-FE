@@ -8,7 +8,7 @@ const initialState: User = {
   email: '',
   primaryNumber: '',
   employeeId: '',
-  role: undefined,
+  roles: [],
   company: undefined,
   avatarUrl: '',
   isVerified: false,
@@ -27,7 +27,7 @@ export const userSlice = createSlice({
       state.lastName = action.payload.lastName;
       state.email = action.payload.email;
       state.primaryNumber = action.payload.primaryNumber;
-      state.role = action.payload.role ?? state.role;
+      state.roles = action.payload.roles ?? state.roles;
       state.company = action.payload.company ?? state.company;
       state.avatarUrl = action.payload.avatarUrl ?? state.avatarUrl;
       state.employeeId = action.payload.employeeId;

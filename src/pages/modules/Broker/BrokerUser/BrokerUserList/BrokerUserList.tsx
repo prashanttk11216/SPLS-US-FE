@@ -24,12 +24,14 @@ import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import BrokerDetailsModal from "../BrokerDetailsModal/BrokerDetailsModal";
 import ChangePassowrd from "../../../../Auth/ChangePassword/ChangePassword";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
+import { hasAccess } from "../../../../../utils/permissions";
+import { CreateUserForm } from "../../../../Auth/Signup/Signup";
 
 const BrokerUserList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [brokerUserData, setBrokerUserData] = useState<Partial<User> | null>(
+  const [brokerUserData, setBrokerUserData] = useState<Partial<CreateUserForm> | null>(
     null
   );
   const [brokerUsers, setBrokerUsers] = useState<User[]>([]);
@@ -83,7 +85,7 @@ const BrokerUserList: React.FC = () => {
           )}&searchField=${searchField}`;
         }
 
-        if (user.role === UserRole.BROKER_USER) {
+        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
           query += `&brokerId=${user._id}`;
         }
 
@@ -120,7 +122,7 @@ const BrokerUserList: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (data: Partial<User>) => {
+  const openEditModal = (data: Partial<CreateUserForm>) => {
     setIsEditing(true);
     setBrokerUserData(data);
     setIsModalOpen(true);

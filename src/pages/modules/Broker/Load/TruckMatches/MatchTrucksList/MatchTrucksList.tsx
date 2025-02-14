@@ -16,6 +16,7 @@ import { formatDate } from "../../../../../../utils/dateFormat";
 import { useParams } from "react-router-dom";
 import { getEnumValue } from "../../../../../../utils/globalHelper";
 import { Equipment } from "../../../../../../enums/Equipment";
+import { hasAccess } from "../../../../../../utils/permissions";
 
 const MatcheTrucksList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -50,7 +51,7 @@ const MatcheTrucksList: React.FC = () => {
       try {
         let query = `?&page=${page}&limit=${limit}`;
 
-        if (user.role === UserRole.BROKER_USER) {
+        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
           query += `&brokerId=${user._id}`;
         }
 

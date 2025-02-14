@@ -28,6 +28,7 @@ import { LoadCreationAlert } from "../LoadCreationAlert/LoadCreationAlert";
 import { formatNumber } from "../../../../../utils/numberUtils";
 import { Equipment } from "../../../../../enums/Equipment";
 import { getEnumValue } from "../../../../../utils/globalHelper";
+import { hasAccess } from "../../../../../utils/permissions";
 
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -389,7 +390,7 @@ const LoadList: React.FC = () => {
         <div className="text-danger">{error}</div>
       ) : (
         <>
-          {user.role === UserRole.BROKER_ADMIN && (
+          {hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN]}) && (
             <ul className="nav nav-tabs">
               <li
                 className="nav-item"

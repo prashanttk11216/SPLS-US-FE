@@ -1,5 +1,3 @@
-import { UserRole } from "../enums/UserRole";
-
 export interface User {
   _id: string;
   employeeId: string;
@@ -7,7 +5,7 @@ export interface User {
   lastName: string;
   email: string;
   primaryNumber: string;
-  role?: UserRole;
+  roles: Role[];
   company?: string;
   isVerified?: boolean;
   isActive?: boolean;
@@ -45,4 +43,19 @@ export interface User {
 
   // Broker and regulatory details
   brokerId?: string; // Reference to the broker (if applicable)
+}
+
+export type Permission = {
+  resource: string;
+  actions: string[]; // e.g., ["view", "create", "edit", "delete"]
+};
+
+/**
+ * Interface for the Role document.
+ * Represents a role with a specific name and associated permissions.
+ */
+export interface Role {
+  _id: string; // Unique identifier (added by Mongoose)
+  name: string; // e.g., "Broker_User", "Customer"
+  permissions: Permission[]; // Array of permissions assigned to this role
 }
