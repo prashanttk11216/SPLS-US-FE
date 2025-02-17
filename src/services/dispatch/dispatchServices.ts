@@ -87,3 +87,22 @@ export const rateConfirmationforLoad = async (loadId: string): Promise<ApiRespon
     return handleAxiosError(error, "failed");
   }
 };
+
+export const BOLforLoad = async (loadId: string): Promise<ApiResponse> => {
+  try {
+    const response = await axiosApi.post<ApiResponse>("/dispatch/BOL/" + loadId, {}, {responseType: "blob"});
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "failed");
+  }
+};
+
+export const invoicedforLoad = async (loadId: string): Promise<ApiResponse> => {
+  try {
+    const response = await axiosApi.post<ApiResponse>("/dispatch/invoiced/" + loadId, {}, {responseType: "blob"});
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "failed");
+  }
+};
+

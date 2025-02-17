@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Table from "../../../../../components/common/Table/Table";
-import PlusIcon from "../../../../../assets/icons/plus.svg";
 import { toast } from "react-toastify";
 import { UserRole } from "../../../../../enums/UserRole";
 import Loading from "../../../../../components/common/Loading/Loading";
@@ -16,7 +15,6 @@ import {
   deleteLoad,
   getloads,
   invoicedforLoad,
-  rateConfirmationforLoad,
   refreshAgeforLoad,
   updateLoadStatus,
 } from "../../../../../services/dispatch/dispatchServices";
@@ -24,7 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { formatDate } from "../../../../../utils/dateFormat";
 import { DispatchLoadStatus } from "../../../../../enums/DispatchLoadStatus";
 import { IDispatch } from "../../../../../types/Dispatch";
-import DispatchDetailsModal from "../DispatchDetailsModal/DispatchDetailsModal";
+// import DispatchDetailsModal from "../DispatchDetailsModal/DispatchDetailsModal";
 import { useForm } from "react-hook-form";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
@@ -32,9 +30,8 @@ import { Equipment } from "../../../../../enums/Equipment";
 import { downloadFile, getEnumValue } from "../../../../../utils/globalHelper";
 import { hasAccess } from "../../../../../utils/permissions";
 
-const DispatchLoadList: React.FC = () => {
+const AccountingDispatchLoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
-  const navigate = useNavigate();
   const { control, getValues, reset } = useForm<any>();
 
   const [loads, setLoads] = useState<IDispatch[]>([]);
@@ -47,7 +44,7 @@ const DispatchLoadList: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("loadNumber");
-  const savedActiveTab = localStorage.getItem("dispatchActiveTab");
+  const savedActiveTab = localStorage.getItem("AccountingDispatchActiveTab");
   const [activeTab, setActiveTab] = useState<DispatchLoadStatus>(
     savedActiveTab
       ? (savedActiveTab as DispatchLoadStatus)
@@ -152,7 +149,7 @@ const DispatchLoadList: React.FC = () => {
 
   // Update active tab in localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem("dispatchActiveTab", activeTab);
+    localStorage.setItem("AccountingDispatchActiveTab", activeTab);
   }, [activeTab]);
 
   const columns = [
@@ -199,29 +196,15 @@ const DispatchLoadList: React.FC = () => {
   ];
 
   const getActionsForLoad = (_: IDispatch): string[] => {
-    const actions = ["View Details", "Edit"];
-    if (activeTab == DispatchLoadStatus.Draft) {
-      actions.push(DispatchLoadStatus.Published);
-    }
-    if (activeTab == DispatchLoadStatus.Published) {
-      actions.push(DispatchLoadStatus.InTransit);
-      actions.push("Print Rate & Confimation");
-    }
-    if (activeTab == DispatchLoadStatus.InTransit) {
-      actions.push(DispatchLoadStatus.Delivered);
-    }
+    const actions = ["View Details"];
+  
     if (activeTab == DispatchLoadStatus.Delivered) {
-      actions.push(DispatchLoadStatus.Completed);
+      actions.push("Print BOL");
     }
     if (activeTab == DispatchLoadStatus.Completed) {
-      actions.push(DispatchLoadStatus.Invoiced);
-    }
-    if (activeTab == DispatchLoadStatus.Invoiced) {
-      actions.push(DispatchLoadStatus.InvoicedPaid);
+      actions.push("Print Invoice");
     }
     actions.push("Upload Documents");
-    actions.push(DispatchLoadStatus.Cancelled);
-    actions.push("Delete");
     return actions;
   };
 
@@ -230,57 +213,20 @@ const DispatchLoadList: React.FC = () => {
       case "View Details":
         handleRowClick(row);
         break;
-      
-      case "Edit":
-        navigate(
-          `create/${row._id}${
-            activeTab === DispatchLoadStatus.Draft ? "?draft=true" : ""
-          }`
-        );
-        break;
-  
-      case DispatchLoadStatus.Published:
-      case DispatchLoadStatus.InTransit:
-      case DispatchLoadStatus.Delivered:
-      case DispatchLoadStatus.Completed:
-      case DispatchLoadStatus.Invoiced:
-      case DispatchLoadStatus.InvoicedPaid:
-      case DispatchLoadStatus.Cancelled:
-        try {
-          const result = await updateData("load", row._id, { status: action });
-          if (result.success) {
-            toast.success(result.message);
-            fetchLoadsData();
-          } else {
-            toast.error(result.message);
-          }
-        } catch (err) {
-          toast.error(`Failed to update status to ${action}.`);
-        }
-        break;
-  
-      case "Print Rate & Confirmation":
+      case "Print BOL":
         // Implement print logic
-        printRateAndConfirmation(row);
+        printBOL(row);
         break;
-
+  
+      case "Print Invoice":
+        // Implement print logic
+        printInvoice(row);
+        break;
+  
       case "Upload Documents":
         // Implement document upload logic
         uploadDocuments(row);
         break;
-  
-      case "Delete":
-        try {
-          const result = await deleteData("load", row._id);
-          if (result.success) {
-            toast.success(result.message);
-            fetchLoadsData();
-          }
-        } catch (err) {
-          toast.error("Failed to delete customer.");
-        }
-        break;
-  
       default:
         toast.info(`Action "${action}" is not yet implemented.`);
     }
@@ -363,11 +309,16 @@ const DispatchLoadList: React.FC = () => {
       toast.error("Error downloading pdf.");
     }
   };
+
   
-  const printRateAndConfirmation = async (row: Record<string, any>) => {
-    await downloadPDF(rateConfirmationforLoad, "678129965f153c7d2668a498", "rate_confirmation");
+  const printBOL = async (row: Record<string, any>) => {
+    await downloadPDF(BOLforLoad, "678129965f153c7d2668a498", "BOL");
   };
   
+  const printInvoice = async (row: Record<string, any>) => {
+    await downloadPDF(invoicedforLoad, "678129965f153c7d2668a498", "invoice");
+  };
+
   const uploadDocuments = (row: Record<string, any>) => {
   }
 
@@ -375,27 +326,7 @@ const DispatchLoadList: React.FC = () => {
     <div className="customers-list-wrapper">
       <div className="d-flex align-items-center justify-content-between my-3">
         {/* Heading */}
-        <h2 className="fw-bolder">SPLS Dispatch Board</h2>
-
-        {/* Buttons */}
-        <div className="d-flex align-items-center">
-          <button
-            className="btn btn-accent d-flex align-items-center"
-            type="button"
-            onClick={() => navigate(`create`)}
-          >
-            <img src={PlusIcon} height={16} width={16} className="me-2" />
-            New Active Load
-          </button>
-          <button
-            className="btn btn-accent d-flex align-items-center ms-2"
-            type="button"
-            onClick={() => navigate(`create?draft=true`)}
-          >
-            <img src={PlusIcon} height={16} width={16} className="me-2" />
-            New Pending Load
-          </button>
-        </div>
+        <h2 className="fw-bolder">Accounting Manager</h2>
       </div>
       <div className="d-flex align-items-center my-3">
 
@@ -458,8 +389,7 @@ const DispatchLoadList: React.FC = () => {
             Reset
           </button>
       </div>
-
-
+      
       {loading ? (
         <Loading />
       ) : error ? (
@@ -468,46 +398,6 @@ const DispatchLoadList: React.FC = () => {
         <>
           {hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN]})&& (
             <ul className="nav nav-tabs">
-              <li
-                className="nav-item"
-                onClick={() => setActiveTab(DispatchLoadStatus.Published)}
-              >
-                <a
-                  className={`nav-link ${
-                    DispatchLoadStatus.Published == activeTab && "active"
-                  }`}
-                  aria-current="page"
-                  href="#"
-                >
-                  Loads
-                </a>
-              </li>
-              <li
-                className="nav-item"
-                onClick={() => setActiveTab(DispatchLoadStatus.Draft)}
-              >
-                <a
-                  className={`nav-link ${
-                    DispatchLoadStatus.Draft == activeTab && "active"
-                  }`}
-                  href="#"
-                >
-                  Pending/Draft
-                </a>
-              </li>
-              <li
-                className="nav-item"
-                onClick={() => setActiveTab(DispatchLoadStatus.InTransit)}
-              >
-                <a
-                  className={`nav-link ${
-                    DispatchLoadStatus.InTransit == activeTab && "active"
-                  }`}
-                  href="#"
-                >
-                  In Transit
-                </a>
-              </li>
               <li
                 className="nav-item"
                 onClick={() => setActiveTab(DispatchLoadStatus.Delivered)}
@@ -600,15 +490,15 @@ const DispatchLoadList: React.FC = () => {
           )}
         </>
       )}
-      {isDetailsModalOpen && (
+      {/* {isDetailsModalOpen && (
         <DispatchDetailsModal
           isOpen={isDetailsModalOpen}
           dispatch={dispatchDetails}
           onClose={() => setIsDetailsModalOpen(false)}
         />
-      )}
+      )} */}
     </div>
   );
 };
 
-export default DispatchLoadList;
+export default AccountingDispatchLoadList;

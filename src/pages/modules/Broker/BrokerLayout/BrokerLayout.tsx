@@ -25,6 +25,7 @@ const BrokerLayout = () => {
       { name: "Dashboard", icon: HomeIcon, path: "/broker", isVisible: true },
       { name: "Load", icon: BrokerIcon, path: "/broker/load-board", isVisible: true },
       { name: "Dispatch Load", icon: BrokerIcon, path: "/broker/dispatch-board", isVisible: true },
+      { name: "Accounting", icon: BrokerIcon, path: "/broker/accounting-manager", isVisible: true },
       {
         name: "Settings",
         icon: SettingIcon,

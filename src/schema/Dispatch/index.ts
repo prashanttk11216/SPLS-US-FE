@@ -63,6 +63,11 @@ const CarrierFeeBreakdownSchema = z.object({
   OtherChargeSchema: z.array(OtherChargeSchema).optional(),
 });
 
+const DocumentSchema = z.object({
+  filename: z.string(),
+  path: z.string(),
+});
+
 // Dispatch Schema
 const baseDispatchSchema = z.object({
   brokerId: z.string().optional(),
@@ -88,6 +93,7 @@ const baseDispatchSchema = z.object({
   customerRate: z.number().min(0).optional(),
   consignee: consigneeSchema.optional(),
   shipper: shipperSchema.optional(),
+  documents: z.array(DocumentSchema).optional(),
   postedBy: z.string().optional(),
   status: z.string().optional(),
   age: z.string().optional(),

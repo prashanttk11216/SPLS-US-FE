@@ -71,6 +71,11 @@ export interface ICarrierFee {
   breakdown: ICarrierFeeBreakdown;
 }
 
+interface IDocument {
+  filename: string;
+  path: string;
+}
+
 export interface IDispatch extends Document {
   _id: string;
   brokerId?: string | User;
@@ -90,6 +95,7 @@ export interface IDispatch extends Document {
   customerRate?: number;
   consignee: IDispatchConsignee;
   shipper: IDispatchShipper;
+  documents?: IDocument[];
   postedBy?: string | User;
   status: DispatchLoadStatus;
   age?: Date;

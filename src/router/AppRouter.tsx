@@ -29,6 +29,7 @@ import TruckMatches from "../pages/modules/Broker/Load/TruckMatches/TruckMatches
 import DispatchLoadList from "../pages/modules/Broker/DispatchLoad/DispatchLoadList/DispatchLoadList";
 import CreateOrEditDispatchLoad from "../pages/modules/Broker/DispatchLoad/CreateOrEditDispatchLoad/CreateOrEditDispatchLoad";
 import RoleList from "../pages/modules/Broker/Role/RoleList/RoleList";
+import AccountingDispatchLoadList from "../pages/modules/Broker/Accounting/AccountingDispatchLoadList/AccountingDispatchLoadList";
 
 // Define the routes using createBrowserRouter
 export const routes = createBrowserRouter([
@@ -88,6 +89,10 @@ export const routes = createBrowserRouter([
           {
             path: "dispatch-board", // Matches /broker
             element: <DispatchLoadList />,
+          },
+          {
+            path: "accounting-manager", // Matches /broker
+            element: <AccountingDispatchLoadList />,
           },
           {
             path: "dispatch-board/create/:loadId?",
