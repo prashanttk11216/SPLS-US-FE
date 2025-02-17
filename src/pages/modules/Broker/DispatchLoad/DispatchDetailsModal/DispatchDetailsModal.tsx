@@ -59,7 +59,7 @@ const DispatchDetailsModal: React.FC<{
       rows: [
         {
           label: "Type",
-          value: dispatch.shipper?.type || "N/A",
+          value: getEnumValue(Equipment, dispatch.shipper?.type),
         },
         {
           label: "Quantity",
@@ -100,7 +100,7 @@ const DispatchDetailsModal: React.FC<{
       rows: [
         {
           label: "Type",
-          value: dispatch.consignee?.type || "N/A",
+          value: getEnumValue(Equipment, dispatch.consignee?.type),
         },
         {
           label: "Quantity",

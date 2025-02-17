@@ -22,7 +22,6 @@ import { formatDate } from "../../../../../utils/dateFormat";
 import { DispatchLoadStatus } from "../../../../../enums/DispatchLoadStatus";
 import { IDispatch } from "../../../../../types/Dispatch";
 import DispatchDetailsModal from "../DispatchDetailsModal/DispatchDetailsModal";
-import { formatNumber } from "../../../../../utils/numberUtils";
 import { useForm } from "react-hook-form";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
@@ -162,20 +161,20 @@ const DispatchLoadList: React.FC = () => {
       render: (row: any) => <strong>{row.age}</strong>,
     },
     {
-      width: "130px",
+      width: "100px",
       key: "loadNumber",
       label: "Ref No",
       sortable: true,
     },
     {
-      width: "130px",
+      width: "100px",
       key: "WONumber",
       label: "W/O",
       sortable: true,
     },
-    { width: "250px", key: "shipper.address", label: "Origin", sortable: true },
+    { width: "200px", key: "shipper.address", label: "Origin", sortable: true },
     {
-      width: "250px",
+      width: "200px",
       key: "consignee.address",
       label: "Destination",
       sortable: true,
@@ -192,8 +191,7 @@ const DispatchLoadList: React.FC = () => {
       label: "Del Date",
       sortable: true,
     },
-    { width: "150px", key: "equipment", label: "Equipment", sortable: true },
-    { width: "140px", key: "allInRate", label: "Rate", sortable: true },
+    { width: "130px", key: "equipment", label: "Equipment", sortable: true },
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
@@ -212,17 +210,48 @@ const DispatchLoadList: React.FC = () => {
       case DispatchLoadStatus.Published:
         try {
           const result = await updateData("load", row._id, {
-            status: DispatchLoadStatus.Published,
+            status: "Published",
           });
           if (result.success) {
             toast.success(result.message);
             fetchLoadsData();
+          }else{
+            toast.error(result.message);
           }
         } catch (err) {
-          toast.error("Failed to delete customer.");
+          toast.error("Failed to update status.");
         }
         break;
-
+      case DispatchLoadStatus.InTransit:
+          try {
+            const result = await updateData("load", row._id, {
+              status: DispatchLoadStatus.InTransit,
+            });
+            if (result.success) {
+              toast.success(result.message);
+              fetchLoadsData();
+            }else{
+              toast.error(result.message);
+            }
+          } catch (err) {
+            toast.error("Failed to update status.");
+          }
+          break;
+      case DispatchLoadStatus.Delivered:
+            try {
+              const result = await updateData("load", row._id, {
+                status: DispatchLoadStatus.Delivered,
+              });
+              if (result.success) {
+                toast.success(result.message);
+                fetchLoadsData();
+              }else{
+                toast.error(result.message);
+              }
+            } catch (err) {
+              toast.error("Failed to update status.");
+            }
+            break;
       case "Delete":
         try {
           const result = await deleteData("load", row._id);
@@ -256,7 +285,16 @@ const DispatchLoadList: React.FC = () => {
     if (activeTab == DispatchLoadStatus.Draft) {
       actions.push("Published");
     }
-        actions.push("Delete");
+    if (activeTab == DispatchLoadStatus.Published) {
+      actions.push(DispatchLoadStatus.InTransit);
+    }
+    if (activeTab == DispatchLoadStatus.InTransit) {
+      actions.push(DispatchLoadStatus.Delivered);
+    }
+    if (activeTab == DispatchLoadStatus.Delivered) {
+      actions.push(DispatchLoadStatus.Completed);
+    }
+    actions.push("Delete");
     return actions;
   };
 
@@ -281,8 +319,7 @@ const DispatchLoadList: React.FC = () => {
         ? formatDate(load?.consignee?.date, "MM/dd/yyyy")
         : "N/A",
 
-equipment:  getEnumValue(Equipment, load.equipment),   
-allInRate: load?.allInRate ? `$ ${formatNumber(load.allInRate)}` : "N/A",
+      equipment:  getEnumValue(Equipment, load.equipment),   
       WONumber: load?.WONumber || "N/A",
       loadNumber: load?.loadNumber || "N/A",
       actions: getActionsForLoad(load),
@@ -461,6 +498,19 @@ allInRate: load?.allInRate ? `$ ${formatNumber(load.allInRate)}` : "N/A",
                   href="#"
                 >
                   In Transit
+                </a>
+              </li>
+              <li
+                className="nav-item"
+                onClick={() => setActiveTab(DispatchLoadStatus.Delivered)}
+              >
+                <a
+                  className={`nav-link ${
+                    DispatchLoadStatus.Delivered == activeTab && "active"
+                  }`}
+                  href="#"
+                >
+                  Delivered
                 </a>
               </li>
               <li
