@@ -31,6 +31,7 @@ import SelectField from "../../../../../components/common/SelectField/SelectFiel
 import { Equipment } from "../../../../../enums/Equipment";
 import { downloadFile, getEnumValue } from "../../../../../utils/globalHelper";
 import { hasAccess } from "../../../../../utils/permissions";
+import FileUploadModal from "../../../../../components/common/FileUploadModal/FileUploadModal";
 
 const DispatchLoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -58,6 +59,7 @@ const DispatchLoadList: React.FC = () => {
     direction: "asc" | "desc";
   } | null>({ key: "age", direction: "desc" });
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
   const [dispatchDetails, setDispatchDetails] =
     useState<Partial<IDispatch> | null>(null);
 
@@ -68,18 +70,23 @@ const DispatchLoadList: React.FC = () => {
     setIsDetailsModalOpen(true);
   };
 
+  const openUploadModal = () => {
+    setIsUploadModalOpen(true);
+  };
 
-  const { getData, updateData, deleteData, loading, error } = useFetchData<any>({
-    getAll: { 
-      load: getloads,
-     },
-     update: {
-      load: updateLoadStatus,
-     },
-     remove: {
-      load: deleteLoad
-     }
-  });
+  const { getData, updateData, deleteData, loading, error } = useFetchData<any>(
+    {
+      getAll: {
+        load: getloads,
+      },
+      update: {
+        load: updateLoadStatus,
+      },
+      remove: {
+        load: deleteLoad,
+      },
+    }
+  );
 
   // Fetch Load data
   const fetchLoadsData = useCallback(
@@ -99,18 +106,18 @@ const DispatchLoadList: React.FC = () => {
         if (dateField && getValues("dateRange")) {
           const dateRange = getValues("dateRange");
           query += `&dateField=${dateField}`;
-          if(dateRange[0]){
-            query += `&fromDate=${dateRange[0].toISOString()}`
+          if (dateRange[0]) {
+            query += `&fromDate=${dateRange[0].toISOString()}`;
           }
-          if(dateRange[1]){
-            query += `&toDate=${dateRange[1].toISOString()}`
+          if (dateRange[1]) {
+            query += `&toDate=${dateRange[1].toISOString()}`;
           }
         }
 
         if (sortConfig) {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
-        
+
         const result = await getData("load", query);
         if (result.success) {
           const loadData = result.data as IDispatch[];
@@ -143,12 +150,7 @@ const DispatchLoadList: React.FC = () => {
     if (user && user._id) {
       fetchLoadsData();
     }
-  }, [
-    user,
-    searchQuery,
-    activeTab,
-    sortConfig,
-  ]);
+  }, [user, searchQuery, activeTab, sortConfig]);
 
   // Update active tab in localStorage whenever it changes
   useEffect(() => {
@@ -230,7 +232,7 @@ const DispatchLoadList: React.FC = () => {
       case "View Details":
         handleRowClick(row);
         break;
-      
+
       case "Edit":
         navigate(
           `create/${row._id}${
@@ -238,7 +240,7 @@ const DispatchLoadList: React.FC = () => {
           }`
         );
         break;
-  
+
       case DispatchLoadStatus.Published:
       case DispatchLoadStatus.InTransit:
       case DispatchLoadStatus.Delivered:
@@ -258,7 +260,7 @@ const DispatchLoadList: React.FC = () => {
           toast.error(`Failed to update status to ${action}.`);
         }
         break;
-  
+
       case "Print Rate & Confirmation":
         // Implement print logic
         printRateAndConfirmation(row);
@@ -268,7 +270,7 @@ const DispatchLoadList: React.FC = () => {
         // Implement document upload logic
         uploadDocuments(row);
         break;
-  
+
       case "Delete":
         try {
           const result = await deleteData("load", row._id);
@@ -280,12 +282,11 @@ const DispatchLoadList: React.FC = () => {
           toast.error("Failed to delete customer.");
         }
         break;
-  
+
       default:
         toast.info(`Action "${action}" is not yet implemented.`);
     }
   };
-  
 
   const handleRowClick = async (row: Record<string, any>) => {
     if (row) {
@@ -320,7 +321,7 @@ const DispatchLoadList: React.FC = () => {
         ? formatDate(load?.consignee?.date, "MM/dd/yyyy")
         : "N/A",
 
-      equipment:  getEnumValue(Equipment, load.equipment),   
+      equipment: getEnumValue(Equipment, load.equipment),
       WONumber: load?.WONumber || "N/A",
       loadNumber: load?.loadNumber || "N/A",
       actions: getActionsForLoad(load),
@@ -341,7 +342,6 @@ const DispatchLoadList: React.FC = () => {
       default:
         break;
     }
-    console.log(`General Action: ${action}`, selectedData);
   };
 
   const resetFilter = () => {
@@ -351,7 +351,11 @@ const DispatchLoadList: React.FC = () => {
     fetchLoadsData();
   };
 
-  const downloadPDF = async (fetchFunction: Function, id: string, fileName: string) => {
+  const downloadPDF = async (
+    fetchFunction: Function,
+    id: string,
+    fileName: string
+  ) => {
     try {
       let result: any = await fetchFunction(id);
       if (result) {
@@ -359,17 +363,22 @@ const DispatchLoadList: React.FC = () => {
         downloadFile(blob, `${fileName}.pdf`);
       }
     } catch (err) {
-      console.log(err);
       toast.error("Error downloading pdf.");
     }
   };
-  
+
   const printRateAndConfirmation = async (row: Record<string, any>) => {
-    await downloadPDF(rateConfirmationforLoad, "678129965f153c7d2668a498", "rate_confirmation");
+    await downloadPDF(
+      rateConfirmationforLoad,
+      "678129965f153c7d2668a498",
+      "rate_confirmation"
+    );
   };
-  
+
   const uploadDocuments = (row: Record<string, any>) => {
-  }
+    // Implement document upload logic
+    openUploadModal();
+  };
 
   return (
     <div className="customers-list-wrapper">
@@ -398,7 +407,6 @@ const DispatchLoadList: React.FC = () => {
         </div>
       </div>
       <div className="d-flex align-items-center my-3">
-
         {/* Search Bar */}
         <div className="searchbar-container">
           <SearchBar
@@ -442,23 +450,22 @@ const DispatchLoadList: React.FC = () => {
             datePickerProps={{
               dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
               isClearable: true,
-              selectsRange: true
+              selectsRange: true,
             }}
           />
         </div>
 
-        <button className="btn btn-primary" onClick={()=>fetchLoadsData()}>
+        <button className="btn btn-primary" onClick={() => fetchLoadsData()}>
           Apply Filter
         </button>
         <button
-            type="button"
-            className="btn btn-outline-secondary ms-3"
-            onClick={resetFilter}
-          >
-            Reset
-          </button>
+          type="button"
+          className="btn btn-outline-secondary ms-3"
+          onClick={resetFilter}
+        >
+          Reset
+        </button>
       </div>
-
 
       {loading ? (
         <Loading />
@@ -466,7 +473,7 @@ const DispatchLoadList: React.FC = () => {
         <div className="text-danger">{error}</div>
       ) : (
         <>
-          {hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN]})&& (
+          {hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN] }) && (
             <ul className="nav nav-tabs">
               <li
                 className="nav-item"
@@ -605,6 +612,13 @@ const DispatchLoadList: React.FC = () => {
           isOpen={isDetailsModalOpen}
           dispatch={dispatchDetails}
           onClose={() => setIsDetailsModalOpen(false)}
+        />
+      )}
+      {isUploadModalOpen && (
+        <FileUploadModal
+          isOpen={isUploadModalOpen}
+          multiple={false}
+          onClose={() => setIsUploadModalOpen(false)}
         />
       )}
     </div>

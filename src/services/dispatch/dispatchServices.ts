@@ -61,6 +61,18 @@ export const updateLoadStatus = async (
   }
 };
 
+export const updateUploadDocument = async (
+  loadId: string,
+  data: any
+): Promise<ApiResponse> => {
+  try {
+    const response = await axiosApi.put(`/dispatch/${loadId}`, data);
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "Failed to Upload Document");
+  }
+};
+
 export const deleteLoad = async (loadId: string): Promise<ApiResponse> => {
   try {
     const response = await axiosApi.delete(`/dispatch/${loadId}`);
