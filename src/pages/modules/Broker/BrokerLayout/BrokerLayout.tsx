@@ -25,7 +25,28 @@ const BrokerLayout = () => {
       { name: "Dashboard", icon: HomeIcon, path: "/broker", isVisible: true },
       { name: "Load", icon: BrokerIcon, path: "/broker/load-board", isVisible: true },
       { name: "Dispatch Load", icon: BrokerIcon, path: "/broker/dispatch-board", isVisible: true },
-      { name: "Accounting", icon: BrokerIcon, path: "/broker/accounting-manager", isVisible: true },
+      {
+        name: "Accounting",
+        icon: SettingIcon,
+        path: "/broker/accounting-manager",
+        isVisible: true,
+        subMenu: [
+          { name: "Accounting Manager", icon: BrokerIcon, path: "/broker/accounting-manager", isVisible: true },
+          { name: "Accounting Summary", icon: BrokerIcon, path: "/broker/accounting-summary", isVisible: true },
+          { name: "Accounting Exports", icon: BrokerIcon, path: "/broker/accounting-exports", isVisible: true },
+        ],
+      },
+      {
+        name: "Sales Manager",
+        icon: SettingIcon,
+        path: "/broker/customer-dashboard",
+        isVisible: true,
+        subMenu: [
+          { name: "Customer Dashboard", icon: BrokerIcon, path: "/broker/customer-dashboard", isVisible: true },
+          { name: "Quote Status", icon: BrokerIcon, path: "/broker/quote-status", isVisible: true },
+          { name: "Report Manager", icon: BrokerIcon, path: "/broker/report-manager", isVisible: true },
+        ],
+      },
       {
         name: "Settings",
         icon: SettingIcon,

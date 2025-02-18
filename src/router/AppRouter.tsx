@@ -95,6 +95,14 @@ export const routes = createBrowserRouter([
             element: <AccountingDispatchLoadList />,
           },
           {
+            path: "accounting-summary", // Matches /broker
+            element: <AccountingDispatchLoadList />,
+          },
+          {
+            path: "accounting-exports", // Matches /broker
+            element: <AccountingDispatchLoadList />,
+          },
+          {
             path: "dispatch-board/create/:loadId?",
             element: <CreateOrEditDispatchLoad />
           },
