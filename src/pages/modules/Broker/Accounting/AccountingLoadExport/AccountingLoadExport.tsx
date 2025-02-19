@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Table from "../../../../../components/common/Table/Table";
 import { toast } from "react-toastify";
-import { UserRole } from "../../../../../enums/UserRole";
 import Loading from "../../../../../components/common/Loading/Loading";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import { RootState } from "../../../../../store/store";
@@ -11,12 +10,7 @@ import Pagination, {
 } from "../../../../../components/common/Pagination/Pagination";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import {
-  BOLforLoad,
-  deleteLoad,
   getloads,
-  invoicedforLoad,
-  refreshAgeforLoad,
-  updateLoadStatus,
 } from "../../../../../services/dispatch/dispatchServices";
 import { formatDate } from "../../../../../utils/dateFormat";
 import { DispatchLoadStatus } from "../../../../../enums/DispatchLoadStatus";
@@ -25,11 +19,12 @@ import { IDispatch } from "../../../../../types/Dispatch";
 import { useForm } from "react-hook-form";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
+import { exportToExcel } from "../../../../../utils/excelUtils";
 import { Equipment } from "../../../../../enums/Equipment";
-import { downloadFile, getEnumValue } from "../../../../../utils/globalHelper";
-import { hasAccess } from "../../../../../utils/permissions";
+import { getEnumValue } from "../../../../../utils/globalHelper";
+import { DispatchLoadType } from "../../../../../enums/DispatchLoadType";
 
-const AccountingDispatchLoadList: React.FC = () => {
+const AccountingLoadExport: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const { control, getValues, reset } = useForm<any>();
 
@@ -43,12 +38,6 @@ const AccountingDispatchLoadList: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("loadNumber");
-  const savedActiveTab = localStorage.getItem("AccountingDispatchActiveTab");
-  const [activeTab, setActiveTab] = useState<DispatchLoadStatus>(
-    savedActiveTab
-      ? (savedActiveTab as DispatchLoadStatus)
-      : DispatchLoadStatus.Published
-  );
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "asc" | "desc";
@@ -68,12 +57,6 @@ const AccountingDispatchLoadList: React.FC = () => {
   const { getData, loading, error } = useFetchData<any>({
     getAll: { 
       load: getloads,
-     },
-     update: {
-      load: updateLoadStatus,
-     },
-     remove: {
-      load: deleteLoad
      }
   });
 
@@ -82,7 +65,7 @@ const AccountingDispatchLoadList: React.FC = () => {
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return; // Wait for user data
       try {
-        let query = `?page=${page}&limit=${limit}&status=${activeTab}`;
+        let query = `?page=${page}&limit=${limit}&status=${DispatchLoadStatus.Invoiced}`;
 
         //Search Functionality
         if (searchQuery && searchField) {
@@ -121,18 +104,8 @@ const AccountingDispatchLoadList: React.FC = () => {
         toast.error("Error fetching customer data.");
       }
     },
-    [getData, searchQuery, user, activeTab, sortConfig, dateField]
+    [getData, searchQuery, user, sortConfig, dateField]
   );
-
-  const refreshAgeCall = async (data: any) => {
-    const result = await refreshAgeforLoad(data);
-    if (result.success) {
-      toast.success(result.message);
-      setTimeout(() => {
-        fetchLoadsData();
-      }, 500);
-    }
-  };
 
   // Trigger fetch when user is populated
   useEffect(() => {
@@ -142,23 +115,11 @@ const AccountingDispatchLoadList: React.FC = () => {
   }, [
     user,
     searchQuery,
-    activeTab,
     sortConfig,
   ]);
 
-  // Update active tab in localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("AccountingDispatchActiveTab", activeTab);
-  }, [activeTab]);
-
   const columns = [
-    {
-      width: "90px",
-      key: "age",
-      label: "Age",
-      sortable: true,
-      render: (row: any) => <strong>{row.age}</strong>,
-    },
+    
     {
       width: "100px",
       key: "loadNumber",
@@ -169,6 +130,18 @@ const AccountingDispatchLoadList: React.FC = () => {
       width: "100px",
       key: "WONumber",
       label: "W/O",
+      sortable: true,
+    },
+    {
+      width: "130px",
+      key: "invoiceNumber",
+      label: "Invoice No",
+      sortable: true,
+    },
+    {
+      width: "90px",
+      key: "invoiceDate",
+      label: "Invoice Date",
       sortable: true,
     },
     { width: "200px", key: "shipper.address", label: "Origin", sortable: true },
@@ -190,20 +163,11 @@ const AccountingDispatchLoadList: React.FC = () => {
       label: "Del Date",
       sortable: true,
     },
-    { width: "130px", key: "equipment", label: "Equipment", sortable: true },
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
   const getActionsForLoad = (_: IDispatch): string[] => {
     const actions = ["View Details"];
-  
-    if (activeTab == DispatchLoadStatus.Delivered) {
-      actions.push("Print BOL");
-    }
-    if (activeTab == DispatchLoadStatus.Completed) {
-      actions.push("Print Invoice");
-    }
-    actions.push("Upload Documents");
     return actions;
   };
 
@@ -211,20 +175,6 @@ const AccountingDispatchLoadList: React.FC = () => {
     switch (action) {
       case "View Details":
         handleRowClick(row);
-        break;
-      case "Print BOL":
-        // Implement print logic
-        printBOL(row);
-        break;
-  
-      case "Print Invoice":
-        // Implement print logic
-        printInvoice(row);
-        break;
-  
-      case "Upload Documents":
-        // Implement document upload logic
-        uploadDocuments(row);
         break;
       default:
         toast.info(`Action "${action}" is not yet implemented.`);
@@ -255,7 +205,10 @@ const AccountingDispatchLoadList: React.FC = () => {
   const getRowData = () => {
     return loads.map((load) => ({
       _id: load._id,
-      age: load?.formattedAge || "N/A",
+      invoiceNumber: load?.invoiceNumber || "N/A",
+      invoiceDate: load?.invoiceDate
+      ? formatDate(load?.invoiceDate, "MM/dd/yyyy")
+      : "N/A",
       "shipper.address": load?.shipper?.address?.str || "N/A",
       "consignee.address": load?.consignee?.address?.str || "N/A",
       "shipper.date": load?.shipper?.date
@@ -265,7 +218,6 @@ const AccountingDispatchLoadList: React.FC = () => {
         ? formatDate(load?.consignee?.date, "MM/dd/yyyy")
         : "N/A",
 
-      equipment:  getEnumValue(Equipment, load.equipment),   
       WONumber: load?.WONumber || "N/A",
       loadNumber: load?.loadNumber || "N/A",
       actions: getActionsForLoad(load),
@@ -278,10 +230,9 @@ const AccountingDispatchLoadList: React.FC = () => {
 
   const handleGeneralAction = (action: any, selectedData: any) => {
     switch (action) {
-      case "Refresh Loads":
-        const ids: string[] = [];
-        selectedData.map((item: any) => ids.push(item._id));
-        refreshAgeCall({ ids });
+      case "Exports Loads":
+        const dispatchData = formatDispatchData(selectedData);
+        exportToExcel(dispatchData, "Dispatched Loads", "Loads");
         break;
       default:
         break;
@@ -296,36 +247,91 @@ const AccountingDispatchLoadList: React.FC = () => {
     fetchLoadsData();
   };
 
-  const downloadPDF = async (fetchFunction: Function, id: string, fileName: string) => {
-    try {
-      let result: any = await fetchFunction(id);
-      if (result) {
-        const blob = new Blob([result], { type: "application/pdf" });
-        downloadFile(blob, `${fileName}.pdf`);
-      }
-    } catch (err) {
-      console.log(err);
-      toast.error("Error downloading pdf.");
-    }
-  };
 
-  
-  const printBOL = async (row: Record<string, any>) => {
-    await downloadPDF(BOLforLoad, "678129965f153c7d2668a498", "BOL");
-  };
-  
-  const printInvoice = async (row: Record<string, any>) => {
-    await downloadPDF(invoicedforLoad, "678129965f153c7d2668a498", "invoice");
-  };
+  const formatDispatchData = (rawData: IDispatch[]) => {
+    return rawData.map((item: any) => ({
+      LoadNumber: item.loadNumber,
+      Status: item.status,
+      InvoiceNumber: item.invoiceNumber,
+      Equipment: getEnumValue(Equipment, item.equipment),
+      SalesRep: item.salesRep,
+      Type: getEnumValue(DispatchLoadType, item.type),
+      Units: item.units,
+      CustomerRate: item.customerRate,
+      PDs: item.PDs,
+      FuelServiceCharge: item.fuelServiceCharge?.value,
+      OtherChargesTotal: item.otherCharges?.totalAmount,
+      CarrierFee: item.carrierFee?.totalAmount,
+      AllInRate: item.allInRate,
 
-  const uploadDocuments = (row: Record<string, any>) => {
-  }
+      // Shipper Details
+      ShipperAddress: item.shipper.address.str,
+      ShipperDate: item.shipper.date,
+      ShipperTime: item.shipper.time,
+      ShipperType: getEnumValue(Equipment, item.shipper.type),
+      ShipperDescription: item.shipper.description,
+      ShipperQTY: item.shipper.qty,
+      ShipperValue: item.shipper.value,
+      ShipperWeight: item.shipper.weight,
+      ShipperNotes: item.shipper.notes,
+      ShipperPO: item.shipper.PO,
+      
+      // Consignee Details
+      ConsigneeAddress: item.consignee.address.str,
+      ConsigneeDate: item.consignee.date,
+      ConsigneeTime: item.consignee.time,
+      ConsigneeType:  getEnumValue(Equipment, item.consignee.type),
+      ConsigneeDescription: item.consignee.description,
+      ConsigneeQTY: item.consignee.qty,
+      ConsigneeValue: item.consignee.value,
+      ConsigneeWeight: item.consignee.weight,
+      ConsigneeNotes: item.consignee.notes,
+      ConsigneePO: item.consignee.PO,
+
+    
+      // Broker Details
+      BrokerCompany: item.brokerId.company,
+      BrokerEmail: item.brokerId.email,
+      BrokerPhone: item.brokerId.primaryNumber,
+      BrokerAddress: item.brokerId.address.str,
+      BrokerBillingAddress: item.brokerId.billingAddress.str,
+      BrokerCountry: item.brokerId.country,
+      BrokerState: item.brokerId.state,
+      BrokerCity: item.brokerId.city,
+      BrokerZip: item.brokerId.zip,
+      
+      // Carrier Details
+      CarrierId: item.carrierId,
+      CarrierCompany: item.carrier?.company || "",
+      CarrierEmail: item.carrier?.email || "",
+      CarrierPhone: item.carrier?.primaryNumber || "",
+      CarrierAddress: item.carrier?.address?.str || "",
+      
+      // Customer Details
+      CustomerId: item.customerId,
+      CustomerCompany: item.customer?.company || "",
+      CustomerEmail: item.customer?.email || "",
+      CustomerPhone: item.customer?.primaryNumber || "",
+      CustomerAddress: item.customer?.address?.str || "",
+      
+      // Posted By Details
+      PostedById: item.postedBy._id,
+      PostedBy: `${item.postedBy.firstName} ${item.postedBy.lastName}`,
+      PostedByEmail: item.postedBy.email,
+      PostedByPhone: item.postedBy.primaryNumber,
+      PostedByCompany: item.postedBy.company,
+      PostedByAddress: item.postedBy.address.str,
+
+      CreatedAt: item.createdAt,
+      UpdatedAt: item.updatedAt,
+    }));
+  };
 
   return (
     <div className="customers-list-wrapper">
       <div className="d-flex align-items-center justify-content-between my-3">
         {/* Heading */}
-        <h2 className="fw-bolder">Accounting Manager</h2>
+        <h2 className="fw-bolder">Accounting Exports</h2>
       </div>
       <div className="d-flex align-items-center my-3">
 
@@ -395,75 +401,6 @@ const AccountingDispatchLoadList: React.FC = () => {
         <div className="text-danger">{error}</div>
       ) : (
         <>
-          {hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN]})&& (
-            <ul className="nav nav-tabs">
-              <li
-                className="nav-item"
-                onClick={() => setActiveTab(DispatchLoadStatus.Delivered)}
-              >
-                <a
-                  className={`nav-link ${
-                    DispatchLoadStatus.Delivered == activeTab && "active"
-                  }`}
-                  href="#"
-                >
-                  Delivered
-                </a>
-              </li>
-              <li
-                className="nav-item"
-                onClick={() => setActiveTab(DispatchLoadStatus.Completed)}
-              >
-                <a
-                  className={`nav-link ${
-                    DispatchLoadStatus.Completed == activeTab && "active"
-                  }`}
-                  href="#"
-                >
-                  Completed
-                </a>
-              </li>
-              <li
-                className="nav-item"
-                onClick={() => setActiveTab(DispatchLoadStatus.Invoiced)}
-              >
-                <a
-                  className={`nav-link ${
-                    DispatchLoadStatus.Invoiced == activeTab && "active"
-                  }`}
-                  href="#"
-                >
-                  Invoiced
-                </a>
-              </li>
-              <li
-                className="nav-item"
-                onClick={() => setActiveTab(DispatchLoadStatus.InvoicedPaid)}
-              >
-                <a
-                  className={`nav-link ${
-                    DispatchLoadStatus.InvoicedPaid == activeTab && "active"
-                  }`}
-                  href="#"
-                >
-                  Invoiced Paid
-                </a>
-              </li>
-              <li
-                className="nav-item"
-                onClick={() => setActiveTab(DispatchLoadStatus.Cancelled)}
-              >
-                <a
-                  className={`nav-link ${
-                    DispatchLoadStatus.Cancelled == activeTab && "active"
-                  }`}
-                  href="#"
-                >
-                  Cancelled
-                </a>
-              </li>
-            </ul>
-          )}
           <Table
             columns={columns}
             rows={getRowData()}
@@ -474,7 +411,7 @@ const AccountingDispatchLoadList: React.FC = () => {
             sortConfig={sortConfig}
             rowClickable={true}
             showCheckbox={true}
-            tableActions={["Refresh Loads", "Notify Carrier"]}
+            tableActions={["Exports Loads"]}
             onTableAction={handleGeneralAction}
           />
           {loads?.length > 0 && (
@@ -500,4 +437,4 @@ const AccountingDispatchLoadList: React.FC = () => {
   );
 };
 
-export default AccountingDispatchLoadList;
+export default AccountingLoadExport;

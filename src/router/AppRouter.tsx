@@ -30,6 +30,9 @@ import DispatchLoadList from "../pages/modules/Broker/DispatchLoad/DispatchLoadL
 import CreateOrEditDispatchLoad from "../pages/modules/Broker/DispatchLoad/CreateOrEditDispatchLoad/CreateOrEditDispatchLoad";
 import RoleList from "../pages/modules/Broker/Role/RoleList/RoleList";
 import AccountingDispatchLoadList from "../pages/modules/Broker/Accounting/AccountingDispatchLoadList/AccountingDispatchLoadList";
+import AccountingLoadExport from "../pages/modules/Broker/Accounting/AccountingLoadExport/AccountingLoadExport";
+import AccountingSummary from "../pages/modules/Broker/Accounting/AccountingSummary/AccountingSummary";
+import Reports from "../pages/modules/Broker/Reports/Reports";
 
 // Define the routes using createBrowserRouter
 export const routes = createBrowserRouter([
@@ -96,11 +99,15 @@ export const routes = createBrowserRouter([
           },
           {
             path: "accounting-summary", // Matches /broker
-            element: <AccountingDispatchLoadList />,
+            element: <AccountingSummary />,
           },
           {
             path: "accounting-exports", // Matches /broker
-            element: <AccountingDispatchLoadList />,
+            element: <AccountingLoadExport />,
+          },
+          {
+            path: "reports", // Matches /broker
+            element: <Reports />,
           },
           {
             path: "dispatch-board/create/:loadId?",

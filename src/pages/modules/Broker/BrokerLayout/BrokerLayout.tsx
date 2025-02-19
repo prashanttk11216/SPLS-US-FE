@@ -47,6 +47,7 @@ const BrokerLayout = () => {
           { name: "Report Manager", icon: BrokerIcon, path: "/broker/report-manager", isVisible: true },
         ],
       },
+      { name: "Reports", icon: BrokerIcon, path: "/broker/reports", isVisible: true },
       {
         name: "Settings",
         icon: SettingIcon,

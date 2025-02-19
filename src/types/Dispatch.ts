@@ -95,6 +95,8 @@ export interface IDispatch extends Document {
   customerRate?: number;
   consignee: IDispatchConsignee;
   shipper: IDispatchShipper;
+  invoiceNumber?: number;
+  invoiceDate?: Date;
   documents?: IDocument[];
   postedBy?: string | User;
   status: DispatchLoadStatus;
