@@ -34,7 +34,7 @@ const FileUploadModal: React.FC<UploadModalProps> = ({
   const submitForm = async () => {
     if (files) {
       const result = await updateData("updateDocument", loadId, {
-        document: files,
+        documents: files,
       });
       if (result.success) {
         toast.success(result.message || "Files uploaded successfully");
