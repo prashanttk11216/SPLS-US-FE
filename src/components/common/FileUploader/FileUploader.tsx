@@ -22,6 +22,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   handleSelectedFiles,
 }) => {
   const [files, setFiles] = useState<File[]>([]);
+  const [uploaded, setUploaded] = useState<UploadedFile[]>([]);
   const { createData } = useFetchData<any>({
     create: {
       uploadSingle: uploadSingleDocument,
@@ -40,6 +41,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       formData.append("file", fileList[0]);
       const result = await createData("uploadSingle", formData);
       if (result.success) {
+        setUploaded(result.data);
         handleSelectedFiles([
           {
             filename: result.data.filename,
@@ -58,8 +60,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       });
       const result = await createData("uploadMultiple", formData);
       if (result.success) {
-        console.log(result.data);
         toast.success(result.message);
+        setUploaded(result.data.files);
         const uploadedFiles: UploadedFile[] = result.data.files.map(
           (file: any) => ({
             filename: file.filename,
@@ -90,7 +92,23 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   };
 
   const removeFile = (index: number) => {
-    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+    let updatedFiles: any = [];
+    setFiles((prevFiles) => {
+      updatedFiles = prevFiles.filter((_, i) => i !== index);
+      console.log(updatedFiles);
+      const filteredUploaded = uploaded.filter((uploadItem: any) =>
+        updatedFiles.some((file: any) => file.name === uploadItem.originalname)
+      );
+      setUploaded(filteredUploaded);
+
+      const newFiles: UploadedFile[] = filteredUploaded.map((file: any) => ({
+        filename: file.filename,
+        path: file.path,
+      }));
+
+      handleSelectedFiles(newFiles);
+      return updatedFiles;
+    });
   };
 
   return (
@@ -103,7 +121,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         <input
           type="file"
           multiple={multiple}
-          //   onChange={handleInputChange}
+          onChange={handleInputChange}
           style={{ display: "none" }}
           id="file-upload"
         />

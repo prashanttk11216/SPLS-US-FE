@@ -3,12 +3,7 @@ import Modal from "../Modal/Modal";
 import FileUploader from "../FileUploader/FileUploader";
 import { toast } from "react-toastify";
 import useFetchData from "../../../hooks/useFetchData/useFetchData";
-import { updateUploadDocument } from "../../../services/dispatch/dispatchServices";
-
-export type FormProps = {
-  fileName: string;
-  file: [];
-};
+import { editLoad } from "../../../services/dispatch/dispatchServices";
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -32,7 +27,7 @@ const FileUploadModal: React.FC<UploadModalProps> = ({
 
   const { updateData } = useFetchData<any>({
     update: {
-      updateDocument: updateUploadDocument,
+      updateDocument: editLoad,
     },
   });
 
@@ -51,6 +46,7 @@ const FileUploadModal: React.FC<UploadModalProps> = ({
   };
 
   const getFiles = (files: UploadedFile[]) => {
+    console.log(files);
     setFiles(files);
   };
 
