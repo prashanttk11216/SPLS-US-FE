@@ -1,6 +1,6 @@
 .file-upload{
-    border: 2px dashed #ccc;
-    border-radius: 4px;
+    border: 4px dashed #ccc;
+        border-radius: 8px;
     padding: 30px;
     text-align: center;
     cursor: pointer;
@@ -10,6 +10,4 @@
     color: #333;
     font-size: 1rem;
     font-weight: bold;
-    width: 100%;
-    max-width: 300px;
 }

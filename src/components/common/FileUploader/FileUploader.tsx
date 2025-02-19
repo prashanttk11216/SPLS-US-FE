@@ -103,7 +103,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         <input
           type="file"
           multiple={multiple}
-          onChange={handleInputChange}
+          //   onChange={handleInputChange}
           style={{ display: "none" }}
           id="file-upload"
         />
@@ -113,7 +113,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       </div>
       <div>
         {files.length > 0 && (
-          <ol>
+          <ol style={{ listStyleType: "none" }}>
             {files.map((file, index) => (
               <li key={index}>
                 {file.name}{" "}
