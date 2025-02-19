@@ -5,6 +5,7 @@ import {
   uploadSingleDocument,
 } from "../../../services/upload/uploadServices";
 import { toast } from "react-toastify";
+import "./FileUploader.scss";
 
 interface UploadedFile {
   filename: string;
@@ -32,43 +33,43 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   const handleFiles = async (selectedFiles: FileList | null) => {
     if (!selectedFiles) return;
     const fileList = Array.from(selectedFiles);
-    try {
-      if (!multiple) {
-        const formData = new FormData();
-        // Only take the first file if not multiple
-        setFiles(fileList.slice(0, 1));
-        formData.append("file", fileList[0]);
-        const result = await createData("uploadSingle", formData);
-        if (result.success) {
-          handleSelectedFiles([
-            {
-              filename: result.data.filename,
-              path: result.data.path,
-            },
-          ]);
-        } else {
-          toast.error(result.message || "Failed to upload file.");
-        }
+    if (!multiple) {
+      const formData = new FormData();
+      // Only take the first file if not multiple
+      setFiles(fileList.slice(0, 1));
+      formData.append("file", fileList[0]);
+      const result = await createData("uploadSingle", formData);
+      if (result.success) {
+        handleSelectedFiles([
+          {
+            filename: result.data.filename,
+            path: result.data.path,
+          },
+        ]);
       } else {
-        setFiles((prevFiles) => [...prevFiles, ...fileList]);
-        const formData = new FormData();
-        // Append each file individually to FormData
-        fileList.forEach((file) => {
-          formData.append("files", file);
-        });
-        const result = await createData("uploadMultiple", formData);
-        if (result.success) {
-          const uploadedFiles = fileList.map((file, index) => ({
-            filename: result.data[index].filename,
-            path: result.data[index].path,
-          }));
-          handleSelectedFiles(uploadedFiles);
-        } else {
-          toast.error(result.message || "Failed to upload file.");
-        }
+        toast.error(result.message || "Failed to upload file.");
       }
-    } catch (error) {
-      toast.error("An error occurred while uploading files.");
+    } else {
+      setFiles((prevFiles) => [...prevFiles, ...fileList]);
+      const formData = new FormData();
+      // Append each file individually to FormData
+      fileList.forEach((file) => {
+        formData.append("files", file);
+      });
+      const result = await createData("uploadMultiple", formData);
+      if (result.success) {
+        console.log(result.data);
+        toast.success(result.message);
+        const uploadedFiles: UploadedFile[] = result.data.files.map(
+          (file: any) => ({
+            filename: file.filename,
+            path: file.path,
+          })
+        );
+        handleSelectedFiles(uploadedFiles);
+      } else {
+        toast.error(result.message || "Failed to upload file.");
+      }
     }
   };
 
@@ -97,12 +98,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}
-        style={{
-          border: "2px dashed #ccc",
-          borderRadius: "4px",
-          padding: "20px",
-          textAlign: "center",
-        }}
+        className="file-upload"
       >
         <input
           type="file"
@@ -111,7 +107,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
           style={{ display: "none" }}
           id="file-upload"
         />
-        <label htmlFor="file-upload" style={{ cursor: "pointer" }}>
+        <label htmlFor="file-upload" role="button">
           Drag and drop files here or click to upload
         </label>
       </div>

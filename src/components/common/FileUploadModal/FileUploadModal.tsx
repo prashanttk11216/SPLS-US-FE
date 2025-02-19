@@ -1,17 +1,19 @@
 import React from "react";
 import Modal from "../Modal/Modal";
 import FileUploader from "../FileUploader/FileUploader";
-// import Input from "../Input/Input";
-import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import useFetchData from "../../../hooks/useFetchData/useFetchData";
+import { updateUploadDocument } from "../../../services/dispatch/dispatchServices";
 
 export type FormProps = {
   fileName: string;
-  file: []
-}
+  file: [];
+};
 
 interface UploadModalProps {
   isOpen: boolean;
   multiple: boolean;
+  loadId: any;
   onClose: () => void;
 }
 
@@ -23,18 +25,34 @@ interface UploadedFile {
 const FileUploadModal: React.FC<UploadModalProps> = ({
   isOpen,
   multiple,
+  loadId,
   onClose,
 }) => {
-  const {
-    handleSubmit,
-    formState: { isValid }
-  } = useForm<FormProps>({ mode: "onBlur" });
+  const [files, setFiles] = React.useState<UploadedFile[]>([]);
 
-  const submitForm = (data: FormProps) => { 
-  }
+  const { updateData } = useFetchData<any>({
+    update: {
+      updateDocument: updateUploadDocument,
+    },
+  });
+
+  const submitForm = async () => {
+    if (files) {
+      const result = await updateData("updateDocument", loadId, {
+        document: files,
+      });
+      if (result.success) {
+        toast.success(result.message || "Files uploaded successfully");
+        onClose();
+      } else {
+        toast.error(result.message || "Failed to upload files");
+      }
+    }
+  };
 
   const getFiles = (files: UploadedFile[]) => {
-  }
+    setFiles(files);
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Upload Documents" size="lg">
@@ -60,8 +78,8 @@ const FileUploadModal: React.FC<UploadModalProps> = ({
         <button
           className="btn btn-accent btn-lg ms-2"
           type="submit"
-          disabled={!isValid}
-          onClick={handleSubmit(submitForm)}
+          disabled={files.length === 0}
+          onClick={submitForm}
         >
           Submit
         </button>

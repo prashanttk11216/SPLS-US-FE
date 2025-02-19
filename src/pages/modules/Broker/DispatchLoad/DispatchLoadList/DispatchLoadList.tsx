@@ -70,10 +70,6 @@ const DispatchLoadList: React.FC = () => {
     setIsDetailsModalOpen(true);
   };
 
-  const openUploadModal = () => {
-    setIsUploadModalOpen(true);
-  };
-
   const { getData, updateData, deleteData, loading, error } = useFetchData<any>(
     {
       getAll: {
@@ -377,7 +373,8 @@ const DispatchLoadList: React.FC = () => {
 
   const uploadDocuments = (row: Record<string, any>) => {
     // Implement document upload logic
-    openUploadModal();
+    setIsUploadModalOpen(true);
+    setDispatchDetails(row);
   };
 
   return (
@@ -617,7 +614,8 @@ const DispatchLoadList: React.FC = () => {
       {isUploadModalOpen && (
         <FileUploadModal
           isOpen={isUploadModalOpen}
-          multiple={false}
+          multiple={true}
+          loadId={dispatchDetails?._id}
           onClose={() => setIsUploadModalOpen(false)}
         />
       )}
