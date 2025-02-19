@@ -95,7 +95,6 @@ const FileUploader: React.FC<FileUploaderProps> = ({
     let updatedFiles: any = [];
     setFiles((prevFiles) => {
       updatedFiles = prevFiles.filter((_, i) => i !== index);
-      console.log(updatedFiles);
       const filteredUploaded = uploaded.filter((uploadItem: any) =>
         updatedFiles.some((file: any) => file.name === uploadItem.originalname)
       );
@@ -122,7 +121,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
           type="file"
           multiple={multiple}
           onChange={handleInputChange}
-          style={{ display: "none" }}
+          className="d-none"
           id="file-upload"
         />
         <label htmlFor="file-upload" role="button">

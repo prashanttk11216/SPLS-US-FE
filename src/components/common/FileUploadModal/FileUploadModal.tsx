@@ -46,7 +46,6 @@ const FileUploadModal: React.FC<UploadModalProps> = ({
   };
 
   const getFiles = (files: UploadedFile[]) => {
-    console.log(files);
     setFiles(files);
   };
 
