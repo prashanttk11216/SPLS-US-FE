@@ -10,6 +10,7 @@ import Pagination, {
 } from "../../../../../components/common/Pagination/Pagination";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import {
+  exportLoads,
   getloads,
 } from "../../../../../services/dispatch/dispatchServices";
 import { formatDate } from "../../../../../utils/dateFormat";
@@ -19,10 +20,9 @@ import { IDispatch } from "../../../../../types/Dispatch";
 import { useForm } from "react-hook-form";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
-import { exportToExcel } from "../../../../../utils/excelUtils";
-import { Equipment } from "../../../../../enums/Equipment";
-import { getEnumValue } from "../../../../../utils/globalHelper";
-import { DispatchLoadType } from "../../../../../enums/DispatchLoadType";
+import { saveAs } from "file-saver";
+import { downloadExcelFile } from "../../../../../utils/excelUtils";
+
 
 const AccountingLoadExport: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -54,9 +54,12 @@ const AccountingLoadExport: React.FC = () => {
   };
 
 
-  const { getData, loading, error } = useFetchData<any>({
+  const { getData,createData, loading, error } = useFetchData<any>({
     getAll: { 
       load: getloads,
+     },
+     create: {
+      load: exportLoads
      }
   });
 
@@ -231,8 +234,9 @@ const AccountingLoadExport: React.FC = () => {
   const handleGeneralAction = (action: any, selectedData: any) => {
     switch (action) {
       case "Exports Loads":
-        const dispatchData = formatDispatchData(selectedData);
-        exportToExcel(dispatchData, "Dispatched Loads", "Loads");
+        const ids: string[] = [];
+        selectedData.map((item: any) => ids.push(item._id));
+        exportLoadsHandler({ ids });
         break;
       default:
         break;
@@ -247,84 +251,12 @@ const AccountingLoadExport: React.FC = () => {
     fetchLoadsData();
   };
 
-
-  const formatDispatchData = (rawData: IDispatch[]) => {
-    return rawData.map((item: any) => ({
-      LoadNumber: item.loadNumber,
-      Status: item.status,
-      InvoiceNumber: item.invoiceNumber,
-      Equipment: getEnumValue(Equipment, item.equipment),
-      SalesRep: item.salesRep,
-      Type: getEnumValue(DispatchLoadType, item.type),
-      Units: item.units,
-      CustomerRate: item.customerRate,
-      PDs: item.PDs,
-      FuelServiceCharge: item.fuelServiceCharge?.value,
-      OtherChargesTotal: item.otherCharges?.totalAmount,
-      CarrierFee: item.carrierFee?.totalAmount,
-      AllInRate: item.allInRate,
-
-      // Shipper Details
-      ShipperAddress: item.shipper.address.str,
-      ShipperDate: item.shipper.date,
-      ShipperTime: item.shipper.time,
-      ShipperType: getEnumValue(Equipment, item.shipper.type),
-      ShipperDescription: item.shipper.description,
-      ShipperQTY: item.shipper.qty,
-      ShipperValue: item.shipper.value,
-      ShipperWeight: item.shipper.weight,
-      ShipperNotes: item.shipper.notes,
-      ShipperPO: item.shipper.PO,
-      
-      // Consignee Details
-      ConsigneeAddress: item.consignee.address.str,
-      ConsigneeDate: item.consignee.date,
-      ConsigneeTime: item.consignee.time,
-      ConsigneeType:  getEnumValue(Equipment, item.consignee.type),
-      ConsigneeDescription: item.consignee.description,
-      ConsigneeQTY: item.consignee.qty,
-      ConsigneeValue: item.consignee.value,
-      ConsigneeWeight: item.consignee.weight,
-      ConsigneeNotes: item.consignee.notes,
-      ConsigneePO: item.consignee.PO,
-
-    
-      // Broker Details
-      BrokerCompany: item.brokerId.company,
-      BrokerEmail: item.brokerId.email,
-      BrokerPhone: item.brokerId.primaryNumber,
-      BrokerAddress: item.brokerId.address.str,
-      BrokerBillingAddress: item.brokerId.billingAddress.str,
-      BrokerCountry: item.brokerId.country,
-      BrokerState: item.brokerId.state,
-      BrokerCity: item.brokerId.city,
-      BrokerZip: item.brokerId.zip,
-      
-      // Carrier Details
-      CarrierId: item.carrierId,
-      CarrierCompany: item.carrier?.company || "",
-      CarrierEmail: item.carrier?.email || "",
-      CarrierPhone: item.carrier?.primaryNumber || "",
-      CarrierAddress: item.carrier?.address?.str || "",
-      
-      // Customer Details
-      CustomerId: item.customerId,
-      CustomerCompany: item.customer?.company || "",
-      CustomerEmail: item.customer?.email || "",
-      CustomerPhone: item.customer?.primaryNumber || "",
-      CustomerAddress: item.customer?.address?.str || "",
-      
-      // Posted By Details
-      PostedById: item.postedBy._id,
-      PostedBy: `${item.postedBy.firstName} ${item.postedBy.lastName}`,
-      PostedByEmail: item.postedBy.email,
-      PostedByPhone: item.postedBy.primaryNumber,
-      PostedByCompany: item.postedBy.company,
-      PostedByAddress: item.postedBy.address.str,
-
-      CreatedAt: item.createdAt,
-      UpdatedAt: item.updatedAt,
-    }));
+  const exportLoadsHandler = async (data: any) => {
+      const result = await createData("load", data);
+      if (result.success) {
+        toast.success(result.message);
+        downloadExcelFile(result.data.data, `loads.xlsx`)
+      }
   };
 
   return (

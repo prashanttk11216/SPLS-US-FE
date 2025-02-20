@@ -106,3 +106,12 @@ export const invoicedforLoad = async (loadId: string): Promise<ApiResponse> => {
   }
 };
 
+export const exportLoads = async (data: any): Promise<ApiResponse> => {
+  try {
+    const response = await axiosApi.post<ApiResponse>("/dispatch/accounting-export", data);
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "failed");
+  }
+};
+
