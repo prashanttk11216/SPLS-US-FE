@@ -144,8 +144,9 @@ const DispatchDetailsModal: React.FC<{
       title="Dispatch Details"
       onClose={onClose}
       details={details}
+      documents={dispatch.documents ? dispatch.documents : []}
     />
-  );
+  );  
 };
 
 export default DispatchDetailsModal;
