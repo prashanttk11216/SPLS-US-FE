@@ -33,6 +33,8 @@ import AccountingDispatchLoadList from "../pages/modules/Broker/Accounting/Accou
 import AccountingLoadExport from "../pages/modules/Broker/Accounting/AccountingLoadExport/AccountingLoadExport";
 import AccountingSummary from "../pages/modules/Broker/Accounting/AccountingSummary/AccountingSummary";
 import Reports from "../pages/modules/Broker/Reports/Reports";
+import CustomerDashboardList from "../pages/modules/Broker/SalesManager/CustomerDashboardList/CustomerDashboardList";
+import QuoteList from "../pages/modules/Broker/Quote/QuoteList/QuoteList";
 
 // Define the routes using createBrowserRouter
 export const routes = createBrowserRouter([
@@ -106,8 +108,16 @@ export const routes = createBrowserRouter([
             element: <AccountingLoadExport />,
           },
           {
+            path: "quote-status",
+            element: <QuoteList />
+          },
+          {
             path: "reports", // Matches /broker
             element: <Reports />,
+          },
+          {
+            path: "customer-dashboard", // Matches /broker
+            element: <CustomerDashboardList />,
           },
           {
             path: "dispatch-board/create/:loadId?",

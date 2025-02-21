@@ -1,23 +1,23 @@
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../../store/store";
 import { useCallback, useEffect, useState } from "react";
-import { IRole } from "../../../../../schema/Role";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
-import { deleteRole, getRoleById, getRoles } from "../../../../../services/role/roleServices";
 import Pagination, { Meta } from "../../../../../components/common/Pagination/Pagination";
 import { toast } from "react-toastify";
 import PlusIcon from '../../../../../assets/icons/plus.svg';
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import Loading from "../../../../../components/common/Loading/Loading";
 import Table from "../../../../../components/common/Table/Table";
-import CreateOrEditRole from "../CreateOrEditRole/CreateOrEditRole";
+import { deleteQuote, getQuoteById, getQuotes } from "../../../../../services/quote/quoteServices";
+import { IQuote } from "../../../../../types/Quote";
+import CreateOrEditQuote from "../CreateOrEditQuote/CreateOrEditQuote";
 
-const RoleList: React.FC = () => {
+const QuoteList: React.FC = () => {
     const user = useSelector((state: RootState) => state.user);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [roleId, setRoleId] = useState<string>();
-    const [roles, setRoles] = useState<IRole[]>([]);
+    const [quoteId, setQuoteId] = useState<string>();
+    const [quotes, setQuotes] = useState<IQuote[]>([]);
     const [meta, setMeta] = useState({
       page: 1,
       limit: 10,
@@ -32,25 +32,19 @@ const RoleList: React.FC = () => {
       direction: "asc" | "desc";
     } | null>(null);
   
-    // View Details Option Added
-    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
-    const [shipperDetails, setRoleDetails] = useState<Partial<IRole> | null>(
-      null
-    );
-  
-    const { getData, getDataById, deleteData, loading } = useFetchData<any>({
+    const { getData, deleteData, loading } = useFetchData<any>({
       getAll: {
-        role: getRoles,
+        quote: getQuotes,
       },
       getById: {
-        role: getRoleById
+        quote: getQuoteById
       },
       remove: {
-        role: deleteRole,
+        quote: deleteQuote,
       }
     });
   
-    const fetchRolesData = useCallback(
+    const fetchQuotesData = useCallback(
       async (page: number = 1, limit: number = 10) => {
         if (!user || !user._id) return;
         try {
@@ -67,17 +61,17 @@ const RoleList: React.FC = () => {
             query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
           }
   
-          const result = await getData("role", query);
+          const result = await getData("quote", query);
           if (result.success) {
-            const roleData = result.data as IRole[];
+            const quoteData = result.data as IQuote[];
   
-            setRoles(roleData);
+            setQuotes(quoteData);
             setMeta(result.meta as Meta);
           } else {
-            toast.error(result.message || "Failed to fetch Roles.");
+            toast.error(result.message || "Failed to fetch Quotes.");
           }
         } catch (err) {
-          toast.error("Error fetching Roles data.");
+          toast.error("Error fetching Quotes data.");
         }
       },
       [getData, searchQuery, user, sortConfig]
@@ -85,60 +79,46 @@ const RoleList: React.FC = () => {
   
     useEffect(() => {
       if (user && user._id) {
-        fetchRolesData();
+        fetchQuotesData();
       }
     }, [user, searchQuery, sortConfig]);
   
     const openCreateModal = () => {
       setIsEditing(false);
-      setRoleId("");
+      setQuoteId("");
       setIsModalOpen(true);
     };
   
     const openEditModal = (_id: string) => {
       setIsEditing(true);
-      setRoleId(_id);
+      setQuoteId(_id);
       setIsModalOpen(true);
     };
   
     const closeModal = () => {
       setIsModalOpen(false);
-      setRoleId("");
+      setQuoteId("");
     };
-  
-    // View Details Option Added
-    const openDetailsModal = (roleData: Partial<IRole>) => {
-      setRoleDetails(roleData);
-      setIsDetailsModalOpen(true);
-    };
+
   
     const handleAction = async (action: string, row: Record<string, any>) => {
       switch (action) {
-        case "View Details":
-          handleRowClick(row);
-          break;
         case "Edit":
           openEditModal(row._id);
           break;
         case "Delete":
           try {
-            const result = await deleteData("role", row._id);
+            const result = await deleteData("quote", row._id);
             if (result.success) {
               toast.success(result.message);
-              fetchRolesData();
+              fetchQuotesData();
             }
           } catch {
-            toast.error("Failed to delete Role.");
+            toast.error("Failed to delete Quote.");
           }
           break;
         default:
           toast.info(`Action "${action}" is not yet implemented.`);
-      }
-    };
-  
-    const handleRowClick = async (row: Record<string, any>) => {
-      if (row) {
-        openDetailsModal(row); // Open details modal
       }
     };
   
@@ -148,29 +128,31 @@ const RoleList: React.FC = () => {
       setSortConfig(sortStr); // Updates the sort query to trigger API call
     };
   
-    const getActions = (role: IRole): string[] => {
-      const actions = ["View Details", "Edit", "Delete"];
+    const getActions = (quote: IQuote): string[] => {
+      const actions = ["Edit", "Delete"];
       return actions;
     };
   
     const columns = [
       { width: "250px", key: "name", label: "Name" },
+      { width: "90px", key: "isActive", label: "Status", sortable: true },
       { width: "90px", key: "actions", label: "Actions", isAction: true },
     ];
   
     const handlePageChange = (page: number) => {
-      fetchRolesData(page);
+      fetchQuotesData(page);
     };
   
     const handleItemsPerPageChange = (limit: number) => {
-      fetchRolesData(1, limit);
+      fetchQuotesData(1, limit);
     };
   
     const getRowData = () => {
-      return roles.map((role) => ({
-        _id: role._id,
-        name: role.name,
-        actions: getActions(role),
+      return quotes.map((quote) => ({
+        _id: quote._id,
+        name: quote.name,
+        isActive: quote.isActive ? "Active" : "Inactive",
+        actions: getActions(quote),
       }));
     };
   
@@ -179,9 +161,9 @@ const RoleList: React.FC = () => {
     };
   
     return (
-      <div className="roles-list-wrapper">
+      <div className="quotes-list-wrapper">
         <div className="d-flex align-items-center">
-          <h2 className="fw-bolder">Roles</h2>
+          <h2 className="fw-bolder">Quotes Status</h2>
           <button
             className="btn btn-accent d-flex align-items-center ms-auto"
             type="button"
@@ -212,12 +194,11 @@ const RoleList: React.FC = () => {
             <Table
               columns={columns}
               rows={getRowData()}
-              data={roles}
+              data={quotes}
               onActionClick={handleAction}
               rowClickable={true}
               onSort={handleSort}
               sortConfig={sortConfig}
-              onRowClick={handleRowClick}
             />
             <div className="pagination-container">
               {/* Pagination Component */}
@@ -231,27 +212,19 @@ const RoleList: React.FC = () => {
         )}
   
         {isModalOpen && (
-          <CreateOrEditRole
+          <CreateOrEditQuote
             isModalOpen={isModalOpen}
             closeModal={closeModal}
             setIsModalOpen={(value: boolean) => {
               setIsModalOpen(value);
-              if (!value) fetchRolesData();
+              if (!value) fetchQuotesData();
             }}
             isEditing={isEditing}
-            roleId={roleId}
+            quoteId={quoteId}
           />
         )}
-  
-        {/* {isDetailsModalOpen && (
-          <ShipperDetailsModal
-            isOpen={isDetailsModalOpen}
-            shipper={shipperDetails}
-            onClose={() => setIsDetailsModalOpen(false)}
-          />
-        )} */}
       </div>
     );
   };
   
-  export default RoleList;
+  export default QuoteList;

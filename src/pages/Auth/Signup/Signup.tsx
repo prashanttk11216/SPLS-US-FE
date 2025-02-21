@@ -18,7 +18,6 @@ import PasswordInput from "../../../components/common/PasswordInput/PasswordInpu
 import PhoneNumberInput from "../../../components/common/PhoneNumberInput/PhoneNumberInput";
 import { RootState } from "../../../store/store";
 import { useSelector } from "react-redux";
-import { Role } from "../../../types/User";
 
 interface SignupProps {
   role?: UserRole | null;

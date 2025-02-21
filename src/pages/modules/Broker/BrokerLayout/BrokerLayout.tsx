@@ -44,7 +44,6 @@ const BrokerLayout = () => {
         subMenu: [
           { name: "Customer Dashboard", icon: BrokerIcon, path: "/broker/customer-dashboard", isVisible: true },
           { name: "Quote Status", icon: BrokerIcon, path: "/broker/quote-status", isVisible: true },
-          { name: "Report Manager", icon: BrokerIcon, path: "/broker/report-manager", isVisible: true },
         ],
       },
       { name: "Reports", icon: BrokerIcon, path: "/broker/reports", isVisible: true },

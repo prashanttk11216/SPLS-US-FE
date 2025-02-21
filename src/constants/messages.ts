@@ -12,6 +12,7 @@ export const VALIDATION_MESSAGES = {
     primaryNumberRequired: "Primary Number is required",
     firstNameRequired: "First Name is required",
     roleNameRequired: "Role name is required",
+    quoteNameRequired: "Quote name is required",
     resourceRequired: "Resource is required",
     actionsRequired: "At least one action is required",
     employeeIdRequired: "Employee Id is required",

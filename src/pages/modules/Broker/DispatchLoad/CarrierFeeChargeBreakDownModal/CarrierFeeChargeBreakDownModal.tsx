@@ -11,7 +11,7 @@ import CheckboxField from "../../../../../components/common/CheckboxField/Checkb
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
 import { DispatchLoadTypeOptions } from "../../../../../utils/dropdownOptions";
-import { DispatchLoadType } from "../../../../../enums/DispatchLoadType";
+import { DispatchLoadType, WithoutUnit } from "../../../../../enums/DispatchLoadType";
 import {
   calculatePercentage,
   calculatePercentageByUnit,
@@ -197,7 +197,7 @@ const CarrierFeeChargeBreakDownModal: React.FC<{
             />
           </div>
           {/* Conditionally show Unit Number if 'Pallets' is selected */}
-          {DispatchLoadTypeValue === DispatchLoadType.PALLETS && (
+          {!WithoutUnit.includes(DispatchLoadTypeValue!) && (
             <div className="col-3">
               <NumberInput
                 label="Units"

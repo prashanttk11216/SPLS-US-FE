@@ -28,7 +28,7 @@ import {
 } from "../../../../../services/dispatch/dispatchServices";
 import { getShipper } from "../../../../../services/shipper/shipperService";
 import { getConsignee } from "../../../../../services/consignee/consigneeService";
-import { DispatchLoadType } from "../../../../../enums/DispatchLoadType";
+import { DispatchLoadType, WithoutUnit } from "../../../../../enums/DispatchLoadType";
 import CheckboxField from "../../../../../components/common/CheckboxField/CheckboxField";
 import PlusIcon from "../../../../../assets/icons/plus.svg";
 import OtherChargesModal from "../OtherChargesModal/OtherChargesModal";
@@ -569,7 +569,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
             />
           </div>
           {/* Conditionally show Unit Number if 'Pallets' is selected */}
-          {DispatchLoadTypeValue === DispatchLoadType.PALLETS && (
+          {!WithoutUnit.includes(DispatchLoadTypeValue!)  && (
             <div className="col-2">
               <NumberInput
                 label="Units"
@@ -801,12 +801,12 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
           </div>
           {/* Type */}
           <div className="col-2">
-            <SelectField
+            <Input
+              id="shipper.type"
               label="Type"
               name="shipper.type"
-              placeholder="Select Type"
+              placeholder="Enter Type(TL, LTS, PALLET etc.)"
               control={control}
-              options={equipmentOptions}
             />
           </div>
           {/* Description */}
@@ -944,12 +944,12 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
           </div>
           {/* Type */}
           <div className="col-2">
-            <SelectField
+            <Input
+              id="consignee.type"
               label="Type"
               name="consignee.type"
-              placeholder="Select Type"
+              placeholder="Enter Type(TL, LTS, PALLET etc.)"
               control={control}
-              options={equipmentOptions}
             />
           </div>
           {/* Description */}
