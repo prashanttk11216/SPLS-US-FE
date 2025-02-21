@@ -26,9 +26,7 @@ export const getLoadById = async (loadId: string): Promise<ApiResponse> => {
   }
 };
 
-export const createLoad = async (
-  data: Load
-): Promise<ApiResponse> => {
+export const createLoad = async (data: Load): Promise<ApiResponse> => {
   try {
     const response = await axiosApi.post<ApiResponse>("/dispatch", data);
     return handleResponse(response);
@@ -72,16 +70,25 @@ export const deleteLoad = async (loadId: string): Promise<ApiResponse> => {
 
 export const refreshAgeforLoad = async (data: any): Promise<ApiResponse> => {
   try {
-    const response = await axiosApi.post<ApiResponse>("/dispatch/refresh-age", data);
+    const response = await axiosApi.post<ApiResponse>(
+      "/dispatch/refresh-age",
+      data
+    );
     return handleResponse(response);
   } catch (error) {
     return handleAxiosError(error, "failed");
   }
 };
 
-export const rateConfirmationforLoad = async (loadId: string): Promise<ApiResponse> => {
+export const rateConfirmationforLoad = async (
+  loadId: string
+): Promise<ApiResponse> => {
   try {
-    const response = await axiosApi.post<ApiResponse>("/dispatch/rate-confirmation/" + loadId, {}, {responseType: "blob"});
+    const response = await axiosApi.post<ApiResponse>(
+      "/dispatch/rate-confirmation/" + loadId,
+      {},
+      { responseType: "blob" }
+    );
     return handleResponse(response);
   } catch (error) {
     return handleAxiosError(error, "failed");
@@ -90,7 +97,11 @@ export const rateConfirmationforLoad = async (loadId: string): Promise<ApiRespon
 
 export const BOLforLoad = async (loadId: string): Promise<ApiResponse> => {
   try {
-    const response = await axiosApi.post<ApiResponse>("/dispatch/BOL/" + loadId, {}, {responseType: "blob"});
+    const response = await axiosApi.post<ApiResponse>(
+      "/dispatch/BOL/" + loadId,
+      {},
+      { responseType: "blob" }
+    );
     return handleResponse(response);
   } catch (error) {
     return handleAxiosError(error, "failed");
@@ -99,7 +110,11 @@ export const BOLforLoad = async (loadId: string): Promise<ApiResponse> => {
 
 export const invoicedforLoad = async (loadId: string): Promise<ApiResponse> => {
   try {
-    const response = await axiosApi.post<ApiResponse>("/dispatch/invoiced/" + loadId, {}, {responseType: "blob"});
+    const response = await axiosApi.post<ApiResponse>(
+      "/dispatch/invoiced/" + loadId,
+      {},
+      { responseType: "blob" }
+    );
     return handleResponse(response);
   } catch (error) {
     return handleAxiosError(error, "failed");
@@ -108,10 +123,24 @@ export const invoicedforLoad = async (loadId: string): Promise<ApiResponse> => {
 
 export const exportLoads = async (data: any): Promise<ApiResponse> => {
   try {
-    const response = await axiosApi.post<ApiResponse>("/dispatch/accounting-export", data);
+    const response = await axiosApi.post<ApiResponse>(
+      "/dispatch/accounting-export",
+      data
+    );
     return handleResponse(response);
   } catch (error) {
     return handleAxiosError(error, "failed");
   }
 };
 
+export const downloadReport = async (data: any): Promise<ApiResponse> => {
+  try {
+    const response = await axiosApi.post<ApiResponse>(
+      "/dispatch/reports",
+      data
+    );
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "failed");
+  }
+};
