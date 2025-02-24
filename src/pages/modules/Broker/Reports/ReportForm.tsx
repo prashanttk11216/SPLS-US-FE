@@ -14,13 +14,20 @@ interface ReoprtsFormProps {
   handleData: (data: any) => void;
 }
 
+export type ReportFormProps = {
+  category: string;
+  categoryValue: string;
+  filterBy: string;
+  dateRange: string;
+};
+
 const ReportForm: React.FC<ReoprtsFormProps> = ({ handleData }) => {
   const user = useSelector((state: RootState) => state.user);
   const [customers, setCustomers] = useState<any[]>([]);
   const [category, setCategory] = useState<string>("");
   const [categoryValue, setCategoryValue] = useState<string>("");
-  const [dateField, setDateField] = useState<string>("");
-  const { control, getValues } = useForm<any>();
+  const [filterBy, setFilterBy] = useState<string>("");
+  const { control, getValues } = useForm<ReportFormProps>();
   const previousFormValues = useRef<any>({});
 
   const { getData } = useFetchData<any>({
@@ -69,7 +76,7 @@ const ReportForm: React.FC<ReoprtsFormProps> = ({ handleData }) => {
 
   const formValues = useWatch({
     control,
-    name: ["category", "categoryValue", "dateField", "dateRange"],
+    name: ["category", "categoryValue", "filterBy", "dateRange"],
   });
 
   useEffect(() => {
@@ -81,8 +88,8 @@ const ReportForm: React.FC<ReoprtsFormProps> = ({ handleData }) => {
       category: formValues[0],
       categoryValue: formValues[1],
       filterBy: formValues[2],
-      fromDate: new Date(fromDate).toISOString(),
-      toDate: new Date(toDate).toISOString(),
+      fromDate: fromDate ? new Date(fromDate).toISOString() : null,
+      toDate: toDate ? new Date(toDate).toISOString() : null,
     };
 
     // Only call handleData if formData has changed
@@ -97,57 +104,65 @@ const ReportForm: React.FC<ReoprtsFormProps> = ({ handleData }) => {
   return (
     <div>
       <form className="row g-3">
-        <SelectField
-          label="Category"
-          name="category"
-          placeholder="Select Category"
-          control={control}
-          options={[
-            { label: "Customer", value: "CUSTOMER" },
-            { label: "Carrier", value: "CARRIER" },
-          ]}
-          onChangeOption={(value) => {
-            setCategoryValue("");
-            setCategory(value?.value!);
-            fetchCustomersData(value?.value);
-          }}
-          defaultValue={category}
-        />
-        <SelectField
-          label="Customer"
-          name="categoryValue"
-          placeholder="Select Customer"
-          control={control}
-          options={customers}
-          onChangeOption={(value) => setCategoryValue(value?.value!)}
-          defaultValue={categoryValue}
-        />
-        <SelectField
-          label="Filter By"
-          name="dateField"
-          placeholder="Select Date Field"
-          control={control}
-          options={[
-            { label: "Delivery Date", value: "DEL_DATE" },
-            { label: "Shipping Date", value: "SHIP_DATE" },
-            { label: "Invoice Date", value: "INVOICE_DATE" },
-          ]}
-          onChangeOption={(value) => setDateField(value?.value!)}
-          defaultValue={dateField}
-        />
-        <DateInput
-          label="Date Range"
-          placeholder="Select Date Range"
-          name="dateRange"
-          control={control} // Pass the control object from react-hook-form
-          isRange={true}
-          required={true}
-          datePickerProps={{
-            dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
-            isClearable: true,
-            selectsRange: true,
-          }}
-        />
+        <div className="col-md-6 mb-3">
+          <SelectField
+            label="Category"
+            name="category"
+            placeholder="Select Category"
+            control={control}
+            options={[
+              { label: "Customer", value: "CUSTOMER" },
+              { label: "Carrier", value: "CARRIER" },
+            ]}
+            onChangeOption={(value) => {
+              setCategoryValue("");
+              setCategory(value?.value!);
+              fetchCustomersData(value?.value);
+            }}
+            defaultValue={category}
+          />
+        </div>
+        <div className="col-md-6">
+          <SelectField
+            label="Customer"
+            name="categoryValue"
+            placeholder="Select Customer"
+            control={control}
+            options={customers}
+            onChangeOption={(value) => setCategoryValue(value?.value!)}
+            defaultValue={categoryValue}
+          />
+        </div>
+        <div className="col-md-6">
+          <SelectField
+            label="Filter By"
+            name="filterBy"
+            placeholder="Select Date Field"
+            control={control}
+            options={[
+              { label: "Delivery Date", value: "DEL_DATE" },
+              { label: "Shipping Date", value: "SHIP_DATE" },
+              { label: "Invoice Date", value: "INVOICE_DATE" },
+            ]}
+            onChangeOption={(value) => setFilterBy(value?.value!)}
+            defaultValue={filterBy}
+          />
+        </div>
+        <div className="col-md-6">
+          <DateInput
+            label="Date Range"
+            placeholder="Select Date Range"
+            name="dateRange"
+            control={control} // Pass the control object from react-hook-form
+            isRange={true}
+            required={true}
+            datePickerProps={{
+              dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+              isClearable: true,
+              selectsRange: true,
+            }}
+          />
+        </div>
       </form>
     </div>
   );

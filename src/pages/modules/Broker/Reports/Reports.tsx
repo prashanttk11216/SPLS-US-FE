@@ -1,22 +1,57 @@
-import { useState } from "react";
-import ReportsModal from "./ReportsModal";
+import { useEffect, useState } from "react";
+import ReportForm, { ReportFormProps } from "./ReportForm";
+import useFetchData from "../../../../hooks/useFetchData/useFetchData";
+import { downloadReport } from "../../../../services/dispatch/dispatchServices";
+import { downloadExcelFile } from "../../../../utils/excelUtils";
+import { toast } from "react-toastify";
 
 const Reports: React.FC = () => {
-  const [open, setOpen] = useState<boolean>(false);
+  const [formData, setFormData] = useState<ReportFormProps>();
+  const [isFormEmpty, setIsFormEmpty] = useState<boolean>(true);
+
+  const handleData = (data: any) => {
+    setFormData(data);
+  };
+
+  useEffect(() => {
+    if (formData) {
+      const { category, categoryValue, filterBy, dateRange } = formData;
+      setIsFormEmpty(
+        !category &&
+          !categoryValue &&
+          !filterBy &&
+          (!dateRange || dateRange.length === 0)
+      );
+    }
+  }, [formData]);
+
+  const { createData } = useFetchData<any>({
+    create: {
+      report: downloadReport,
+    },
+  });
+
+  const handleSubmit = async () => {
+    const response = await createData("report", formData);
+    if (response.success) {
+      toast.success(response.message);
+      downloadExcelFile(response.data.data, `report.xlsx`);
+    }
+  };
 
   return (
     <div>
       <h1>Reports</h1>
-      {!open && (
+      <ReportForm handleData={handleData} />
+      <div className="col-12 text-center d-flex justify-content-end mt-4">
         <button
-          className="btn btn-secondary btn-lg"
-          type="button"
-          onClick={() => setOpen(true)}
+          onClick={handleSubmit}
+          className="btn btn-accent btn-lg ms-2"
+          disabled={isFormEmpty}
         >
-          Download Report
+          Download
         </button>
-      )}
-      <ReportsModal isOpen={open} onClose={() => setOpen(false)} />
+      </div>
     </div>
   );
 };

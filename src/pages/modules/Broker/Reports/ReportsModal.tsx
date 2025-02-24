@@ -32,21 +32,12 @@ const ReportsModal: React.FC<ReportsModalProps> = ({ isOpen, onClose }) => {
     }
   };
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Download Report" size="lg">
-      <ReportForm handleData={handleData} />
-      <div className="col-12 text-center d-flex justify-content-center mt-4">
-        <button
-          className="btn btn-outline btn-lg"
-          type="button"
-          onClick={onClose}
-        >
-          Cancel
-        </button>
-        <button onClick={handleSubmit} className="btn btn-accent btn-lg ms-2">
-          Download
-        </button>
-      </div>
-    </Modal>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Download Report"
+      size="lg"
+    ></Modal>
   );
 };
 
