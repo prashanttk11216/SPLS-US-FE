@@ -203,7 +203,7 @@ const DispatchLoadList: React.FC = () => {
     }
     if (activeTab == DispatchLoadStatus.Published) {
       actions.push(DispatchLoadStatus.InTransit);
-      actions.push("Print Rate & Confimation");
+      actions.push("Print Rate & Confirmation");
     }
     if (activeTab == DispatchLoadStatus.InTransit) {
       actions.push(DispatchLoadStatus.Delivered);
