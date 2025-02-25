@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import Loading from "../../../../../../components/common/Loading/Loading";
 import Table from "../../../../../../components/common/Table/Table";
 import Pagination, {
-  Meta,
+  PaginationState,
 } from "../../../../../../components/common/Pagination/Pagination";
 import TruckDetailsModal from "../../../../Carrier/Truck/TruckDetailsModal/TruckDetailsModal";
 import { UserRole } from "../../../../../../enums/UserRole";

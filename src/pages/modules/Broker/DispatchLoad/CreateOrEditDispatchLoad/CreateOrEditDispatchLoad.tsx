@@ -28,13 +28,23 @@ import {
 } from "../../../../../services/dispatch/dispatchServices";
 import { getShipper } from "../../../../../services/shipper/shipperService";
 import { getConsignee } from "../../../../../services/consignee/consigneeService";
-import { DispatchLoadType, WithoutUnit } from "../../../../../enums/DispatchLoadType";
+import {
+  DispatchLoadType,
+  WithoutUnit,
+} from "../../../../../enums/DispatchLoadType";
 import CheckboxField from "../../../../../components/common/CheckboxField/CheckboxField";
 import PlusIcon from "../../../../../assets/icons/plus.svg";
 import OtherChargesModal from "../OtherChargesModal/OtherChargesModal";
 import CarrierFeeChargeBreakDownModal from "../CarrierFeeChargeBreakDownModal/CarrierFeeChargeBreakDownModal";
-import { DispatchLoadStatusOptions, DispatchLoadTypeOptions, equipmentOptions } from "../../../../../utils/dropdownOptions";
-import { calculatePercentage, calculatePercentageByUnit } from "../../../../../utils/globalHelper";
+import {
+  DispatchLoadStatusOptions,
+  DispatchLoadTypeOptions,
+  equipmentOptions,
+} from "../../../../../utils/dropdownOptions";
+import {
+  calculatePercentage,
+  calculatePercentageByUnit,
+} from "../../../../../utils/globalHelper";
 import CurrencyNumberInput from "../../../../../components/common/CurrencyNumberInput/CurrencyNumberInput";
 import TextAreaBox from "../../../../../components/common/TextAreaBox/TextAreaBox";
 
@@ -133,7 +143,6 @@ export type DispatchLoadForm = {
 
 interface CreateOrEditDispatchLoadProps {}
 
-
 const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
   const user = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
@@ -150,7 +159,6 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
   const [isCarrierFeeOpen, setIsCarrierFeeOpen] = useState(false);
   const [finalAllInRate, setFinalAllInRate] = useState(0);
 
-
   const {
     handleSubmit,
     control,
@@ -160,35 +168,33 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
     reset,
     watch,
   } = useForm<DispatchLoadForm>({
-    mode: "onBlur", 
+    mode: "onBlur",
     defaultValues: {
-      brokerId: user._id
-    }
+      brokerId: user.brokerId,
+      postedBy: user._id,
+    },
   });
 
-
-  const { getData,getDataById, createData, updateData, loading, error } = useFetchData<any>({
-    getAll: { 
-      user: getUsers,
-      shipper: getShipper,
-      consignee: getConsignee
-     },
-     getById: {
-      load: getLoadById,
-     },
-     create: {
-      load: createLoad
-     },
-     update: {
-      load: editLoad,
-     }
-  });
-
-
-
+  const { getData, getDataById, createData, updateData, loading, error } =
+    useFetchData<any>({
+      getAll: {
+        user: getUsers,
+        shipper: getShipper,
+        consignee: getConsignee,
+      },
+      getById: {
+        load: getLoadById,
+      },
+      create: {
+        load: createLoad,
+      },
+      update: {
+        load: editLoad,
+      },
+    });
 
   const fetchLoad = async (loadId: string) => {
-    const result = await getDataById("load",loadId);
+    const result = await getDataById("load", loadId);
     if (result.success) {
       setLoadData(result.data);
     }
@@ -245,7 +251,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
 
   const fetchConsigneeData = async () => {
     const query = `?isActive=true`;
-    const result = await getData("consignee",query);
+    const result = await getData("consignee", query);
     if (result.success) {
       const consignees: any = [];
       result?.data?.forEach((consignee) => {
@@ -305,12 +311,15 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
         result = await updateData("load", loadData._id!, validatedData);
       } else {
         const validatedData = transformedCreateDispatchSchema.parse(data);
+        if(!validatedData.postedBy){
+          validatedData.postedBy = user._id;
+        }
         if (isDraft) {
           validatedData.status = DispatchLoadStatus.Draft;
-        }else{
-            validatedData.status = DispatchLoadStatus.Published;
+        } else {
+          validatedData.status = DispatchLoadStatus.Published;
         }
-        result = await createData("load",validatedData);
+        result = await createData("load", validatedData);
       }
 
       if (result.success) {
@@ -338,7 +347,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
 
   const calculateOtherBreakDownCharge = (
     charges: OtherChargeBreakdownForm[]
-  ) => {    
+  ) => {
     if (charges?.length) {
       const totalOtherCharges = charges
         .filter((charge) => !charge.isAdvance) // Exclude advance charges
@@ -352,15 +361,17 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
 
       const data = {
         totalAmount: finalTotalCharges,
-        breakdown: charges
-      }
+        breakdown: charges,
+      };
 
       setValue("otherCharges", data);
       setIsOtherChargeOpen(false);
     }
   };
 
-  const calculateCarrierFeeBreakDownCharge = (charges: CarrierFeeBreakdownForm) => {
+  const calculateCarrierFeeBreakDownCharge = (
+    charges: CarrierFeeBreakdownForm
+  ) => {
     setValue("carrierFee", {
       totalAmount: charges.totalRate || 0,
       breakdown: charges,
@@ -413,25 +424,33 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
     fuelServiceCharge?.value,
     otherCharges?.totalAmount,
     finalAllInRate, // Prevent redundant updates
-    setValue
+    setValue,
   ]);
-  
+
   // UseMemo to optimize the computation
   const marginPercentage = useMemo(() => {
-    if (!(allInRate || allInRate === 0)) {
+    if (allInRate === 0 || !allInRate) {
       return 0; // Avoid division by zero
     }
     const totalCarrierFee = carrierFee?.totalAmount || 0;
     const margin = ((allInRate - totalCarrierFee) / allInRate) * 100;
     return margin.toFixed(2); // Return percentage with 2 decimal places
   }, [allInRate, carrierFee?.totalAmount]);
-  
+
   const calculateFuelServiceCharge = useMemo(() => {
     if (customerRateValue) {
       if (unitsValue) {
-        return calculatePercentageByUnit(customerRateValue, fuelServiceCharge?.value!, unitsValue) || 0;
+        return (
+          calculatePercentageByUnit(
+            customerRateValue,
+            fuelServiceCharge?.value!,
+            unitsValue
+          ) || 0
+        );
       }
-      return calculatePercentage(customerRateValue, fuelServiceCharge?.value!) || 0;
+      return (
+        calculatePercentage(customerRateValue, fuelServiceCharge?.value!) || 0
+      );
     }
     return 0;
   }, [customerRateValue, fuelServiceCharge?.value, unitsValue]);
@@ -471,6 +490,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               }}
             />
           </div>
+
           {/* Bill To */}
           <div className="col-3">
             <SelectField
@@ -480,17 +500,18 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               control={control}
               options={customersList}
               rules={{
-                required:{
-                  value: loadId 
-                  ? isDraft 
-                    ? watch("status") === DispatchLoadStatus.Published 
-                    : true 
-                  : !isDraft,
+                required: {
+                  value: loadId
+                    ? isDraft
+                      ? watch("status") === DispatchLoadStatus.Published
+                      : true
+                    : !isDraft,
                   message: "Please select a customer",
                 },
               }}
             />
           </div>
+
           {/* Dispatcher */}
           <div className="col-3">
             <SelectField
@@ -501,6 +522,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               options={brokersList}
             />
           </div>
+
           {/* Sales Rep */}
           <div className="col-3">
             <SelectField
@@ -512,7 +534,6 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
             />
           </div>
           {/* status */}
-
           {loadId && (
             <div className="col-3">
               <SelectField
@@ -536,14 +557,15 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
           {/* W/O Number */}
           <div className="col-3">
             <Input
-                  label="W/O Number"
-                  type="text"
-                  id="WONumber"
-                  name="WONumber"
-                  placeholder="Enter W/O Number"
-                  control={control}
-                />
+              label="W/O Number"
+              type="text"
+              id="WONumber"
+              name="WONumber"
+              placeholder="Enter W/O Number"
+              control={control}
+            />
           </div>
+
           {/* Type */}
           <div className="col-3">
             <SelectField
@@ -554,6 +576,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               options={DispatchLoadTypeOptions}
             />
           </div>
+
           {/* Customer All-in Rate*/}
           <div className="col-2">
             <CurrencyNumberInput
@@ -568,21 +591,24 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               }}
             />
           </div>
+
           {/* Conditionally show Unit Number if 'Pallets' is selected */}
-          {!WithoutUnit.includes(DispatchLoadTypeValue!)  && (
-            <div className="col-2">
-              <NumberInput
-                label="Units"
-                id="units"
-                name="units"
-                placeholder="Enter units"
-                control={control}
-                rules={{
-                  min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
-                }}
-              />
-            </div>
-          )}
+          {DispatchLoadTypeValue &&
+            !WithoutUnit.includes(DispatchLoadTypeValue) && (
+              <div className="col-2">
+                <NumberInput
+                  label="Units"
+                  id="units"
+                  name="units"
+                  placeholder="Enter units"
+                  control={control}
+                  rules={{
+                    min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+                  }}
+                />
+              </div>
+            )}
+
           {/* Picks/Drops */}
           <div className="col-2">
             <NumberInput
@@ -596,6 +622,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               }}
             />
           </div>
+
           {/* F.S.C */}
           <div className="col-2 position-relative">
             <NumberInput
@@ -635,6 +662,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               <div className="fw-bold">{calculateFuelServiceCharge} $</div>
             </div>
           )}
+
           {/* Other Charge */}
           <div className="col-2 position-relative">
             <NumberInput
@@ -654,6 +682,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               />
             </div>
           </div>
+
           {/* All-in Rate*/}
           <div className="col-2">
             <CurrencyNumberInput
@@ -666,10 +695,12 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
             />
           </div>
 
+          {/* Percentage */}
           <div className="col-1">
             <div>Percent</div>
             <div className="fw-bold">{marginPercentage} %</div>
           </div>
+
           {/* Equipment */}
           <div className="col-3">
             <SelectField
@@ -679,17 +710,18 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               control={control}
               options={equipmentOptions}
               rules={{
-                required:{
-                  value: loadId 
-                  ? isDraft 
-                    ? watch("status") === DispatchLoadStatus.Published 
-                    : true 
-                  : !isDraft,
+                required: {
+                  value: loadId
+                    ? isDraft
+                      ? watch("status") === DispatchLoadStatus.Published
+                      : true
+                    : !isDraft,
                   message: "Please select Equipment",
                 },
               }}
             />
           </div>
+
           {/* Carrier */}
           <div className="col-3">
             <SelectField
@@ -699,17 +731,18 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               control={control}
               options={carriersList}
               rules={{
-                required:{
-                  value: loadId 
-                  ? isDraft 
-                    ? watch("status") === DispatchLoadStatus.Published 
-                    : true 
-                  : !isDraft,
+                required: {
+                  value: loadId
+                    ? isDraft
+                      ? watch("status") === DispatchLoadStatus.Published
+                      : true
+                    : !isDraft,
                   message: "Please select a carrier",
                 },
               }}
             />
           </div>
+
           {/* Carrier Fee */}
           <div className="col-4 position-relative">
             <NumberInput
@@ -729,6 +762,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               />
             </div>
           </div>
+
           {/* Assign User */}
           <div className="col-3">
             <SelectField
@@ -740,10 +774,13 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
             />
           </div>
 
+          {/** Shipper Part */}
+
           <div className="col-12">
             <h4 className="fw-bold mb-0">Shipper</h4>
           </div>
-          <hr />
+          <hr className="my-2" />
+
           {/* Shipper */}
           <div className="col-3">
             <SelectField
@@ -761,6 +798,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               }}
             />
           </div>
+
           {/* Location */}
           <div className="col-3">
             <PlaceAutocompleteField
@@ -771,6 +809,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               setValue={setValue}
             />
           </div>
+
           {/* Pickup Date*/}
           <div className="col-2">
             <DateInput
@@ -784,6 +823,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               }}
             />
           </div>
+
           {/* Pickup Time*/}
           <div className="col-2">
             <DateInput
@@ -799,6 +839,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               }}
             />
           </div>
+
           {/* Type */}
           <div className="col-2">
             <Input
@@ -809,6 +850,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               control={control}
             />
           </div>
+
           {/* Description */}
           <div className="col-6">
             <TextAreaBox
@@ -820,6 +862,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               rows={3}
             />
           </div>
+
           {/* Notes */}
           <div className="col-6">
             <TextAreaBox
@@ -831,6 +874,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               rows={3}
             />
           </div>
+
           {/* qty */}
           <div className="col-2">
             <NumberInput
@@ -844,6 +888,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               }}
             />
           </div>
+
           {/* weight */}
           <div className="col-2">
             <NumberInput
@@ -857,6 +902,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               }}
             />
           </div>
+
           {/* Value */}
           <div className="col-2">
             <NumberInput
@@ -870,6 +916,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               }}
             />
           </div>
+
           {/* P/O Number */}
           <div className="col-2">
             <NumberInput
@@ -883,10 +930,14 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               }}
             />
           </div>
+
+          {/** Consignee Part */}
           <div className="col-12">
             <h4 className="fw-bold mb-0">Consignee</h4>
           </div>
-          <hr />
+
+          <hr className="my-2" />
+
           {/* Consignee */}
           <div className="col-3">
             <SelectField
@@ -904,6 +955,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               }}
             />
           </div>
+
           {/* Location */}
           <div className="col-3">
             <PlaceAutocompleteField
@@ -914,6 +966,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               setValue={setValue}
             />
           </div>
+
           {/* Delivery Date*/}
           <div className="col-2">
             <DateInput
@@ -927,6 +980,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               }}
             />
           </div>
+
           {/* Delivery Time*/}
           <div className="col-2">
             <DateInput
@@ -942,6 +996,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               }}
             />
           </div>
+
           {/* Type */}
           <div className="col-2">
             <Input
@@ -952,6 +1007,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               control={control}
             />
           </div>
+
           {/* Description */}
           <div className="col-6">
             <TextAreaBox
@@ -963,6 +1019,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               rows={3}
             />
           </div>
+
           {/* Notes */}
           <div className="col-6">
             <TextAreaBox
@@ -974,6 +1031,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               rows={3}
             />
           </div>
+
           {/* qty */}
           <div className="col-2">
             <NumberInput
@@ -987,6 +1045,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               }}
             />
           </div>
+
           {/* weight */}
           <div className="col-2">
             <NumberInput
@@ -1000,6 +1059,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               }}
             />
           </div>
+
           {/* Value */}
           <div className="col-2">
             <NumberInput
@@ -1013,6 +1073,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               }}
             />
           </div>
+
           {/* P/O Number */}
           <div className="col-2">
             <NumberInput
@@ -1026,8 +1087,15 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               }}
             />
           </div>
-
+           {/* Submit Buttons */}
           <div className="col-12 text-center d-flex justify-content-center">
+            <button
+              className="btn btn-outline btn-lg"
+              type="button"
+              onClick={() => navigate("/broker/dispatch-board")}
+            >
+              Cancel
+            </button>
             <button
               className="btn btn-accent btn-lg"
               type="submit"

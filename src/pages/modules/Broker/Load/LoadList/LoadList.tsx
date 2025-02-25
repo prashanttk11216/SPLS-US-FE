@@ -8,7 +8,7 @@ import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import { RootState } from "../../../../../store/store";
 import { useSelector } from "react-redux";
 import Pagination, {
-  Meta,
+  PaginationState,
 } from "../../../../../components/common/Pagination/Pagination";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import "./LoadList.scss";

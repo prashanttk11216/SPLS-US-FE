@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./Pagination.scss";
 
-export type Meta = {
+export type PaginationState = {
   page: number;
   limit: number;
   totalPages: number;
@@ -9,7 +9,7 @@ export type Meta = {
 };
 
 interface PaginationProps {
-  meta: Meta;
+  meta: PaginationState;
   onPageChange: (page: number) => void;
   onItemsPerPageChange: (itemsPerPage: number) => void;
 }

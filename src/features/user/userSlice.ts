@@ -31,6 +31,7 @@ export const userSlice = createSlice({
       state.company = action.payload.company ?? state.company;
       state.avatarUrl = action.payload.avatarUrl ?? state.avatarUrl;
       state.employeeId = action.payload.employeeId;
+      state.brokerId = action.payload.brokerId ?? state.brokerId;
       state.isVerified = action.payload.isVerified ?? state.isVerified;
       state.isDeleted = action.payload.isDeleted ?? state.isDeleted;
       state.createdAt = action.payload.createdAt ?? state.createdAt;

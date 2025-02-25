@@ -2,20 +2,12 @@ import React, { useState, useEffect, useCallback } from "react";
 import Table from "../../../../../components/common/Table/Table";
 import PlusIcon from "../../../../../assets/icons/plus.svg";
 import { toast } from "react-toastify";
-import { UserRole } from "../../../../../enums/UserRole";
 import Loading from "../../../../../components/common/Loading/Loading";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
-import { RootState } from "../../../../../store/store";
-import { useSelector } from "react-redux";
-import Pagination, {
-  Meta,
-} from "../../../../../components/common/Pagination/Pagination";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import {
-  BOLforLoad,
   deleteLoad,
   getloads,
-  invoicedforLoad,
   rateConfirmationforLoad,
   refreshAgeforLoad,
   updateLoadStatus,
@@ -30,25 +22,21 @@ import DateInput from "../../../../../components/common/DateInput/DateInput";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
 import { Equipment } from "../../../../../enums/Equipment";
 import { downloadFile, getEnumValue } from "../../../../../utils/globalHelper";
-import { hasAccess } from "../../../../../utils/permissions";
 import FileUploadModal from "../../../../../components/common/FileUploadModal/FileUploadModal";
+import Pagination from "../../../../../components/common/Pagination/Pagination";
+import usePagination from "../../../../../hooks/usePagination";
+
+
+const DISPATCH_ACTIVE_TAB = "DISPATCH_ACTIVE_TAB";
 
 const DispatchLoadList: React.FC = () => {
-  const user = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
   const { control, getValues, reset } = useForm<any>();
-
   const [loads, setLoads] = useState<IDispatch[]>([]);
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
-
+  const { meta, updatePagination } = usePagination();
+  const savedActiveTab = localStorage.getItem(DISPATCH_ACTIVE_TAB);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("loadNumber");
-  const savedActiveTab = localStorage.getItem("dispatchActiveTab");
   const [activeTab, setActiveTab] = useState<DispatchLoadStatus>(
     savedActiveTab
       ? (savedActiveTab as DispatchLoadStatus)
@@ -62,7 +50,7 @@ const DispatchLoadList: React.FC = () => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
   const [dispatchDetails, setDispatchDetails] =
     useState<Partial<IDispatch> | null>(null);
-
+    
   const [dateField, setDateField] = useState<string>("consignee.date"); // Default to "Delivery Date"
 
   const openDetailsModal = (dispatchData: Partial<IDispatch>) => {
@@ -87,7 +75,6 @@ const DispatchLoadList: React.FC = () => {
   // Fetch Load data
   const fetchLoadsData = useCallback(
     async (page: number = 1, limit: number = 10) => {
-      if (!user || !user._id) return; // Wait for user data
       try {
         let query = `?page=${page}&limit=${limit}&status=${activeTab}`;
 
@@ -120,7 +107,7 @@ const DispatchLoadList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setLoads(loadData);
-          setMeta(result.meta as Meta);
+          updatePagination(result.meta)
         } else {
           toast.error(result.message || "Failed to fetch customers.");
         }
@@ -128,7 +115,7 @@ const DispatchLoadList: React.FC = () => {
         toast.error("Error fetching customer data.");
       }
     },
-    [getData, searchQuery, user, activeTab, sortConfig, dateField]
+    [getData, searchQuery, activeTab, sortConfig, dateField]
   );
 
   const refreshAgeCall = async (data: any) => {
@@ -143,10 +130,8 @@ const DispatchLoadList: React.FC = () => {
 
   // Trigger fetch when user is populated
   useEffect(() => {
-    if (user && user._id) {
-      fetchLoadsData();
-    }
-  }, [user, searchQuery, activeTab, sortConfig]);
+   fetchLoadsData();
+  }, [searchQuery, activeTab, sortConfig]);
 
   // Update active tab in localStorage whenever it changes
   useEffect(() => {
@@ -259,7 +244,7 @@ const DispatchLoadList: React.FC = () => {
 
       case "Print Rate & Confirmation":
         // Implement print logic
-        printRateAndConfirmation(row);
+        printRateAndConfirmation();
         break;
 
       case "Upload Documents":
@@ -363,7 +348,7 @@ const DispatchLoadList: React.FC = () => {
     }
   };
 
-  const printRateAndConfirmation = async (row: Record<string, any>) => {
+  const printRateAndConfirmation = async () => {
     await downloadPDF(
       rateConfirmationforLoad,
       "678129965f153c7d2668a498",
@@ -371,14 +356,15 @@ const DispatchLoadList: React.FC = () => {
     );
   };
 
+  // Implement document upload logic
   const uploadDocuments = (row: Record<string, any>) => {
-    // Implement document upload logic
     setIsUploadModalOpen(true);
     setDispatchDetails(row);
   };
 
   return (
     <div className="customers-list-wrapper">
+      {/** Heading ans buttons */}
       <div className="d-flex align-items-center justify-content-between my-3">
         {/* Heading */}
         <h2 className="fw-bolder">SPLS Dispatch Board</h2>
@@ -403,6 +389,8 @@ const DispatchLoadList: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/** Filters */}
       <div className="d-flex align-items-center my-3">
         {/* Search Bar */}
         <div className="searchbar-container">
@@ -441,18 +429,23 @@ const DispatchLoadList: React.FC = () => {
         <div className="mx-2">
           <DateInput
             name="dateRange"
-            control={control} // Pass the control object from react-hook-form
+            control={control}
             isRange={true}
             required={true}
             datePickerProps={{
-              dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+              dateFormat: "MM/dd/yyyy",
               isClearable: true,
               selectsRange: true,
             }}
           />
         </div>
 
-        <button className="btn btn-primary" onClick={() => fetchLoadsData()}>
+        {/** Apply filter buttons */}
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => fetchLoadsData()}
+        >
           Apply Filter
         </button>
         <button
@@ -464,121 +457,117 @@ const DispatchLoadList: React.FC = () => {
         </button>
       </div>
 
-      {loading ? (
-        <Loading />
-      ) : error ? (
-        <div className="text-danger">{error}</div>
-      ) : (
+      {loading && <Loading />}
+      {!loading && error && <div className="text-danger">{error}</div>}
+      {!loading && !error && (
         <>
-          {hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN] }) && (
-            <ul className="nav nav-tabs">
-              <li
-                className="nav-item"
-                onClick={() => setActiveTab(DispatchLoadStatus.Published)}
+          <ul className="nav nav-tabs">
+            <li
+              className="nav-item"
+              onClick={() => setActiveTab(DispatchLoadStatus.Published)}
+            >
+              <a
+                className={`nav-link ${
+                  DispatchLoadStatus.Published == activeTab && "active"
+                }`}
+                aria-current="page"
+                href="#"
               >
-                <a
-                  className={`nav-link ${
-                    DispatchLoadStatus.Published == activeTab && "active"
-                  }`}
-                  aria-current="page"
-                  href="#"
-                >
-                  Loads
-                </a>
-              </li>
-              <li
-                className="nav-item"
-                onClick={() => setActiveTab(DispatchLoadStatus.Draft)}
+                Loads
+              </a>
+            </li>
+            <li
+              className="nav-item"
+              onClick={() => setActiveTab(DispatchLoadStatus.Draft)}
+            >
+              <a
+                className={`nav-link ${
+                  DispatchLoadStatus.Draft == activeTab && "active"
+                }`}
+                href="#"
               >
-                <a
-                  className={`nav-link ${
-                    DispatchLoadStatus.Draft == activeTab && "active"
-                  }`}
-                  href="#"
-                >
-                  Pending/Draft
-                </a>
-              </li>
-              <li
-                className="nav-item"
-                onClick={() => setActiveTab(DispatchLoadStatus.InTransit)}
+                Pending/Draft
+              </a>
+            </li>
+            <li
+              className="nav-item"
+              onClick={() => setActiveTab(DispatchLoadStatus.InTransit)}
+            >
+              <a
+                className={`nav-link ${
+                  DispatchLoadStatus.InTransit == activeTab && "active"
+                }`}
+                href="#"
               >
-                <a
-                  className={`nav-link ${
-                    DispatchLoadStatus.InTransit == activeTab && "active"
-                  }`}
-                  href="#"
-                >
-                  In Transit
-                </a>
-              </li>
-              <li
-                className="nav-item"
-                onClick={() => setActiveTab(DispatchLoadStatus.Delivered)}
+                In Transit
+              </a>
+            </li>
+            <li
+              className="nav-item"
+              onClick={() => setActiveTab(DispatchLoadStatus.Delivered)}
+            >
+              <a
+                className={`nav-link ${
+                  DispatchLoadStatus.Delivered == activeTab && "active"
+                }`}
+                href="#"
               >
-                <a
-                  className={`nav-link ${
-                    DispatchLoadStatus.Delivered == activeTab && "active"
-                  }`}
-                  href="#"
-                >
-                  Delivered
-                </a>
-              </li>
-              <li
-                className="nav-item"
-                onClick={() => setActiveTab(DispatchLoadStatus.Completed)}
+                Delivered
+              </a>
+            </li>
+            <li
+              className="nav-item"
+              onClick={() => setActiveTab(DispatchLoadStatus.Completed)}
+            >
+              <a
+                className={`nav-link ${
+                  DispatchLoadStatus.Completed == activeTab && "active"
+                }`}
+                href="#"
               >
-                <a
-                  className={`nav-link ${
-                    DispatchLoadStatus.Completed == activeTab && "active"
-                  }`}
-                  href="#"
-                >
-                  Completed
-                </a>
-              </li>
-              <li
-                className="nav-item"
-                onClick={() => setActiveTab(DispatchLoadStatus.Invoiced)}
+                Completed
+              </a>
+            </li>
+            <li
+              className="nav-item"
+              onClick={() => setActiveTab(DispatchLoadStatus.Invoiced)}
+            >
+              <a
+                className={`nav-link ${
+                  DispatchLoadStatus.Invoiced == activeTab && "active"
+                }`}
+                href="#"
               >
-                <a
-                  className={`nav-link ${
-                    DispatchLoadStatus.Invoiced == activeTab && "active"
-                  }`}
-                  href="#"
-                >
-                  Invoiced
-                </a>
-              </li>
-              <li
-                className="nav-item"
-                onClick={() => setActiveTab(DispatchLoadStatus.InvoicedPaid)}
+                Invoiced
+              </a>
+            </li>
+            <li
+              className="nav-item"
+              onClick={() => setActiveTab(DispatchLoadStatus.InvoicedPaid)}
+            >
+              <a
+                className={`nav-link ${
+                  DispatchLoadStatus.InvoicedPaid == activeTab && "active"
+                }`}
+                href="#"
               >
-                <a
-                  className={`nav-link ${
-                    DispatchLoadStatus.InvoicedPaid == activeTab && "active"
-                  }`}
-                  href="#"
-                >
-                  Invoiced Paid
-                </a>
-              </li>
-              <li
-                className="nav-item"
-                onClick={() => setActiveTab(DispatchLoadStatus.Cancelled)}
+                Invoiced Paid
+              </a>
+            </li>
+            <li
+              className="nav-item"
+              onClick={() => setActiveTab(DispatchLoadStatus.Cancelled)}
+            >
+              <a
+                className={`nav-link ${
+                  DispatchLoadStatus.Cancelled == activeTab && "active"
+                }`}
+                href="#"
               >
-                <a
-                  className={`nav-link ${
-                    DispatchLoadStatus.Cancelled == activeTab && "active"
-                  }`}
-                  href="#"
-                >
-                  Cancelled
-                </a>
-              </li>
-            </ul>
-          )}
+                Cancelled
+              </a>
+            </li>
+          </ul>
           <Table
             columns={columns}
             rows={getRowData()}
@@ -592,9 +581,9 @@ const DispatchLoadList: React.FC = () => {
             tableActions={["Refresh Loads", "Notify Carrier"]}
             onTableAction={handleGeneralAction}
           />
+          {/* Pagination Component */}
           {loads?.length > 0 && (
             <div className="pagination-container">
-              {/* Pagination Component */}
               <Pagination
                 meta={meta}
                 onPageChange={handlePageChange}
@@ -604,6 +593,7 @@ const DispatchLoadList: React.FC = () => {
           )}
         </>
       )}
+
       {isDetailsModalOpen && (
         <DispatchDetailsModal
           isOpen={isDetailsModalOpen}
@@ -611,6 +601,7 @@ const DispatchLoadList: React.FC = () => {
           onClose={() => setIsDetailsModalOpen(false)}
         />
       )}
+      
       {isUploadModalOpen && (
         <FileUploadModal
           isOpen={isUploadModalOpen}
