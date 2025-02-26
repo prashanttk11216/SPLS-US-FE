@@ -133,6 +133,18 @@ export const exportLoads = async (data: any): Promise<ApiResponse> => {
   }
 };
 
+export const exportAccountSummary = async (data: any): Promise<ApiResponse> => {
+  try {
+    const response = await axiosApi.post<ApiResponse>(
+      "/dispatch/accounting-summary",
+      data
+    );
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "failed");
+  }
+};
+
 export const downloadReport = async (data: any): Promise<ApiResponse> => {
   try {
     const response = await axiosApi.post<ApiResponse>(
