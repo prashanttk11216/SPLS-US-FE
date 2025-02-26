@@ -34,14 +34,16 @@ const AccountingSummary: React.FC = () => {
   return (
     <div>
       <h2 className="fw-bolder">Accounting Summary</h2>
-      <div className="d-flex">
+      <div className="d-flex align-items-end">
         <SummaryForm handleData={handleData} />
-        <button
-          onClick={downloadSummary}
-          className="btn btn-accent btn-md ms-2"
-        >
-          Download
-        </button>
+        <div>
+          <button
+            onClick={downloadSummary}
+            className="btn btn-accent btn-md ms-2"
+          >
+            Download
+          </button>
+        </div>
       </div>
     </div>
   );
