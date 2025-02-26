@@ -41,7 +41,7 @@ const Reports: React.FC = () => {
 
   return (
     <div>
-      <h1>Reports</h1>
+      <h2 className="fw-bolder">Reports</h2>
       <ReportForm handleData={handleData} />
       <div className="col-12 text-center d-flex justify-content-end mt-4">
         <button
