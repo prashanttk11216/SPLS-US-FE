@@ -66,7 +66,7 @@ const QuoteList: React.FC = () => {
             const quoteData = result.data as IQuote[];
   
             setQuotes(quoteData);
-            setMeta(result.meta as Meta);
+            setMeta(result.meta as PaginationState);
           } else {
             toast.error(result.message || "Failed to fetch Quotes.");
           }

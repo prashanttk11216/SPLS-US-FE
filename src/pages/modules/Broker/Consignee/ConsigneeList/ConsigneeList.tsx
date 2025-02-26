@@ -89,7 +89,7 @@ const ConsigneeList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setConsignee(userData);
-          setMeta(result.meta as Meta);
+          setMeta(result.meta as PaginationState);
         } else {
           toast.error(result.message || "Failed to fetch Consignee Users.");
         }

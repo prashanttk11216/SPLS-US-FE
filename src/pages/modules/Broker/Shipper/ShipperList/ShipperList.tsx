@@ -88,7 +88,7 @@ const ShipperList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setShippers(userData);
-          setMeta(result.meta as Meta);
+          setMeta(result.meta as PaginationState);
         } else {
           toast.error(result.message || "Failed to fetch Shipper Users.");
         }

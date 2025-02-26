@@ -75,7 +75,7 @@ const LoadList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setLoads(loadData);
-          setMeta(result.meta as Meta);
+          setMeta(result.meta as PaginationState);
         }
       } catch (err) {
         toast.error("Error fetching Loads data.");

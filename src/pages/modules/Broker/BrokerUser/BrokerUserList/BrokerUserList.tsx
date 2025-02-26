@@ -99,7 +99,7 @@ const BrokerUserList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setBrokerUsers(userData);
-          setMeta(result.meta as Meta);
+          setMeta(result.meta as PaginationState);
         } else {
           toast.error(result.message || "Failed to fetch Broker Users.");
         }

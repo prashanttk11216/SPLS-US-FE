@@ -65,7 +65,7 @@ const MatcheTrucksList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setTruck(userData);
-          setMeta(result.meta as Meta);
+          setMeta(result.meta as PaginationState);
         }
       } catch (err) {
         toast.error("Error fetching Consignee data.");

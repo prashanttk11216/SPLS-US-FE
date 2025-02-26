@@ -99,7 +99,7 @@ const AccountingLoadExport: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setLoads(loadData);
-          setMeta(result.meta as Meta);
+          setMeta(result.meta as PaginationState);
         } else {
           toast.error(result.message || "Failed to fetch customers.");
         }

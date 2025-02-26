@@ -113,7 +113,7 @@ const AccountingDispatchLoadList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setLoads(loadData);
-          setMeta(result.meta as Meta);
+          setMeta(result.meta as PaginationState);
         } else {
           toast.error(result.message || "Failed to fetch customers.");
         }
@@ -315,7 +315,7 @@ const AccountingDispatchLoadList: React.FC = () => {
   };
   
   const printInvoice = async (row: Record<string, any>) => {
-    await downloadPDF(invoicedforLoad, "678129965f153c7d2668a498", "invoice");
+    await downloadPDF(invoicedforLoad, row._id, "invoice");
   };
 
   const uploadDocuments = (row: Record<string, any>) => {

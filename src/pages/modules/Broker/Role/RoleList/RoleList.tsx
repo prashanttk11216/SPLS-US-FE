@@ -72,7 +72,7 @@ const RoleList: React.FC = () => {
             const roleData = result.data as IRole[];
   
             setRoles(roleData);
-            setMeta(result.meta as Meta);
+            setMeta(result.meta as PaginationState);
           } else {
             toast.error(result.message || "Failed to fetch Roles.");
           }

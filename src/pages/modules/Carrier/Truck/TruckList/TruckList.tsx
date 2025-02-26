@@ -85,7 +85,7 @@ const TruckList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setTruck(userData);
-          setMeta(result.meta as Meta);
+          setMeta(result.meta as PaginationState);
         } else {
           toast.error(result.message || "Failed to fetch Consignee Users.");
         }

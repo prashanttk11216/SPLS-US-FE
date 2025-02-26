@@ -101,7 +101,7 @@ const CarrierList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setCarriers(userData);
-          setMeta(result.meta as Meta);
+          setMeta(result.meta as PaginationState);
         } else {
           toast.error(result.message || "Failed to fetch carriers.");
         }
