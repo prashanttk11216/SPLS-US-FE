@@ -254,8 +254,8 @@ const AccountingLoadExport: React.FC = () => {
   const exportLoadsHandler = async (data: any) => {
       const result = await createData("load", data);
       if (result.success) {
+        downloadExcelFile(result.data.data, `Loads.xlsx`);
         toast.success(result.message);
-        downloadExcelFile(result.data.data, `loads.xlsx`)
       }
   };
 

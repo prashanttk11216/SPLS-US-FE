@@ -214,7 +214,7 @@ const AccountingDispatchLoadList: React.FC = () => {
         break;
       case "Print BOL":
         // Implement print logic
-        printBOL(row);
+        printBOL(row._id);
         break;
   
       case "Print Invoice":
@@ -301,7 +301,7 @@ const AccountingDispatchLoadList: React.FC = () => {
       let result: any = await fetchFunction(id);
       if (result) {
         const blob = new Blob([result], { type: "application/pdf" });
-        downloadFile(blob, `${fileName}.pdf`);
+        downloadFile(blob, fileName);
       }
     } catch (err) {
       console.log(err);
@@ -311,11 +311,13 @@ const AccountingDispatchLoadList: React.FC = () => {
 
   
   const printBOL = async (row: Record<string, any>) => {
-    await downloadPDF(BOLforLoad, "678129965f153c7d2668a498", "BOL");
+    await downloadPDF(BOLforLoad, row._id, `BOL_${row.loadNumber}.pdf`);
+    toast.success("Downloaded Successfully.");
   };
-  
+
   const printInvoice = async (row: Record<string, any>) => {
-    await downloadPDF(invoicedforLoad, row._id, "invoice");
+    await downloadPDF(invoicedforLoad, row._id, `Invoice_${row.loadNumber}.pdf`);
+    toast.success("Downloaded Successfully.");
   };
 
   const uploadDocuments = (row: Record<string, any>) => {

@@ -32,10 +32,11 @@ const Reports: React.FC = () => {
   });
 
   const handleSubmit = async () => {
-    const response = await createData("report", formData);
-    if (response.success) {
-      toast.success(response.message);
-      downloadExcelFile(response.data.data, `report.xlsx`);
+    const result = await createData("report", formData);
+    if (result.success) {
+      downloadExcelFile(result.data.data, `Report.xlsx`);
+      toast.success(result.message);
+
     }
   };
 

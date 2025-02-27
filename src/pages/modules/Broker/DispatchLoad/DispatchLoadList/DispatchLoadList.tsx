@@ -58,8 +58,11 @@ const DispatchLoadList: React.FC = () => {
     setIsDetailsModalOpen(true);
   };
 
-  const { getData, updateData, deleteData, loading, error } = useFetchData<any>(
+  const { getData, createData, updateData, deleteData, loading, error } = useFetchData<any>(
     {
+      create: {
+        LoadConfirmation: rateConfirmationforLoad
+      },
       getAll: {
         load: getloads,
       },
@@ -244,7 +247,7 @@ const DispatchLoadList: React.FC = () => {
 
       case "Print Rate & Confirmation":
         // Implement print logic
-        printRateAndConfirmation();
+        printRateAndConfirmation(row);
         break;
 
       case "Upload Documents":
@@ -332,28 +335,17 @@ const DispatchLoadList: React.FC = () => {
     fetchLoadsData();
   };
 
-  const downloadPDF = async (
-    fetchFunction: Function,
-    id: string,
-    fileName: string
-  ) => {
+  const printRateAndConfirmation = async (row: Record<string, any>) => {
     try {
-      let result: any = await fetchFunction(id);
+      let result: any = await createData("LoadConfirmation", row._id);
       if (result) {
         const blob = new Blob([result], { type: "application/pdf" });
-        downloadFile(blob, `${fileName}.pdf`);
+        downloadFile(blob, `Load_Confirmation_${row.loadNumber}.pdf`);
+        toast.success("Downloaded Successfully.");
       }
     } catch (err) {
       toast.error("Error downloading pdf.");
     }
-  };
-
-  const printRateAndConfirmation = async () => {
-    await downloadPDF(
-      rateConfirmationforLoad,
-      "678129965f153c7d2668a498",
-      "rate_confirmation"
-    );
   };
 
   // Implement document upload logic

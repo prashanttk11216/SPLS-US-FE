@@ -22,9 +22,9 @@ const AccountingSummary: React.FC = () => {
     try {
       let result: any = await createData("summary", formData);
       if (result) {
-        toast.success(result.message);
-        const blob = new Blob([result], { type: "application/pdf" });
-        downloadFile(blob, "account_summary.pdf");
+        const blob = new Blob([result], { type: "application/pdf" }); 
+        downloadFile(blob, "Account_Summary.pdf");
+        toast.success("Downloaded Successfully.");
       }
     } catch (err) {
       toast.error("Error downloading pdf.");
