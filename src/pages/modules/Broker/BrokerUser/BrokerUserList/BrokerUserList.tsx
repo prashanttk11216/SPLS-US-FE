@@ -26,23 +26,18 @@ import ChangePassowrd from "../../../../Auth/ChangePassword/ChangePassword";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 import { hasAccess } from "../../../../../utils/permissions";
 import { CreateUserForm } from "../../../../Auth/Signup/Signup";
+import usePagination from "../../../../../hooks/usePagination";
 
 const BrokerUserList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [brokerUserData, setBrokerUserData] = useState<Partial<CreateUserForm> | null>(
-    null
-  );
+  const [brokerUserData, setBrokerUserData] =
+    useState<Partial<CreateUserForm> | null>(null);
   const [brokerUsers, setBrokerUsers] = useState<User[]>([]);
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
+  const { meta, updatePagination } = usePagination(); // Pagination metadata
   const [searchQuery, setSearchQuery] = useState<string>("");
-   const [searchField, setSearchField] = useState<string>("email");
+  const [searchField, setSearchField] = useState<string>("email");
 
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -56,21 +51,21 @@ const BrokerUserList: React.FC = () => {
   );
   const [changePasswordModel, setchangePasswordModel] = useState(false);
 
-
-  const { getData,getDataById, updateData, deleteData, loading } = useFetchData<any>({
-    getAll: { 
-      user: getUsers,
-     },
-     getById: {
-      user: getUserById,
-     },
-     update: {
-      user: toggleActiveStatus,
-     },
-     remove: {
-      user: deleteUser,
-     }
-  });
+  const { getData, getDataById, updateData, deleteData, loading } =
+    useFetchData<any>({
+      getAll: {
+        user: getUsers,
+      },
+      getById: {
+        user: getUserById,
+      },
+      update: {
+        user: toggleActiveStatus,
+      },
+      remove: {
+        user: deleteUser,
+      },
+    });
 
   const fetchBrokerUsersData = useCallback(
     async (page: number = 1, limit: number = 10) => {
@@ -85,7 +80,7 @@ const BrokerUserList: React.FC = () => {
           )}&searchField=${searchField}`;
         }
 
-        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
+        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER] })) {
           query += `&brokerId=${user._id}`;
         }
 
@@ -93,13 +88,13 @@ const BrokerUserList: React.FC = () => {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
 
-        const result = await getData("user",query);
+        const result = await getData("user", query);
         if (result.success) {
           const userData = result.data as User[];
 
           // setCustomers(result.data as User[]);
           setBrokerUsers(userData);
-          setMeta(result.meta as Meta);
+          updatePagination(result.meta);
         } else {
           toast.error(result.message || "Failed to fetch Broker Users.");
         }
@@ -148,7 +143,7 @@ const BrokerUserList: React.FC = () => {
 
       case "Edit":
         try {
-          const brokerData = await getDataById("user",row._id);
+          const brokerData = await getDataById("user", row._id);
           openEditModal(brokerData.data);
         } catch {
           toast.error("Failed to fetch user details for editing.");
@@ -160,7 +155,7 @@ const BrokerUserList: React.FC = () => {
         break;
       case "Delete":
         try {
-          const result = await deleteData("user",row._id);
+          const result = await deleteData("user", row._id);
           if (result.success) {
             toast.success(result.message);
             fetchBrokerUsersData();
@@ -172,7 +167,7 @@ const BrokerUserList: React.FC = () => {
       case "Activate":
       case "Deactivate":
         try {
-          const result = await updateData("user",row._id, {});
+          const result = await updateData("user", row._id, {});
           if (result.success) {
             toast.success(result.message);
             fetchBrokerUsersData();
@@ -216,7 +211,7 @@ const BrokerUserList: React.FC = () => {
     { width: "210px", key: "email", label: "Email", sortable: true },
     { width: "150px", key: "contact", label: "Contact", sortable: true },
     { width: "150px", key: "company", label: "Company", sortable: true },
-    { width: "90px", key: "isActive", label: "Status",sortable: true },
+    { width: "90px", key: "isActive", label: "Status", sortable: true },
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
@@ -264,15 +259,15 @@ const BrokerUserList: React.FC = () => {
   return (
     <div className="broker-list-wrapper">
       <div className="d-flex align-items-center">
-      <h2 className="fw-bolder">Broker Users</h2>
+        <h2 className="fw-bolder">Broker Users</h2>
         <button
-            className="btn btn-accent d-flex align-items-center ms-auto"
-            type="button"
-            onClick={openCreateModal}
-          >
-            <img src={PlusIcon} height={16} width={16} className="me-2" />
-            Create
-          </button>
+          className="btn btn-accent d-flex align-items-center ms-auto"
+          type="button"
+          onClick={openCreateModal}
+        >
+          <img src={PlusIcon} height={16} width={16} className="me-2" />
+          Create
+        </button>
       </div>
       <div className="d-flex align-items-center my-3">
         {/* Search Bar */}

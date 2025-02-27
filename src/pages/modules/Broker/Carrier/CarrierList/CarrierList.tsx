@@ -26,22 +26,17 @@ import ChangePassowrd from "../../../../Auth/ChangePassword/ChangePassword";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 import { hasAccess } from "../../../../../utils/permissions";
 import { CreateUserForm } from "../../../../Auth/Signup/Signup";
+import usePagination from "../../../../../hooks/usePagination";
 
 const CarrierList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [carrierToEdit, setCarrierToEdit] = useState<Partial<CreateUserForm> | null>(
-    null
-  );
+  const [carrierToEdit, setCarrierToEdit] =
+    useState<Partial<CreateUserForm> | null>(null);
   const [carriers, setCarriers] = useState<User[]>([]);
 
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
+  const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("email");
@@ -57,21 +52,21 @@ const CarrierList: React.FC = () => {
   );
   const [changePasswordModel, setchangePasswordModel] = useState(false);
 
-
-  const { getData, getDataById, updateData, deleteData, loading, error } = useFetchData<any>({
-    getAll: { 
-      user: getUsers,
-     },
+  const { getData, getDataById, updateData, deleteData, loading, error } =
+    useFetchData<any>({
+      getAll: {
+        user: getUsers,
+      },
       getById: {
-           user: getUserById
-          },
-     update: {
-      user: toggleActiveStatus,
-     },
-     remove: {
-      user: deleteUser,
-     }
-  });
+        user: getUserById,
+      },
+      update: {
+        user: toggleActiveStatus,
+      },
+      remove: {
+        user: deleteUser,
+      },
+    });
 
   // Fetch Carrier data
   const fetchCarrierData = useCallback(
@@ -87,7 +82,7 @@ const CarrierList: React.FC = () => {
           )}&searchField=${searchField}`;
         }
 
-        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
+        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER] })) {
           query += `&brokerId=${user._id}`;
         }
 
@@ -101,7 +96,7 @@ const CarrierList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setCarriers(userData);
-          setMeta(result.meta as Meta);
+          updatePagination(result.meta);
         } else {
           toast.error(result.message || "Failed to fetch carriers.");
         }
@@ -124,7 +119,7 @@ const CarrierList: React.FC = () => {
     { width: "210px", key: "email", label: "Email", sortable: true },
     { width: "150px", key: "contact", label: "Contact", sortable: true },
     { width: "150px", key: "company", label: "Company", sortable: true },
-    { width: "90px", key: "isActive", label: "Status",sortable: true },
+    { width: "90px", key: "isActive", label: "Status", sortable: true },
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
@@ -135,7 +130,7 @@ const CarrierList: React.FC = () => {
         break;
       case "Edit":
         try {
-          const result = await getDataById("user",row._id);
+          const result = await getDataById("user", row._id);
           openEditModal(result.data);
         } catch (err) {
           toast.error("Failed to fetch carrier details for editing.");
@@ -159,7 +154,7 @@ const CarrierList: React.FC = () => {
       case "Activate":
       case "Deactivate":
         try {
-          const result = await updateData("user",row._id, {});
+          const result = await updateData("user", row._id, {});
           if (result.success) {
             toast.success(result.message);
             fetchCarrierData();
@@ -261,15 +256,15 @@ const CarrierList: React.FC = () => {
   return (
     <div className="carriers-list-wrapper">
       <div className="d-flex align-items-center">
-      <h2 className="fw-bolder">Carriers</h2>
+        <h2 className="fw-bolder">Carriers</h2>
         <button
-            className="btn btn-accent d-flex align-items-center ms-auto"
-            type="button"
-            onClick={openCreateModal}
-          >
-            <img src={PlusIcon} height={16} width={16} className="me-2" />
-            Create
-          </button>
+          className="btn btn-accent d-flex align-items-center ms-auto"
+          type="button"
+          onClick={openCreateModal}
+        >
+          <img src={PlusIcon} height={16} width={16} className="me-2" />
+          Create
+        </button>
       </div>
       <div className="d-flex align-items-center my-3">
         {/* Search Bar */}

@@ -18,7 +18,7 @@ const QuoteList: React.FC = () => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [quoteId, setQuoteId] = useState<string>();
     const [quotes, setQuotes] = useState<IQuote[]>([]);
-    const [meta, setMeta] = useState({
+    const [meta, updatePagination] = useState({
       page: 1,
       limit: 10,
       totalPages: 0,
@@ -26,47 +26,47 @@ const QuoteList: React.FC = () => {
     }); // Pagination metadata
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [searchField, setSearchField] = useState<string>("name");
-  
+
     const [sortConfig, setSortConfig] = useState<{
       key: string;
       direction: "asc" | "desc";
     } | null>(null);
-  
+
     const { getData, deleteData, loading } = useFetchData<any>({
       getAll: {
         quote: getQuotes,
       },
       getById: {
-        quote: getQuoteById
+        quote: getQuoteById,
       },
       remove: {
         quote: deleteQuote,
-      }
+      },
     });
-  
+
     const fetchQuotesData = useCallback(
       async (page: number = 1, limit: number = 10) => {
         if (!user || !user._id) return;
         try {
           let query = `?page=${page}&limit=${limit}`;
-  
+
           //Search Functionality
           if (searchQuery && searchField) {
             query += `&search=${encodeURIComponent(
               searchQuery
             )}&searchField=${searchField}`;
           }
-  
+
           if (sortConfig) {
             query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
           }
-  
+
           const result = await getData("quote", query);
           if (result.success) {
             const quoteData = result.data as IQuote[];
-  
+
             setQuotes(quoteData);
-            setMeta(result.meta as Meta);
+            updatePagination(result.meta as Meta);
           } else {
             toast.error(result.message || "Failed to fetch Quotes.");
           }

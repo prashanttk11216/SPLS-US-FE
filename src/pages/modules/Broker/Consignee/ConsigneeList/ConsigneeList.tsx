@@ -22,6 +22,7 @@ import CreateOrEditConsignee from "../CreateOrEditConsignee/CreateOrEditConsigne
 import ConsigneeDetailsModal from "../ConsigneeDetailsModal/ConsigneeDetailsModal";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 import { hasAccess } from "../../../../../utils/permissions";
+import usePagination from "../../../../../hooks/usePagination";
 
 const ConsigneeList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -29,12 +30,7 @@ const ConsigneeList: React.FC = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [consigneeId, setConsigneeId] = useState<string>();
   const [consignees, setConsignee] = useState<Consignee[]>([]);
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
+  const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("email");
@@ -48,18 +44,16 @@ const ConsigneeList: React.FC = () => {
   const [consigneeDetails, setConsigneeDetails] =
     useState<Partial<Consignee> | null>(null);
 
-
-
   const { getData, updateData, deleteData, loading } = useFetchData<any>({
-    getAll: { 
+    getAll: {
       user: getConsignee,
-     },
-     update: {
+    },
+    update: {
       user: toggleActiveConsignee,
-     },
-     remove: {
+    },
+    remove: {
       user: deleteConsignee,
-     }
+    },
   });
 
   const fetchConsigneesData = useCallback(
@@ -75,7 +69,7 @@ const ConsigneeList: React.FC = () => {
           )}&searchField=${searchField}`;
         }
 
-        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
+        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER] })) {
           query += `&brokerId=${user._id}`;
         }
 
@@ -89,7 +83,7 @@ const ConsigneeList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setConsignee(userData);
-          setMeta(result.meta as Meta);
+          updatePagination(result.meta);
         } else {
           toast.error(result.message || "Failed to fetch Consignee Users.");
         }
@@ -108,7 +102,7 @@ const ConsigneeList: React.FC = () => {
 
   const openCreateModal = () => {
     setIsEditing(false);
-    setConsigneeId('');
+    setConsigneeId("");
     setIsModalOpen(true);
   };
 
@@ -120,7 +114,7 @@ const ConsigneeList: React.FC = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setConsigneeId('');
+    setConsigneeId("");
   };
 
   // View Details Option Added
@@ -139,7 +133,7 @@ const ConsigneeList: React.FC = () => {
         break;
       case "Delete":
         try {
-          const result = await deleteData("user",row._id);
+          const result = await deleteData("user", row._id);
           if (result.success) {
             toast.success(result.message);
             fetchConsigneesData();
@@ -231,15 +225,15 @@ const ConsigneeList: React.FC = () => {
   return (
     <div className="consignee-list-wrapper">
       <div className="d-flex align-items-center">
-      <h2 className="fw-bolder">Consignees</h2>
+        <h2 className="fw-bolder">Consignees</h2>
         <button
-            className="btn btn-accent d-flex align-items-center ms-auto"
-            type="button"
-            onClick={openCreateModal}
-          >
-            <img src={PlusIcon} height={16} width={16} className="me-2" />
-            Create
-          </button>
+          className="btn btn-accent d-flex align-items-center ms-auto"
+          type="button"
+          onClick={openCreateModal}
+        >
+          <img src={PlusIcon} height={16} width={16} className="me-2" />
+          Create
+        </button>
       </div>
       <div className="d-flex align-items-center my-3">
         {/* Search Bar */}
@@ -283,25 +277,26 @@ const ConsigneeList: React.FC = () => {
         </>
       )}
 
-      {
-        isModalOpen && <CreateOrEditConsignee
-        isModalOpen={isModalOpen}
-        closeModal={closeModal}
-        setIsModalOpen={(value: boolean) => {
-          setIsModalOpen(value);
-          if (!value) fetchConsigneesData();
-        }}
-        isEditing={isEditing}
-        consigneeId={consigneeId}
-      />
-      }
+      {isModalOpen && (
+        <CreateOrEditConsignee
+          isModalOpen={isModalOpen}
+          closeModal={closeModal}
+          setIsModalOpen={(value: boolean) => {
+            setIsModalOpen(value);
+            if (!value) fetchConsigneesData();
+          }}
+          isEditing={isEditing}
+          consigneeId={consigneeId}
+        />
+      )}
 
-      
-      {isDetailsModalOpen && <ConsigneeDetailsModal
-        isOpen={isDetailsModalOpen}
-        consignee={consigneeDetails}
-        onClose={() => setIsDetailsModalOpen(false)}
-      />}
+      {isDetailsModalOpen && (
+        <ConsigneeDetailsModal
+          isOpen={isDetailsModalOpen}
+          consignee={consigneeDetails}
+          onClose={() => setIsDetailsModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

@@ -18,7 +18,7 @@ const RoleList: React.FC = () => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [roleId, setRoleId] = useState<string>();
     const [roles, setRoles] = useState<IRole[]>([]);
-    const [meta, setMeta] = useState({
+    const [meta, updatePagination] = useState({
       page: 1,
       limit: 10,
       totalPages: 0,
@@ -26,53 +26,54 @@ const RoleList: React.FC = () => {
     }); // Pagination metadata
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [searchField, setSearchField] = useState<string>("name");
-  
+
     const [sortConfig, setSortConfig] = useState<{
       key: string;
       direction: "asc" | "desc";
     } | null>(null);
-  
+
     // View Details Option Added
-    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] =
+      useState<boolean>(false);
     const [shipperDetails, setRoleDetails] = useState<Partial<IRole> | null>(
       null
     );
-  
+
     const { getData, getDataById, deleteData, loading } = useFetchData<any>({
       getAll: {
         role: getRoles,
       },
       getById: {
-        role: getRoleById
+        role: getRoleById,
       },
       remove: {
         role: deleteRole,
-      }
+      },
     });
-  
+
     const fetchRolesData = useCallback(
       async (page: number = 1, limit: number = 10) => {
         if (!user || !user._id) return;
         try {
           let query = `?page=${page}&limit=${limit}`;
-  
+
           //Search Functionality
           if (searchQuery && searchField) {
             query += `&search=${encodeURIComponent(
               searchQuery
             )}&searchField=${searchField}`;
           }
-  
+
           if (sortConfig) {
             query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
           }
-  
+
           const result = await getData("role", query);
           if (result.success) {
             const roleData = result.data as IRole[];
-  
+
             setRoles(roleData);
-            setMeta(result.meta as Meta);
+            updatePagination(result.meta as Meta);
           } else {
             toast.error(result.message || "Failed to fetch Roles.");
           }

@@ -22,19 +22,14 @@ import DateInput from "../../../../../components/common/DateInput/DateInput";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
 import { saveAs } from "file-saver";
 import { downloadExcelFile } from "../../../../../utils/excelUtils";
-
+import usePagination from "../../../../../hooks/usePagination";
 
 const AccountingLoadExport: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const { control, getValues, reset } = useForm<any>();
 
   const [loads, setLoads] = useState<IDispatch[]>([]);
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
+  const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("loadNumber");
@@ -53,14 +48,13 @@ const AccountingLoadExport: React.FC = () => {
     setIsDetailsModalOpen(true);
   };
 
-
-  const { getData,createData, loading, error } = useFetchData<any>({
-    getAll: { 
+  const { getData, createData, loading, error } = useFetchData<any>({
+    getAll: {
       load: getloads,
-     },
-     create: {
-      load: exportLoads
-     }
+    },
+    create: {
+      load: exportLoads,
+    },
   });
 
   // Fetch Load data
@@ -81,25 +75,25 @@ const AccountingLoadExport: React.FC = () => {
         if (dateField && getValues("dateRange")) {
           const dateRange = getValues("dateRange");
           query += `&dateField=${dateField}`;
-          if(dateRange[0]){
-            query += `&fromDate=${dateRange[0].toISOString()}`
+          if (dateRange[0]) {
+            query += `&fromDate=${dateRange[0].toISOString()}`;
           }
-          if(dateRange[1]){
-            query += `&toDate=${dateRange[1].toISOString()}`
+          if (dateRange[1]) {
+            query += `&toDate=${dateRange[1].toISOString()}`;
           }
         }
 
         if (sortConfig) {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
-        
+
         const result = await getData("load", query);
         if (result.success) {
           const loadData = result.data as IDispatch[];
 
           // setCustomers(result.data as User[]);
           setLoads(loadData);
-          setMeta(result.meta as Meta);
+          updatePagination(result.meta);
         } else {
           toast.error(result.message || "Failed to fetch customers.");
         }
@@ -115,14 +109,9 @@ const AccountingLoadExport: React.FC = () => {
     if (user && user._id) {
       fetchLoadsData();
     }
-  }, [
-    user,
-    searchQuery,
-    sortConfig,
-  ]);
+  }, [user, searchQuery, sortConfig]);
 
   const columns = [
-    
     {
       width: "100px",
       key: "loadNumber",
@@ -183,7 +172,6 @@ const AccountingLoadExport: React.FC = () => {
         toast.info(`Action "${action}" is not yet implemented.`);
     }
   };
-  
 
   const handleRowClick = async (row: Record<string, any>) => {
     if (row) {
@@ -210,8 +198,8 @@ const AccountingLoadExport: React.FC = () => {
       _id: load._id,
       invoiceNumber: load?.invoiceNumber || "N/A",
       invoiceDate: load?.invoiceDate
-      ? formatDate(load?.invoiceDate, "MM/dd/yyyy")
-      : "N/A",
+        ? formatDate(load?.invoiceDate, "MM/dd/yyyy")
+        : "N/A",
       "shipper.address": load?.shipper?.address?.str || "N/A",
       "consignee.address": load?.consignee?.address?.str || "N/A",
       "shipper.date": load?.shipper?.date
@@ -252,11 +240,11 @@ const AccountingLoadExport: React.FC = () => {
   };
 
   const exportLoadsHandler = async (data: any) => {
-      const result = await createData("load", data);
-      if (result.success) {
-        toast.success(result.message);
-        downloadExcelFile(result.data.data, `loads.xlsx`)
-      }
+    const result = await createData("load", data);
+    if (result.success) {
+      toast.success(result.message);
+      downloadExcelFile(result.data.data, `loads.xlsx`);
+    }
   };
 
   return (
@@ -266,7 +254,6 @@ const AccountingLoadExport: React.FC = () => {
         <h2 className="fw-bolder">Accounting Exports</h2>
       </div>
       <div className="d-flex align-items-center my-3">
-
         {/* Search Bar */}
         <div className="searchbar-container">
           <SearchBar
@@ -310,23 +297,23 @@ const AccountingLoadExport: React.FC = () => {
             datePickerProps={{
               dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
               isClearable: true,
-              selectsRange: true
+              selectsRange: true,
             }}
           />
         </div>
 
-        <button className="btn btn-primary" onClick={()=>fetchLoadsData()}>
+        <button className="btn btn-primary" onClick={() => fetchLoadsData()}>
           Apply Filter
         </button>
         <button
-            type="button"
-            className="btn btn-outline-secondary ms-3"
-            onClick={resetFilter}
-          >
-            Reset
-          </button>
+          type="button"
+          className="btn btn-outline-secondary ms-3"
+          onClick={resetFilter}
+        >
+          Reset
+        </button>
       </div>
-      
+
       {loading ? (
         <Loading />
       ) : error ? (

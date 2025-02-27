@@ -17,17 +17,13 @@ import { useParams } from "react-router-dom";
 import { getEnumValue } from "../../../../../../utils/globalHelper";
 import { Equipment } from "../../../../../../enums/Equipment";
 import { hasAccess } from "../../../../../../utils/permissions";
+import usePagination from "../../../../../../hooks/usePagination";
 
 const MatcheTrucksList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const { loadId } = useParams();
   const [trucks, setTruck] = useState<Truck[]>([]);
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
+  const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -38,11 +34,10 @@ const MatcheTrucksList: React.FC = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
   const [truckDetails, setTruckDetails] = useState<Partial<Truck> | null>(null);
 
-
   const { getDataById, loading } = useFetchData<any>({
-    getById: { 
+    getById: {
       truck: getMatchesTrucks,
-     }
+    },
   });
 
   const fetchTrucksData = useCallback(
@@ -51,7 +46,7 @@ const MatcheTrucksList: React.FC = () => {
       try {
         let query = `?&page=${page}&limit=${limit}`;
 
-        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
+        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER] })) {
           query += `&brokerId=${user._id}`;
         }
 
@@ -65,7 +60,7 @@ const MatcheTrucksList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setTruck(userData);
-          setMeta(result.meta as Meta);
+          updatePagination(result.meta);
         }
       } catch (err) {
         toast.error("Error fetching Consignee data.");
@@ -172,10 +167,10 @@ const MatcheTrucksList: React.FC = () => {
         "destination.str": truck?.destination?.str || "Anywhere",
         dhdDistance: truck.dhdDistance || "N/A", // Add dhoDistance conditionally
         availableDate: formatDate(truck.availableDate, "MM/dd/yyyy") || "N/A",
-        equipment:  getEnumValue(Equipment, truck.equipment),   
+        equipment: getEnumValue(Equipment, truck.equipment),
         allInRate: truck.allInRate ? `${truck.allInRate} $` : "N/A",
-        weight: (truck.weight && (truck.weight + " lbs")) || "N/A",
-        length: (truck.length && (truck.length + " ft")) || "N/A",
+        weight: (truck.weight && truck.weight + " lbs") || "N/A",
+        length: (truck.length && truck.length + " ft") || "N/A",
         actions: getActions(truck),
       };
 

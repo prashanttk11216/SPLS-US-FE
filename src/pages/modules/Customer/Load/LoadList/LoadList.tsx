@@ -20,17 +20,13 @@ import { formatNumber } from "../../../../../utils/numberUtils";
 import { LoadStatus } from "../../../../../enums/LoadStatus";
 import { Equipment } from "../../../../../enums/Equipment";
 import { getEnumValue } from "../../../../../utils/globalHelper";
+import usePagination from "../../../../../hooks/usePagination";
 
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
   const [loads, setLoads] = useState<Load[]>([]);
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
+  const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("loadNumber");
@@ -44,11 +40,10 @@ const LoadList: React.FC = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
   const [loadDetails, setLoadDetails] = useState<Partial<Load> | null>(null);
 
-  
   const { getData, loading, error } = useFetchData<any>({
-    getAll: { 
+    getAll: {
       load: getloads,
-     },
+    },
   });
 
   // Fetch Load data
@@ -64,7 +59,7 @@ const LoadList: React.FC = () => {
             searchQuery
           )}&searchField=${searchField}`;
         }
-        
+
         if (sortConfig) {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
@@ -75,7 +70,7 @@ const LoadList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setLoads(loadData);
-          setMeta(result.meta as Meta);
+          updatePagination(result.meta);
         }
       } catch (err) {
         toast.error("Error fetching Loads data.");
@@ -128,7 +123,11 @@ const LoadList: React.FC = () => {
         handleRowClick(row);
         break;
       case "Edit":
-        navigate(`load-board/create/${row._id}${row.status === LoadStatus.Draft ? "?draft=true" : ""}`);
+        navigate(
+          `load-board/create/${row._id}${
+            row.status === LoadStatus.Draft ? "?draft=true" : ""
+          }`
+        );
         break;
       default:
         toast.info(`Action "${action}" is not yet implemented.`);
@@ -150,7 +149,7 @@ const LoadList: React.FC = () => {
   const getActionsForLoad = (load: Load): string[] => {
     const actions = ["View Details"];
     if (load.status == LoadStatus.Draft) {
-          actions.push("Edit");
+      actions.push("Edit");
     }
     return actions;
   };
@@ -170,7 +169,7 @@ const LoadList: React.FC = () => {
       destination: load.destination.str || "N/A",
       originEarlyPickupDate:
         formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
-      equipment:  getEnumValue(Equipment, load.equipment),   
+      equipment: getEnumValue(Equipment, load.equipment),
       miles: load.miles ? `${formatNumber(load.miles)} mi` : "N/A",
       customerRate: load.customerRate
         ? `$ ${formatNumber(load.customerRate)}`
@@ -192,15 +191,15 @@ const LoadList: React.FC = () => {
   return (
     <div className="customers-list-wrapper">
       <div className="d-flex align-items-center">
-      <h2 className="fw-bolder">SPLS Load Board</h2>
+        <h2 className="fw-bolder">SPLS Load Board</h2>
         <button
-            className="btn btn-accent d-flex align-items-center ms-auto"
-            type="button"
-            onClick={() => navigate(`load-board/create`)}
-          >
-            <img src={PlusIcon} height={16} width={16} className="me-2" />
-            Create
-          </button>
+          className="btn btn-accent d-flex align-items-center ms-auto"
+          type="button"
+          onClick={() => navigate(`load-board/create`)}
+        >
+          <img src={PlusIcon} height={16} width={16} className="me-2" />
+          Create
+        </button>
       </div>
       <div className="d-flex align-items-center my-3">
         {/* Search Bar */}
@@ -210,12 +209,12 @@ const LoadList: React.FC = () => {
             searchFieldOptions={[
               { label: "Ref No", value: "loadNumber" },
               { label: "Equipment", value: "equipment" },
-              { label: "Weight", value: "weight" }, 
-              { label: "Width", value: "width" }, 
+              { label: "Weight", value: "weight" },
+              { label: "Width", value: "width" },
               { label: "Height", value: "height" },
-              { label: "Distance", value: "miles" }, 
-              { label: "Broker Rate", value: "allInRate" }, 
-              { label: "Customer Rate", value: "customerRate" }, 
+              { label: "Distance", value: "miles" },
+              { label: "Broker Rate", value: "allInRate" },
+              { label: "Customer Rate", value: "customerRate" },
               { label: "Commodity", value: "commodity" },
               { label: "Load Option", value: "loadOption" },
             ]}

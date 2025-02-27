@@ -7,9 +7,15 @@ import { downloadFile } from "../../../../../utils/globalHelper";
 
 const AccountingSummary: React.FC = () => {
   const [formData, setFormData] = useState<SummaryFormTypes>();
+  const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
   const handleData = (data: any) => {
     setFormData(data);
+    if (data?.fromDate) {
+      setIsDisabled(false);
+    } else {
+      setIsDisabled(true);
+    }
   };
 
   const { createData } = useFetchData<any>({
@@ -22,7 +28,6 @@ const AccountingSummary: React.FC = () => {
     try {
       let result: any = await createData("summary", formData);
       if (result) {
-        toast.success(result.message);
         const blob = new Blob([result], { type: "application/pdf" });
         downloadFile(blob, "account_summary.pdf");
       }
@@ -40,6 +45,7 @@ const AccountingSummary: React.FC = () => {
           <button
             onClick={downloadSummary}
             className="btn btn-accent btn-md ms-2"
+            disabled={isDisabled}
           >
             Download
           </button>

@@ -27,16 +27,12 @@ import { equipmentOptions } from "../../../../../utils/dropdownOptions";
 import { formatNumber } from "../../../../../utils/numberUtils";
 import { Equipment } from "../../../../../enums/Equipment";
 import { getEnumValue } from "../../../../../utils/globalHelper";
+import usePagination from "../../../../../hooks/usePagination";
 
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [loads, setLoads] = useState<Load[]>([]);
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
+  const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -52,15 +48,13 @@ const LoadList: React.FC = () => {
     mode: "onBlur",
   });
 
-  
-
   const { getData, updateData, loading, error } = useFetchData<any>({
-    getAll: { 
+    getAll: {
       load: getloads,
-     },
-     update: {
+    },
+    update: {
       load: sendLoadRequest,
-     },
+    },
   });
 
   // Fetch Load data
@@ -83,7 +77,7 @@ const LoadList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setLoads(loadData);
-          setMeta(result.meta as Meta);
+          updatePagination(result.meta);
         } else {
           toast.error(result.message || "Failed to fetch customers.");
         }
@@ -185,7 +179,7 @@ const LoadList: React.FC = () => {
         dhdDistance: load.dhdDistance || "N/A", // Add dhdDistance conditionally
         originEarlyPickupDate:
           formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
-        equipment:  getEnumValue(Equipment, load.equipment),   
+        equipment: getEnumValue(Equipment, load.equipment),
         miles: load.miles ? `${formatNumber(load.miles)} mi` : "N/A",
         postedBy:
           load.brokerId && typeof load.brokerId === "object"
@@ -294,7 +288,7 @@ const LoadList: React.FC = () => {
               label=""
               control={control}
               placeholder="Origin"
-              setValue={setValue} 
+              setValue={setValue}
             />
           </div>
           {/* DH-O */}

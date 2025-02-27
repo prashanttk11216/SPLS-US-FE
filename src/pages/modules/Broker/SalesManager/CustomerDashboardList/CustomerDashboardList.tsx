@@ -19,27 +19,23 @@ import Pagination, {
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 import { hasAccess } from "../../../../../utils/permissions";
+import usePagination from "../../../../../hooks/usePagination";
 
 export enum CustomerStatus {
-    Active = "Active",
-    Inactive = "Inactive"
+  Active = "Active",
+  Inactive = "Inactive",
 }
+
+const CUSTOMER_ACTIVE_TAB = "CUSTOMER_ACTIVE_TAB";
 
 const CustomerDashboardList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [customers, setCustomers] = useState<User[]>([]);
-  const savedActiveTab = localStorage.getItem("customerActiveTab");
+  const savedActiveTab = localStorage.getItem(CUSTOMER_ACTIVE_TAB);
   const [activeTab, setActiveTab] = useState<CustomerStatus>(
-      savedActiveTab
-        ? (savedActiveTab as CustomerStatus)
-        : CustomerStatus.Active
-    );
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
+    savedActiveTab ? (savedActiveTab as CustomerStatus) : CustomerStatus.Active
+  );
+  const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("email");
@@ -49,27 +45,32 @@ const CustomerDashboardList: React.FC = () => {
     direction: "asc" | "desc";
   } | null>(null);
 
-  const { getData, getDataById, updateData, deleteData, loading, error } = useFetchData<any>({
-    getAll: { 
-      user: getUsers,
-     },
-     getById: {
-      user: getUserById
-     },
-     update: {
-      user: toggleActiveStatus,
-     },
-     remove: {
-      user: deleteUser,
-     }
-  });
+  const { getData, getDataById, updateData, deleteData, loading, error } =
+    useFetchData<any>({
+      getAll: {
+        user: getUsers,
+      },
+      getById: {
+        user: getUserById,
+      },
+      update: {
+        user: toggleActiveStatus,
+      },
+      remove: {
+        user: deleteUser,
+      },
+    });
 
   // Fetch customers data
   const fetchCustomersData = useCallback(
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return; // Wait for user data
       try {
-        let query = `?role=${UserRole.CUSTOMER}&page=${page}&limit=${limit}&isActive=${activeTab == CustomerStatus.Active ? true : false}`;
+        let query = `?role=${
+          UserRole.CUSTOMER
+        }&page=${page}&limit=${limit}&isActive=${
+          activeTab == CustomerStatus.Active ? true : false
+        }`;
 
         //Search Functionality
         if (searchQuery && searchField) {
@@ -78,7 +79,7 @@ const CustomerDashboardList: React.FC = () => {
           )}&searchField=${searchField}`;
         }
 
-        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
+        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER] })) {
           query += `&brokerId=${user._id}`;
         }
 
@@ -91,7 +92,7 @@ const CustomerDashboardList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setCustomers(userData);
-          setMeta(result.meta as Meta);
+          updatePagination(result.meta);
         } else {
           toast.error(result.message || "Failed to fetch customers.");
         }
@@ -99,7 +100,7 @@ const CustomerDashboardList: React.FC = () => {
         toast.error("Error fetching customer data.");
       }
     },
-    [getData, searchQuery,activeTab, user, sortConfig]
+    [getData, searchQuery, activeTab, user, sortConfig]
   );
 
   // Trigger fetch when user is populated
@@ -107,12 +108,12 @@ const CustomerDashboardList: React.FC = () => {
     if (user && user._id) {
       fetchCustomersData();
     }
-  }, [user, searchQuery,activeTab, sortConfig]);
+  }, [user, searchQuery, activeTab, sortConfig]);
 
-   // Update active tab in localStorage whenever it changes
-    useEffect(() => {
-      localStorage.setItem("customerActiveTab", activeTab);
-    }, [activeTab]);
+  // Update active tab in localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem(CUSTOMER_ACTIVE_TAB, activeTab);
+  }, [activeTab]);
 
   const columns = [
     { width: "150px", key: "company", label: "Company", sortable: true },
@@ -162,7 +163,7 @@ const CustomerDashboardList: React.FC = () => {
         ? formatPhoneNumber(customer.primaryNumber)
         : "N/A",
       isActive: customer.isActive ? "Active" : "Inactive",
-    //   actions: getActionsForCustomer(customer),
+      //   actions: getActionsForCustomer(customer),
     }));
   };
 
@@ -173,7 +174,7 @@ const CustomerDashboardList: React.FC = () => {
   return (
     <div className="customers-list-wrapper">
       <div className="d-flex align-items-center">
-      <h2 className="fw-bolder">Customer Dashboard</h2>
+        <h2 className="fw-bolder">Customer Dashboard</h2>
       </div>
       <div className="d-flex align-items-center my-3">
         {/* Search Bar */}
@@ -198,35 +199,35 @@ const CustomerDashboardList: React.FC = () => {
         <div className="text-danger">{error}</div>
       ) : (
         <>
-        <ul className="nav nav-tabs">
-                      <li
-                        className="nav-item"
-                        onClick={() => setActiveTab(CustomerStatus.Active)}
-                      >
-                        <a
-                          className={`nav-link ${
-                            CustomerStatus.Active == activeTab && "active"
-                          }`}
-                          aria-current="page"
-                          href="#"
-                        >
-                          Customers
-                        </a>
-                      </li>
-                      <li
-                        className="nav-item"
-                        onClick={() => setActiveTab(CustomerStatus.Inactive)}
-                      >
-                        <a
-                          className={`nav-link ${
-                            CustomerStatus.Inactive == activeTab && "active"
-                          }`}
-                          href="#"
-                        >
-                          Inactive
-                        </a>
-                      </li>
-                    </ul>
+          <ul className="nav nav-tabs">
+            <li
+              className="nav-item"
+              onClick={() => setActiveTab(CustomerStatus.Active)}
+            >
+              <a
+                className={`nav-link ${
+                  CustomerStatus.Active == activeTab && "active"
+                }`}
+                aria-current="page"
+                href="#"
+              >
+                Customers
+              </a>
+            </li>
+            <li
+              className="nav-item"
+              onClick={() => setActiveTab(CustomerStatus.Inactive)}
+            >
+              <a
+                className={`nav-link ${
+                  CustomerStatus.Inactive == activeTab && "active"
+                }`}
+                href="#"
+              >
+                Inactive
+              </a>
+            </li>
+          </ul>
           <Table
             columns={columns}
             rows={getRowData()}

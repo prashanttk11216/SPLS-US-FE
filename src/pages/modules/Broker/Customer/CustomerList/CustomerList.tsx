@@ -26,21 +26,16 @@ import ChangePassowrd from "../../../../Auth/ChangePassword/ChangePassword";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 import { hasAccess } from "../../../../../utils/permissions";
 import { CreateUserForm } from "../../../../Auth/Signup/Signup";
+import usePagination from "../../../../../hooks/usePagination";
 
 const CustomerList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [customerToEdit, setCustomerToEdit] = useState<Partial<CreateUserForm> | null>(
-    null
-  );
+  const [customerToEdit, setCustomerToEdit] =
+    useState<Partial<CreateUserForm> | null>(null);
   const [customers, setCustomers] = useState<User[]>([]);
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
+  const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("email");
@@ -58,22 +53,21 @@ const CustomerList: React.FC = () => {
 
   const [changePasswordModel, setchangePasswordModel] = useState(false);
 
- 
-
-  const { getData, getDataById, updateData, deleteData, loading, error } = useFetchData<any>({
-    getAll: { 
-      user: getUsers,
-     },
-     getById: {
-      user: getUserById
-     },
-     update: {
-      user: toggleActiveStatus,
-     },
-     remove: {
-      user: deleteUser,
-     }
-  });
+  const { getData, getDataById, updateData, deleteData, loading, error } =
+    useFetchData<any>({
+      getAll: {
+        user: getUsers,
+      },
+      getById: {
+        user: getUserById,
+      },
+      update: {
+        user: toggleActiveStatus,
+      },
+      remove: {
+        user: deleteUser,
+      },
+    });
 
   // Fetch customers data
   const fetchCustomersData = useCallback(
@@ -89,7 +83,7 @@ const CustomerList: React.FC = () => {
           )}&searchField=${searchField}`;
         }
 
-        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
+        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER] })) {
           query += `&brokerId=${user._id}`;
         }
 
@@ -102,7 +96,7 @@ const CustomerList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setCustomers(userData);
-          setMeta(result.meta as Meta);
+          updatePagination(result.meta);
         } else {
           toast.error(result.message || "Failed to fetch customers.");
         }
@@ -137,7 +131,7 @@ const CustomerList: React.FC = () => {
 
       case "Edit":
         try {
-          const result = await getDataById("user",row._id);
+          const result = await getDataById("user", row._id);
           openEditModal(result.data);
         } catch (err) {
           toast.error("Failed to fetch customer details for editing.");
@@ -263,15 +257,15 @@ const CustomerList: React.FC = () => {
   return (
     <div className="customers-list-wrapper">
       <div className="d-flex align-items-center">
-      <h2 className="fw-bolder">Customers</h2>
+        <h2 className="fw-bolder">Customers</h2>
         <button
-            className="btn btn-accent d-flex align-items-center ms-auto"
-            type="button"
-            onClick={openCreateModal}
-          >
-            <img src={PlusIcon} height={16} width={16} className="me-2" />
-            Create
-          </button>
+          className="btn btn-accent d-flex align-items-center ms-auto"
+          type="button"
+          onClick={openCreateModal}
+        >
+          <img src={PlusIcon} height={16} width={16} className="me-2" />
+          Create
+        </button>
       </div>
       <div className="d-flex align-items-center my-3">
         {/* Search Bar */}

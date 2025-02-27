@@ -29,22 +29,20 @@ import { formatNumber } from "../../../../../utils/numberUtils";
 import { Equipment } from "../../../../../enums/Equipment";
 import { getEnumValue } from "../../../../../utils/globalHelper";
 import { hasAccess } from "../../../../../utils/permissions";
+import usePagination from "../../../../../hooks/usePagination";
+
+const LOAD_ACTIVE_TAB = "LOAD_ACTIVE_TAB";
 
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
   const [loads, setLoads] = useState<Load[]>([]);
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
+  const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("loadNumber");
 
-  const savedActiveTab = localStorage.getItem("loadActiveTab");
+  const savedActiveTab = localStorage.getItem(LOAD_ACTIVE_TAB);
   const [activeTab, setActiveTab] = useState<LoadStatus>(
     savedActiveTab ? (savedActiveTab as LoadStatus) : LoadStatus.Published
   );
@@ -69,10 +67,10 @@ const LoadList: React.FC = () => {
   };
 
   const {
-    getData,       // Fetch all data for any entity
-    createData,    // Create new item
-    updateData,    // Update existing item
-    deleteData,    // Delete existing item
+    getData, // Fetch all data for any entity
+    createData, // Create new item
+    updateData, // Update existing item
+    deleteData, // Delete existing item
     loading,
     error,
   } = useFetchData<any>({
@@ -87,7 +85,7 @@ const LoadList: React.FC = () => {
     },
     remove: {
       load: deleteLoad,
-    }
+    },
   });
 
   // Fetch Load data
@@ -98,7 +96,7 @@ const LoadList: React.FC = () => {
         let query = `?page=${page}&limit=${limit}&status=${activeTab}`;
 
         //Search Functionality
-       if (searchQuery && searchField) {
+        if (searchQuery && searchField) {
           query += `&search=${encodeURIComponent(
             searchQuery
           )}&searchField=${searchField}`;
@@ -107,13 +105,13 @@ const LoadList: React.FC = () => {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
 
-        const result = await getData("loads",query);
+        const result = await getData("loads", query);
         if (result.success) {
           const loadData = result.data as Load[];
 
           // setCustomers(result.data as User[]);
           setLoads(loadData);
-          setMeta(result.meta as Meta);
+          updatePagination(result.meta);
         } else {
           toast.error(result.message || "Failed to fetch customers.");
         }
@@ -143,7 +141,7 @@ const LoadList: React.FC = () => {
 
   // Update active tab in localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem("loadActiveTab", activeTab);
+    localStorage.setItem(LOAD_ACTIVE_TAB, activeTab);
   }, [activeTab]);
 
   const columns = [
@@ -205,7 +203,7 @@ const LoadList: React.FC = () => {
         break;
       case LoadStatus.Published:
         try {
-          const result = await updateData("load",row._id, {
+          const result = await updateData("load", row._id, {
             status: LoadStatus.Published,
           });
           if (result.success) {
@@ -218,7 +216,7 @@ const LoadList: React.FC = () => {
         break;
       case LoadStatus.PendingResponse:
         try {
-          const result = await updateData("load",row._id, {
+          const result = await updateData("load", row._id, {
             status: LoadStatus.PendingResponse,
           });
           if (result.success) {
@@ -260,7 +258,7 @@ const LoadList: React.FC = () => {
         break;
       case "Delete":
         try {
-          const result = await deleteData("load",row._id);
+          const result = await deleteData("load", row._id);
           if (result.success) {
             toast.success(result.message);
             fetchLoadsData();
@@ -320,7 +318,7 @@ const LoadList: React.FC = () => {
       "destination.str": load.destination.str || "N/A",
       originEarlyPickupDate:
         formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
-      equipment:  getEnumValue(Equipment, load.equipment), 
+      equipment: getEnumValue(Equipment, load.equipment),
       miles: load.miles ? `${formatNumber(load.miles)} mi` : "N/A",
       loadNumber: load.loadNumber || "N/A",
       actions: getActionsForLoad(load),
@@ -352,15 +350,15 @@ const LoadList: React.FC = () => {
   return (
     <div className="customers-list-wrapper">
       <div className="d-flex align-items-center">
-      <h2 className="fw-bolder">SPLS Load Board</h2>
+        <h2 className="fw-bolder">SPLS Load Board</h2>
         <button
-            className="btn btn-accent d-flex align-items-center ms-auto"
-            type="button"
-            onClick={() => navigate(`create`)}
-          >
-            <img src={PlusIcon} height={16} width={16} className="me-2" />
-            Create
-          </button>
+          className="btn btn-accent d-flex align-items-center ms-auto"
+          type="button"
+          onClick={() => navigate(`create`)}
+        >
+          <img src={PlusIcon} height={16} width={16} className="me-2" />
+          Create
+        </button>
       </div>
       <div className="d-flex align-items-center my-3">
         {/* Search Bar */}
@@ -370,11 +368,11 @@ const LoadList: React.FC = () => {
             searchFieldOptions={[
               { label: "Ref No", value: "loadNumber" },
               { label: "Equipment", value: "equipment" },
-              { label: "Weight", value: "weight" }, 
-              { label: "Width", value: "width" }, 
+              { label: "Weight", value: "weight" },
+              { label: "Width", value: "width" },
               { label: "Height", value: "height" },
-              { label: "Broker Rate", value: "allInRate" }, 
-              { label: "Customer Rate", value: "customerRate" }, 
+              { label: "Broker Rate", value: "allInRate" },
+              { label: "Customer Rate", value: "customerRate" },
               { label: "Commodity", value: "commodity" },
               { label: "Load Option", value: "loadOption" },
             ]}
@@ -390,7 +388,7 @@ const LoadList: React.FC = () => {
         <div className="text-danger">{error}</div>
       ) : (
         <>
-          {hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN]}) && (
+          {hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN] }) && (
             <ul className="nav nav-tabs">
               <li
                 className="nav-item"

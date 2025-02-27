@@ -28,22 +28,20 @@ import SelectField from "../../../../../components/common/SelectField/SelectFiel
 import { Equipment } from "../../../../../enums/Equipment";
 import { downloadFile, getEnumValue } from "../../../../../utils/globalHelper";
 import { hasAccess } from "../../../../../utils/permissions";
+import usePagination from "../../../../../hooks/usePagination";
+
+const ACCOUNT_DISPATCH_ACTIVE_TAB = "ACCOUNT_DISPATCH_ACTIVE_TAB";
 
 const AccountingDispatchLoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const { control, getValues, reset } = useForm<any>();
 
   const [loads, setLoads] = useState<IDispatch[]>([]);
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
+  const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("loadNumber");
-  const savedActiveTab = localStorage.getItem("AccountingDispatchActiveTab");
+  const savedActiveTab = localStorage.getItem(ACCOUNT_DISPATCH_ACTIVE_TAB);
   const [activeTab, setActiveTab] = useState<DispatchLoadStatus>(
     savedActiveTab
       ? (savedActiveTab as DispatchLoadStatus)
@@ -64,17 +62,16 @@ const AccountingDispatchLoadList: React.FC = () => {
     setIsDetailsModalOpen(true);
   };
 
-
   const { getData, loading, error } = useFetchData<any>({
-    getAll: { 
+    getAll: {
       load: getloads,
-     },
-     update: {
+    },
+    update: {
       load: updateLoadStatus,
-     },
-     remove: {
-      load: deleteLoad
-     }
+    },
+    remove: {
+      load: deleteLoad,
+    },
   });
 
   // Fetch Load data
@@ -95,25 +92,25 @@ const AccountingDispatchLoadList: React.FC = () => {
         if (dateField && getValues("dateRange")) {
           const dateRange = getValues("dateRange");
           query += `&dateField=${dateField}`;
-          if(dateRange[0]){
-            query += `&fromDate=${dateRange[0].toISOString()}`
+          if (dateRange[0]) {
+            query += `&fromDate=${dateRange[0].toISOString()}`;
           }
-          if(dateRange[1]){
-            query += `&toDate=${dateRange[1].toISOString()}`
+          if (dateRange[1]) {
+            query += `&toDate=${dateRange[1].toISOString()}`;
           }
         }
 
         if (sortConfig) {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
-        
+
         const result = await getData("load", query);
         if (result.success) {
           const loadData = result.data as IDispatch[];
 
           // setCustomers(result.data as User[]);
           setLoads(loadData);
-          setMeta(result.meta as Meta);
+          updatePagination(result.meta);
         } else {
           toast.error(result.message || "Failed to fetch customers.");
         }
@@ -139,16 +136,11 @@ const AccountingDispatchLoadList: React.FC = () => {
     if (user && user._id) {
       fetchLoadsData();
     }
-  }, [
-    user,
-    searchQuery,
-    activeTab,
-    sortConfig,
-  ]);
+  }, [user, searchQuery, activeTab, sortConfig]);
 
   // Update active tab in localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem("AccountingDispatchActiveTab", activeTab);
+    localStorage.setItem(ACCOUNT_DISPATCH_ACTIVE_TAB, activeTab);
   }, [activeTab]);
 
   const columns = [
@@ -196,7 +188,7 @@ const AccountingDispatchLoadList: React.FC = () => {
 
   const getActionsForLoad = (_: IDispatch): string[] => {
     const actions = ["View Details"];
-  
+
     if (activeTab == DispatchLoadStatus.Delivered) {
       actions.push("Print BOL");
     }
@@ -216,12 +208,12 @@ const AccountingDispatchLoadList: React.FC = () => {
         // Implement print logic
         printBOL(row);
         break;
-  
+
       case "Print Invoice":
         // Implement print logic
         printInvoice(row);
         break;
-  
+
       case "Upload Documents":
         // Implement document upload logic
         uploadDocuments(row);
@@ -230,7 +222,6 @@ const AccountingDispatchLoadList: React.FC = () => {
         toast.info(`Action "${action}" is not yet implemented.`);
     }
   };
-  
 
   const handleRowClick = async (row: Record<string, any>) => {
     if (row) {
@@ -265,7 +256,7 @@ const AccountingDispatchLoadList: React.FC = () => {
         ? formatDate(load?.consignee?.date, "MM/dd/yyyy")
         : "N/A",
 
-      equipment:  getEnumValue(Equipment, load.equipment),   
+      equipment: getEnumValue(Equipment, load.equipment),
       WONumber: load?.WONumber || "N/A",
       loadNumber: load?.loadNumber || "N/A",
       actions: getActionsForLoad(load),
@@ -296,7 +287,11 @@ const AccountingDispatchLoadList: React.FC = () => {
     fetchLoadsData();
   };
 
-  const downloadPDF = async (fetchFunction: Function, id: string, fileName: string) => {
+  const downloadPDF = async (
+    fetchFunction: Function,
+    id: string,
+    fileName: string
+  ) => {
     try {
       let result: any = await fetchFunction(id);
       if (result) {
@@ -309,17 +304,15 @@ const AccountingDispatchLoadList: React.FC = () => {
     }
   };
 
-  
   const printBOL = async (row: Record<string, any>) => {
     await downloadPDF(BOLforLoad, "678129965f153c7d2668a498", "BOL");
   };
-  
+
   const printInvoice = async (row: Record<string, any>) => {
     await downloadPDF(invoicedforLoad, "678129965f153c7d2668a498", "invoice");
   };
 
-  const uploadDocuments = (row: Record<string, any>) => {
-  }
+  const uploadDocuments = (row: Record<string, any>) => {};
 
   return (
     <div className="customers-list-wrapper">
@@ -328,7 +321,6 @@ const AccountingDispatchLoadList: React.FC = () => {
         <h2 className="fw-bolder">Accounting Manager</h2>
       </div>
       <div className="d-flex align-items-center my-3">
-
         {/* Search Bar */}
         <div className="searchbar-container">
           <SearchBar
@@ -372,30 +364,30 @@ const AccountingDispatchLoadList: React.FC = () => {
             datePickerProps={{
               dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
               isClearable: true,
-              selectsRange: true
+              selectsRange: true,
             }}
           />
         </div>
 
-        <button className="btn btn-primary" onClick={()=>fetchLoadsData()}>
+        <button className="btn btn-primary" onClick={() => fetchLoadsData()}>
           Apply Filter
         </button>
         <button
-            type="button"
-            className="btn btn-outline-secondary ms-3"
-            onClick={resetFilter}
-          >
-            Reset
-          </button>
+          type="button"
+          className="btn btn-outline-secondary ms-3"
+          onClick={resetFilter}
+        >
+          Reset
+        </button>
       </div>
-      
+
       {loading ? (
         <Loading />
       ) : error ? (
         <div className="text-danger">{error}</div>
       ) : (
         <>
-          {hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN]})&& (
+          {hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN] }) && (
             <ul className="nav nav-tabs">
               <li
                 className="nav-item"

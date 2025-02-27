@@ -22,6 +22,7 @@ import {
 import ShipperDetailsModal from "../ShipperDetailsModal/ShipperDetailsModal";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 import { hasAccess } from "../../../../../utils/permissions";
+import usePagination from "../../../../../hooks/usePagination";
 
 const ShipperList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -29,12 +30,7 @@ const ShipperList: React.FC = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [shipperId, setShipperId] = useState<string>();
   const [shippers, setShippers] = useState<Shipper[]>([]);
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
+  const { meta, updatePagination } = usePagination(); // Pagination metadata
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("email");
 
@@ -58,7 +54,7 @@ const ShipperList: React.FC = () => {
     },
     remove: {
       shipper: deleteShipper,
-    }
+    },
   });
 
   const fetchShippersData = useCallback(
@@ -74,7 +70,7 @@ const ShipperList: React.FC = () => {
           )}&searchField=${searchField}`;
         }
 
-        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
+        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER] })) {
           query += `&brokerId=${user._id}`;
         }
 
@@ -88,7 +84,7 @@ const ShipperList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setShippers(userData);
-          setMeta(result.meta as Meta);
+          updatePagination(result.meta);
         } else {
           toast.error(result.message || "Failed to fetch Shipper Users.");
         }

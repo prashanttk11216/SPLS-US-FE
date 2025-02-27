@@ -23,6 +23,7 @@ import { formatNumber } from "../../../../../utils/numberUtils";
 import { getEnumValue } from "../../../../../utils/globalHelper";
 import { Equipment } from "../../../../../enums/Equipment";
 import { hasAccess } from "../../../../../utils/permissions";
+import usePagination from "../../../../../hooks/usePagination";
 
 const TruckList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -30,12 +31,7 @@ const TruckList: React.FC = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [truckData, setTruckData] = useState<Partial<Truck> | null>(null);
   const [trucks, setTruck] = useState<Truck[]>([]);
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
+  const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("referenceNumber");
@@ -48,14 +44,13 @@ const TruckList: React.FC = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
   const [truckDetails, setTruckDetails] = useState<Partial<Truck> | null>(null);
 
-
   const { getData, deleteData, loading } = useFetchData<any>({
-    getAll: { 
+    getAll: {
       truck: getTrucks,
-     },
-     remove: {
-      truck: deleteTruck
-     }
+    },
+    remove: {
+      truck: deleteTruck,
+    },
   });
 
   const fetchTrucksData = useCallback(
@@ -71,7 +66,7 @@ const TruckList: React.FC = () => {
           )}&searchField=${searchField}`;
         }
 
-        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
+        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER] })) {
           query += `&brokerId=${user._id}`;
         }
 
@@ -85,7 +80,7 @@ const TruckList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setTruck(userData);
-          setMeta(result.meta as Meta);
+          updatePagination(result.meta);
         } else {
           toast.error(result.message || "Failed to fetch Consignee Users.");
         }
@@ -222,10 +217,8 @@ const TruckList: React.FC = () => {
       "origin.str": truck.origin.str,
       "destination.str": truck?.destination?.str || "Anywhere",
       availableDate: formatDate(truck.availableDate, "MM/dd/yyyy") || "N/A",
-      equipment:  getEnumValue(Equipment, truck.equipment),   
-      allInRate: truck.allInRate
-      ? `$ ${formatNumber(truck.allInRate)}`
-      : "N/A",
+      equipment: getEnumValue(Equipment, truck.equipment),
+      allInRate: truck.allInRate ? `$ ${formatNumber(truck.allInRate)}` : "N/A",
       weight: truck.weight ? `${formatNumber(truck.weight)} lbs` : "N/A",
       length: truck.length ? `${formatNumber(truck.length)} ft` : "N/A",
       actions: getActions(truck),
@@ -239,15 +232,15 @@ const TruckList: React.FC = () => {
   return (
     <div className="consignee-list-wrapper">
       <div className="d-flex align-items-center">
-      <h2 className="fw-bolder">Trucks</h2>
+        <h2 className="fw-bolder">Trucks</h2>
         <button
-            className="btn btn-accent d-flex align-items-center ms-auto"
-            type="button"
-            onClick={openCreateModal}
-          >
-            <img src={PlusIcon} height={16} width={16} className="me-2" />
-            Create
-          </button>
+          className="btn btn-accent d-flex align-items-center ms-auto"
+          type="button"
+          onClick={openCreateModal}
+        >
+          <img src={PlusIcon} height={16} width={16} className="me-2" />
+          Create
+        </button>
       </div>
       <div className="d-flex align-items-center my-3">
         {/* Search Bar */}
@@ -257,9 +250,9 @@ const TruckList: React.FC = () => {
             searchFieldOptions={[
               { label: "Ref No", value: "referenceNumber" },
               { label: "Equipment", value: "equipment" },
-              { label: "All-in Rate", value: "allInRate" }, 
-              { label: "Weight", value: "weight" }, 
-              { label: "Length", value: "length" }, 
+              { label: "All-in Rate", value: "allInRate" },
+              { label: "Weight", value: "weight" },
+              { label: "Length", value: "length" },
             ]}
             defaultField={searchField}
             onSearchFieldChange={(value) => setSearchField(value.value)}
