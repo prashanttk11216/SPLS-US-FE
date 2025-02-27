@@ -22,6 +22,7 @@ import CreateOrEditConsignee from "../CreateOrEditConsignee/CreateOrEditConsigne
 import ConsigneeDetailsModal from "../ConsigneeDetailsModal/ConsigneeDetailsModal";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 import { hasAccess } from "../../../../../utils/permissions";
+import usePagination from "../../../../../hooks/usePagination";
 
 const ConsigneeList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -29,12 +30,7 @@ const ConsigneeList: React.FC = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [consigneeId, setConsigneeId] = useState<string>();
   const [consignees, setConsignee] = useState<Consignee[]>([]);
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
+   const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("email");
@@ -89,7 +85,7 @@ const ConsigneeList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setConsignee(userData);
-          setMeta(result.meta as PaginationState);
+          updatePagination(result.meta as PaginationState);
         } else {
           toast.error(result.message || "Failed to fetch Consignee Users.");
         }

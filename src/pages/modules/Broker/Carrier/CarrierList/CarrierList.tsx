@@ -26,6 +26,7 @@ import ChangePassowrd from "../../../../Auth/ChangePassword/ChangePassword";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 import { hasAccess } from "../../../../../utils/permissions";
 import { CreateUserForm } from "../../../../Auth/Signup/Signup";
+import usePagination from "../../../../../hooks/usePagination";
 
 const CarrierList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -36,12 +37,7 @@ const CarrierList: React.FC = () => {
   );
   const [carriers, setCarriers] = useState<User[]>([]);
 
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
+   const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("email");
@@ -101,7 +97,7 @@ const CarrierList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setCarriers(userData);
-          setMeta(result.meta as PaginationState);
+          updatePagination(result.meta as PaginationState);
         } else {
           toast.error(result.message || "Failed to fetch carriers.");
         }

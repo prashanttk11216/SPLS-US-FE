@@ -23,6 +23,7 @@ import { formatNumber } from "../../../../../utils/numberUtils";
 import { getEnumValue } from "../../../../../utils/globalHelper";
 import { Equipment } from "../../../../../enums/Equipment";
 import { hasAccess } from "../../../../../utils/permissions";
+import usePagination from "../../../../../hooks/usePagination";
 
 const TruckList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -30,12 +31,7 @@ const TruckList: React.FC = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [truckData, setTruckData] = useState<Partial<Truck> | null>(null);
   const [trucks, setTruck] = useState<Truck[]>([]);
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
+   const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("referenceNumber");
@@ -85,7 +81,7 @@ const TruckList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setTruck(userData);
-          setMeta(result.meta as PaginationState);
+          updatePagination(result.meta as PaginationState);
         } else {
           toast.error(result.message || "Failed to fetch Consignee Users.");
         }

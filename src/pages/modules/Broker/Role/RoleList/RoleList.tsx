@@ -4,13 +4,14 @@ import { useCallback, useEffect, useState } from "react";
 import { IRole } from "../../../../../schema/Role";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import { deleteRole, getRoleById, getRoles } from "../../../../../services/role/roleServices";
-import Pagination, { Meta } from "../../../../../components/common/Pagination/Pagination";
+import Pagination, { PaginationState } from "../../../../../components/common/Pagination/Pagination";
 import { toast } from "react-toastify";
 import PlusIcon from '../../../../../assets/icons/plus.svg';
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import Loading from "../../../../../components/common/Loading/Loading";
 import Table from "../../../../../components/common/Table/Table";
 import CreateOrEditRole from "../CreateOrEditRole/CreateOrEditRole";
+import usePagination from "../../../../../hooks/usePagination";
 
 const RoleList: React.FC = () => {
     const user = useSelector((state: RootState) => state.user);
@@ -18,12 +19,8 @@ const RoleList: React.FC = () => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [roleId, setRoleId] = useState<string>();
     const [roles, setRoles] = useState<IRole[]>([]);
-    const [meta, setMeta] = useState({
-      page: 1,
-      limit: 10,
-      totalPages: 0,
-      totalItems: 0,
-    }); // Pagination metadata
+    const { meta, updatePagination } = usePagination(); // Pagination metadata
+
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [searchField, setSearchField] = useState<string>("name");
   
@@ -72,7 +69,7 @@ const RoleList: React.FC = () => {
             const roleData = result.data as IRole[];
   
             setRoles(roleData);
-            setMeta(result.meta as PaginationState);
+            updatePagination(result.meta as PaginationState);
           } else {
             toast.error(result.message || "Failed to fetch Roles.");
           }

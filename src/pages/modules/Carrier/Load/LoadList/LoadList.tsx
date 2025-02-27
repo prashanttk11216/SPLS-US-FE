@@ -27,16 +27,12 @@ import { equipmentOptions } from "../../../../../utils/dropdownOptions";
 import { formatNumber } from "../../../../../utils/numberUtils";
 import { Equipment } from "../../../../../enums/Equipment";
 import { getEnumValue } from "../../../../../utils/globalHelper";
+import usePagination from "../../../../../hooks/usePagination";
 
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [loads, setLoads] = useState<Load[]>([]);
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
+   const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -83,7 +79,7 @@ const LoadList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setLoads(loadData);
-          setMeta(result.meta as PaginationState);
+          updatePagination(result.meta as PaginationState);
         } else {
           toast.error(result.message || "Failed to fetch customers.");
         }

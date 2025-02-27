@@ -20,17 +20,13 @@ import { formatNumber } from "../../../../../utils/numberUtils";
 import { LoadStatus } from "../../../../../enums/LoadStatus";
 import { Equipment } from "../../../../../enums/Equipment";
 import { getEnumValue } from "../../../../../utils/globalHelper";
+import usePagination from "../../../../../hooks/usePagination";
 
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
   const [loads, setLoads] = useState<Load[]>([]);
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
+   const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("loadNumber");
@@ -75,7 +71,7 @@ const LoadList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setLoads(loadData);
-          setMeta(result.meta as PaginationState);
+          updatePagination(result.meta as PaginationState);
         }
       } catch (err) {
         toast.error("Error fetching Loads data.");

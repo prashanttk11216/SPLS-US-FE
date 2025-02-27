@@ -17,17 +17,13 @@ import { useParams } from "react-router-dom";
 import { getEnumValue } from "../../../../../../utils/globalHelper";
 import { Equipment } from "../../../../../../enums/Equipment";
 import { hasAccess } from "../../../../../../utils/permissions";
+import usePagination from "../../../../../../hooks/usePagination";
 
 const MatcheTrucksList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const { loadId } = useParams();
   const [trucks, setTruck] = useState<Truck[]>([]);
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
+   const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -65,7 +61,7 @@ const MatcheTrucksList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setTruck(userData);
-          setMeta(result.meta as PaginationState);
+          updatePagination(result.meta as PaginationState);
         }
       } catch (err) {
         toast.error("Error fetching Consignee data.");

@@ -19,6 +19,7 @@ import Pagination, {
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 import { hasAccess } from "../../../../../utils/permissions";
+import usePagination from "../../../../../hooks/usePagination";
 
 export enum CustomerStatus {
     Active = "Active",
@@ -34,12 +35,7 @@ const CustomerDashboardList: React.FC = () => {
         ? (savedActiveTab as CustomerStatus)
         : CustomerStatus.Active
     );
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
+   const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("email");
@@ -91,7 +87,7 @@ const CustomerDashboardList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setCustomers(userData);
-          setMeta(result.meta as PaginationState);
+          updatePagination(result.meta as PaginationState);
         } else {
           toast.error(result.message || "Failed to fetch customers.");
         }

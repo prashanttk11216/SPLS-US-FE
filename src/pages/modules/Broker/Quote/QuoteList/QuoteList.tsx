@@ -2,7 +2,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../../../store/store";
 import { useCallback, useEffect, useState } from "react";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
-import Pagination, { Meta } from "../../../../../components/common/Pagination/Pagination";
+import Pagination, { PaginationState } from "../../../../../components/common/Pagination/Pagination";
 import { toast } from "react-toastify";
 import PlusIcon from '../../../../../assets/icons/plus.svg';
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
@@ -11,6 +11,7 @@ import Table from "../../../../../components/common/Table/Table";
 import { deleteQuote, getQuoteById, getQuotes } from "../../../../../services/quote/quoteServices";
 import { IQuote } from "../../../../../types/Quote";
 import CreateOrEditQuote from "../CreateOrEditQuote/CreateOrEditQuote";
+import usePagination from "../../../../../hooks/usePagination";
 
 const QuoteList: React.FC = () => {
     const user = useSelector((state: RootState) => state.user);
@@ -18,12 +19,7 @@ const QuoteList: React.FC = () => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [quoteId, setQuoteId] = useState<string>();
     const [quotes, setQuotes] = useState<IQuote[]>([]);
-    const [meta, setMeta] = useState({
-      page: 1,
-      limit: 10,
-      totalPages: 0,
-      totalItems: 0,
-    }); // Pagination metadata
+    const { meta, updatePagination } = usePagination(); // Pagination metadata
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [searchField, setSearchField] = useState<string>("name");
   
@@ -66,7 +62,7 @@ const QuoteList: React.FC = () => {
             const quoteData = result.data as IQuote[];
   
             setQuotes(quoteData);
-            setMeta(result.meta as PaginationState);
+            updatePagination(result.meta as PaginationState);
           } else {
             toast.error(result.message || "Failed to fetch Quotes.");
           }

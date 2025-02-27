@@ -28,18 +28,14 @@ import SelectField from "../../../../../components/common/SelectField/SelectFiel
 import { Equipment } from "../../../../../enums/Equipment";
 import { downloadFile, getEnumValue } from "../../../../../utils/globalHelper";
 import { hasAccess } from "../../../../../utils/permissions";
+import usePagination from "../../../../../hooks/usePagination";
 
 const AccountingDispatchLoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const { control, getValues, reset } = useForm<any>();
 
   const [loads, setLoads] = useState<IDispatch[]>([]);
-  const [meta, setMeta] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    totalItems: 0,
-  }); // Pagination metadata
+   const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("loadNumber");
@@ -113,7 +109,7 @@ const AccountingDispatchLoadList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setLoads(loadData);
-          setMeta(result.meta as PaginationState);
+          updatePagination(result.meta as PaginationState);
         } else {
           toast.error(result.message || "Failed to fetch customers.");
         }
