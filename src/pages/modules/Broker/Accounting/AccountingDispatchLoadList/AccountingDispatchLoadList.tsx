@@ -214,7 +214,7 @@ const AccountingDispatchLoadList: React.FC = () => {
         break;
       case "Print BOL":
         // Implement print logic
-        printBOL(row._id);
+        printBOL(row);
         break;
   
       case "Print Invoice":
