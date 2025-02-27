@@ -48,8 +48,8 @@ const destinationSchema = z.object({
 // Base schema for load operations
 export const baseLoadSchema = z.object({
   _id: z.string().optional(),
-  customerId: z.string().optional(),
-  brokerId: z.string().optional(),
+  customerId: z.string(),
+  brokerId: z.string(),
   carrierId: z.string().optional(),
 
   origin: originSchema,
@@ -83,7 +83,7 @@ export const baseLoadSchema = z.object({
   commodity: z.enum(Object.keys(Commodity) as [keyof typeof Commodity]).optional(),
   loadNumber: z.number().optional(),
 
-  postedBy: z.string().optional(),
+  postedBy: z.string(),
   status: z
     .enum([
       "Draft",

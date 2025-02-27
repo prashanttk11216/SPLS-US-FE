@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import Table from "../../../../../components/common/Table/Table";
 import PlusIcon from "../../../../../assets/icons/plus.svg";
 import { toast } from "react-toastify";
-import { UserRole } from "../../../../../enums/UserRole";
 import Loading from "../../../../../components/common/Loading/Loading";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import { RootState } from "../../../../../store/store";
@@ -22,7 +21,6 @@ import { formatDate } from "../../../../../utils/dateFormat";
 import { formatNumber } from "../../../../../utils/numberUtils";
 import { getEnumValue } from "../../../../../utils/globalHelper";
 import { Equipment } from "../../../../../enums/Equipment";
-import { hasAccess } from "../../../../../utils/permissions";
 import usePagination from "../../../../../hooks/usePagination";
 
 const TruckList: React.FC = () => {
@@ -65,10 +63,6 @@ const TruckList: React.FC = () => {
           query += `&search=${encodeURIComponent(
             searchQuery
           )}&searchField=${searchField}`;
-        }
-
-        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
-          query += `&brokerId=${user._id}`;
         }
 
         if (sortConfig) {

@@ -42,7 +42,9 @@ export interface User {
   billingZip?: string;
 
   // Broker and regulatory details
-  brokerId?: string; // Reference to the broker (if applicable)
+  brokerId?: string | User; // Reference to the broker (if applicable)
+  postedBy?: string | User; 
+
 }
 
 export type Permission = {

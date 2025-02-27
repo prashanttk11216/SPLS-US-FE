@@ -124,7 +124,7 @@ const QuoteList: React.FC = () => {
       setSortConfig(sortStr); // Updates the sort query to trigger API call
     };
   
-    const getActions = (quote: IQuote): string[] => {
+    const getActions = (): string[] => {
       const actions = ["Edit", "Delete"];
       return actions;
     };
@@ -148,7 +148,7 @@ const QuoteList: React.FC = () => {
         _id: quote._id,
         name: quote.name,
         isActive: quote.isActive ? "Active" : "Inactive",
-        actions: getActions(quote),
+        actions: getActions(),
       }));
     };
   

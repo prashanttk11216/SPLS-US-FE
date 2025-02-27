@@ -168,6 +168,11 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
         const validatedData = updateLoadSchema.parse(data);
         result = await updateData("load", loadData._id!, validatedData);
       } else {
+        data.customerId = user._id;
+        if(typeof user.brokerId === "string") data.brokerId = user.brokerId;
+        if(!data.postedBy){
+          data.postedBy = user._id;
+        }
         const validatedData = createLoadSchema.parse(data);
         result = await createData("load",validatedData);
       }

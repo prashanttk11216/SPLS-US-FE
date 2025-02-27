@@ -1,11 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Table from "../../../../../components/common/Table/Table";
-import {
-  deleteUser,
-  getUserById,
-  getUsers,
-  toggleActiveStatus,
-} from "../../../../../services/user/userService";
+import {getUsers} from "../../../../../services/user/userService";
 import { toast } from "react-toastify";
 import { UserRole } from "../../../../../enums/UserRole";
 import { User } from "../../../../../types/User";
@@ -18,7 +13,6 @@ import Pagination, {
 } from "../../../../../components/common/Pagination/Pagination";
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
-import { hasAccess } from "../../../../../utils/permissions";
 import usePagination from "../../../../../hooks/usePagination";
 
 export enum CustomerStatus {
@@ -45,18 +39,9 @@ const CustomerDashboardList: React.FC = () => {
     direction: "asc" | "desc";
   } | null>(null);
 
-  const { getData, getDataById, updateData, deleteData, loading, error } = useFetchData<any>({
+  const { getData, loading, error } = useFetchData<any>({
     getAll: { 
       user: getUsers,
-     },
-     getById: {
-      user: getUserById
-     },
-     update: {
-      user: toggleActiveStatus,
-     },
-     remove: {
-      user: deleteUser,
      }
   });
 
@@ -72,10 +57,6 @@ const CustomerDashboardList: React.FC = () => {
           query += `&search=${encodeURIComponent(
             searchQuery
           )}&searchField=${searchField}`;
-        }
-
-        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
-          query += `&brokerId=${user._id}`;
         }
 
         if (sortConfig) {
@@ -118,7 +99,7 @@ const CustomerDashboardList: React.FC = () => {
     // { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
-  const handleAction = async (action: string, row: Record<string, any>) => {
+  const handleAction = async (action: string) => {
     switch (action) {
       default:
         toast.info(`Action "${action}" is not yet implemented.`);
@@ -129,16 +110,6 @@ const CustomerDashboardList: React.FC = () => {
     sortStr: { key: string; direction: "asc" | "desc" } | null
   ) => {
     setSortConfig(sortStr); // Updates the sort query to trigger API call
-  };
-
-  const getActionsForCustomer = (broker: User): string[] => {
-    const actions = [];
-    if (broker.isActive) {
-      actions.push("Deactivate");
-    } else {
-      actions.push("Activate");
-    }
-    return actions;
   };
 
   const handlePageChange = (page: number) => {

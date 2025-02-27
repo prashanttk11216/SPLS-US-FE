@@ -5,7 +5,6 @@ import { useForm, useWatch } from "react-hook-form";
 import SelectField from "../../../../components/common/SelectField/SelectField";
 import DateInput from "../../../../components/common/DateInput/DateInput";
 import { UserRole } from "../../../../enums/UserRole";
-import { hasAccess } from "../../../../utils/permissions";
 import useFetchData from "../../../../hooks/useFetchData/useFetchData";
 import { getUsers } from "../../../../services/user/userService";
 import { toast } from "react-toastify";
@@ -44,9 +43,6 @@ const ReportForm: React.FC<ReoprtsFormProps> = ({ handleData }) => {
           category === "CUSTOMER" ? UserRole.CUSTOMER : UserRole.CARRIER
         }&page=${page}&limit=${limit}`;
 
-        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER] })) {
-          query += `&brokerId=${user._id}`;
-        }
         const result = await getData("user", query);
         if (result.success) {
           let users: any = [];

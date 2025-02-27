@@ -26,6 +26,8 @@ import MapModal from "../../../../../components/common/MapModal/MapModal";
 import { commodityOptions, equipmentOptions, loadOptions, modeOptions } from "../../../../../utils/dropdownOptions";
 import CurrencyNumberInput from "../../../../../components/common/CurrencyNumberInput/CurrencyNumberInput";
 import TextAreaBox from "../../../../../components/common/TextAreaBox/TextAreaBox";
+import { RootState } from "../../../../../store/store";
+import { useSelector } from "react-redux";
 
 export type loadForm = {
   _id: string;
@@ -85,12 +87,16 @@ export type loadForm = {
   commodity: Commodity;
   loadNumber?: string;
   postedBy?: string;
+  brokerId?: string;
+  customerId?: string;
   status?: string;
 };
 
 interface CreateOrEditLoadProps {}
 
 const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
+  const user = useSelector((state: RootState) => state.user);
+
   const navigate = useNavigate();
   const { loadId } = useParams();
   const [loadData, setLoadData] = useState<loadForm>();
@@ -196,6 +202,8 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
         const validatedData = updateLoadSchema.parse(data);
         result = await updateData("load", loadData._id, validatedData);
       } else {
+        data.customerId = user._id;
+        if(typeof user.brokerId === "string") data.postedBy = data.brokerId = user.brokerId;
         const validatedData = createLoadSchema.parse(data);
         result = await createData("load", validatedData);
       }

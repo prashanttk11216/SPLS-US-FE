@@ -8,7 +8,6 @@ import { useForm } from "react-hook-form";
 import { UserRole } from "../../../../../enums/UserRole";
 import { toast } from "react-toastify";
 import { createUser, editUser } from "../../../../../services/user/userService";
-import { User } from "../../../../../types/User";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import Loading from "../../../../../components/common/Loading/Loading";
 import { useSelector } from "react-redux";
@@ -79,7 +78,8 @@ const CreateOrEditCustomer: FC<CreateOrEditCustomerProps> = ({
       } else {
         // Create customer with role assigned
         data.roles = roles.filter((role)=> role.name === UserRole.CUSTOMER).map((role)=>role._id);
-        data.brokerId = user._id;
+        if(typeof user.brokerId === "string") data.brokerId = user.brokerId;
+        data.postedBy = user._id;
         result = await createData("user", data);
       }
 

@@ -11,12 +11,10 @@ import Pagination, {
   PaginationState,
 } from "../../../../../../components/common/Pagination/Pagination";
 import TruckDetailsModal from "../../../../Carrier/Truck/TruckDetailsModal/TruckDetailsModal";
-import { UserRole } from "../../../../../../enums/UserRole";
 import { formatDate } from "../../../../../../utils/dateFormat";
 import { useParams } from "react-router-dom";
 import { getEnumValue } from "../../../../../../utils/globalHelper";
 import { Equipment } from "../../../../../../enums/Equipment";
-import { hasAccess } from "../../../../../../utils/permissions";
 import usePagination from "../../../../../../hooks/usePagination";
 
 const MatcheTrucksList: React.FC = () => {
@@ -46,10 +44,6 @@ const MatcheTrucksList: React.FC = () => {
       if (!user || !user._id) return;
       try {
         let query = `?&page=${page}&limit=${limit}`;
-
-        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
-          query += `&brokerId=${user._id}`;
-        }
 
         if (sortConfig) {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;

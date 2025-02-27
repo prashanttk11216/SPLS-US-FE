@@ -170,7 +170,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
   } = useForm<DispatchLoadForm>({
     mode: "onBlur",
     defaultValues: {
-      brokerId: user.brokerId,
+      brokerId: (typeof user.brokerId === "string") ? user.brokerId : "",
       postedBy: user._id,
     },
   });
@@ -311,6 +311,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
         result = await updateData("load", loadData._id!, validatedData);
       } else {
         const validatedData = transformedCreateDispatchSchema.parse(data);
+        if(typeof user.brokerId === "string") validatedData.brokerId = user.brokerId;
         if(!validatedData.postedBy){
           validatedData.postedBy = user._id;
         }

@@ -1,5 +1,4 @@
 import { FC, useEffect, useState } from "react";
-import { User } from "../../../../../types/User";
 import { CreateUserForm } from "../../../../Auth/Signup/Signup";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import { createUser, editUser } from "../../../../../services/user/userService";
@@ -80,7 +79,8 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
       } else {
         // Create carrier with role assigned
         data.roles = roles.filter((role)=> role.name === UserRole.CARRIER).map((role)=>role._id);
-        data.brokerId = user._id;
+        if(typeof user.brokerId === "string") data.brokerId = user.brokerId;
+        data.postedBy = user._id;
         result = await createData("user", data);
       }
 

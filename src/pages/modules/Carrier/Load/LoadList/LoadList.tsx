@@ -28,6 +28,7 @@ import { formatNumber } from "../../../../../utils/numberUtils";
 import { Equipment } from "../../../../../enums/Equipment";
 import { getEnumValue } from "../../../../../utils/globalHelper";
 import usePagination from "../../../../../hooks/usePagination";
+import { LoadStatus } from "../../../../../enums/LoadStatus";
 
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -64,7 +65,7 @@ const LoadList: React.FC = () => {
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return; // Wait for user data
       try {
-        let query = `?page=${page}&limit=${limit}`;
+        let query = `?page=${page}&limit=${limit}&status=${LoadStatus.Published}`;
 
         if (sortConfig) {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;

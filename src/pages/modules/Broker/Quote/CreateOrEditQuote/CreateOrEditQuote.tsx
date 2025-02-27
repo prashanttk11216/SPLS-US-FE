@@ -17,6 +17,8 @@ import {
   createQuoteSchema,
   updateQuoteSchema,
 } from "../../../../../schema/Quote";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../../store/store";
 
 interface CreateOrEditQuoteProps {
   isModalOpen: boolean; // Controls modal visibility
@@ -33,6 +35,7 @@ const CreateOrEditQuote: FC<CreateOrEditQuoteProps> = ({
   quoteId,
   closeModal,
 }) => {
+  const user = useSelector((state: RootState) => state.user);
   const {
     handleSubmit,
     control,
@@ -71,6 +74,8 @@ const CreateOrEditQuote: FC<CreateOrEditQuoteProps> = ({
         result = await updateData("quote", quoteId, validatedData);
       } else {
         const validatedData = createQuoteSchema.parse(data);
+        if(typeof user.brokerId === "string") validatedData.brokerId = user.brokerId;
+        validatedData.postedBy = user._id;
         result = await createData("quote", validatedData);
       }
 

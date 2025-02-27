@@ -100,8 +100,8 @@ const CreateOrEditShipper: FC<CreateOrEditShipperProps> = ({
         result = await updateData("shipper", shipperId, data);
       } else {
         // Create Shipper User with role assigned
-        data.brokerId = user._id;
         data.postedBy = user._id;
+        if(typeof user.brokerId === "string") data.brokerId = user.brokerId;
         result = await createData("shipper", data);
       }
 

@@ -24,7 +24,6 @@ import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import BrokerDetailsModal from "../BrokerDetailsModal/BrokerDetailsModal";
 import ChangePassowrd from "../../../../Auth/ChangePassword/ChangePassword";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
-import { hasAccess } from "../../../../../utils/permissions";
 import { CreateUserForm } from "../../../../Auth/Signup/Signup";
 import usePagination from "../../../../../hooks/usePagination";
 
@@ -79,10 +78,6 @@ const BrokerUserList: React.FC = () => {
           query += `&search=${encodeURIComponent(
             searchQuery
           )}&searchField=${searchField}`;
-        }
-
-        if (hasAccess(user.roles, { roles: [UserRole.BROKER_USER]})) {
-          query += `&brokerId=${user._id}`;
         }
 
         if (sortConfig) {

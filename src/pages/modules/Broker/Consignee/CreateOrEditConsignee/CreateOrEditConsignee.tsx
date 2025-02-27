@@ -100,8 +100,8 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
         result = await updateData("consignee", consigneeId, data);
       } else {
         // Create Consignee User with role assigned
-        data.brokerId = user._id;
         data.postedBy = user._id;
+        if(typeof user.brokerId === "string") data.brokerId = user.brokerId;
         result = await createData("consignee", data);
       }
 

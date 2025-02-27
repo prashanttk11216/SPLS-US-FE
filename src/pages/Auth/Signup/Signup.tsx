@@ -67,6 +67,7 @@ export type CreateUserForm = {
   roles: string[];
   employeeId?: string;
   brokerId: string;
+  postedBy: string;
   avatarUrl?: string;
 };
 
@@ -95,6 +96,8 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
         data.roles = roles.filter((role)=> role.name === UserRole.CUSTOMER).map((role)=>role._id);
       }
       data.brokerId = "67aa160fbcb994bc4edfbca4";
+      data.postedBy = "67aa160fbcb994bc4edfbca4";
+
       // Call signup service
       const result = await signup(data);
 
