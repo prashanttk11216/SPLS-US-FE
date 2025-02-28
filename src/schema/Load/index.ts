@@ -48,8 +48,8 @@ const destinationSchema = z.object({
 // Base schema for load operations
 export const baseLoadSchema = z.object({
   _id: z.string().optional(),
-  customerId: z.string(),
-  brokerId: z.string(),
+  customerId: z.string().optional(),
+  brokerId: z.string().optional(),
   carrierId: z.string().optional(),
 
   origin: originSchema,
@@ -87,14 +87,13 @@ export const baseLoadSchema = z.object({
   status: z
     .enum([
       "Draft",
-      "Published",
-      "Pending Response",
-      "Negotiation",
-      "Assigned",
-      "In Transit",
-      "Delivered",
-      "Completed",
-      "Cancelled",
+        "Published",
+        "Pending Response",
+        "Deal Closed",
+        'In Transit',
+        'Delivered',
+        'Completed',
+        "Cancelled",
     ])
     .optional(),
 });
@@ -110,5 +109,5 @@ function cleanData<T extends Record<string, unknown>>(data: T): Partial<T> {
 export const createLoadSchema = baseLoadSchema.transform((data) => cleanData(data));
 
 // Validation for update operation (all fields optional)
-export const updateLoadSchema = baseLoadSchema.omit({ brokerId: true, postedBy: true, customerId: true}).partial().transform((data) => cleanData(data));
+export const updateLoadSchema = baseLoadSchema.omit({ brokerId: true, postedBy: true}).partial().transform((data) => cleanData(data));
 

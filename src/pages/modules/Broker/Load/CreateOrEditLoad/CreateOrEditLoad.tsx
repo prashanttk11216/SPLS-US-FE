@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
@@ -40,6 +40,9 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   const [loadData, setLoadData] = useState<LoadForm>();
   const [usersList, setUsersList] = useState<SelectOption[]>([]);
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+  const [customersList, setCustomersList] = useState<
+    { value: string; label: string; email: string }[]
+  >([]);
 
   const {
     handleSubmit,
@@ -98,6 +101,26 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
     }
   };
 
+  const fetchCustomersData = useCallback(async () => {
+      try {
+        const query = `?role=${UserRole.CUSTOMER}&isActive=true`;
+        const result = await getData("users", query);
+        if (result.success) {
+          const users = result?.data?.map((user) => ({
+            value: user._id,
+            label: `${user.firstName} ${user.lastName} (${user.email})`,
+            email: user?.email,
+          }));
+          setCustomersList(users || []);
+        } else {
+          toast.error("Failed to fetch customers.");
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("An error occurred while fetching customers.");
+      }
+    }, [getData]);
+
   useEffect(() => {
     if (loadId) fetchLoad(loadId);
   }, [loadId]);
@@ -109,6 +132,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
 
   useEffect(() => {
     fetchUsersData();
+    fetchCustomersData();
   }, []);
 
   const {
@@ -168,7 +192,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
         const validatedData = updateLoadSchema.parse(data);
         result = await updateData("load", loadData._id!, validatedData);
       } else {
-        data.customerId = user._id;
         if(typeof user.brokerId === "string") data.brokerId = user.brokerId;
         if(!data.postedBy){
           data.postedBy = user._id;
@@ -766,6 +789,15 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               control={control}
               rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
             />
+          </div>
+          <div className="col-3">
+              <SelectField
+                label="Select Customer"
+                name="customerId"
+                placeholder="Select Customer"
+                control={control}
+                options={customersList}
+              />
           </div>
           {/* Assign User */}
           {user && hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN]})&& (

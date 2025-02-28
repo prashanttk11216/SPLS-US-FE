@@ -20,10 +20,11 @@ export enum CustomerStatus {
     Inactive = "Inactive"
 }
 
+const CUSTOMER_ACTIVE_INACTIVE_TAB = "CUSTOMER_ACTIVE_INACTIVE_TAB"
 const CustomerDashboardList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [customers, setCustomers] = useState<User[]>([]);
-  const savedActiveTab = localStorage.getItem("customerActiveTab");
+  const savedActiveTab = localStorage.getItem(CUSTOMER_ACTIVE_INACTIVE_TAB);
   const [activeTab, setActiveTab] = useState<CustomerStatus>(
       savedActiveTab
         ? (savedActiveTab as CustomerStatus)
@@ -88,7 +89,7 @@ const CustomerDashboardList: React.FC = () => {
 
    // Update active tab in localStorage whenever it changes
     useEffect(() => {
-      localStorage.setItem("customerActiveTab", activeTab);
+      localStorage.setItem(CUSTOMER_ACTIVE_INACTIVE_TAB, activeTab);
     }, [activeTab]);
 
   const columns = [

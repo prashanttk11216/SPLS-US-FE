@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Table from "../../../../../components/common/Table/Table";
 import { toast } from "react-toastify";
-import { UserRole } from "../../../../../enums/UserRole";
 import Loading from "../../../../../components/common/Loading/Loading";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import { RootState } from "../../../../../store/store";
@@ -27,9 +26,10 @@ import DateInput from "../../../../../components/common/DateInput/DateInput";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
 import { Equipment } from "../../../../../enums/Equipment";
 import { downloadFile, getEnumValue } from "../../../../../utils/globalHelper";
-import { hasAccess } from "../../../../../utils/permissions";
 import usePagination from "../../../../../hooks/usePagination";
 import ConfirmationModal from "../../../../../components/common/ConfirmationModal/ConfirmationModal";
+
+const ACCOUNTING_DISPATCH_ACTIVE_TAB = "ACCOUNTING_DISPATCH_ACTIVE_TAB";
 
 const AccountingDispatchLoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -42,7 +42,7 @@ const AccountingDispatchLoadList: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("loadNumber");
-  const savedActiveTab = localStorage.getItem("AccountingDispatchActiveTab");
+  const savedActiveTab = localStorage.getItem(ACCOUNTING_DISPATCH_ACTIVE_TAB);
   const [activeTab, setActiveTab] = useState<DispatchLoadStatus>(
     savedActiveTab
       ? (savedActiveTab as DispatchLoadStatus)
@@ -147,7 +147,7 @@ const AccountingDispatchLoadList: React.FC = () => {
 
   // Update active tab in localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem("AccountingDispatchActiveTab", activeTab);
+    localStorage.setItem(ACCOUNTING_DISPATCH_ACTIVE_TAB, activeTab);
   }, [activeTab]);
 
   const columns = [
@@ -408,7 +408,6 @@ const AccountingDispatchLoadList: React.FC = () => {
         <div className="text-danger">{error}</div>
       ) : (
         <>
-          {hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN]})&& (
             <ul className="nav nav-tabs">
               <li
                 className="nav-item"
@@ -476,7 +475,6 @@ const AccountingDispatchLoadList: React.FC = () => {
                 </a>
               </li>
             </ul>
-          )}
           <Table
             columns={columns}
             rows={getRowData()}

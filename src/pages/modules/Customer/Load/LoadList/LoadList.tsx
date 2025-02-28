@@ -22,6 +22,8 @@ import { Equipment } from "../../../../../enums/Equipment";
 import { getEnumValue } from "../../../../../utils/globalHelper";
 import usePagination from "../../../../../hooks/usePagination";
 
+const CUSTOMER_LOADS_ACTIVE_TAB = 'CUSTOMER_LOADS_ACTIVE_TAB'
+
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
@@ -30,6 +32,11 @@ const LoadList: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("loadNumber");
+
+  const savedActiveTab = localStorage.getItem(CUSTOMER_LOADS_ACTIVE_TAB);
+  const [activeTab, setActiveTab] = useState<LoadStatus>(
+      savedActiveTab ? (savedActiveTab as LoadStatus) : LoadStatus.Published
+    );
 
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -47,12 +54,17 @@ const LoadList: React.FC = () => {
      },
   });
 
+  // Update active tab in localStorage whenever it changes
+      useEffect(() => {
+        localStorage.setItem(CUSTOMER_LOADS_ACTIVE_TAB, activeTab);
+      }, [activeTab]);
+
   // Fetch Load data
   const fetchLoadsData = useCallback(
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return; // Wait for user data
       try {
-        let query = `?page=${page}&limit=${limit}`;
+        let query = `?page=${page}&limit=${limit}&status=${activeTab}`;
 
         //Search Functionality
         if (searchQuery && searchField) {
@@ -77,7 +89,7 @@ const LoadList: React.FC = () => {
         toast.error("Error fetching Loads data.");
       }
     },
-    [getData, searchQuery, user, sortConfig]
+    [getData, searchQuery, user, sortConfig, activeTab]
   );
 
   // Trigger fetch when user is populated
@@ -85,7 +97,7 @@ const LoadList: React.FC = () => {
     if (user && user._id) {
       fetchLoadsData();
     }
-  }, [user, searchQuery, sortConfig]);
+  }, [user, searchQuery, sortConfig, activeTab]);
 
   const columns = [
     {
@@ -227,6 +239,100 @@ const LoadList: React.FC = () => {
         <div className="text-danger">{error}</div>
       ) : (
         <>
+        <ul className="nav nav-tabs">
+                      <li
+                        className="nav-item"
+                        onClick={() => setActiveTab(LoadStatus.Published)}
+                      >
+                        <a
+                          className={`nav-link ${
+                            LoadStatus.Published == activeTab && "active"
+                          }`}
+                          aria-current="page"
+                          href="#"
+                        >
+                          Loads
+                        </a>
+                      </li>
+                      <li
+                        className="nav-item"
+                        onClick={() => setActiveTab(LoadStatus.PendingResponse)}
+                      >
+                        <a
+                          className={`nav-link ${
+                            LoadStatus.PendingResponse == activeTab && "active"
+                          }`}
+                          href="#"
+                        >
+                          Pending Response
+                        </a>
+                      </li>
+                      <li
+                        className="nav-item"
+                        onClick={() => setActiveTab(LoadStatus.DealClosed)}
+                      >
+                        <a
+                          className={`nav-link ${
+                            LoadStatus.DealClosed == activeTab && "active"
+                          }`}
+                          href="#"
+                        >
+                          Deal Closed
+                        </a>
+                      </li>
+                      <li
+                                    className="nav-item"
+                                    onClick={() => setActiveTab(LoadStatus.InTransit)}
+                                  >
+                                    <a
+                                      className={`nav-link ${
+                                        LoadStatus.InTransit == activeTab && "active"
+                                      }`}
+                                      href="#"
+                                    >
+                                      In Transit
+                                    </a>
+                                  </li>
+                                  <li
+                                    className="nav-item"
+                                    onClick={() => setActiveTab(LoadStatus.Delivered)}
+                                  >
+                                    <a
+                                      className={`nav-link ${
+                                        LoadStatus.Delivered == activeTab && "active"
+                                      }`}
+                                      href="#"
+                                    >
+                                      Delivered
+                                    </a>
+                                  </li>
+                                  <li
+                                    className="nav-item"
+                                    onClick={() => setActiveTab(LoadStatus.Completed)}
+                                  >
+                                    <a
+                                      className={`nav-link ${
+                                        LoadStatus.Completed == activeTab && "active"
+                                      }`}
+                                      href="#"
+                                    >
+                                      Completed
+                                    </a>
+                                  </li>
+                      <li
+                        className="nav-item"
+                        onClick={() => setActiveTab(LoadStatus.Cancelled)}
+                      >
+                        <a
+                          className={`nav-link ${
+                            LoadStatus.Cancelled == activeTab && "active"
+                          }`}
+                          href="#"
+                        >
+                          Cancelled
+                        </a>
+                      </li>
+                    </ul>
           <Table
             columns={columns}
             rows={getRowData()}

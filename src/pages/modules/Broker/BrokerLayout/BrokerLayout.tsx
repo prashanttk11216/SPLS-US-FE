@@ -32,21 +32,23 @@ const BrokerLayout = () => {
         isVisible: true,
         subMenu: [
           { name: "Accounting Manager", icon: BrokerIcon, path: "/broker/accounting-manager", isVisible: true },
-          { name: "Accounting Summary", icon: BrokerIcon, path: "/broker/accounting-summary", isVisible: true },
-          { name: "Accounting Exports", icon: BrokerIcon, path: "/broker/accounting-exports", isVisible: true },
+          { name: "Accounting Summary", icon: BrokerIcon, path: "/broker/accounting-summary",             isVisible: hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN] }),
+ },
+          { name: "Accounting Exports", icon: BrokerIcon, path: "/broker/accounting-exports",             isVisible: hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN] }),
+ },
         ],
       },
       {
         name: "Sales Manager",
         icon: SettingIcon,
         path: "/broker/customer-dashboard",
-        isVisible: true,
+        isVisible: hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN] }),
         subMenu: [
           { name: "Customer Dashboard", icon: BrokerIcon, path: "/broker/customer-dashboard", isVisible: true },
           { name: "Quote Status", icon: BrokerIcon, path: "/broker/quote-status", isVisible: true },
         ],
       },
-      { name: "Reports", icon: BrokerIcon, path: "/broker/reports", isVisible: true },
+      { name: "Reports", icon: BrokerIcon, path: "/broker/reports",  isVisible: hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN] }),    },
       {
         name: "Settings",
         icon: SettingIcon,

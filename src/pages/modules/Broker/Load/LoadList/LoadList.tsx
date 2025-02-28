@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import Table from "../../../../../components/common/Table/Table";
 import PlusIcon from "../../../../../assets/icons/plus.svg";
 import { toast } from "react-toastify";
-import { UserRole } from "../../../../../enums/UserRole";
 import Loading from "../../../../../components/common/Loading/Loading";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import { RootState } from "../../../../../store/store";
@@ -28,8 +27,10 @@ import { LoadCreationAlert } from "../LoadCreationAlert/LoadCreationAlert";
 import { formatNumber } from "../../../../../utils/numberUtils";
 import { Equipment } from "../../../../../enums/Equipment";
 import { getEnumValue } from "../../../../../utils/globalHelper";
-import { hasAccess } from "../../../../../utils/permissions";
 import usePagination from "../../../../../hooks/usePagination";
+
+
+const LOAD_ACTIVE_TAB = "LOAD_ACTIVE_TAB";
 
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -40,7 +41,7 @@ const LoadList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("loadNumber");
 
-  const savedActiveTab = localStorage.getItem("loadActiveTab");
+  const savedActiveTab = localStorage.getItem(LOAD_ACTIVE_TAB);
   const [activeTab, setActiveTab] = useState<LoadStatus>(
     savedActiveTab ? (savedActiveTab as LoadStatus) : LoadStatus.Published
   );
@@ -139,7 +140,7 @@ const LoadList: React.FC = () => {
 
   // Update active tab in localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem("loadActiveTab", activeTab);
+    localStorage.setItem(LOAD_ACTIVE_TAB, activeTab);
   }, [activeTab]);
 
   const columns = [
@@ -386,7 +387,6 @@ const LoadList: React.FC = () => {
         <div className="text-danger">{error}</div>
       ) : (
         <>
-          {hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN]}) && (
             <ul className="nav nav-tabs">
               <li
                 className="nav-item"
@@ -442,6 +442,45 @@ const LoadList: React.FC = () => {
                 </a>
               </li>
               <li
+                            className="nav-item"
+                            onClick={() => setActiveTab(LoadStatus.InTransit)}
+                          >
+                            <a
+                              className={`nav-link ${
+                                LoadStatus.InTransit == activeTab && "active"
+                              }`}
+                              href="#"
+                            >
+                              In Transit
+                            </a>
+                          </li>
+                          <li
+                            className="nav-item"
+                            onClick={() => setActiveTab(LoadStatus.Delivered)}
+                          >
+                            <a
+                              className={`nav-link ${
+                                LoadStatus.Delivered == activeTab && "active"
+                              }`}
+                              href="#"
+                            >
+                              Delivered
+                            </a>
+                          </li>
+                          <li
+                            className="nav-item"
+                            onClick={() => setActiveTab(LoadStatus.Completed)}
+                          >
+                            <a
+                              className={`nav-link ${
+                                LoadStatus.Completed == activeTab && "active"
+                              }`}
+                              href="#"
+                            >
+                              Completed
+                            </a>
+                          </li>
+              <li
                 className="nav-item"
                 onClick={() => setActiveTab(LoadStatus.Cancelled)}
               >
@@ -455,7 +494,6 @@ const LoadList: React.FC = () => {
                 </a>
               </li>
             </ul>
-          )}
           <Table
             columns={columns}
             rows={getRowData()}

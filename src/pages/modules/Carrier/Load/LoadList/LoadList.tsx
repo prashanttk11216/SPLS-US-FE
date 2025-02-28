@@ -30,16 +30,22 @@ import { getEnumValue } from "../../../../../utils/globalHelper";
 import usePagination from "../../../../../hooks/usePagination";
 import { LoadStatus } from "../../../../../enums/LoadStatus";
 
+const CARRIER_LOADS_ACTIVE_TAB = "CARRIER_LOADS_ACTIVE_TAB"
+
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [loads, setLoads] = useState<Load[]>([]);
-   const { meta, updatePagination } = usePagination(); // Pagination metadata
+  const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "asc" | "desc";
   } | null>(null);
   const [formQuery, setFormQuery] = useState<string | null>(null);
+  const savedActiveTab = localStorage.getItem(CARRIER_LOADS_ACTIVE_TAB);
+  const [activeTab, setActiveTab] = useState<LoadStatus>(
+    savedActiveTab ? (savedActiveTab as LoadStatus) : LoadStatus.Published
+  );
 
   // View Details Option Added
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
@@ -49,23 +55,26 @@ const LoadList: React.FC = () => {
     mode: "onBlur",
   });
 
-  
-
   const { getData, updateData, loading, error } = useFetchData<any>({
-    getAll: { 
+    getAll: {
       load: getloads,
-     },
-     update: {
+    },
+    update: {
       load: sendLoadRequest,
-     },
+    },
   });
+
+  // Update active tab in localStorage whenever it changes
+    useEffect(() => {
+      localStorage.setItem(CARRIER_LOADS_ACTIVE_TAB, activeTab);
+    }, [activeTab]);
 
   // Fetch Load data
   const fetchLoadsData = useCallback(
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return; // Wait for user data
       try {
-        let query = `?page=${page}&limit=${limit}&status=${LoadStatus.Published}`;
+        let query = `?page=${page}&limit=${limit}&status=${activeTab}`;
 
         if (sortConfig) {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
@@ -88,7 +97,7 @@ const LoadList: React.FC = () => {
         toast.error("Error fetching customer data.");
       }
     },
-    [getData, user, sortConfig, formQuery]
+    [getData, user, sortConfig, formQuery, activeTab]
   );
 
   // Trigger fetch when user is populated
@@ -96,7 +105,7 @@ const LoadList: React.FC = () => {
     if (user && user._id) {
       fetchLoadsData();
     }
-  }, [user, sortConfig, formQuery]);
+  }, [user, sortConfig, formQuery, activeTab]);
 
   const columns = [
     {
@@ -159,8 +168,11 @@ const LoadList: React.FC = () => {
     setSortConfig(sortStr); // Updates the sort query to trigger API call
   };
 
-  const getActionsForLoad = (_: Load): string[] => {
-    const actions = ["View Details", "Send Request"];
+  const getActionsForLoad = (load: Load): string[] => {
+    const actions = ["View Details"];
+    if(load.status === LoadStatus.Published) {
+      actions.push("Send Request");
+    }
     return actions;
   };
 
@@ -182,7 +194,7 @@ const LoadList: React.FC = () => {
         dhdDistance: load.dhdDistance || "N/A", // Add dhdDistance conditionally
         originEarlyPickupDate:
           formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
-        equipment:  getEnumValue(Equipment, load.equipment),   
+        equipment: getEnumValue(Equipment, load.equipment),
         miles: load.miles ? `${formatNumber(load.miles)} mi` : "N/A",
         postedBy:
           load.brokerId && typeof load.brokerId === "object"
@@ -291,7 +303,7 @@ const LoadList: React.FC = () => {
               label=""
               control={control}
               placeholder="Origin"
-              setValue={setValue} 
+              setValue={setValue}
             />
           </div>
           {/* DH-O */}
@@ -384,6 +396,100 @@ const LoadList: React.FC = () => {
         <div className="text-danger">{error}</div>
       ) : (
         <>
+          <ul className="nav nav-tabs">
+            <li
+              className="nav-item"
+              onClick={() => setActiveTab(LoadStatus.Published)}
+            >
+              <a
+                className={`nav-link ${
+                  LoadStatus.Published == activeTab && "active"
+                }`}
+                aria-current="page"
+                href="#"
+              >
+                Loads
+              </a>
+            </li>
+            <li
+              className="nav-item"
+              onClick={() => setActiveTab(LoadStatus.PendingResponse)}
+            >
+              <a
+                className={`nav-link ${
+                  LoadStatus.PendingResponse == activeTab && "active"
+                }`}
+                href="#"
+              >
+                Pending Response
+              </a>
+            </li>
+            <li
+              className="nav-item"
+              onClick={() => setActiveTab(LoadStatus.DealClosed)}
+            >
+              <a
+                className={`nav-link ${
+                  LoadStatus.DealClosed == activeTab && "active"
+                }`}
+                href="#"
+              >
+                Deal Closed
+              </a>
+            </li>
+            <li
+              className="nav-item"
+              onClick={() => setActiveTab(LoadStatus.InTransit)}
+            >
+              <a
+                className={`nav-link ${
+                  LoadStatus.InTransit == activeTab && "active"
+                }`}
+                href="#"
+              >
+                In Transit
+              </a>
+            </li>
+            <li
+              className="nav-item"
+              onClick={() => setActiveTab(LoadStatus.Delivered)}
+            >
+              <a
+                className={`nav-link ${
+                  LoadStatus.Delivered == activeTab && "active"
+                }`}
+                href="#"
+              >
+                Delivered
+              </a>
+            </li>
+            <li
+              className="nav-item"
+              onClick={() => setActiveTab(LoadStatus.Completed)}
+            >
+              <a
+                className={`nav-link ${
+                  LoadStatus.Completed == activeTab && "active"
+                }`}
+                href="#"
+              >
+                Completed
+              </a>
+            </li>
+            <li
+              className="nav-item"
+              onClick={() => setActiveTab(LoadStatus.Cancelled)}
+            >
+              <a
+                className={`nav-link ${
+                  LoadStatus.Cancelled == activeTab && "active"
+                }`}
+                href="#"
+              >
+                Cancelled
+              </a>
+            </li>
+          </ul>
           <Table
             columns={columns}
             rows={getRowData()}

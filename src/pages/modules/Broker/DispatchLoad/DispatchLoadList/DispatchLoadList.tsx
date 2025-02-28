@@ -138,7 +138,7 @@ const DispatchLoadList: React.FC = () => {
 
   // Update active tab in localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem("dispatchActiveTab", activeTab);
+    localStorage.setItem(DISPATCH_ACTIVE_TAB, activeTab);
   }, [activeTab]);
 
   const columns = [
