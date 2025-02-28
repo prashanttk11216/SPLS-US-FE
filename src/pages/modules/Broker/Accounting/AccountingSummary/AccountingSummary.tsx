@@ -1,15 +1,23 @@
 import { useState } from "react";
-import SummaryForm, { SummaryFormTypes } from "./SummaryForm";
+import SummaryForm from "./SummaryForm";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import { exportAccountSummary } from "../../../../../services/dispatch/dispatchServices";
 import { toast } from "react-toastify";
 import { downloadFile } from "../../../../../utils/globalHelper";
 
+type FormType = {
+  fromDate: string;
+  toDate: string
+};
+
 const AccountingSummary: React.FC = () => {
-  const [formData, setFormData] = useState<SummaryFormTypes>();
+  const [formData, setFormData] = useState<FormType>({
+    fromDate: "",
+    toDate: ""
+  });
   const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
-  const handleData = (data: any) => {
+  const handleData = (data: FormType) => {
     setFormData(data);
     if (data?.fromDate) {
       setIsDisabled(false);
