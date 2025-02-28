@@ -1,4 +1,4 @@
-import Logo from "../../assets/images/Logo.svg";
+import Logo from "../../assets/images/spls_logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import Avatar from "../common/Avatar/Avatar";
 import User from "../../assets/icons/user.svg";
@@ -31,7 +31,7 @@ const Header: React.FC<HeaderProps> = () => {
         <div className="logo-wrapper align-self-center">
           <Link className="text-decoration-none" to="/">
             {" "}
-            <img src={Logo} />
+            <img src={Logo} width={200} />
           </Link>
         </div>
         <div className="profile-wrapper ms-auto d-flex align-items-center">
