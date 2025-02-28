@@ -29,13 +29,16 @@ import { Equipment } from "../../../../../enums/Equipment";
 import { downloadFile, getEnumValue } from "../../../../../utils/globalHelper";
 import { hasAccess } from "../../../../../utils/permissions";
 import usePagination from "../../../../../hooks/usePagination";
+import ConfirmationModal from "../../../../../components/common/ConfirmationModal/ConfirmationModal";
 
 const AccountingDispatchLoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const { control, getValues, reset } = useForm<any>();
 
+  const [confirm, setConfirm] = useState<boolean>(false)
+  const [item, setItem] = useState<any>({})
   const [loads, setLoads] = useState<IDispatch[]>([]);
-   const { meta, updatePagination } = usePagination(); // Pagination metadata
+  const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("loadNumber");
@@ -311,9 +314,21 @@ const AccountingDispatchLoadList: React.FC = () => {
     toast.success("Downloaded Successfully.");
   };
 
-  const printInvoice = async (row: Record<string, any>) => {
-    await downloadPDF(invoicedforLoad, row._id, `Invoice_${row.loadNumber}.pdf`);
-    toast.success("Downloaded Successfully.");
+  const handleConfirm = async(e:any) => {
+    if(e){
+      await downloadPDF(invoicedforLoad, item._id, `Invoice_${item.loadNumber}.pdf`);
+      toast.success("Downloaded Successfully.");
+      setConfirm(false)
+    }
+  };
+
+  const handleCancel = () => {
+    setConfirm(false);
+  };
+
+  const printInvoice = (row: Record<string, any>) => {
+    setItem(row)
+    setConfirm(true);
   };
 
   const uploadDocuments = (row: Record<string, any>) => {
@@ -487,6 +502,14 @@ const AccountingDispatchLoadList: React.FC = () => {
           )}
         </>
       )}
+      <ConfirmationModal 
+        title={"Print Invoice Confirmation"}
+        description={"By continuing, an Invoice Number will be assigned to this load."}
+        question={"Do you wish to continue?"}
+        isOpen={confirm} 
+        onCancel={handleCancel} 
+        onConfirm={handleConfirm}
+      />
       {/* {isDetailsModalOpen && (
         <DispatchDetailsModal
           isOpen={isDetailsModalOpen}
