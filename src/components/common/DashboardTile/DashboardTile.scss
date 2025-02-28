@@ -1,0 +1,35 @@
+.dashboard-tile {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+  
+    &:hover {
+      background-color: #e9ecef;
+    }
+  
+    .dashboard-tile-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .dashboard-tile-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #343a40;
+    }
+  
+    .dashboard-tile-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #007bff;
+    }
+  }
