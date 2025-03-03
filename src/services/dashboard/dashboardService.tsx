@@ -12,3 +12,23 @@ export const getBrokerDashboardData = async (): Promise<ApiResponse> => {
       return handleAxiosError(error, "Failed to retrieve user details");
     }
 };
+
+export const getCarrierDashboardData = async (): Promise<ApiResponse> => {
+    try {
+      const endpoint = "/dashboard/carrier-dashboard-board-stats"
+      const response = await axiosApi.get(endpoint);
+      return handleResponse(response);
+    } catch (error) {
+      return handleAxiosError(error, "Failed to retrieve user details");
+    }
+};
+
+export const getCustomerDashboardData = async (): Promise<ApiResponse> => {
+    try {
+      const endpoint = "/dashboard/customer-dashboard-board-stats"
+      const response = await axiosApi.get(endpoint);
+      return handleResponse(response);
+    } catch (error) {
+      return handleAxiosError(error, "Failed to retrieve user details");
+    }
+};

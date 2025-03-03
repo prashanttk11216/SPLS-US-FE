@@ -1,21 +1,105 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./BrokerDashboard.scss";
 import DashboardTile from "../../../../components/common/DashboardTile/DashboardTile";
+import useFetchData from "../../../../hooks/useFetchData/useFetchData";
+import { getBrokerDashboardData } from "../../../../services/dashboard/dashboardService";
+
+type dashboardStats = {
+  loadStats:[{
+    status: string;
+    count: number
+  }],
+  dispatchLoadStats:[{
+    status: string;
+    count: number
+  }],
+  userRoleStats:[{
+    role: string;
+    count: number
+  }],
+  totalEarnings:number
+}
 
 const BrokerDashboard: React.FC = () => {
+  const [stats, setStats] = useState<dashboardStats>({
+    loadStats:[{
+      status: "",
+      count: 0
+    }],
+    dispatchLoadStats:[{
+      status: "",
+      count: 0
+    }],
+    userRoleStats:[{
+      role: "",
+      count: 0
+    }],
+    totalEarnings:0
+  })
+
+  const { getData } = useFetchData<any>({
+    getAll: {
+      dashboard: getBrokerDashboardData
+    },
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await getData("dashboard");
+      if(result.success){
+        if (result.data) {
+          setStats(result.data as unknown as dashboardStats);
+        }
+      }
+    };
+    fetchData();
+  }, [])
   return (
     <div>
-      <h1>Welcome to the Broker Dashboard!</h1>
-      <h3>SPLS Load Board</h3>
-      <div className="dashboard">
-        <DashboardTile title="Total Users" value={1500} />
-        <DashboardTile title="Active Orders" value={320} />
-        <DashboardTile title="Revenue" value="$12,500" />
-        <DashboardTile title="Total Users" value={1500} />
-        <DashboardTile title="Completed Orders" value={1200} />
-        <DashboardTile title="Pending Orders" value={80} />
-        <DashboardTile title="Cancelled Orders" value={30} />
-        <DashboardTile title="New Users" value={50} />
+      <h1>Broker Dashboard</h1>
+      <div className="mb-2">
+        <h3>SPLS Load Board</h3>
+        <div className="dashboard">
+          {stats.loadStats.length && stats.loadStats.map(load => (
+            <DashboardTile key={load.count} title={load.status} value={load.count} />
+          ))}
+        </div>
+      </div>
+      <div className="mb-2">
+        <h3>SPLS Dispatch Load Board</h3>
+        <div className="dashboard">
+          {stats.dispatchLoadStats.length && stats.dispatchLoadStats.map(load => (
+            <DashboardTile key={load.count} title={load.status} value={load.count} />
+          ))}
+        </div>
+      </div>
+      <div className="mb-2">
+        <h3>SPLS Users Role</h3>
+        <div className="dashboard">
+          {stats.userRoleStats.length && stats.userRoleStats.map(load => (
+            <DashboardTile 
+              key={load.count} 
+              title={
+                load.role === 'broker_user' 
+                  ? 'Broker User' 
+                  : load.role === 'carrier' 
+                  ? 'Carrier' 
+                  : load.role === 'customer'
+                  ? 'Customer'
+                  : load.role === 'broker_admin'
+                  ? 'Broker Admin'
+                  : ''
+                } 
+              value={load.count} 
+            />
+          ))}
+        </div>
+      </div>
+      <div>
+        <h3>Total Earnings</h3>
+        <div className="col col-md-3">
+          <DashboardTile key={stats.totalEarnings} title={"Total"} value={stats.totalEarnings} />
+        </div>
       </div>
     </div>
   );
