@@ -20,7 +20,6 @@ import { IDispatch } from "../../../../../types/Dispatch";
 import { useForm } from "react-hook-form";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
-import { saveAs } from "file-saver";
 import { downloadExcelFile } from "../../../../../utils/excelUtils";
 import usePagination from "../../../../../hooks/usePagination";
 import { SortOption } from "../../../../../types/GeneralTypes";
@@ -58,7 +57,7 @@ const AccountingLoadExport: React.FC = () => {
   });
 
   // Fetch Load data
-  const fetchLoadsData = useCallback(
+  const fetchLoads = useCallback(
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return; // Wait for user data
       try {
@@ -107,7 +106,7 @@ const AccountingLoadExport: React.FC = () => {
   // Trigger fetch when user is populated
   useEffect(() => {
     if (user && user._id) {
-      fetchLoadsData();
+      fetchLoads();
     }
   }, [
     user,
@@ -185,20 +184,6 @@ const AccountingLoadExport: React.FC = () => {
     }
   };
 
-  const handleSort = (
-    sortStr: SortOption | null
-  ) => {
-    setSortConfig(sortStr); // Updates the sort query to trigger API call
-  };
-
-  const handlePageChange = (page: number) => {
-    fetchLoadsData(page);
-  };
-
-  const handleItemsPerPageChange = (limit: number) => {
-    fetchLoadsData(1, limit);
-  };
-
   const getRowData = () => {
     return loads.map((load) => ({
       _id: load._id,
@@ -221,10 +206,6 @@ const AccountingLoadExport: React.FC = () => {
     }));
   };
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
-
   const handleGeneralAction = (action: any, selectedData: any) => {
     switch (action) {
       case "Exports Loads":
@@ -242,7 +223,7 @@ const AccountingLoadExport: React.FC = () => {
     reset({
       dateRange: undefined,
     });
-    fetchLoadsData();
+    fetchLoads();
   };
 
   const exportLoadsHandler = async (data: any) => {
@@ -264,7 +245,7 @@ const AccountingLoadExport: React.FC = () => {
         {/* Search Bar */}
         <div className="searchbar-container">
           <SearchBar
-            onSearch={handleSearch}
+            onSearch={(query: string) => setSearchQuery(query)}
             searchFieldOptions={[
               { label: "Ref No", value: "loadNumber" },
               { label: "W/O", value: "WONumber" },
@@ -309,7 +290,7 @@ const AccountingLoadExport: React.FC = () => {
           />
         </div>
 
-        <button className="btn btn-primary" onClick={()=>fetchLoadsData()}>
+        <button className="btn btn-primary" onClick={()=>fetchLoads()}>
           Apply Filter
         </button>
         <button
@@ -333,7 +314,8 @@ const AccountingLoadExport: React.FC = () => {
             data={loads}
             onActionClick={handleAction}
             onRowClick={handleRowClick}
-            onSort={handleSort}
+            onSort={(sortStr: SortOption) => setSortConfig(sortStr)}
+
             sortConfig={sortConfig}
             rowClickable={true}
             showCheckbox={true}
@@ -345,8 +327,8 @@ const AccountingLoadExport: React.FC = () => {
               {/* Pagination Component */}
               <Pagination
                 meta={meta}
-                onPageChange={handlePageChange}
-                onItemsPerPageChange={handleItemsPerPageChange}
+                onPageChange={(page: number) => fetchLoads(page)}
+                onItemsPerPageChange={(limit: number) => fetchLoads(1, limit)}
               />
             </div>
           )}

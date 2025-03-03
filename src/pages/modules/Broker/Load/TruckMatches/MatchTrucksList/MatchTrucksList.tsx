@@ -89,12 +89,6 @@ const MatcheTrucksList: React.FC = () => {
     }
   };
 
-  const handleSort = (
-    sortStr: SortOption | null
-  ) => {
-    setSortConfig(sortStr); // Updates the sort query to trigger API call
-  };
-
   const getActions = (): string[] => {
     const actions = ["View Details"];
     return actions;
@@ -187,7 +181,8 @@ const MatcheTrucksList: React.FC = () => {
             data={trucks}
             onActionClick={handleAction}
             rowClickable={true}
-            onSort={handleSort}
+            onSort={(sortStr: SortOption) => setSortConfig(sortStr)}
+
             sortConfig={sortConfig}
             onRowClick={handleRowClick}
           />

@@ -45,7 +45,7 @@ const CustomerDashboardList: React.FC = () => {
   });
 
   // Fetch customers data
-  const fetchCustomersData = useCallback(
+  const fetchCustomers = useCallback(
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return; // Wait for user data
       try {
@@ -81,7 +81,7 @@ const CustomerDashboardList: React.FC = () => {
   // Trigger fetch when user is populated
   useEffect(() => {
     if (user && user._id) {
-      fetchCustomersData();
+      fetchCustomers();
     }
   }, [user, searchQuery,activeTab, sortConfig]);
 
@@ -105,20 +105,6 @@ const CustomerDashboardList: React.FC = () => {
     }
   };
 
-  const handleSort = (
-    sortStr: SortOption | null
-  ) => {
-    setSortConfig(sortStr); // Updates the sort query to trigger API call
-  };
-
-  const handlePageChange = (page: number) => {
-    fetchCustomersData(page);
-  };
-
-  const handleItemsPerPageChange = (limit: number) => {
-    fetchCustomersData(1, limit);
-  };
-
   const getRowData = () => {
     return customers.map((customer) => ({
       _id: customer._id,
@@ -132,10 +118,6 @@ const CustomerDashboardList: React.FC = () => {
     }));
   };
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
-
   return (
     <div className="customers-list-wrapper">
       <div className="d-flex align-items-center">
@@ -145,7 +127,7 @@ const CustomerDashboardList: React.FC = () => {
         {/* Search Bar */}
         <div className="searchbar-container">
           <SearchBar
-            onSearch={handleSearch}
+            onSearch={(query: string) => setSearchQuery(query)}
             searchFieldOptions={[
               { label: "Email", value: "email" },
               { label: "Name", value: "name" },
@@ -199,15 +181,16 @@ const CustomerDashboardList: React.FC = () => {
             data={customers}
             onActionClick={handleAction}
             rowClickable={true}
-            onSort={handleSort}
+            onSort={(sortStr: SortOption) => setSortConfig(sortStr)}
+
             sortConfig={sortConfig}
           />
           <div className="pagination-container">
             {/* Pagination Component */}
             <Pagination
               meta={meta}
-              onPageChange={handlePageChange}
-              onItemsPerPageChange={handleItemsPerPageChange}
+              onPageChange={(page: number) => fetchCustomers(page)}
+              onItemsPerPageChange={(limit: number) => fetchCustomers(1, limit)}
             />
           </div>
         </>

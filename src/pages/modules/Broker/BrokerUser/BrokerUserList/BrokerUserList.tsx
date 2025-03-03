@@ -65,7 +65,7 @@ const BrokerUserList: React.FC = () => {
      }
   });
 
-  const fetchBrokerUsersData = useCallback(
+  const fetchBrokerUsers = useCallback(
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return;
       try {
@@ -101,7 +101,7 @@ const BrokerUserList: React.FC = () => {
 
   useEffect(() => {
     if (user && user._id) {
-      fetchBrokerUsersData();
+      fetchBrokerUsers();
     }
   }, [user, searchQuery, sortConfig]);
 
@@ -120,7 +120,7 @@ const BrokerUserList: React.FC = () => {
   const closeModal = (refresh: boolean = false) => {
     setIsModalOpen(false);
     setBrokerUserData(null);
-    if (refresh) fetchBrokerUsersData();
+    if (refresh) fetchBrokerUsers();
   };
 
   // View Details Option Added
@@ -152,7 +152,7 @@ const BrokerUserList: React.FC = () => {
           const result = await deleteData("user",row._id);
           if (result.success) {
             toast.success(result.message);
-            fetchBrokerUsersData();
+            fetchBrokerUsers();
           }
         } catch {
           toast.error("Failed to delete user.");
@@ -164,7 +164,7 @@ const BrokerUserList: React.FC = () => {
           const result = await updateData("user",row._id, {});
           if (result.success) {
             toast.success(result.message);
-            fetchBrokerUsersData();
+            fetchBrokerUsers();
           }
         } catch {
           toast.error(`Failed to ${action.toLowerCase()} user.`);
@@ -179,12 +179,6 @@ const BrokerUserList: React.FC = () => {
     if (row) {
       openDetailsModal(row); // Open details modal
     }
-  };
-
-  const handleSort = (
-    sortStr: SortOption | null
-  ) => {
-    setSortConfig(sortStr); // Updates the sort query to trigger API call
   };
 
   const getActionsForBroker = (broker: User): string[] => {
@@ -208,14 +202,6 @@ const BrokerUserList: React.FC = () => {
     { width: "90px", key: "isActive", label: "Status",sortable: true },
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
-
-  const handlePageChange = (page: number) => {
-    fetchBrokerUsersData(page);
-  };
-
-  const handleItemsPerPageChange = (limit: number) => {
-    fetchBrokerUsersData(1, limit);
-  };
 
   const getRowData = () => {
     return brokerUsers.map((broker) => ({
@@ -245,11 +231,6 @@ const BrokerUserList: React.FC = () => {
     }));
   };
 
-  // Search Bar Functionality
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
-
   return (
     <div className="broker-list-wrapper">
       <div className="d-flex align-items-center">
@@ -267,7 +248,7 @@ const BrokerUserList: React.FC = () => {
         {/* Search Bar */}
         <div className="searchbar-container">
           <SearchBar
-            onSearch={handleSearch}
+            onSearch={(query: string) => setSearchQuery(query)}
             searchFieldOptions={[
               { label: "Email", value: "email" },
               { label: "Name", value: "name" },
@@ -291,7 +272,8 @@ const BrokerUserList: React.FC = () => {
             data={brokerUsers}
             onActionClick={handleAction}
             rowClickable={true}
-            onSort={handleSort}
+            onSort={(sortStr: SortOption) => setSortConfig(sortStr)}
+
             sortConfig={sortConfig}
             onRowClick={handleRowClick}
           />
@@ -299,8 +281,8 @@ const BrokerUserList: React.FC = () => {
           <div className="pagination-container">
             <Pagination
               meta={meta}
-              onPageChange={handlePageChange}
-              onItemsPerPageChange={handleItemsPerPageChange}
+              onPageChange={(page: number) => fetchBrokerUsers(page)}
+              onItemsPerPageChange={(limit: number) => fetchBrokerUsers(1, limit)}
             />
           </div>
         </>

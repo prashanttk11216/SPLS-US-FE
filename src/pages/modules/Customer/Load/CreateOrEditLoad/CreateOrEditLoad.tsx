@@ -139,6 +139,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   useEffect(() => {
     if (loadId) fetchLoad(loadId);
   }, [loadId]);
+  
   useEffect(() => {
     if (loadData) {
       reset(loadData);
@@ -273,7 +274,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
       <form onSubmit={handleSubmit(submit)}>
         <div className="row">
           <div className="col-12">
-            <h3 className="fw-lighter">Origin</h3>
+            <h4 className="fw-bolder">Origin</h4>
           </div>
           {/* Origin */}
           <div className="col-4">
@@ -359,7 +360,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                 <div className="row py-2">
                   {/* delete */}
                   <div className="col-12 d-flex align-items-center justify-content-between mb-2">
-                    <h4 className="fw-lighter">Stop {index}</h4>
+                    <h5 className="fw-lighter">Stop {index + 1}</h5>
                     <button
                       type="button"
                       className="btn btn-danger btn-sm"
@@ -457,7 +458,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
           </div>
 
           <div className="col-12">
-            <h3 className="fw-lighter">Destination</h3>
+            <h4 className="fw-bolder">Destination</h4>
           </div>
 
           {/* Destination */}
@@ -540,7 +541,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                 <div className="row py-2">
                   {/* delete */}
                   <div className="col-12 d-flex align-items-center justify-content-between mb-2">
-                    <h4 className="fw-lighter">Stop {index}</h4>
+                    <h4 className="fw-lighter">Stop {index + 1}</h4>
                     <button
                       type="button"
                       className="btn btn-danger btn-sm"
@@ -670,7 +671,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
           {/* Customer Rate */}
           <div className="col-2">
             <CurrencyNumberInput
-              label="Customer Rate"
+              label="All-in Rate"
               id="customerRate"
               name="customerRate"
               placeholder="Enter All-in Rate"

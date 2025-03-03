@@ -75,7 +75,7 @@ const AccountingDispatchLoadList: React.FC = () => {
   });
 
   // Fetch Load data
-  const fetchLoadsData = useCallback(
+  const fetchLoads = useCallback(
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return; // Wait for user data
       try {
@@ -126,7 +126,7 @@ const AccountingDispatchLoadList: React.FC = () => {
     if (result.success) {
       toast.success(result.message);
       setTimeout(() => {
-        fetchLoadsData();
+        fetchLoads();
       }, 500);
     }
   };
@@ -134,7 +134,7 @@ const AccountingDispatchLoadList: React.FC = () => {
   // Trigger fetch when user is populated
   useEffect(() => {
     if (user && user._id) {
-      fetchLoadsData();
+      fetchLoads();
     }
   }, [
     user,
@@ -235,20 +235,6 @@ const AccountingDispatchLoadList: React.FC = () => {
     }
   };
 
-  const handleSort = (
-    sortStr: SortOption | null
-  ) => {
-    setSortConfig(sortStr); // Updates the sort query to trigger API call
-  };
-
-  const handlePageChange = (page: number) => {
-    fetchLoadsData(page);
-  };
-
-  const handleItemsPerPageChange = (limit: number) => {
-    fetchLoadsData(1, limit);
-  };
-
   const getRowData = () => {
     return loads.map((load) => ({
       _id: load._id,
@@ -268,11 +254,7 @@ const AccountingDispatchLoadList: React.FC = () => {
       actions: getActionsForLoad(load),
     }));
   };
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
-
+  
   const handleGeneralAction = (action: any, selectedData: any) => {
     switch (action) {
       case "Refresh Loads":
@@ -290,7 +272,7 @@ const AccountingDispatchLoadList: React.FC = () => {
     reset({
       dateRange: undefined,
     });
-    fetchLoadsData();
+    fetchLoads();
   };
 
   const downloadPDF = async (fetchFunction: Function, id: string, fileName: string) => {
@@ -343,7 +325,7 @@ const AccountingDispatchLoadList: React.FC = () => {
         {/* Search Bar */}
         <div className="searchbar-container">
           <SearchBar
-            onSearch={handleSearch}
+            onSearch={(query: string) => setSearchQuery(query)}
             searchFieldOptions={[
               { label: "Ref No", value: "loadNumber" },
               { label: "W/O", value: "WONumber" },
@@ -388,7 +370,7 @@ const AccountingDispatchLoadList: React.FC = () => {
           />
         </div>
 
-        <button className="btn btn-primary" onClick={()=>fetchLoadsData()}>
+        <button className="btn btn-primary" onClick={()=>fetchLoads()}>
           Apply Filter
         </button>
         <button
@@ -479,7 +461,8 @@ const AccountingDispatchLoadList: React.FC = () => {
             data={loads}
             onActionClick={handleAction}
             onRowClick={handleRowClick}
-            onSort={handleSort}
+            onSort={(sortStr: SortOption) => setSortConfig(sortStr)}
+
             sortConfig={sortConfig}
             rowClickable={true}
             showCheckbox={true}
@@ -491,8 +474,8 @@ const AccountingDispatchLoadList: React.FC = () => {
               {/* Pagination Component */}
               <Pagination
                 meta={meta}
-                onPageChange={handlePageChange}
-                onItemsPerPageChange={handleItemsPerPageChange}
+                onPageChange={(page: number) => fetchLoads(page)}
+                onItemsPerPageChange={(limit: number) => fetchLoads(1, limit)}
               />
             </div>
           )}

@@ -53,7 +53,7 @@ const ShipperList: React.FC = () => {
     }
   });
 
-  const fetchShippersData = useCallback(
+  const fetchShippers = useCallback(
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return;
       try {
@@ -89,7 +89,7 @@ const ShipperList: React.FC = () => {
 
   useEffect(() => {
     if (user && user._id) {
-      fetchShippersData();
+      fetchShippers();
     }
   }, [user, searchQuery, sortConfig]);
 
@@ -129,7 +129,7 @@ const ShipperList: React.FC = () => {
           const result = await deleteData("shipper", row._id);
           if (result.success) {
             toast.success(result.message);
-            fetchShippersData();
+            fetchShippers();
           }
         } catch {
           toast.error("Failed to delete Shipper.");
@@ -141,7 +141,7 @@ const ShipperList: React.FC = () => {
           const result = await updateData("shipper", row._id, {});
           if (result.success) {
             toast.success(result.message);
-            fetchShippersData();
+            fetchShippers();
           }
         } catch {
           toast.error(`Failed to ${action.toLowerCase()} Shipper.`);
@@ -157,13 +157,7 @@ const ShipperList: React.FC = () => {
       openDetailsModal(row); // Open details modal
     }
   };
-
-  const handleSort = (
-    sortStr: SortOption | null
-  ) => {
-    setSortConfig(sortStr); // Updates the sort query to trigger API call
-  };
-
+  
   const getActions = (shipper: Shipper): string[] => {
     const actions = ["View Details", "Edit"];
     if (shipper.isActive) {
@@ -189,14 +183,6 @@ const ShipperList: React.FC = () => {
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
-  const handlePageChange = (page: number) => {
-    fetchShippersData(page);
-  };
-
-  const handleItemsPerPageChange = (limit: number) => {
-    fetchShippersData(1, limit);
-  };
-
   const getRowData = () => {
     return shippers.map((shipper) => ({
       _id: shipper._id,
@@ -209,10 +195,6 @@ const ShipperList: React.FC = () => {
       isActive: shipper.isActive ? "Active" : "Inactive",
       actions: getActions(shipper),
     }));
-  };
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
   };
 
   return (
@@ -232,7 +214,7 @@ const ShipperList: React.FC = () => {
         {/* Search Bar */}
         <div className="searchbar-container">
           <SearchBar
-            onSearch={handleSearch}
+            onSearch={(query: string) => setSearchQuery(query)}
             searchFieldOptions={[
               { label: "Email", value: "email" },
               { label: "Name", value: "name" },
@@ -255,7 +237,8 @@ const ShipperList: React.FC = () => {
             data={shippers}
             onActionClick={handleAction}
             rowClickable={true}
-            onSort={handleSort}
+            onSort={(sortStr: SortOption) => setSortConfig(sortStr)}
+
             sortConfig={sortConfig}
             onRowClick={handleRowClick}
           />
@@ -263,8 +246,8 @@ const ShipperList: React.FC = () => {
             {/* Pagination Component */}
             <Pagination
               meta={meta}
-              onPageChange={handlePageChange}
-              onItemsPerPageChange={handleItemsPerPageChange}
+              onPageChange={(page: number) => fetchShippers(page)}
+              onItemsPerPageChange={(limit: number) => fetchShippers(1, limit)}
             />
           </div>
         </>
@@ -276,7 +259,7 @@ const ShipperList: React.FC = () => {
           closeModal={closeModal}
           setIsModalOpen={(value: boolean) => {
             setIsModalOpen(value);
-            if (!value) fetchShippersData();
+            if (!value) fetchShippers();
           }}
           isEditing={isEditing}
           shipperId={shipperId}

@@ -68,7 +68,7 @@ const LoadList: React.FC = () => {
     }, [activeTab]);
 
   // Fetch Load data
-  const fetchLoadsData = useCallback(
+  const fetchLoads = useCallback(
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return; // Wait for user data
       try {
@@ -101,7 +101,7 @@ const LoadList: React.FC = () => {
   // Trigger fetch when user is populated
   useEffect(() => {
     if (user && user._id) {
-      fetchLoadsData();
+      fetchLoads();
     }
   }, [user, sortConfig, formQuery, activeTab]);
 
@@ -160,26 +160,12 @@ const LoadList: React.FC = () => {
     }
   };
 
-  const handleSort = (
-    sortStr: SortOption | null
-  ) => {
-    setSortConfig(sortStr); // Updates the sort query to trigger API call
-  };
-
   const getActionsForLoad = (load: Load): string[] => {
     const actions = ["View Details"];
     if(load.status === LoadStatus.Published) {
       actions.push("Send Request");
     }
     return actions;
-  };
-
-  const handlePageChange = (page: number) => {
-    fetchLoadsData(page);
-  };
-
-  const handleItemsPerPageChange = (limit: number) => {
-    fetchLoadsData(1, limit);
   };
 
   const getRowData = () => {
@@ -494,7 +480,8 @@ const LoadList: React.FC = () => {
             data={loads}
             onActionClick={handleAction}
             rowClickable={true}
-            onSort={handleSort}
+            onSort={(sortStr: SortOption) => setSortConfig(sortStr)}
+
             sortConfig={sortConfig}
             onRowClick={handleRowClick}
           />
@@ -503,8 +490,8 @@ const LoadList: React.FC = () => {
               {/* Pagination Component */}
               <Pagination
                 meta={meta}
-                onPageChange={handlePageChange}
-                onItemsPerPageChange={handleItemsPerPageChange}
+                onPageChange={(page: number) => fetchLoads(page)}
+                onItemsPerPageChange={(limit: number) => fetchLoads(1, limit)}
               />
             </div>
           )}

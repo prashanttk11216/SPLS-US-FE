@@ -67,7 +67,7 @@ const CarrierList: React.FC = () => {
   });
 
   // Fetch Carrier data
-  const fetchCarrierData = useCallback(
+  const fetchCarriers = useCallback(
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return; // Wait for user data
       try {
@@ -104,7 +104,7 @@ const CarrierList: React.FC = () => {
   // Use a single fetch on initial render and when currentPage, itemsPerPage, or user changes
   useEffect(() => {
     if (user && user._id) {
-      fetchCarrierData();
+      fetchCarriers();
     }
   }, [user, searchQuery, sortConfig]);
 
@@ -139,7 +139,7 @@ const CarrierList: React.FC = () => {
           const result = await deleteData("user", row._id);
           if (result.success) {
             toast.success(result.message);
-            fetchCarrierData();
+            fetchCarriers();
           }
         } catch (err) {
           toast.error("Failed to delete carrier.");
@@ -151,7 +151,7 @@ const CarrierList: React.FC = () => {
           const result = await updateData("user",row._id, {});
           if (result.success) {
             toast.success(result.message);
-            fetchCarrierData();
+            fetchCarriers();
           }
         } catch {
           toast.error(`Failed to ${action.toLowerCase()} user.`);
@@ -168,12 +168,6 @@ const CarrierList: React.FC = () => {
     }
   };
 
-  const handleSort = (
-    sortStr: SortOption | null
-  ) => {
-    setSortConfig(sortStr); // Updates the sort query to trigger API call
-  };
-
   const getActionsForCarrier = (carrier: User): string[] => {
     const actions = ["View Details", "Edit"];
     if (carrier.isActive) {
@@ -184,13 +178,6 @@ const CarrierList: React.FC = () => {
     actions.push("Change Password");
     actions.push("Delete");
     return actions;
-  };
-
-  const handlePageChange = (page: number) => {
-    fetchCarrierData(page);
-  };
-  const handleItemsPerPageChange = (limit: number) => {
-    fetchCarrierData(1, limit);
   };
 
   const getRowData = () => {
@@ -243,10 +230,6 @@ const CarrierList: React.FC = () => {
     setIsDetailsModalOpen(true);
   };
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
-
   return (
     <div className="carriers-list-wrapper">
       <div className="d-flex align-items-center">
@@ -264,7 +247,7 @@ const CarrierList: React.FC = () => {
         {/* Search Bar */}
         <div className="searchbar-container">
           <SearchBar
-            onSearch={handleSearch}
+            onSearch={(query: string) => setSearchQuery(query)}
             searchFieldOptions={[
               { label: "Email", value: "email" },
               { label: "Name", value: "name" },
@@ -289,15 +272,16 @@ const CarrierList: React.FC = () => {
             data={carriers}
             onActionClick={handleAction}
             rowClickable={true}
-            onSort={handleSort}
+            onSort={(sortStr: SortOption) => setSortConfig(sortStr)}
+
             sortConfig={sortConfig}
             onRowClick={handleRowClick}
           />
           <div className="pagination-container">
             <Pagination
               meta={meta}
-              onPageChange={handlePageChange}
-              onItemsPerPageChange={handleItemsPerPageChange}
+              onPageChange={(page: number) => fetchCarriers(page)}
+              onItemsPerPageChange={(limit: number) => fetchCarriers(1, limit)}
             />
           </div>
         </>
@@ -307,7 +291,7 @@ const CarrierList: React.FC = () => {
         isModalOpen={isModalOpen}
         setIsModalOpen={(value: boolean) => {
           setIsModalOpen(value);
-          if (!value) fetchCarrierData(); // Refresh carriers after modal close
+          if (!value) fetchCarriers(); // Refresh carriers after modal close
         }}
         isEditing={isEditing}
         carrierData={carrierToEdit}

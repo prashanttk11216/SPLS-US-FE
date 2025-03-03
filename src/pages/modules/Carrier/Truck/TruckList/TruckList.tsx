@@ -24,17 +24,56 @@ import { Equipment } from "../../../../../enums/Equipment";
 import usePagination from "../../../../../hooks/usePagination";
 import { SortOption } from "../../../../../types/GeneralTypes";
 
+
+
+const columns = [
+  {
+    width: "90px",
+    key: "age",
+    label: "Age",
+    sortable: true,
+    render: (row: any) => <strong>{row.age}</strong>,
+  },
+  {
+    width: "130px",
+    key: "referenceNumber",
+    label: "Ref No",
+    sortable: true,
+  },
+  { width: "150px", key: "origin.str", label: "Origin", sortable: true },
+  {
+    width: "150px",
+    key: "destination.str",
+    label: "Destination",
+    sortable: true,
+  },
+  {
+    width: "150px",
+    key: "availableDate",
+    label: "Available Date",
+    sortable: true,
+  },
+  { width: "150px", key: "equipment", label: "Equipment", sortable: true },
+  { width: "140px", key: "allInRate", label: "All-in Rate", sortable: true },
+  { width: "120px", key: "weight", label: "Weight", sortable: true },
+  { width: "120px", key: "length", label: "Length", sortable: true },
+  { width: "90px", key: "actions", label: "Actions", isAction: true },
+];
+
 const TruckList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [truckData, setTruckData] = useState<Partial<Truck> | null>(null);
   const [trucks, setTruck] = useState<Truck[]>([]);
-   const { meta, updatePagination } = usePagination(); // Pagination metadata
+  const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("referenceNumber");
-  const [sortConfig, setSortConfig] = useState<SortOption | null>({ key: "age", direction: "desc" });
+  const [sortConfig, setSortConfig] = useState<SortOption | null>({
+    key: "age",
+    direction: "desc",
+  });
 
   // View Details Option Added
   const [details, setDetails] = useState<{
@@ -44,17 +83,16 @@ const TruckList: React.FC = () => {
     isOpen: false,
   });
 
-
   const { getData, deleteData, loading } = useFetchData<any>({
-    getAll: { 
+    getAll: {
       truck: getTrucks,
-     },
-     remove: {
-      truck: deleteTruck
-     }
+    },
+    remove: {
+      truck: deleteTruck,
+    },
   });
 
-  const fetchTrucksData = useCallback(
+  const fetchTrucks = useCallback(
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return;
       try {
@@ -90,7 +128,7 @@ const TruckList: React.FC = () => {
 
   useEffect(() => {
     if (user && user._id) {
-      fetchTrucksData();
+      fetchTrucks();
     }
   }, [user, searchQuery, sortConfig]);
 
@@ -133,7 +171,7 @@ const TruckList: React.FC = () => {
           const result = await deleteData("truck", row._id);
           if (result.success) {
             toast.success(result.message);
-            fetchTrucksData();
+            fetchTrucks();
           }
         } catch {
           toast.error("Failed to delete Consignee.");
@@ -150,57 +188,9 @@ const TruckList: React.FC = () => {
     }
   };
 
-  const handleSort = (
-    sortStr: SortOption | null
-  ) => {
-    setSortConfig(sortStr); // Updates the sort query to trigger API call
-  };
-
   const getActions = (_: Truck): string[] => {
     const actions = ["View Details", "Edit", "Delete"];
     return actions;
-  };
-
-  const columns = [
-    {
-      width: "90px",
-      key: "age",
-      label: "Age",
-      sortable: true,
-      render: (row: any) => <strong>{row.age}</strong>,
-    },
-    {
-      width: "130px",
-      key: "referenceNumber",
-      label: "Ref No",
-      sortable: true,
-    },
-    { width: "150px", key: "origin.str", label: "Origin", sortable: true },
-    {
-      width: "150px",
-      key: "destination.str",
-      label: "Destination",
-      sortable: true,
-    },
-    {
-      width: "150px",
-      key: "availableDate",
-      label: "Available Date",
-      sortable: true,
-    },
-    { width: "150px", key: "equipment", label: "Equipment", sortable: true },
-    { width: "140px", key: "allInRate", label: "All-in Rate", sortable: true },
-    { width: "120px", key: "weight", label: "Weight", sortable: true },
-    { width: "120px", key: "length", label: "Length", sortable: true },
-    { width: "90px", key: "actions", label: "Actions", isAction: true },
-  ];
-
-  const handlePageChange = (page: number) => {
-    fetchTrucksData(page);
-  };
-
-  const handleItemsPerPageChange = (limit: number) => {
-    fetchTrucksData(1, limit);
   };
 
   const getRowData = () => {
@@ -213,44 +203,38 @@ const TruckList: React.FC = () => {
       "origin.str": truck.origin.str,
       "destination.str": truck?.destination?.str || "Anywhere",
       availableDate: formatDate(truck.availableDate, "MM/dd/yyyy") || "N/A",
-      equipment:  getEnumValue(Equipment, truck.equipment),   
-      allInRate: truck.allInRate
-      ? `$ ${formatNumber(truck.allInRate)}`
-      : "N/A",
+      equipment: getEnumValue(Equipment, truck.equipment),
+      allInRate: truck.allInRate ? `$ ${formatNumber(truck.allInRate)}` : "N/A",
       weight: truck.weight ? `${formatNumber(truck.weight)} lbs` : "N/A",
       length: truck.length ? `${formatNumber(truck.length)} ft` : "N/A",
       actions: getActions(truck),
     }));
   };
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
-
   return (
     <div className="consignee-list-wrapper">
       <div className="d-flex align-items-center">
-      <h2 className="fw-bolder">Trucks</h2>
+        <h2 className="fw-bolder">Trucks</h2>
         <button
-            className="btn btn-accent d-flex align-items-center ms-auto"
-            type="button"
-            onClick={openCreateModal}
-          >
-            <img src={PlusIcon} height={16} width={16} className="me-2" />
-            Create
-          </button>
+          className="btn btn-accent d-flex align-items-center ms-auto"
+          type="button"
+          onClick={openCreateModal}
+        >
+          <img src={PlusIcon} height={16} width={16} className="me-2" />
+          Create
+        </button>
       </div>
       <div className="d-flex align-items-center my-3">
         {/* Search Bar */}
         <div className="searchbar-container">
           <SearchBar
-            onSearch={handleSearch}
+            onSearch={(query: string) => setSearchQuery(query)}
             searchFieldOptions={[
               { label: "Ref No", value: "referenceNumber" },
               { label: "Equipment", value: "equipment" },
-              { label: "All-in Rate", value: "allInRate" }, 
-              { label: "Weight", value: "weight" }, 
-              { label: "Length", value: "length" }, 
+              { label: "All-in Rate", value: "allInRate" },
+              { label: "Weight", value: "weight" },
+              { label: "Length", value: "length" },
             ]}
             defaultField={searchField}
             onSearchFieldChange={(value) => setSearchField(value.value)}
@@ -268,7 +252,7 @@ const TruckList: React.FC = () => {
             data={trucks}
             onActionClick={handleAction}
             rowClickable={true}
-            onSort={handleSort}
+            onSort={(sortStr: SortOption) => setSortConfig(sortStr)}
             sortConfig={sortConfig}
             onRowClick={handleRowClick}
           />
@@ -276,23 +260,25 @@ const TruckList: React.FC = () => {
             {/* Pagination Component */}
             <Pagination
               meta={meta}
-              onPageChange={handlePageChange}
-              onItemsPerPageChange={handleItemsPerPageChange}
+              onPageChange={(page: number) => fetchTrucks(page)}
+              onItemsPerPageChange={(limit: number) => fetchTrucks(1, limit)}
             />
           </div>
         </>
       )}
 
-      <CreateOrEditTruck
-        isModalOpen={isModalOpen}
-        closeModal={closeModal}
-        setIsModalOpen={(value: boolean) => {
-          setIsModalOpen(value);
-          if (!value) fetchTrucksData();
-        }}
-        isEditing={isEditing}
-        truckData={truckData}
-      />
+      {isModalOpen && (
+        <CreateOrEditTruck
+          isModalOpen={isModalOpen}
+          closeModal={closeModal}
+          setIsModalOpen={(value: boolean) => {
+            setIsModalOpen(value);
+            if (!value) fetchTrucks();
+          }}
+          isEditing={isEditing}
+          truckData={truckData}
+        />
+      )}
 
       <TruckDetailsModal
         isOpen={details.isOpen}

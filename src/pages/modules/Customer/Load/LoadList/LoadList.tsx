@@ -22,22 +22,64 @@ import { Equipment } from "../../../../../enums/Equipment";
 import { getEnumValue } from "../../../../../utils/globalHelper";
 import usePagination from "../../../../../hooks/usePagination";
 import { SortOption } from "../../../../../types/GeneralTypes";
+import Tabs from "../../../../../components/common/Tabs/Tabs";
 
-const CUSTOMER_LOADS_ACTIVE_TAB = 'CUSTOMER_LOADS_ACTIVE_TAB'
+const CUSTOMER_LOADS_ACTIVE_TAB = "CUSTOMER_LOADS_ACTIVE_TAB";
+
+const columns = [
+  {
+    width: "95px",
+    key: "loadNumber",
+    label: "Ref No",
+    sortable: true,
+  },
+  { width: "160px", key: "origin", label: "Origin", sortable: true },
+  {
+    width: "160px",
+    key: "destination",
+    label: "Destination",
+    sortable: true,
+  },
+  {
+    width: "120px",
+    key: "originEarlyPickupDate",
+    label: "Pick-up",
+    sortable: true,
+  },
+  { width: "130px", key: "equipment", label: "Equipment" },
+  { width: "100px", key: "miles", label: "Miles", sortable: true },
+  {
+    width: "100px",
+    key: "customerRate",
+    label: "Rate",
+    sortable: true,
+  },
+  { width: "90px", key: "actions", label: "Actions", isAction: true },
+];
+
+const tabOptions = [
+  { label: "Loads", value: LoadStatus.Published },
+  { label: "Pending Response", value: LoadStatus.PendingResponse },
+  { label: "Deal Closed", value: LoadStatus.DealClosed },
+  { label: "In Transit", value: LoadStatus.InTransit },
+  { label: "Delivered", value: LoadStatus.Delivered },
+  { label: "Completed", value: LoadStatus.Completed },
+  { label: "Cancelled", value: LoadStatus.Cancelled },
+];
 
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
   const [loads, setLoads] = useState<Load[]>([]);
-   const { meta, updatePagination } = usePagination(); // Pagination metadata
+  const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("loadNumber");
 
   const savedActiveTab = localStorage.getItem(CUSTOMER_LOADS_ACTIVE_TAB);
-  const [activeTab, setActiveTab] = useState<LoadStatus>(
-      savedActiveTab ? (savedActiveTab as LoadStatus) : LoadStatus.Published
-    );
+  const [activeTab, setActiveTab] = useState<string>(
+    savedActiveTab ? (savedActiveTab as LoadStatus) : LoadStatus.Published
+  );
 
   const [sortConfig, setSortConfig] = useState<SortOption | null>(null);
 
@@ -45,20 +87,14 @@ const LoadList: React.FC = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
   const [loadDetails, setLoadDetails] = useState<Partial<Load> | null>(null);
 
-  
   const { getData, loading, error } = useFetchData<any>({
-    getAll: { 
+    getAll: {
       load: getloads,
-     },
+    },
   });
 
-  // Update active tab in localStorage whenever it changes
-      useEffect(() => {
-        localStorage.setItem(CUSTOMER_LOADS_ACTIVE_TAB, activeTab);
-      }, [activeTab]);
-
   // Fetch Load data
-  const fetchLoadsData = useCallback(
+  const fetchLoads = useCallback(
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return; // Wait for user data
       try {
@@ -70,7 +106,7 @@ const LoadList: React.FC = () => {
             searchQuery
           )}&searchField=${searchField}`;
         }
-        
+
         if (sortConfig) {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
@@ -93,40 +129,10 @@ const LoadList: React.FC = () => {
   // Trigger fetch when user is populated
   useEffect(() => {
     if (user && user._id) {
-      fetchLoadsData();
+      localStorage.setItem(CUSTOMER_LOADS_ACTIVE_TAB, activeTab);
+      fetchLoads();
     }
   }, [user, searchQuery, sortConfig, activeTab]);
-
-  const columns = [
-    {
-      width: "95px",
-      key: "loadNumber",
-      label: "Ref No",
-      sortable: true,
-    },
-    { width: "160px", key: "origin", label: "Origin", sortable: true },
-    {
-      width: "160px",
-      key: "destination",
-      label: "Destination",
-      sortable: true,
-    },
-    {
-      width: "120px",
-      key: "originEarlyPickupDate",
-      label: "Pick-up",
-      sortable: true,
-    },
-    { width: "130px", key: "equipment", label: "Equipment" },
-    { width: "100px", key: "miles", label: "Miles", sortable: true },
-    {
-      width: "100px",
-      key: "customerRate",
-      label: "Rate",
-      sortable: true,
-    },
-    { width: "90px", key: "actions", label: "Actions", isAction: true },
-  ];
 
   const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
@@ -134,7 +140,11 @@ const LoadList: React.FC = () => {
         handleRowClick(row);
         break;
       case "Edit":
-        navigate(`load-board/create/${row._id}${row.status === LoadStatus.Draft ? "?draft=true" : ""}`);
+        navigate(
+          `load-board/create/${row._id}${
+            row.status === LoadStatus.Draft ? "?draft=true" : ""
+          }`
+        );
         break;
       default:
         toast.info(`Action "${action}" is not yet implemented.`);
@@ -147,26 +157,12 @@ const LoadList: React.FC = () => {
     }
   };
 
-  const handleSort = (
-    sortStr: SortOption | null
-  ) => {
-    setSortConfig(sortStr); // Updates the sort query to trigger API call
-  };
-
   const getActionsForLoad = (load: Load): string[] => {
     const actions = ["View Details"];
     if (load.status == LoadStatus.Draft) {
-          actions.push("Edit");
+      actions.push("Edit");
     }
     return actions;
-  };
-
-  const handlePageChange = (page: number) => {
-    fetchLoadsData(page);
-  };
-
-  const handleItemsPerPageChange = (limit: number) => {
-    fetchLoadsData(1, limit);
   };
 
   const getRowData = () => {
@@ -176,7 +172,7 @@ const LoadList: React.FC = () => {
       destination: load.destination.str || "N/A",
       originEarlyPickupDate:
         formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
-      equipment:  getEnumValue(Equipment, load.equipment),   
+      equipment: getEnumValue(Equipment, load.equipment),
       miles: load.miles ? `${formatNumber(load.miles)} mi` : "N/A",
       customerRate: load.customerRate
         ? `$ ${formatNumber(load.customerRate)}`
@@ -191,37 +187,33 @@ const LoadList: React.FC = () => {
     setIsDetailsModalOpen(true);
   };
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
-
   return (
     <div className="customers-list-wrapper">
       <div className="d-flex align-items-center">
-      <h2 className="fw-bolder">SPLS Load Board</h2>
+        <h2 className="fw-bold">SPLS Load Board</h2>
         <button
-            className="btn btn-accent d-flex align-items-center ms-auto"
-            type="button"
-            onClick={() => navigate(`load-board/create`)}
-          >
-            <img src={PlusIcon} height={16} width={16} className="me-2" />
-            Create
-          </button>
+          className="btn btn-accent d-flex align-items-center ms-auto"
+          type="button"
+          onClick={() => navigate(`load-board/create`)}
+        >
+          <img src={PlusIcon} height={16} width={16} className="me-2" />
+          Create
+        </button>
       </div>
       <div className="d-flex align-items-center my-3">
         {/* Search Bar */}
         <div className="searchbar-container">
           <SearchBar
-            onSearch={handleSearch}
+            onSearch={(query: string) => setSearchQuery(query)}
             searchFieldOptions={[
               { label: "Ref No", value: "loadNumber" },
               { label: "Equipment", value: "equipment" },
-              { label: "Weight", value: "weight" }, 
-              { label: "Width", value: "width" }, 
+              { label: "Weight", value: "weight" },
+              { label: "Width", value: "width" },
               { label: "Height", value: "height" },
-              { label: "Distance", value: "miles" }, 
-              { label: "Broker Rate", value: "allInRate" }, 
-              { label: "Customer Rate", value: "customerRate" }, 
+              { label: "Distance", value: "miles" },
+              { label: "Broker Rate", value: "allInRate" },
+              { label: "Customer Rate", value: "customerRate" },
               { label: "Commodity", value: "commodity" },
               { label: "Load Option", value: "loadOption" },
             ]}
@@ -237,107 +229,18 @@ const LoadList: React.FC = () => {
         <div className="text-danger">{error}</div>
       ) : (
         <>
-        <ul className="nav nav-tabs">
-                      <li
-                        className="nav-item"
-                        onClick={() => setActiveTab(LoadStatus.Published)}
-                      >
-                        <a
-                          className={`nav-link ${
-                            LoadStatus.Published == activeTab && "active"
-                          }`}
-                          aria-current="page"
-                          href="#"
-                        >
-                          Loads
-                        </a>
-                      </li>
-                      <li
-                        className="nav-item"
-                        onClick={() => setActiveTab(LoadStatus.PendingResponse)}
-                      >
-                        <a
-                          className={`nav-link ${
-                            LoadStatus.PendingResponse == activeTab && "active"
-                          }`}
-                          href="#"
-                        >
-                          Pending Response
-                        </a>
-                      </li>
-                      <li
-                        className="nav-item"
-                        onClick={() => setActiveTab(LoadStatus.DealClosed)}
-                      >
-                        <a
-                          className={`nav-link ${
-                            LoadStatus.DealClosed == activeTab && "active"
-                          }`}
-                          href="#"
-                        >
-                          Deal Closed
-                        </a>
-                      </li>
-                      <li
-                                    className="nav-item"
-                                    onClick={() => setActiveTab(LoadStatus.InTransit)}
-                                  >
-                                    <a
-                                      className={`nav-link ${
-                                        LoadStatus.InTransit == activeTab && "active"
-                                      }`}
-                                      href="#"
-                                    >
-                                      In Transit
-                                    </a>
-                                  </li>
-                                  <li
-                                    className="nav-item"
-                                    onClick={() => setActiveTab(LoadStatus.Delivered)}
-                                  >
-                                    <a
-                                      className={`nav-link ${
-                                        LoadStatus.Delivered == activeTab && "active"
-                                      }`}
-                                      href="#"
-                                    >
-                                      Delivered
-                                    </a>
-                                  </li>
-                                  <li
-                                    className="nav-item"
-                                    onClick={() => setActiveTab(LoadStatus.Completed)}
-                                  >
-                                    <a
-                                      className={`nav-link ${
-                                        LoadStatus.Completed == activeTab && "active"
-                                      }`}
-                                      href="#"
-                                    >
-                                      Completed
-                                    </a>
-                                  </li>
-                      <li
-                        className="nav-item"
-                        onClick={() => setActiveTab(LoadStatus.Cancelled)}
-                      >
-                        <a
-                          className={`nav-link ${
-                            LoadStatus.Cancelled == activeTab && "active"
-                          }`}
-                          href="#"
-                        >
-                          Cancelled
-                        </a>
-                      </li>
-                    </ul>
+          <Tabs
+            tabs={tabOptions}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
           <Table
             columns={columns}
             rows={getRowData()}
             data={loads}
             onActionClick={handleAction}
             rowClickable={true}
-            onSort={handleSort}
+            onSort={(sortStr: SortOption) => setSortConfig(sortStr)}
             sortConfig={sortConfig}
             onRowClick={handleRowClick}
           />
@@ -346,8 +249,8 @@ const LoadList: React.FC = () => {
               {/* Pagination Component */}
               <Pagination
                 meta={meta}
-                onPageChange={handlePageChange}
-                onItemsPerPageChange={handleItemsPerPageChange}
+                onPageChange={(page: number) => fetchLoads(page)}
+                onItemsPerPageChange={(limit: number) => fetchLoads(1, limit)}
               />
             </div>
           )}

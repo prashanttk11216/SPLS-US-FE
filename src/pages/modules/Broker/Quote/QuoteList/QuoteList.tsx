@@ -12,6 +12,7 @@ import { deleteQuote, getQuoteById, getQuotes } from "../../../../../services/qu
 import { IQuote } from "../../../../../types/Quote";
 import CreateOrEditQuote from "../CreateOrEditQuote/CreateOrEditQuote";
 import usePagination from "../../../../../hooks/usePagination";
+import { SortOption } from "../../../../../types/GeneralTypes";
 
 const QuoteList: React.FC = () => {
     const user = useSelector((state: RootState) => state.user);
@@ -40,7 +41,7 @@ const QuoteList: React.FC = () => {
       }
     });
   
-    const fetchQuotesData = useCallback(
+    const fetchQuotes = useCallback(
       async (page: number = 1, limit: number = 10) => {
         if (!user || !user._id) return;
         try {
@@ -75,7 +76,7 @@ const QuoteList: React.FC = () => {
   
     useEffect(() => {
       if (user && user._id) {
-        fetchQuotesData();
+        fetchQuotes();
       }
     }, [user, searchQuery, sortConfig]);
   
@@ -107,7 +108,7 @@ const QuoteList: React.FC = () => {
             const result = await deleteData("quote", row._id);
             if (result.success) {
               toast.success(result.message);
-              fetchQuotesData();
+              fetchQuotes();
             }
           } catch {
             toast.error("Failed to delete Quote.");
@@ -116,12 +117,6 @@ const QuoteList: React.FC = () => {
         default:
           toast.info(`Action "${action}" is not yet implemented.`);
       }
-    };
-  
-    const handleSort = (
-      sortStr: SortOption | null
-    ) => {
-      setSortConfig(sortStr); // Updates the sort query to trigger API call
     };
   
     const getActions = (): string[] => {
@@ -135,14 +130,6 @@ const QuoteList: React.FC = () => {
       { width: "90px", key: "actions", label: "Actions", isAction: true },
     ];
   
-    const handlePageChange = (page: number) => {
-      fetchQuotesData(page);
-    };
-  
-    const handleItemsPerPageChange = (limit: number) => {
-      fetchQuotesData(1, limit);
-    };
-  
     const getRowData = () => {
       return quotes.map((quote) => ({
         _id: quote._id,
@@ -150,10 +137,6 @@ const QuoteList: React.FC = () => {
         isActive: quote.isActive ? "Active" : "Inactive",
         actions: getActions(),
       }));
-    };
-  
-    const handleSearch = (query: string) => {
-      setSearchQuery(query);
     };
   
     return (
@@ -173,7 +156,7 @@ const QuoteList: React.FC = () => {
           {/* Search Bar */}
           <div className="searchbar-container">
             <SearchBar
-              onSearch={handleSearch}
+              onSearch={(query: string) => setSearchQuery(query)}
               searchFieldOptions={[
                 { label: "Name", value: "name" },
               ]}
@@ -193,15 +176,16 @@ const QuoteList: React.FC = () => {
               data={quotes}
               onActionClick={handleAction}
               rowClickable={true}
-              onSort={handleSort}
+              onSort={(sortStr: SortOption) => setSortConfig(sortStr)}
+
               sortConfig={sortConfig}
             />
             <div className="pagination-container">
               {/* Pagination Component */}
               <Pagination
                 meta={meta}
-                onPageChange={handlePageChange}
-                onItemsPerPageChange={handleItemsPerPageChange}
+                onPageChange={(page: number) => fetchQuotes(page)}
+                onItemsPerPageChange={(limit: number) => fetchQuotes(1, limit)}
               />
             </div>
           </>
@@ -213,7 +197,7 @@ const QuoteList: React.FC = () => {
             closeModal={closeModal}
             setIsModalOpen={(value: boolean) => {
               setIsModalOpen(value);
-              if (!value) fetchQuotesData();
+              if (!value) fetchQuotes();
             }}
             isEditing={isEditing}
             quoteId={quoteId}
