@@ -82,20 +82,8 @@ export const baseLoadSchema = z.object({
   specialInstructions: z.string().optional(),
   commodity: z.enum(Object.keys(Commodity) as [keyof typeof Commodity]).optional(),
   loadNumber: z.number().optional(),
-
   postedBy: z.string(),
-  status: z
-    .enum([
-      "Draft",
-        "Published",
-        "Pending Response",
-        "Deal Closed",
-        'In Transit',
-        'Delivered',
-        'Completed',
-        "Cancelled",
-    ])
-    .optional(),
+  status: z.string().optional(),
 });
 
 // Transform logic with explicit type assertions

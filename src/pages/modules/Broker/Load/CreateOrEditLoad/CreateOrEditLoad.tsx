@@ -188,7 +188,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   const submit = async (data: LoadForm) => {
     try {
       let result;
-      if (loadId && loadData) {
+      if (loadId && loadData?._id) {
         const validatedData = updateLoadSchema.parse(data);
         result = await updateData("load", loadData._id!, validatedData);
       } else {
@@ -215,20 +215,29 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   };
 
   const getDistance = async () => {
+    const origin = getValues("origin");
+    const destination = getValues("destination");
+  
+    if (!origin?.lat || !origin?.lng || !destination?.lat || !destination?.lng) {
+      console.error("Origin or destination is missing required coordinates.");
+      return 0; // Return a default value if data is missing
+    }
+  
     const originData = {
-      lat: getValues("origin").lat,
-      lng: getValues("origin").lng,
+      lat: origin.lat,
+      lng: origin.lng,
     };
+  
     const destinationData = {
-      lat: getValues("destination").lat,
-      lng: getValues("destination").lng,
+      lat: destination.lat,
+      lng: destination.lng,
     };
-
+  
     try {
       const distance = await calculateDistance(originData, destinationData);
       return distance;
     } catch (error) {
-      console.error(error);
+      console.error("Error calculating distance:", error);
       return 0;
     }
   };

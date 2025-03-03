@@ -3,15 +3,14 @@ import { store } from "./store/store";
 import { RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { routes } from "./router/AppRouter";
+import { APIProvider } from "@vis.gl/react-google-maps";
 import "react-toastify/dist/ReactToastify.css";
 import "react-international-phone/style.css";
 import "react-datepicker/dist/react-datepicker.css";
 import '../node_modules/bootstrap/dist/js/bootstrap.bundle.js';
 import "./App.scss";
-import { APIProvider } from "@vis.gl/react-google-maps";
 
 const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY as string;
-
 
 function App() {
   return (
@@ -22,7 +21,7 @@ function App() {
           <RouterProvider router={routes} />
           <ToastContainer
             position="top-right"
-            autoClose={5000}
+            autoClose={3000}
             hideProgressBar={false}
             newestOnTop={false}
             closeOnClick
