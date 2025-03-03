@@ -14,6 +14,7 @@ import Pagination, {
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 import usePagination from "../../../../../hooks/usePagination";
+import { SortOption } from "../../../../../types/GeneralTypes";
 
 export enum CustomerStatus {
     Active = "Active",
@@ -35,10 +36,7 @@ const CustomerDashboardList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("email");
 
-  const [sortConfig, setSortConfig] = useState<{
-    key: string;
-    direction: "asc" | "desc";
-  } | null>(null);
+  const [sortConfig, setSortConfig] = useState<SortOption | null>(null);
 
   const { getData, loading, error } = useFetchData<any>({
     getAll: { 
@@ -108,7 +106,7 @@ const CustomerDashboardList: React.FC = () => {
   };
 
   const handleSort = (
-    sortStr: { key: string; direction: "asc" | "desc" } | null
+    sortStr: SortOption | null
   ) => {
     setSortConfig(sortStr); // Updates the sort query to trigger API call
   };

@@ -140,7 +140,7 @@ const RoleList: React.FC = () => {
     };
   
     const handleSort = (
-      sortStr: { key: string; direction: "asc" | "desc" } | null
+      sortStr: SortOption | null
     ) => {
       setSortConfig(sortStr); // Updates the sort query to trigger API call
     };

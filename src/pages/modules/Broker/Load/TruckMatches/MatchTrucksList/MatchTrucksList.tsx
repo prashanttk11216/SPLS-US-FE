@@ -16,27 +16,28 @@ import { useParams } from "react-router-dom";
 import { getEnumValue } from "../../../../../../utils/globalHelper";
 import { Equipment } from "../../../../../../enums/Equipment";
 import usePagination from "../../../../../../hooks/usePagination";
+import { SortOption } from "../../../../../../types/GeneralTypes";
 
 const MatcheTrucksList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const { loadId } = useParams();
   const [trucks, setTruck] = useState<Truck[]>([]);
-   const { meta, updatePagination } = usePagination(); // Pagination metadata
+  const { meta, updatePagination } = usePagination(); // Pagination metadata
 
-  const [sortConfig, setSortConfig] = useState<{
-    key: string;
-    direction: "asc" | "desc";
-  } | null>({ key: "age", direction: "desc" });
+  const [sortConfig, setSortConfig] = useState<SortOption | null>({ key: "age", direction: "desc" });
 
   // View Details Option Added
-  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
-  const [truckDetails, setTruckDetails] = useState<Partial<Truck> | null>(null);
-
+  const [details, setDetails] = useState<{
+    isOpen: boolean;
+    truck?: Partial<Truck>;
+  }>({
+    isOpen: false,
+  });
 
   const { getDataById, loading } = useFetchData<any>({
-    getById: { 
+    getById: {
       truck: getMatchesTrucks,
-     }
+    },
   });
 
   const fetchTrucksData = useCallback(
@@ -52,8 +53,6 @@ const MatcheTrucksList: React.FC = () => {
         const result = await getDataById("truck", loadId!, query);
         if (result.success) {
           const userData = result.data as Truck[];
-
-          // setCustomers(result.data as User[]);
           setTruck(userData);
           updatePagination(result.meta as PaginationState);
         }
@@ -70,13 +69,11 @@ const MatcheTrucksList: React.FC = () => {
     }
   }, [user, sortConfig, loadId]);
 
-  // View Details Option Added
-  const openDetailsModal = (truckData: Partial<Truck>) => {
-    setTruckDetails(truckData);
-    setIsDetailsModalOpen(true);
-  };
+  const openDetailsModal = (truck: Partial<Truck>) =>
+    setDetails({ isOpen: true, truck });
+  const closeDetailsModal = () => setDetails({ isOpen: false });
 
-  const handleAction = async (action: string, row: Record<string, any>) => {
+  const handleAction = async (action: string, row: Partial<Truck>) => {
     switch (action) {
       case "View Details":
         handleRowClick(row);
@@ -86,19 +83,19 @@ const MatcheTrucksList: React.FC = () => {
     }
   };
 
-  const handleRowClick = async (row: Record<string, any>) => {
+  const handleRowClick = async (row: Partial<Truck>) => {
     if (row) {
       openDetailsModal(row); // Open details modal
     }
   };
 
   const handleSort = (
-    sortStr: { key: string; direction: "asc" | "desc" } | null
+    sortStr: SortOption | null
   ) => {
     setSortConfig(sortStr); // Updates the sort query to trigger API call
   };
 
-  const getActions = (_: Truck): string[] => {
+  const getActions = (): string[] => {
     const actions = ["View Details"];
     return actions;
   };
@@ -143,14 +140,6 @@ const MatcheTrucksList: React.FC = () => {
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
-  const handlePageChange = (page: number) => {
-    fetchTrucksData(page);
-  };
-
-  const handleItemsPerPageChange = (limit: number) => {
-    fetchTrucksData(1, limit);
-  };
-
   const getRowData = () => {
     return trucks.map((truck) => {
       const row: any = {
@@ -162,11 +151,11 @@ const MatcheTrucksList: React.FC = () => {
         "destination.str": truck?.destination?.str || "Anywhere",
         dhdDistance: truck.dhdDistance || "N/A", // Add dhoDistance conditionally
         availableDate: formatDate(truck.availableDate, "MM/dd/yyyy") || "N/A",
-        equipment:  getEnumValue(Equipment, truck.equipment),   
+        equipment: getEnumValue(Equipment, truck.equipment),
         allInRate: truck.allInRate ? `${truck.allInRate} $` : "N/A",
-        weight: (truck.weight && (truck.weight + " lbs")) || "N/A",
-        length: (truck.length && (truck.length + " ft")) || "N/A",
-        actions: getActions(truck),
+        weight: (truck.weight && truck.weight + " lbs") || "N/A",
+        length: (truck.length && truck.length + " ft") || "N/A",
+        actions: getActions(),
       };
 
       // Remove dhoDistance if it doesn't exist
@@ -206,17 +195,19 @@ const MatcheTrucksList: React.FC = () => {
             {/* Pagination Component */}
             <Pagination
               meta={meta}
-              onPageChange={handlePageChange}
-              onItemsPerPageChange={handleItemsPerPageChange}
+              onPageChange={(page: number) => fetchTrucksData(page)}
+              onItemsPerPageChange={(limit: number) =>
+                fetchTrucksData(1, limit)
+              }
             />
           </div>
         </>
       )}
 
       <TruckDetailsModal
-        isOpen={isDetailsModalOpen}
-        truckData={truckDetails}
-        onClose={() => setIsDetailsModalOpen(false)}
+        isOpen={details.isOpen}
+        truckData={details.truck}
+        onClose={closeDetailsModal}
       />
     </div>
   );

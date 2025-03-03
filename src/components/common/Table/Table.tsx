@@ -24,7 +24,7 @@ interface TableProps {
   onRowClick?: (row: Record<string, any>) => void; // Callback for row clicks
   actions?: string[]; // Action names for the dropdown menu
   onSort?: (
-    sortString: { key: string; direction: "asc" | "desc" } | null
+    sortString: SortOption | null
   ) => void; // Callback to trigger API for sorting
   sortConfig?: { key: string; direction: string } | null;
   rowClickable?: boolean;

@@ -8,6 +8,7 @@ import { UserRole } from "../../../../../enums/UserRole";
 import { toast } from "react-toastify";
 import { notifyCustomerLoad } from "../../../../../services/load/loadServices";
 import TextAreaBox from "../../../../../components/common/TextAreaBox/TextAreaBox";
+import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
 
 /**
  * Props for RateConfirmationNotification component
@@ -26,10 +27,7 @@ interface FormInputs {
 }
 
 const EMAIL_REGEX = /^[\w\.-]+@[\w\.-]+\.\w{2,4}$/;
-
-/**
- * RateConfirmationNotification Component
- */
+// RateConfirmationNotification Component
 export const RateConfirmationNotification: FC<
   RateConfirmationNotificationProps
 > = ({ selectedLoad, closeModal }) => {
@@ -38,22 +36,19 @@ export const RateConfirmationNotification: FC<
   >([]);
   const { handleSubmit, control, watch, getValues } = useForm<FormInputs>();
 
-
   const { getData, updateData, loading } = useFetchData<any>({
-    getAll: { 
+    getAll: {
       user: getUsers,
-     },
-     update: {
+    },
+    update: {
       load: notifyCustomerLoad,
-     },
+    },
   });
 
   const emailsInput = watch("emailsInput", "");
   const customerSelected = watch("customer");
 
-  /**
-   * Fetch customer data from the server
-   */
+  // Fetch customer data from the server
   const fetchCustomersData = useCallback(async () => {
     try {
       const query = `?role=${UserRole.CUSTOMER}&isActive=true`;
@@ -65,25 +60,18 @@ export const RateConfirmationNotification: FC<
           email: user?.email,
         }));
         setCustomersList(users || []);
-      } else {
-        toast.error("Failed to fetch customers.");
       }
     } catch (error) {
-      console.error(error);
       toast.error("An error occurred while fetching customers.");
     }
   }, [getData]);
 
-  /**
-   * On component mount, fetch customer data
-   */
+  // On component mount, fetch customer data
   useEffect(() => {
     fetchCustomersData();
   }, [fetchCustomersData]);
 
-  /**
-   * Validate and clean emails input
-   */
+  // Validate and clean emails input
   const processEmailsInput = useCallback((): string[] => {
     const inputEmails = getValues("emailsInput")
       ?.split(/[\s,;]+/)
@@ -92,15 +80,12 @@ export const RateConfirmationNotification: FC<
     return inputEmails || [];
   }, [getValues]);
 
-  /**
-   * Form submission handler
-   */
+  // Form submission handler
   const onSubmit = async () => {
     let emails: string[] = [];
     const inputEmails = processEmailsInput();
 
     // Handle if customerSelected is either single or multiple
-
     if (Array.isArray(customerSelected)) {
       emails = customersList
         .filter((customer) =>
@@ -126,18 +111,13 @@ export const RateConfirmationNotification: FC<
       if (response.success) {
         toast.success(response.message || "Notification sent successfully.");
         closeModal();
-      } else {
-        toast.error(response.message || "Failed to send notification.");
       }
     } catch (error) {
-      console.error(error);
       toast.error("An error occurred while sending notifications.");
     }
   };
 
-  /**
-   * Memoized boolean to check if all emails are valid
-   */
+  // Memoized boolean to check if all emails are valid
   const allEmailsValid = useMemo(() => {
     return emailsInput
       ?.split(/[\s,;]+/)
@@ -174,7 +154,7 @@ export const RateConfirmationNotification: FC<
             rows={3}
             disabled={!!customerSelected}
             rules={{
-              required: "Field is required",
+              required: VALIDATION_MESSAGES.defaultRequired,
               validate: validateEmails,
             }}
           />
@@ -192,10 +172,12 @@ export const RateConfirmationNotification: FC<
             options={customersList}
             isClearable={true}
             isDisabled={!!emailsInput?.trim()}
-            rules={{ required: {
-              value: true,
-              message: "Field is required"
-            }}}
+            rules={{
+              required: {
+                value: true,
+                message: VALIDATION_MESSAGES.defaultRequired,
+              },
+            }}
           />
         </div>
 

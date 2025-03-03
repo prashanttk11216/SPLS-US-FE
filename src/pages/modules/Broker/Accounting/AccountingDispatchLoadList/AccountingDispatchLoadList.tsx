@@ -28,6 +28,7 @@ import { Equipment } from "../../../../../enums/Equipment";
 import { downloadFile, getEnumValue } from "../../../../../utils/globalHelper";
 import usePagination from "../../../../../hooks/usePagination";
 import ConfirmationModal from "../../../../../components/common/ConfirmationModal/ConfirmationModal";
+import { SortOption } from "../../../../../types/GeneralTypes";
 
 const ACCOUNTING_DISPATCH_ACTIVE_TAB = "ACCOUNTING_DISPATCH_ACTIVE_TAB";
 
@@ -48,10 +49,7 @@ const AccountingDispatchLoadList: React.FC = () => {
       ? (savedActiveTab as DispatchLoadStatus)
       : DispatchLoadStatus.Published
   );
-  const [sortConfig, setSortConfig] = useState<{
-    key: string;
-    direction: "asc" | "desc";
-  } | null>({ key: "age", direction: "desc" });
+  const [sortConfig, setSortConfig] = useState<SortOption | null>({ key: "age", direction: "desc" });
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
   const [dispatchDetails, setDispatchDetails] =
     useState<Partial<IDispatch> | null>(null);
@@ -238,7 +236,7 @@ const AccountingDispatchLoadList: React.FC = () => {
   };
 
   const handleSort = (
-    sortStr: { key: string; direction: "asc" | "desc" } | null
+    sortStr: SortOption | null
   ) => {
     setSortConfig(sortStr); // Updates the sort query to trigger API call
   };

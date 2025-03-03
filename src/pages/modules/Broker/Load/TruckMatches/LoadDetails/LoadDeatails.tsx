@@ -15,25 +15,20 @@ import { Mode } from "../../../../../../enums/Mode";
 const LoadDetails: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const { loadId } = useParams();
-
-  const [loadDetails, setLoadDetails] = useState<Partial<Load> | null>(null);
-  
-
+  const [loadDetails  , setLoadDetails] = useState<Partial<Load> | null>(null);
   const { getDataById, loading } = useFetchData<any>({
-    getById: { 
+    getById: {
       load: getLoadById,
-     }
+    },
   });
 
-  const fetchLoadData = useCallback(async () => {
+  const fetchLoad = useCallback(async () => {
     if (!user || !user._id) return;
     try {
-      const result = await getDataById("user", loadId!);
+      const result = await getDataById("load", loadId!);
       if (result.success) {
-        const loadData = result.data as Load[];
-        setLoadDetails(loadData);
-      } else {
-        toast.error(result.message || "Failed to fetch Consignee Users.");
+        const load = result.data as Load[];
+        setLoadDetails(load);
       }
     } catch (err) {
       toast.error("Error fetching Consignee data.");
@@ -42,7 +37,7 @@ const LoadDetails: React.FC = () => {
 
   useEffect(() => {
     if (user && user._id) {
-      fetchLoadData();
+      fetchLoad();
     }
   }, [user, loadId]);
 
@@ -78,11 +73,15 @@ const LoadDetails: React.FC = () => {
               <div className="col-4 mt-2">
                 <div className="d-flex">
                   <div className="fw-bold">Equipment : </div>
-                  <div className="ms-2">{getEnumValue(Equipment, loadDetails.equipment)}</div>
+                  <div className="ms-2">
+                    {getEnumValue(Equipment, loadDetails.equipment)}
+                  </div>
                 </div>
                 <div className="d-flex">
                   <div className="fw-bold">Mode : </div>
-                  <div className="ms-2">{ getEnumValue(Mode, loadDetails.mode)}</div>
+                  <div className="ms-2">
+                    {getEnumValue(Mode, loadDetails.mode)}
+                  </div>
                 </div>
                 <div className="d-flex">
                   <div className="fw-bold">Pick-up Date : </div>
@@ -109,7 +108,7 @@ const LoadDetails: React.FC = () => {
               </div>
               <div className="col-4 mt-2">
                 <div className="d-flex">
-                  <div className="fw-bold">Reference No : </div>
+                  <div className="fw-bold">Load No : </div>
                   <div className="ms-2">{loadDetails?.loadNumber}</div>
                 </div>
                 <div className="d-flex">

@@ -21,6 +21,7 @@ import {
 import ShipperDetailsModal from "../ShipperDetailsModal/ShipperDetailsModal";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 import usePagination from "../../../../../hooks/usePagination";
+import { SortOption } from "../../../../../types/GeneralTypes";
 
 const ShipperList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -32,10 +33,7 @@ const ShipperList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("email");
 
-  const [sortConfig, setSortConfig] = useState<{
-    key: string;
-    direction: "asc" | "desc";
-  } | null>(null);
+  const [sortConfig, setSortConfig] = useState<SortOption | null>(null);
 
   // View Details Option Added
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
@@ -161,7 +159,7 @@ const ShipperList: React.FC = () => {
   };
 
   const handleSort = (
-    sortStr: { key: string; direction: "asc" | "desc" } | null
+    sortStr: SortOption | null
   ) => {
     setSortConfig(sortStr); // Updates the sort query to trigger API call
   };

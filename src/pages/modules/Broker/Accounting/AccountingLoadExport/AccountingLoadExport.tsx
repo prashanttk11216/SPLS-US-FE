@@ -23,6 +23,7 @@ import SelectField from "../../../../../components/common/SelectField/SelectFiel
 import { saveAs } from "file-saver";
 import { downloadExcelFile } from "../../../../../utils/excelUtils";
 import usePagination from "../../../../../hooks/usePagination";
+import { SortOption } from "../../../../../types/GeneralTypes";
 
 
 const AccountingLoadExport: React.FC = () => {
@@ -34,10 +35,7 @@ const AccountingLoadExport: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("loadNumber");
-  const [sortConfig, setSortConfig] = useState<{
-    key: string;
-    direction: "asc" | "desc";
-  } | null>({ key: "age", direction: "desc" });
+  const [sortConfig, setSortConfig] = useState<SortOption | null>({ key: "age", direction: "desc" });
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
   const [dispatchDetails, setDispatchDetails] =
     useState<Partial<IDispatch> | null>(null);
@@ -188,7 +186,7 @@ const AccountingLoadExport: React.FC = () => {
   };
 
   const handleSort = (
-    sortStr: { key: string; direction: "asc" | "desc" } | null
+    sortStr: SortOption | null
   ) => {
     setSortConfig(sortStr); // Updates the sort query to trigger API call
   };

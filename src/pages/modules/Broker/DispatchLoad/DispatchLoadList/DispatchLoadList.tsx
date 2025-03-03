@@ -25,6 +25,7 @@ import { downloadFile, getEnumValue } from "../../../../../utils/globalHelper";
 import FileUploadModal from "../../../../../components/common/FileUploadModal/FileUploadModal";
 import Pagination from "../../../../../components/common/Pagination/Pagination";
 import usePagination from "../../../../../hooks/usePagination";
+import { SortOption } from "../../../../../types/GeneralTypes";
 
 
 const DISPATCH_ACTIVE_TAB = "DISPATCH_ACTIVE_TAB";
@@ -42,10 +43,7 @@ const DispatchLoadList: React.FC = () => {
       ? (savedActiveTab as DispatchLoadStatus)
       : DispatchLoadStatus.Published
   );
-  const [sortConfig, setSortConfig] = useState<{
-    key: string;
-    direction: "asc" | "desc";
-  } | null>({ key: "age", direction: "desc" });
+  const [sortConfig, setSortConfig] = useState<SortOption | null>({ key: "age", direction: "desc" });
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
   const [dispatchDetails, setDispatchDetails] =
@@ -279,7 +277,7 @@ const DispatchLoadList: React.FC = () => {
   };
 
   const handleSort = (
-    sortStr: { key: string; direction: "asc" | "desc" } | null
+    sortStr: SortOption | null
   ) => {
     setSortConfig(sortStr); // Updates the sort query to trigger API call
   };

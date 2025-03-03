@@ -22,6 +22,7 @@ import { formatNumber } from "../../../../../utils/numberUtils";
 import { getEnumValue } from "../../../../../utils/globalHelper";
 import { Equipment } from "../../../../../enums/Equipment";
 import usePagination from "../../../../../hooks/usePagination";
+import { SortOption } from "../../../../../types/GeneralTypes";
 
 const TruckList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -33,14 +34,15 @@ const TruckList: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("referenceNumber");
-  const [sortConfig, setSortConfig] = useState<{
-    key: string;
-    direction: "asc" | "desc";
-  } | null>({ key: "age", direction: "desc" });
+  const [sortConfig, setSortConfig] = useState<SortOption | null>({ key: "age", direction: "desc" });
 
   // View Details Option Added
-  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
-  const [truckDetails, setTruckDetails] = useState<Partial<Truck> | null>(null);
+  const [details, setDetails] = useState<{
+    isOpen: boolean;
+    truck?: Partial<Truck>;
+  }>({
+    isOpen: false,
+  });
 
 
   const { getData, deleteData, loading } = useFetchData<any>({
@@ -110,10 +112,9 @@ const TruckList: React.FC = () => {
   };
 
   // View Details Option Added
-  const openDetailsModal = (truckData: Partial<Truck>) => {
-    setTruckDetails(truckData);
-    setIsDetailsModalOpen(true);
-  };
+  const openDetailsModal = (truck: Partial<Truck>) =>
+    setDetails({ isOpen: true, truck });
+  const closeDetailsModal = () => setDetails({ isOpen: false });
 
   const handleAction = async (action: string, row: Record<string, any>) => {
     switch (action) {
@@ -150,7 +151,7 @@ const TruckList: React.FC = () => {
   };
 
   const handleSort = (
-    sortStr: { key: string; direction: "asc" | "desc" } | null
+    sortStr: SortOption | null
   ) => {
     setSortConfig(sortStr); // Updates the sort query to trigger API call
   };
@@ -294,9 +295,9 @@ const TruckList: React.FC = () => {
       />
 
       <TruckDetailsModal
-        isOpen={isDetailsModalOpen}
-        truckData={truckDetails}
-        onClose={() => setIsDetailsModalOpen(false)}
+        isOpen={details.isOpen}
+        truckData={details.truck}
+        onClose={closeDetailsModal}
       />
     </div>
   );

@@ -10,7 +10,7 @@ import { Equipment } from "../../../../../enums/Equipment";
 
 const TruckDetailsModal: React.FC<{
   isOpen: boolean;
-  truckData: Partial<Truck> | null;
+  truckData?: Partial<Truck>;
   onClose: () => void;
 }> = ({ isOpen, truckData, onClose }) => {
   if (!truckData) return null;

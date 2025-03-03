@@ -29,6 +29,7 @@ import { Equipment } from "../../../../../enums/Equipment";
 import { getEnumValue } from "../../../../../utils/globalHelper";
 import usePagination from "../../../../../hooks/usePagination";
 import { LoadStatus } from "../../../../../enums/LoadStatus";
+import { SortOption } from "../../../../../types/GeneralTypes";
 
 const CARRIER_LOADS_ACTIVE_TAB = "CARRIER_LOADS_ACTIVE_TAB"
 
@@ -37,10 +38,7 @@ const LoadList: React.FC = () => {
   const [loads, setLoads] = useState<Load[]>([]);
   const { meta, updatePagination } = usePagination(); // Pagination metadata
 
-  const [sortConfig, setSortConfig] = useState<{
-    key: string;
-    direction: "asc" | "desc";
-  } | null>(null);
+  const [sortConfig, setSortConfig] = useState<SortOption | null>(null);
   const [formQuery, setFormQuery] = useState<string | null>(null);
   const savedActiveTab = localStorage.getItem(CARRIER_LOADS_ACTIVE_TAB);
   const [activeTab, setActiveTab] = useState<LoadStatus>(
@@ -163,7 +161,7 @@ const LoadList: React.FC = () => {
   };
 
   const handleSort = (
-    sortStr: { key: string; direction: "asc" | "desc" } | null
+    sortStr: SortOption | null
   ) => {
     setSortConfig(sortStr); // Updates the sort query to trigger API call
   };

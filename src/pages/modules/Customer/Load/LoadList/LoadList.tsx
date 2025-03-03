@@ -21,6 +21,7 @@ import { LoadStatus } from "../../../../../enums/LoadStatus";
 import { Equipment } from "../../../../../enums/Equipment";
 import { getEnumValue } from "../../../../../utils/globalHelper";
 import usePagination from "../../../../../hooks/usePagination";
+import { SortOption } from "../../../../../types/GeneralTypes";
 
 const CUSTOMER_LOADS_ACTIVE_TAB = 'CUSTOMER_LOADS_ACTIVE_TAB'
 
@@ -38,10 +39,7 @@ const LoadList: React.FC = () => {
       savedActiveTab ? (savedActiveTab as LoadStatus) : LoadStatus.Published
     );
 
-  const [sortConfig, setSortConfig] = useState<{
-    key: string;
-    direction: "asc" | "desc";
-  } | null>(null);
+  const [sortConfig, setSortConfig] = useState<SortOption | null>(null);
 
   // View Details Option Added
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
@@ -150,7 +148,7 @@ const LoadList: React.FC = () => {
   };
 
   const handleSort = (
-    sortStr: { key: string; direction: "asc" | "desc" } | null
+    sortStr: SortOption | null
   ) => {
     setSortConfig(sortStr); // Updates the sort query to trigger API call
   };

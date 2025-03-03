@@ -12,7 +12,7 @@ import { Commodity } from "../../../../../enums/Commodity";
 
 const LoadDetailsModal: React.FC<{
   isOpen: boolean;
-  load: Partial<Load> | null;
+  load?: Partial<Load>;
   onClose: () => void;
 }> = ({ isOpen, load, onClose }) => {
   if (!load) return null;
