@@ -44,6 +44,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
     { value: string; label: string; email: string }[]
   >([]);
 
+  const [carriersList, setCarriersList] = useState<
+    { value: string; label: string; email: string }[]
+  >([]);
+
   const {
     handleSubmit,
     control,
@@ -122,6 +126,27 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
       }
     }, [getData]);
 
+
+    const fetchCarriersData = useCallback(async () => {
+      try {
+        const query = `?role=${UserRole.CARRIER}&isActive=true`;
+        const result = await getData("users", query);
+        if (result.success) {
+          const users = result?.data?.map((user) => ({
+            value: user._id,
+            label: `${user.firstName} ${user.lastName} (${user.email})`,
+            email: user?.email,
+          }));
+          setCarriersList(users || []);
+        } else {
+          toast.error("Failed to fetch Carrier.");
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("An error occurred while fetching Carrier.");
+      }
+    }, [getData]);
+
   useEffect(() => {
     if (loadId) fetchLoad(loadId);
   }, [loadId]);
@@ -134,6 +159,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   useEffect(() => {
     fetchUsersData();
     fetchCustomersData();
+    fetchCarriersData();
   }, []);
 
   const {
@@ -809,6 +835,17 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                 options={customersList}
               />
           </div>
+
+           <div className="col-3">
+              <SelectField
+                label="Select Carrier"
+                name="carrierId"
+                placeholder="Select Carrier"
+                control={control}
+                options={carriersList}
+              />
+          </div>   
+
           {/* Assign User */}
           {user && hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN]})&& (
             <div className="col-3">

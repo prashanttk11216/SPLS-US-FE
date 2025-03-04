@@ -486,6 +486,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
       let load = loadsList.filter((load) => load.value == loadIdField);
       if(load.length && load[0].customerId){
         setValue("customerId", load[0].customerId);
+        setValue("carrierId", load[0].carrierId);
       }
     }
   },[loadIdField]);

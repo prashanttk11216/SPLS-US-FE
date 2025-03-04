@@ -194,6 +194,8 @@ const LoadList: React.FC = () => {
       if (result.success) {
         toast.success(successMessage);
         fetchLoads();
+      }else{
+        toast.error(result.message);
       }
     } catch (err) {
       toast.error(errorMessage);
