@@ -3,78 +3,120 @@ import "./CustomerDashboard.scss";
 import DashboardTile from "../../../../components/common/DashboardTile/DashboardTile";
 import useFetchData from "../../../../hooks/useFetchData/useFetchData";
 import { getCustomerDashboardData } from "../../../../services/dashboard/dashboardService";
+import Loading from "../../../../components/common/Loading/Loading";
 
 type dashboardStats = {
-  loadStats:[{
-    status: string;
-    count: number
-  }],
-  dispatchLoadStats:[{
-    status: string;
-    count: number
-  }],
+  loadStats: [
+    {
+      status: string;
+      count: number;
+    }
+  ];
+  dispatchLoadStats: [
+    {
+      status: string;
+      count: number;
+    }
+  ];
   totalLoads: number;
   activeLoads: number;
   completedLoads: number;
-}
+};
 
 const BrokerDashboard: React.FC = () => {
   const [stats, setStats] = useState<dashboardStats>({
-    loadStats:[{
-      status: "",
-      count: 0
-    }],
-    dispatchLoadStats:[{
-      status: "",
-      count: 0
-    }],
+    loadStats: [
+      {
+        status: "",
+        count: 0,
+      },
+    ],
+    dispatchLoadStats: [
+      {
+        status: "",
+        count: 0,
+      },
+    ],
     totalLoads: 0,
     activeLoads: 0,
-    completedLoads: 0
-  })
+    completedLoads: 0,
+  });
 
-  const { getData } = useFetchData<any>({
+  const { getData, loading } = useFetchData<any>({
     getAll: {
-      dashboard: getCustomerDashboardData
+      dashboard: getCustomerDashboardData,
     },
   });
 
   useEffect(() => {
     const fetchData = async () => {
       const result = await getData("dashboard");
-      if(result.success){
+      if (result.success) {
         if (result.data) {
           setStats(result.data as unknown as dashboardStats);
         }
       }
     };
     fetchData();
-  }, [])
-  return (
+  }, []);
+  return loading ? (
+    <Loading />
+  ) : (
     <div>
-      <h1>Broker Dashboard</h1>
+      <h1>Customer Dashboard</h1>
       <div className="mb-2">
         <h3>SPLS Load Board</h3>
         <div className="dashboard">
-          {stats.loadStats.length && stats.loadStats.map(load => (
-            <DashboardTile key={load.count} title={load.status} value={load.count} />
-          ))}
+          {stats.loadStats.length &&
+            stats.loadStats.map((load) => (
+              <DashboardTile
+                key={load.count}
+                title={load.status}
+                value={load.count}
+                suffix="loads"
+              />
+            ))}
         </div>
       </div>
       <div className="mb-2">
         <h3>SPLS Dispatch Load Board</h3>
         <div className="dashboard">
-          {stats.dispatchLoadStats.length && stats.dispatchLoadStats.map(load => (
-            <DashboardTile key={load.count} title={load.status} value={load.count} />
-          ))}
+          {stats.dispatchLoadStats.length &&
+            stats.dispatchLoadStats.map((load) => (
+              <DashboardTile
+                key={load.count}
+                title={load.status}
+                value={load.count}
+                suffix="loads"
+                color="#8073b8"
+              />
+            ))}
         </div>
       </div>
       <div>
         <h3>Stats</h3>
         <div className="dashboard">
-          <DashboardTile key={0} title={"Total Loads"} value={stats.totalLoads} />
-          <DashboardTile key={1} title={"Active Loads"} value={stats.activeLoads} />
-          <DashboardTile key={2} title={"Completed Loads"} value={stats.completedLoads} />
+          <DashboardTile
+            key={0}
+            title={"Total Loads"}
+            value={stats.totalLoads}
+            suffix="loads"
+            color="#ff9800"
+          />
+          <DashboardTile
+            key={1}
+            title={"Active Loads"}
+            value={stats.activeLoads}
+            suffix="loads"
+            color="#ff9800"
+          />
+          <DashboardTile
+            key={2}
+            title={"Completed Loads"}
+            value={stats.completedLoads}
+            suffix="loads"
+            color="#ff9800"
+          />
         </div>
       </div>
     </div>
