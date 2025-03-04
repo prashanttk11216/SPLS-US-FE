@@ -72,7 +72,7 @@ const LoadList: React.FC = () => {
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return; // Wait for user data
       try {
-        let query = `?page=${page}&limit=${limit}&status=${activeTab}`;
+        let query = `?page=${page}&limit=${limit}&status=${activeTab}&populate=brokerId:-password,postedBy:-password`;
 
         if (sortConfig) {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;

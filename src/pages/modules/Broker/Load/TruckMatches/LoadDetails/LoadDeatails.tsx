@@ -25,7 +25,8 @@ const LoadDetails: React.FC = () => {
   const fetchLoad = useCallback(async () => {
     if (!user || !user._id) return;
     try {
-      const result = await getDataById("load", loadId!);
+      let query = `?populate=brokerId:-password,postedBy:-password`;
+      const result = await getDataById("load", loadId!, query);
       if (result.success) {
         const load = result.data as Load[];
         setLoadDetails(load);

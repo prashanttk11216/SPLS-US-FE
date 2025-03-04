@@ -77,7 +77,7 @@ const DispatchLoadList: React.FC = () => {
   const fetchLoads = useCallback(
     async (page: number = 1, limit: number = 10) => {
       try {
-        let query = `?page=${page}&limit=${limit}&status=${activeTab}`;
+        let query = `?page=${page}&limit=${limit}&status=${activeTab}&populate=brokerId:-password,postedBy:-password`;
 
         //Search Functionality
         if (searchQuery && searchField) {

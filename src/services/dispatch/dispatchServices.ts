@@ -15,9 +15,9 @@ export const getloads = async (query?: string): Promise<ApiResponse> => {
   }
 };
 
-export const getLoadById = async (loadId: string): Promise<ApiResponse> => {
+export const getLoadById = async (loadId: string, query?: string): Promise<ApiResponse> => {
   try {
-    const endpoint = "/dispatch/" + loadId;
+    const endpoint = "/dispatch/" + loadId + query;
 
     const response = await axiosApi.get(endpoint);
     return handleResponse(response);
