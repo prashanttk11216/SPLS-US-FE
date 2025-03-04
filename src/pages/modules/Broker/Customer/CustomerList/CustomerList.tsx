@@ -26,6 +26,7 @@ import ChangePassowrd from "../../../../Auth/ChangePassword/ChangePassword";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 import { CreateUserForm } from "../../../../Auth/Signup/Signup";
 import usePagination from "../../../../../hooks/usePagination";
+import { SortOption } from "../../../../../types/GeneralTypes";
 
 const CustomerList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -40,10 +41,7 @@ const CustomerList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("email");
 
-  const [sortConfig, setSortConfig] = useState<{
-    key: string;
-    direction: "asc" | "desc";
-  } | null>(null);
+  const [sortConfig, setSortConfig] = useState<SortOption | null>(null);
 
   // View Details Option Added
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
@@ -71,7 +69,7 @@ const CustomerList: React.FC = () => {
   });
 
   // Fetch customers data
-  const fetchCustomersData = useCallback(
+  const fetchCustomers = useCallback(
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return; // Wait for user data
       try {
@@ -107,7 +105,7 @@ const CustomerList: React.FC = () => {
   // Trigger fetch when user is populated
   useEffect(() => {
     if (user && user._id) {
-      fetchCustomersData();
+      fetchCustomers();
     }
   }, [user, searchQuery, sortConfig]);
 
@@ -143,7 +141,7 @@ const CustomerList: React.FC = () => {
           const result = await deleteData("user", row._id);
           if (result.success) {
             toast.success(result.message);
-            fetchCustomersData();
+            fetchCustomers();
           }
         } catch (err) {
           toast.error("Failed to delete customer.");
@@ -155,7 +153,7 @@ const CustomerList: React.FC = () => {
           const result = await updateData("user", row._id, {});
           if (result.success) {
             toast.success(result.message);
-            fetchCustomersData();
+            fetchCustomers();
           }
         } catch {
           toast.error(`Failed to ${action.toLowerCase()} user.`);
@@ -172,12 +170,6 @@ const CustomerList: React.FC = () => {
     }
   };
 
-  const handleSort = (
-    sortStr: { key: string; direction: "asc" | "desc" } | null
-  ) => {
-    setSortConfig(sortStr); // Updates the sort query to trigger API call
-  };
-
   const getActionsForCustomer = (broker: User): string[] => {
     const actions = ["View Details", "Edit"];
     if (broker.isActive) {
@@ -188,14 +180,6 @@ const CustomerList: React.FC = () => {
     actions.push("Change Password");
     actions.push("Delete");
     return actions;
-  };
-
-  const handlePageChange = (page: number) => {
-    fetchCustomersData(page);
-  };
-
-  const handleItemsPerPageChange = (limit: number) => {
-    fetchCustomersData(1, limit);
   };
 
   const getRowData = () => {
@@ -247,10 +231,6 @@ const CustomerList: React.FC = () => {
     setIsDetailsModalOpen(true);
   };
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
-
   return (
     <div className="customers-list-wrapper">
       <div className="d-flex align-items-center">
@@ -268,7 +248,7 @@ const CustomerList: React.FC = () => {
         {/* Search Bar */}
         <div className="searchbar-container">
           <SearchBar
-            onSearch={handleSearch}
+            onSearch={(query: string) => setSearchQuery(query)}
             searchFieldOptions={[
               { label: "Email", value: "email" },
               { label: "Name", value: "name" },
@@ -293,7 +273,8 @@ const CustomerList: React.FC = () => {
             data={customers}
             onActionClick={handleAction}
             rowClickable={true}
-            onSort={handleSort}
+            onSort={(sortStr: SortOption) => setSortConfig(sortStr)}
+
             sortConfig={sortConfig}
             onRowClick={handleRowClick}
           />
@@ -301,8 +282,8 @@ const CustomerList: React.FC = () => {
             {/* Pagination Component */}
             <Pagination
               meta={meta}
-              onPageChange={handlePageChange}
-              onItemsPerPageChange={handleItemsPerPageChange}
+              onPageChange={(page: number) => fetchCustomers(page)}
+              onItemsPerPageChange={(limit: number) => fetchCustomers(1, limit)}
             />
           </div>
         </>
@@ -312,7 +293,7 @@ const CustomerList: React.FC = () => {
         isModalOpen={isModalOpen}
         setIsModalOpen={(value: boolean) => {
           setIsModalOpen(value);
-          if (!value) fetchCustomersData(); // Refresh customers after modal close
+          if (!value) fetchCustomers(); // Refresh customers after modal close
         }}
         closeModal={closeModal}
         isEditing={isEditing}

@@ -2,6 +2,7 @@ import { DispatchLoadStatus } from "../enums/DispatchLoadStatus";
 import { DispatchLoadType } from "../enums/DispatchLoadType";
 import { Equipment } from "../enums/Equipment";
 import { Consignee } from "./Consignee";
+import { Load } from "./Load";
 import { Shipper } from "./Shipper";
 import { User } from "./User";
 
@@ -82,6 +83,7 @@ export interface IDispatch extends Document {
   loadNumber: number;
   WONumber: string;
   customerId?: string | User;
+  loadId?: string | Load;
   carrierId?: string | User;
   salesRep: string | User;
   type: DispatchLoadType;

@@ -1,5 +1,6 @@
 // src/constants/messages.ts
 export const VALIDATION_MESSAGES = {
+    defaultRequired: "Field is required",
     emailRequired: "Email is required",
     emailInvalid: "Invalid email format",
     passwordRequired: "Password is required",

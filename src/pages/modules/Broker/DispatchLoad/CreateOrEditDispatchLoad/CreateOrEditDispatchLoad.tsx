@@ -47,6 +47,8 @@ import {
 } from "../../../../../utils/globalHelper";
 import CurrencyNumberInput from "../../../../../components/common/CurrencyNumberInput/CurrencyNumberInput";
 import TextAreaBox from "../../../../../components/common/TextAreaBox/TextAreaBox";
+import { getloads } from "../../../../../services/load/loadServices";
+import { LoadStatus } from "../../../../../enums/LoadStatus";
 
 export type AddressForm = {
   str?: string; // Address string representation
@@ -120,6 +122,7 @@ export type DispatchLoadForm = {
   loadNumber?: number; // Optional unique load number
   WONumber?: string; // Optional unique WO number
   customerId?: string; // Optional customer ID
+  loadId?: string;
   carrierId?: string; // Optional carrier ID
   salesRep?: string; // Sales rep ID (assuming string for now)
   type?: DispatchLoadType; // Type of dispatch load
@@ -151,6 +154,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
   const isDraft = searchParams.get("draft");
   const [loadData, setLoadData] = useState<DispatchLoadForm>();
   const [customersList, setCustomersList] = useState<any[]>([]);
+  const [loadsList, setLoadsList] = useState<any[]>([]);
   const [brokersList, setBrokersList] = useState<any[]>([]);
   const [carriersList, setCarriersList] = useState<any[]>([]);
   const [consigneeList, setConsigneeList] = useState<any[]>([]);
@@ -181,6 +185,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
         user: getUsers,
         shipper: getShipper,
         consignee: getConsignee,
+        load: getloads
       },
       getById: {
         load: getLoadById,
@@ -281,6 +286,23 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
     }
   };
 
+  const fetchLoadsData = async () => {
+    let query = `?page=1&limit=999&status=${LoadStatus.DealClosed}`;
+
+    const result = await getData("load", query);
+    if (result.success) {
+      const loads: any = [];
+      result?.data?.forEach((load) => {
+        loads.push({
+          value: load._id,
+          label: `${load.loadNumber}`,
+          customerId: load.customerId,
+        });
+      });
+      setLoadsList(loads);
+    }
+  };
+
   useEffect(() => {
     if (loadId) fetchLoad(loadId);
   }, [loadId]);
@@ -297,6 +319,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
     fetchCarriersData();
     fetchConsigneeData();
     fetchShipperData();
+    fetchLoadsData();
   }, []);
 
   /**
@@ -456,6 +479,16 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
     return 0;
   }, [customerRateValue, fuelServiceCharge?.value, unitsValue]);
 
+  const loadIdField = watch("loadId");
+  useEffect(()=>{
+    if(loadIdField){
+      let load = loadsList.filter((load) => load.value == loadIdField);
+      if(load.length && load[0].customerId){
+        setValue("customerId", load[0].customerId);
+      }
+    }
+  },[loadIdField]);
+
   return (
     <>
       <h2 className="fw-bold">
@@ -488,6 +521,26 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               control={control}
               rules={{
                 min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+              }}
+            />
+          </div>
+
+          <div className="col-3">
+            <SelectField
+              label="Attache Load"
+              name="loadId"
+              placeholder="Select Load"
+              control={control}
+              options={loadsList}
+              rules={{
+                required: {
+                  value: loadId
+                    ? isDraft
+                      ? watch("status") === DispatchLoadStatus.Published
+                      : true
+                    : !isDraft,
+                  message: "Please select a Load",
+                },
               }}
             />
           </div>

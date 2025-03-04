@@ -3,10 +3,6 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import Loading from "../../../../../components/common/Loading/Loading";
-import { Equipment } from "../../../../../enums/Equipment";
-import { LoadOption } from "../../../../../enums/LoadOption";
-import { Commodity } from "../../../../../enums/Commodity";
-import { Mode } from "../../../../../enums/Mode";
 import {
   createLoad,
   editLoad,
@@ -28,69 +24,7 @@ import CurrencyNumberInput from "../../../../../components/common/CurrencyNumber
 import TextAreaBox from "../../../../../components/common/TextAreaBox/TextAreaBox";
 import { RootState } from "../../../../../store/store";
 import { useSelector } from "react-redux";
-
-export type loadForm = {
-  _id: string;
-  origin: {
-    str: string; // String representation of the address
-    lat: number; // Latitude
-    lng: number; // Longitude
-  };
-  originEarlyPickupDate: Date;
-  originLatePickupDate?: Date | string;
-  originEarlyPickupTime?: Date | string;
-  originLatePickupTime?: Date | string;
-  originStops?: {
-    address: {
-      str: string; // String representation of the address
-      lat: number; // Latitude
-      lng: number; // Longitude
-    };
-    earlyPickupDate?: Date | string;
-    latePickupDate?: Date | string;
-    earlyPickupTime?: Date | string;
-    latePickupTime?: Date | string;
-  }[];
-  destination: {
-    str: string; // String representation of the address
-    lat: number; // Latitude
-    lng: number; // Longitude
-  };
-  destinationEarlyDropoffDate?: Date | string;
-  destinationLateDropoffDate?: Date | string;
-  destinationEarlyDropoffTime?: Date | string;
-  destinationLateDropoffTime?: Date | string;
-  destinationStops?: {
-    address: {
-      str: string; // String representation of the address
-      lat: number; // Latitude
-      lng: number; // Longitude
-    };
-    earlyDropoffDate?: Date | string;
-    lateDropoffDate?: Date | string;
-    earlyDropoffTime?: Date | string;
-    lateDropoffTime?: Date | string;
-  }[];
-  equipment: Equipment;
-  mode: Mode;
-  allInRate?: number;
-  customerRate?: number;
-  weight?: number;
-  length?: number;
-  width?: number;
-  height?: number;
-  pieces?: number;
-  pallets?: number;
-  miles?: number;
-  loadOption?: LoadOption;
-  specialInstructions?: string;
-  commodity: Commodity;
-  loadNumber?: string;
-  postedBy?: string;
-  brokerId?: string;
-  customerId?: string;
-  status?: string;
-};
+import { LoadForm } from "../../../Broker/Load/CreateOrEditLoad/CreateOrEditLoad";
 
 interface CreateOrEditLoadProps {}
 
@@ -99,7 +33,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
 
   const navigate = useNavigate();
   const { loadId } = useParams();
-  const [loadData, setLoadData] = useState<loadForm>();
+  const [loadData, setLoadData] = useState<LoadForm>();
 
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const toggleMapModal = () => setIsMapModalOpen((prev) => !prev);
@@ -112,7 +46,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
     formState: { isValid },
     reset,
     watch,
-  } = useForm<loadForm>({
+  } = useForm<LoadForm>({
     mode: "onBlur",
   });
 
@@ -139,6 +73,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   useEffect(() => {
     if (loadId) fetchLoad(loadId);
   }, [loadId]);
+  
   useEffect(() => {
     if (loadData) {
       reset(loadData);
@@ -195,10 +130,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
    * Handles form submission for creating or editing a Load.
    * @param data - Form data
    */
-  const submit = async (data: loadForm) => {
+  const submit = async (data: LoadForm) => {
     try {
       let result;
-      if (loadId && loadData) {
+      if (loadId && loadData?._id) {
         const validatedData = updateLoadSchema.parse(data);
         result = await updateData("load", loadData._id, validatedData);
       } else {
@@ -223,20 +158,29 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   };
 
   const getDistance = async () => {
+    const origin = getValues("origin");
+    const destination = getValues("destination");
+  
+    if (!origin?.lat || !origin?.lng || !destination?.lat || !destination?.lng) {
+      console.error("Origin or destination is missing required coordinates.");
+      return 0; // Return a default value if data is missing
+    }
+  
     const originData = {
-      lat: getValues("origin").lat,
-      lng: getValues("origin").lng,
+      lat: origin.lat,
+      lng: origin.lng,
     };
+  
     const destinationData = {
-      lat: getValues("destination").lat,
-      lng: getValues("destination").lng,
+      lat: destination.lat,
+      lng: destination.lng,
     };
-
+  
     try {
       const distance = await calculateDistance(originData, destinationData);
       return distance;
     } catch (error) {
-      console.error(error);
+      console.error("Error calculating distance:", error);
       return 0;
     }
   };
@@ -273,7 +217,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
       <form onSubmit={handleSubmit(submit)}>
         <div className="row">
           <div className="col-12">
-            <h3 className="fw-lighter">Origin</h3>
+            <h4 className="fw-bolder">Origin</h4>
           </div>
           {/* Origin */}
           <div className="col-4">
@@ -359,7 +303,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                 <div className="row py-2">
                   {/* delete */}
                   <div className="col-12 d-flex align-items-center justify-content-between mb-2">
-                    <h4 className="fw-lighter">Stop {index}</h4>
+                    <h5 className="fw-lighter">Stop {index + 1}</h5>
                     <button
                       type="button"
                       className="btn btn-danger btn-sm"
@@ -457,7 +401,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
           </div>
 
           <div className="col-12">
-            <h3 className="fw-lighter">Destination</h3>
+            <h4 className="fw-bolder">Destination</h4>
           </div>
 
           {/* Destination */}
@@ -540,7 +484,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                 <div className="row py-2">
                   {/* delete */}
                   <div className="col-12 d-flex align-items-center justify-content-between mb-2">
-                    <h4 className="fw-lighter">Stop {index}</h4>
+                    <h4 className="fw-lighter">Stop {index + 1}</h4>
                     <button
                       type="button"
                       className="btn btn-danger btn-sm"
@@ -670,7 +614,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
           {/* Customer Rate */}
           <div className="col-2">
             <CurrencyNumberInput
-              label="Customer Rate"
+              label="All-in Rate"
               id="customerRate"
               name="customerRate"
               placeholder="Enter All-in Rate"
@@ -808,22 +752,20 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
             )}
           </div>
           {getValues("origin")?.str && getValues("destination")?.str && (
-            <>
-              <div className="col-12 my-5">
-                <MapModal
-                  isOpen={isMapModalOpen}
-                  origin={{
-                    lat: getValues("origin").lat,
-                    lng: getValues("origin").lng,
-                  }}
-                  destination={{
-                    lat: getValues("destination").lat,
-                    lng: getValues("destination").lng,
-                  }}
-                  onClose={toggleMapModal}
-                />
-              </div>
-            </>
+            <div className="col-12 my-5">
+              <MapModal
+                isOpen={isMapModalOpen}
+                origin={{
+                  lat: getValues("origin")?.lat ?? 0,  // Provide a fallback value (0 or any valid default)
+                  lng: getValues("origin")?.lng ?? 0,
+                }}
+                destination={{
+                  lat: getValues("destination")?.lat ?? 0,
+                  lng: getValues("destination")?.lng ?? 0,
+                }}
+                onClose={toggleMapModal}
+              />
+            </div>
           )}
         </div>
       </form>

@@ -12,6 +12,7 @@ import Loading from "../../../../../components/common/Loading/Loading";
 import Table from "../../../../../components/common/Table/Table";
 import CreateOrEditRole from "../CreateOrEditRole/CreateOrEditRole";
 import usePagination from "../../../../../hooks/usePagination";
+import { SortOption } from "../../../../../types/GeneralTypes";
 
 const RoleList: React.FC = () => {
     const user = useSelector((state: RootState) => state.user);
@@ -35,7 +36,7 @@ const RoleList: React.FC = () => {
       null
     );
   
-    const { getData, getDataById, deleteData, loading } = useFetchData<any>({
+    const { getData, deleteData, loading } = useFetchData<any>({
       getAll: {
         role: getRoles,
       },
@@ -47,7 +48,7 @@ const RoleList: React.FC = () => {
       }
     });
   
-    const fetchRolesData = useCallback(
+    const fetchRoles = useCallback(
       async (page: number = 1, limit: number = 10) => {
         if (!user || !user._id) return;
         try {
@@ -82,7 +83,7 @@ const RoleList: React.FC = () => {
   
     useEffect(() => {
       if (user && user._id) {
-        fetchRolesData();
+        fetchRoles();
       }
     }, [user, searchQuery, sortConfig]);
   
@@ -122,7 +123,7 @@ const RoleList: React.FC = () => {
             const result = await deleteData("role", row._id);
             if (result.success) {
               toast.success(result.message);
-              fetchRolesData();
+              fetchRoles();
             }
           } catch {
             toast.error("Failed to delete Role.");
@@ -139,12 +140,6 @@ const RoleList: React.FC = () => {
       }
     };
   
-    const handleSort = (
-      sortStr: { key: string; direction: "asc" | "desc" } | null
-    ) => {
-      setSortConfig(sortStr); // Updates the sort query to trigger API call
-    };
-  
     const getActions = (role: IRole): string[] => {
       const actions = ["View Details", "Edit", "Delete"];
       return actions;
@@ -155,24 +150,12 @@ const RoleList: React.FC = () => {
       { width: "90px", key: "actions", label: "Actions", isAction: true },
     ];
   
-    const handlePageChange = (page: number) => {
-      fetchRolesData(page);
-    };
-  
-    const handleItemsPerPageChange = (limit: number) => {
-      fetchRolesData(1, limit);
-    };
-  
     const getRowData = () => {
       return roles.map((role) => ({
         _id: role._id,
         name: role.name,
         actions: getActions(role),
       }));
-    };
-  
-    const handleSearch = (query: string) => {
-      setSearchQuery(query);
     };
   
     return (
@@ -192,7 +175,7 @@ const RoleList: React.FC = () => {
           {/* Search Bar */}
           <div className="searchbar-container">
             <SearchBar
-              onSearch={handleSearch}
+              onSearch={(query: string) => setSearchQuery(query)}
               searchFieldOptions={[
                 { label: "Name", value: "name" },
               ]}
@@ -212,7 +195,7 @@ const RoleList: React.FC = () => {
               data={roles}
               onActionClick={handleAction}
               rowClickable={true}
-              onSort={handleSort}
+              onSort={(sortStr: SortOption) => setSortConfig(sortStr)}
               sortConfig={sortConfig}
               onRowClick={handleRowClick}
             />
@@ -220,8 +203,8 @@ const RoleList: React.FC = () => {
               {/* Pagination Component */}
               <Pagination
                 meta={meta}
-                onPageChange={handlePageChange}
-                onItemsPerPageChange={handleItemsPerPageChange}
+                onPageChange={(page: number) => fetchRoles(page)}
+                onItemsPerPageChange={(limit: number) => fetchRoles(1, limit)}
               />
             </div>
           </>
@@ -233,7 +216,7 @@ const RoleList: React.FC = () => {
             closeModal={closeModal}
             setIsModalOpen={(value: boolean) => {
               setIsModalOpen(value);
-              if (!value) fetchRolesData();
+              if (!value) fetchRoles();
             }}
             isEditing={isEditing}
             roleId={roleId}

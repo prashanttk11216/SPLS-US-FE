@@ -42,9 +42,7 @@ export const LoadCreationAlert: FC<LoadCreationAlertProps> = ({
     handleSubmit,
     watch,
     getValues,
-  } = useForm<FormInputs>();
-
-  
+  } = useForm<FormInputs>(); 
 
   const {
     getData,       // Fetch all data for any entity
@@ -88,7 +86,7 @@ export const LoadCreationAlert: FC<LoadCreationAlertProps> = ({
 
   useEffect(() => {
     fetchCarriersData();
-  }, [fetchCarriersData]);
+  }, []);
 
   /**
    * Validate and clean emails input

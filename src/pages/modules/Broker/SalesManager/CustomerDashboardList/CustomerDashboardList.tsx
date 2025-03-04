@@ -14,16 +14,18 @@ import Pagination, {
 import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 import usePagination from "../../../../../hooks/usePagination";
+import { SortOption } from "../../../../../types/GeneralTypes";
 
 export enum CustomerStatus {
     Active = "Active",
     Inactive = "Inactive"
 }
 
+const CUSTOMER_ACTIVE_INACTIVE_TAB = "CUSTOMER_ACTIVE_INACTIVE_TAB"
 const CustomerDashboardList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [customers, setCustomers] = useState<User[]>([]);
-  const savedActiveTab = localStorage.getItem("customerActiveTab");
+  const savedActiveTab = localStorage.getItem(CUSTOMER_ACTIVE_INACTIVE_TAB);
   const [activeTab, setActiveTab] = useState<CustomerStatus>(
       savedActiveTab
         ? (savedActiveTab as CustomerStatus)
@@ -34,10 +36,7 @@ const CustomerDashboardList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("email");
 
-  const [sortConfig, setSortConfig] = useState<{
-    key: string;
-    direction: "asc" | "desc";
-  } | null>(null);
+  const [sortConfig, setSortConfig] = useState<SortOption | null>(null);
 
   const { getData, loading, error } = useFetchData<any>({
     getAll: { 
@@ -46,7 +45,7 @@ const CustomerDashboardList: React.FC = () => {
   });
 
   // Fetch customers data
-  const fetchCustomersData = useCallback(
+  const fetchCustomers = useCallback(
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return; // Wait for user data
       try {
@@ -82,13 +81,13 @@ const CustomerDashboardList: React.FC = () => {
   // Trigger fetch when user is populated
   useEffect(() => {
     if (user && user._id) {
-      fetchCustomersData();
+      fetchCustomers();
     }
   }, [user, searchQuery,activeTab, sortConfig]);
 
    // Update active tab in localStorage whenever it changes
     useEffect(() => {
-      localStorage.setItem("customerActiveTab", activeTab);
+      localStorage.setItem(CUSTOMER_ACTIVE_INACTIVE_TAB, activeTab);
     }, [activeTab]);
 
   const columns = [
@@ -106,20 +105,6 @@ const CustomerDashboardList: React.FC = () => {
     }
   };
 
-  const handleSort = (
-    sortStr: { key: string; direction: "asc" | "desc" } | null
-  ) => {
-    setSortConfig(sortStr); // Updates the sort query to trigger API call
-  };
-
-  const handlePageChange = (page: number) => {
-    fetchCustomersData(page);
-  };
-
-  const handleItemsPerPageChange = (limit: number) => {
-    fetchCustomersData(1, limit);
-  };
-
   const getRowData = () => {
     return customers.map((customer) => ({
       _id: customer._id,
@@ -133,10 +118,6 @@ const CustomerDashboardList: React.FC = () => {
     }));
   };
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
-
   return (
     <div className="customers-list-wrapper">
       <div className="d-flex align-items-center">
@@ -146,7 +127,7 @@ const CustomerDashboardList: React.FC = () => {
         {/* Search Bar */}
         <div className="searchbar-container">
           <SearchBar
-            onSearch={handleSearch}
+            onSearch={(query: string) => setSearchQuery(query)}
             searchFieldOptions={[
               { label: "Email", value: "email" },
               { label: "Name", value: "name" },
@@ -200,15 +181,16 @@ const CustomerDashboardList: React.FC = () => {
             data={customers}
             onActionClick={handleAction}
             rowClickable={true}
-            onSort={handleSort}
+            onSort={(sortStr: SortOption) => setSortConfig(sortStr)}
+
             sortConfig={sortConfig}
           />
           <div className="pagination-container">
             {/* Pagination Component */}
             <Pagination
               meta={meta}
-              onPageChange={handlePageChange}
-              onItemsPerPageChange={handleItemsPerPageChange}
+              onPageChange={(page: number) => fetchCustomers(page)}
+              onItemsPerPageChange={(limit: number) => fetchCustomers(1, limit)}
             />
           </div>
         </>

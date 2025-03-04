@@ -21,6 +21,7 @@ import CreateOrEditConsignee from "../CreateOrEditConsignee/CreateOrEditConsigne
 import ConsigneeDetailsModal from "../ConsigneeDetailsModal/ConsigneeDetailsModal";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 import usePagination from "../../../../../hooks/usePagination";
+import { SortOption } from "../../../../../types/GeneralTypes";
 
 const ConsigneeList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -32,10 +33,7 @@ const ConsigneeList: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("email");
-  const [sortConfig, setSortConfig] = useState<{
-    key: string;
-    direction: "asc" | "desc";
-  } | null>(null);
+  const [sortConfig, setSortConfig] = useState<SortOption | null>(null);
 
   // View Details Option Added
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
@@ -56,7 +54,7 @@ const ConsigneeList: React.FC = () => {
      }
   });
 
-  const fetchConsigneesData = useCallback(
+  const fetchConsignees = useCallback(
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return;
       try {
@@ -92,7 +90,7 @@ const ConsigneeList: React.FC = () => {
 
   useEffect(() => {
     if (user && user._id) {
-      fetchConsigneesData();
+      fetchConsignees();
     }
   }, [user, searchQuery, sortConfig]);
 
@@ -132,7 +130,7 @@ const ConsigneeList: React.FC = () => {
           const result = await deleteData("user",row._id);
           if (result.success) {
             toast.success(result.message);
-            fetchConsigneesData();
+            fetchConsignees();
           }
         } catch {
           toast.error("Failed to delete Consignee.");
@@ -144,7 +142,7 @@ const ConsigneeList: React.FC = () => {
           const result = await updateData("user", row._id, {});
           if (result.success) {
             toast.success(result.message);
-            fetchConsigneesData();
+            fetchConsignees();
           }
         } catch {
           toast.error(`Failed to ${action.toLowerCase()} Consignee.`);
@@ -159,12 +157,6 @@ const ConsigneeList: React.FC = () => {
     if (row) {
       openDetailsModal(row); // Open details modal
     }
-  };
-
-  const handleSort = (
-    sortStr: { key: string; direction: "asc" | "desc" } | null
-  ) => {
-    setSortConfig(sortStr); // Updates the sort query to trigger API call
   };
 
   const getActions = (consignee: Consignee): string[] => {
@@ -192,14 +184,6 @@ const ConsigneeList: React.FC = () => {
     { width: "90px", key: "actions", label: "Actions", isAction: true },
   ];
 
-  const handlePageChange = (page: number) => {
-    fetchConsigneesData(page);
-  };
-
-  const handleItemsPerPageChange = (limit: number) => {
-    fetchConsigneesData(1, limit);
-  };
-
   const getRowData = () => {
     return consignees.map((consignee) => ({
       _id: consignee._id,
@@ -212,10 +196,6 @@ const ConsigneeList: React.FC = () => {
       isActive: consignee.isActive ? "Active" : "Inactive",
       actions: getActions(consignee),
     }));
-  };
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
   };
 
   return (
@@ -235,7 +215,7 @@ const ConsigneeList: React.FC = () => {
         {/* Search Bar */}
         <div className="searchbar-container">
           <SearchBar
-            onSearch={handleSearch}
+            onSearch={(query: string) => setSearchQuery(query)}
             searchFieldOptions={[
               { label: "Email", value: "email" },
               { label: "Name", value: "name" },
@@ -258,7 +238,8 @@ const ConsigneeList: React.FC = () => {
             data={consignees}
             onActionClick={handleAction}
             rowClickable={true}
-            onSort={handleSort}
+            onSort={(sortStr: SortOption) => setSortConfig(sortStr)}
+
             sortConfig={sortConfig}
             onRowClick={handleRowClick}
           />
@@ -266,8 +247,8 @@ const ConsigneeList: React.FC = () => {
             {/* Pagination Component */}
             <Pagination
               meta={meta}
-              onPageChange={handlePageChange}
-              onItemsPerPageChange={handleItemsPerPageChange}
+              onPageChange={(page: number) => fetchConsignees(page)}
+              onItemsPerPageChange={(limit: number) => fetchConsignees(1, limit)}
             />
           </div>
         </>
@@ -279,7 +260,7 @@ const ConsigneeList: React.FC = () => {
         closeModal={closeModal}
         setIsModalOpen={(value: boolean) => {
           setIsModalOpen(value);
-          if (!value) fetchConsigneesData();
+          if (!value) fetchConsignees();
         }}
         isEditing={isEditing}
         consigneeId={consigneeId}

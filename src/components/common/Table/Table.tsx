@@ -5,6 +5,7 @@ import SortIcon from "../../../assets/icons/sort.svg";
 import ArrowDownShortWideIcon from "../../../assets/icons/arrowDownShortWide.svg";
 import ArrowDownWideShortIcon from "../../../assets/icons/arrowDownWideShort.svg";
 import { truncateText } from "../../../utils/globalHelper";
+import { SortOption } from "../../../types/GeneralTypes";
 
 interface Column {
   key: string;
@@ -24,7 +25,7 @@ interface TableProps {
   onRowClick?: (row: Record<string, any>) => void; // Callback for row clicks
   actions?: string[]; // Action names for the dropdown menu
   onSort?: (
-    sortString: { key: string; direction: "asc" | "desc" } | null
+    sortString: SortOption
   ) => void; // Callback to trigger API for sorting
   sortConfig?: { key: string; direction: string } | null;
   rowClickable?: boolean;

@@ -25,6 +25,7 @@ import { downloadFile, getEnumValue } from "../../../../../utils/globalHelper";
 import FileUploadModal from "../../../../../components/common/FileUploadModal/FileUploadModal";
 import Pagination from "../../../../../components/common/Pagination/Pagination";
 import usePagination from "../../../../../hooks/usePagination";
+import { SortOption } from "../../../../../types/GeneralTypes";
 
 
 const DISPATCH_ACTIVE_TAB = "DISPATCH_ACTIVE_TAB";
@@ -42,10 +43,7 @@ const DispatchLoadList: React.FC = () => {
       ? (savedActiveTab as DispatchLoadStatus)
       : DispatchLoadStatus.Published
   );
-  const [sortConfig, setSortConfig] = useState<{
-    key: string;
-    direction: "asc" | "desc";
-  } | null>({ key: "age", direction: "desc" });
+  const [sortConfig, setSortConfig] = useState<SortOption | null>({ key: "age", direction: "desc" });
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
   const [dispatchDetails, setDispatchDetails] =
@@ -76,7 +74,7 @@ const DispatchLoadList: React.FC = () => {
   );
 
   // Fetch Load data
-  const fetchLoadsData = useCallback(
+  const fetchLoads = useCallback(
     async (page: number = 1, limit: number = 10) => {
       try {
         let query = `?page=${page}&limit=${limit}&status=${activeTab}`;
@@ -126,19 +124,19 @@ const DispatchLoadList: React.FC = () => {
     if (result.success) {
       toast.success(result.message);
       setTimeout(() => {
-        fetchLoadsData();
+        fetchLoads();
       }, 500);
     }
   };
 
   // Trigger fetch when user is populated
   useEffect(() => {
-   fetchLoadsData();
+   fetchLoads();
   }, [searchQuery, activeTab, sortConfig]);
 
   // Update active tab in localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem("dispatchActiveTab", activeTab);
+    localStorage.setItem(DISPATCH_ACTIVE_TAB, activeTab);
   }, [activeTab]);
 
   const columns = [
@@ -236,7 +234,7 @@ const DispatchLoadList: React.FC = () => {
           const result = await updateData("load", row._id, { status: action });
           if (result.success) {
             toast.success(result.message);
-            fetchLoadsData();
+            fetchLoads();
           } else {
             toast.error(result.message);
           }
@@ -260,7 +258,7 @@ const DispatchLoadList: React.FC = () => {
           const result = await deleteData("load", row._id);
           if (result.success) {
             toast.success(result.message);
-            fetchLoadsData();
+            fetchLoads();
           }
         } catch (err) {
           toast.error("Failed to delete customer.");
@@ -276,20 +274,6 @@ const DispatchLoadList: React.FC = () => {
     if (row) {
       openDetailsModal(row);
     }
-  };
-
-  const handleSort = (
-    sortStr: { key: string; direction: "asc" | "desc" } | null
-  ) => {
-    setSortConfig(sortStr); // Updates the sort query to trigger API call
-  };
-
-  const handlePageChange = (page: number) => {
-    fetchLoadsData(page);
-  };
-
-  const handleItemsPerPageChange = (limit: number) => {
-    fetchLoadsData(1, limit);
   };
 
   const getRowData = () => {
@@ -311,11 +295,7 @@ const DispatchLoadList: React.FC = () => {
       actions: getActionsForLoad(load),
     }));
   };
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
-
+  
   const handleGeneralAction = (action: any, selectedData: any) => {
     switch (action) {
       case "Refresh Loads":
@@ -332,7 +312,7 @@ const DispatchLoadList: React.FC = () => {
     reset({
       dateRange: undefined,
     });
-    fetchLoadsData();
+    fetchLoads();
   };
 
   const printRateAndConfirmation = async (row: Record<string, any>) => {
@@ -387,7 +367,7 @@ const DispatchLoadList: React.FC = () => {
         {/* Search Bar */}
         <div className="searchbar-container">
           <SearchBar
-            onSearch={handleSearch}
+            onSearch={(query: string) => setSearchQuery(query)}
             searchFieldOptions={[
               { label: "Ref No", value: "loadNumber" },
               { label: "W/O", value: "WONumber" },
@@ -436,7 +416,7 @@ const DispatchLoadList: React.FC = () => {
         <button
           type="button"
           className="btn btn-primary"
-          onClick={() => fetchLoadsData()}
+          onClick={() => fetchLoads()}
         >
           Apply Filter
         </button>
@@ -566,7 +546,8 @@ const DispatchLoadList: React.FC = () => {
             data={loads}
             onActionClick={handleAction}
             onRowClick={handleRowClick}
-            onSort={handleSort}
+            onSort={(sortStr: SortOption) => setSortConfig(sortStr)}
+
             sortConfig={sortConfig}
             rowClickable={true}
             showCheckbox={true}
@@ -578,8 +559,8 @@ const DispatchLoadList: React.FC = () => {
             <div className="pagination-container">
               <Pagination
                 meta={meta}
-                onPageChange={handlePageChange}
-                onItemsPerPageChange={handleItemsPerPageChange}
+                onPageChange={(page: number) => fetchLoads(page)}
+                onItemsPerPageChange={(limit: number) => fetchLoads(1, limit)}
               />
             </div>
           )}
