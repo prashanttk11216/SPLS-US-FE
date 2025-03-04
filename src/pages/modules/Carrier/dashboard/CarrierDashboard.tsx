@@ -47,7 +47,7 @@ const CarrierDashboard: React.FC = () => {
   return (
     <div>
       <h1>Carrier Dashboard</h1>
-      <div>
+      <div className="mb-2">
         <h3>SPLS Dispatch Load Board</h3>
         <div className="dashboard">
           {stats.dispatchLoadStats.length && stats.dispatchLoadStats.map(load => (
@@ -55,11 +55,14 @@ const CarrierDashboard: React.FC = () => {
           ))}
         </div>
       </div>
-      <div className="dashboard">
-        <DashboardTile key={0} title={"Active Loads"} value={stats.activeLoads} />
-        <DashboardTile key={1} title={"Completed Loads"} value={stats.completedLoads} />
-        <DashboardTile key={2} title={"Total Trucks"} value={stats.totalTrucks} />
-        <DashboardTile key={3} title={"Total Earnings"} value={stats.totalEarnings} />
+      <div>
+        <h3>Stats</h3>
+        <div className="dashboard">
+          <DashboardTile key={0} title={"Active Loads"} value={stats.activeLoads} />
+          <DashboardTile key={1} title={"Completed Loads"} value={stats.completedLoads} />
+          <DashboardTile key={2} title={"Total Trucks"} value={stats.totalTrucks} />
+          <DashboardTile key={3} title={"Total Earnings"} value={stats.totalEarnings} />
+        </div>
       </div>
     </div>
   );

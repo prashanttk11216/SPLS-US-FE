@@ -61,7 +61,7 @@ const BrokerDashboard: React.FC = () => {
         <h3>SPLS Load Board</h3>
         <div className="dashboard">
           {stats.loadStats.length && stats.loadStats.map(load => (
-            <DashboardTile key={load.count} title={load.status} value={load.count} />
+            <DashboardTile key={load.count} title={load.status} value={`${load.count} (loads)`} />
           ))}
         </div>
       </div>
@@ -97,7 +97,7 @@ const BrokerDashboard: React.FC = () => {
       </div>
       <div>
         <h3>Total Earnings</h3>
-        <div className="col col-md-3">
+        <div className="dashboard">
           <DashboardTile key={stats.totalEarnings} title={"Total"} value={stats.totalEarnings} />
         </div>
       </div>

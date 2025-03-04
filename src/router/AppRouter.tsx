@@ -35,6 +35,7 @@ import AccountingSummary from "../pages/modules/Broker/Accounting/AccountingSumm
 import Reports from "../pages/modules/Broker/Reports/Reports";
 import CustomerDashboardList from "../pages/modules/Broker/SalesManager/CustomerDashboardList/CustomerDashboardList";
 import QuoteList from "../pages/modules/Broker/Quote/QuoteList/QuoteList";
+import CustomerDashboard from "../pages/modules/Customer/dashboard/CustomerDashboard";
 
 // Define the routes using createBrowserRouter
 export const routes = createBrowserRouter([
@@ -54,6 +55,10 @@ export const routes = createBrowserRouter([
         children: [
           {
             path: "", // Matches /customer
+            element: <CustomerDashboard />,
+          },
+          {
+            path: "load-board", // Matches /customer
             element: <CustomerLoadList />,
           },
           {
