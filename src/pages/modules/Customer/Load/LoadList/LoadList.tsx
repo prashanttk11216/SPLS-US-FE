@@ -192,13 +192,13 @@ const LoadList: React.FC = () => {
       <div className="d-flex align-items-center">
         <h2 className="fw-bold">SPLS Load Board</h2>
         <button
-          className="btn btn-accent d-flex align-items-center ms-auto"
-          type="button"
-          onClick={() => navigate(`load-board/create`)}
-        >
-          <img src={PlusIcon} height={16} width={16} className="me-2" />
-          Create
-        </button>
+            className="btn btn-accent d-flex align-items-center ms-auto"
+            type="button"
+            onClick={() => navigate(`create`)}
+          >
+            <img src={PlusIcon} height={16} width={16} className="me-2" />
+            Create
+          </button>
       </div>
       <div className="d-flex align-items-center my-3">
         {/* Search Bar */}
