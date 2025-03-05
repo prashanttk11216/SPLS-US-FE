@@ -4,6 +4,8 @@ import DashboardTile from "../../../../components/common/DashboardTile/Dashboard
 import useFetchData from "../../../../hooks/useFetchData/useFetchData";
 import { getBrokerDashboardData } from "../../../../services/dashboard/dashboardService";
 import Loading from "../../../../components/common/Loading/Loading";
+import { useNavigate } from "react-router-dom";
+import { formatNumber } from "../../../../utils/numberUtils";
 
 type dashboardStats = {
   loadStats: [
@@ -27,7 +29,10 @@ type dashboardStats = {
   totalEarnings: number;
 };
 
+const LOAD_ACTIVE_TAB = "LOAD_ACTIVE_TAB";
+
 const BrokerDashboard: React.FC = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState<dashboardStats>({
     loadStats: [
       {
@@ -112,9 +117,9 @@ const BrokerDashboard: React.FC = () => {
                   load.role === "broker_user"
                     ? "Broker User"
                     : load.role === "carrier"
-                    ? "Carrier"
+                    ? "Carriers"
                     : load.role === "customer"
-                    ? "Customer"
+                    ? "Customers"
                     : load.role === "broker_admin"
                     ? "Broker Admin"
                     : ""
@@ -131,8 +136,7 @@ const BrokerDashboard: React.FC = () => {
           <DashboardTile
             key={stats.totalEarnings}
             title={"Total"}
-            value={stats.totalEarnings}
-            currency="$"
+            value={`$${formatNumber(stats.totalEarnings)}`}
             color="#4caf50"
           />
         </div>
