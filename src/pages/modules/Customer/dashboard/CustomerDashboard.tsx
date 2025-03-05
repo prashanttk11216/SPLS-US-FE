@@ -4,6 +4,7 @@ import DashboardTile from "../../../../components/common/DashboardTile/Dashboard
 import useFetchData from "../../../../hooks/useFetchData/useFetchData";
 import { getCustomerDashboardData } from "../../../../services/dashboard/dashboardService";
 import Loading from "../../../../components/common/Loading/Loading";
+import { useNavigate } from "react-router-dom";
 
 type dashboardStats = {
   loadStats: [
@@ -23,7 +24,10 @@ type dashboardStats = {
   completedLoads: number;
 };
 
+const CUSTOMER_LOADS_ACTIVE_TAB = "CUSTOMER_LOADS_ACTIVE_TAB";
+
 const BrokerDashboard: React.FC = () => {
+  const navigate = useNavigate()
   const [stats, setStats] = useState<dashboardStats>({
     loadStats: [
       {
@@ -59,6 +63,12 @@ const BrokerDashboard: React.FC = () => {
     };
     fetchData();
   }, []);
+
+  const handleLoadNavigation = (title:string) =>{
+    localStorage.setItem(CUSTOMER_LOADS_ACTIVE_TAB, title)
+    navigate('load-board')
+  }
+
   return loading ? (
     <Loading />
   ) : (
@@ -74,6 +84,7 @@ const BrokerDashboard: React.FC = () => {
                 title={load.status}
                 value={load.count}
                 suffix="loads"
+                handleClick={handleLoadNavigation}
               />
             ))}
         </div>

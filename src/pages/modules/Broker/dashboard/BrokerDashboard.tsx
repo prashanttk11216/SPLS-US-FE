@@ -30,6 +30,7 @@ type dashboardStats = {
 };
 
 const LOAD_ACTIVE_TAB = "LOAD_ACTIVE_TAB";
+const DISPATCH_ACTIVE_TAB = "DISPATCH_ACTIVE_TAB";
 
 const BrokerDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -72,6 +73,32 @@ const BrokerDashboard: React.FC = () => {
     };
     fetchData();
   }, []);
+
+  const handleLoadNavigation = (title:string) =>{
+    localStorage.setItem(LOAD_ACTIVE_TAB, title)
+    navigate('load-board')
+  }
+
+  const handleDispatchLoadNavigation = (title:string) =>{
+    localStorage.setItem(DISPATCH_ACTIVE_TAB, title)
+    navigate('dispatch-board')
+  }
+
+  const handleUserRolesNavigation = (title:string) => {
+    switch (title) {
+      case 'Broker User':
+        navigate('users')
+        break;
+      case 'Carriers':
+        navigate('carriers')
+        break;
+      case 'Customers':
+        navigate('customers')
+        break;
+      default:
+        break;
+    }
+  }
   return loading ? (
     <Loading />
   ) : (
@@ -87,6 +114,7 @@ const BrokerDashboard: React.FC = () => {
                 title={load.status}
                 value={load.count}
                 suffix="loads"
+                handleClick={handleLoadNavigation}
               />
             ))}
         </div>
@@ -102,6 +130,7 @@ const BrokerDashboard: React.FC = () => {
                 value={load.count}
                 suffix="loads"
                 color="#8073b8"
+                handleClick={handleDispatchLoadNavigation}
               />
             ))}
         </div>
@@ -126,6 +155,7 @@ const BrokerDashboard: React.FC = () => {
                 }
                 value={load.count}
                 color="#ff9800"
+                handleClick={handleUserRolesNavigation}
               />
             ))}
         </div>
