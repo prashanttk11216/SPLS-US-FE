@@ -4,6 +4,7 @@ import DashboardTile from "../../../../components/common/DashboardTile/Dashboard
 import useFetchData from "../../../../hooks/useFetchData/useFetchData";
 import { getCarrierDashboardData } from "../../../../services/dashboard/dashboardService";
 import Loading from "../../../../components/common/Loading/Loading";
+import { formatNumber } from "../../../../utils/numberUtils";
 
 type dashboardStats = {
   dispatchLoadStats: [
@@ -95,8 +96,7 @@ const CarrierDashboard: React.FC = () => {
           <DashboardTile
             key={3}
             title={"Total Earnings"}
-            value={stats.totalEarnings}
-            currency="$"
+            value={`$${formatNumber(stats.totalEarnings)}`}
             color="#4caf50"
           />
         </div>
