@@ -5,6 +5,7 @@ import useFetchData from "../../../../hooks/useFetchData/useFetchData";
 import { getCarrierDashboardData } from "../../../../services/dashboard/dashboardService";
 import Loading from "../../../../components/common/Loading/Loading";
 import { formatNumber } from "../../../../utils/numberUtils";
+import { useNavigate } from "react-router-dom";
 
 type dashboardStats = {
   dispatchLoadStats: [
@@ -19,7 +20,10 @@ type dashboardStats = {
   totalEarnings: number;
 };
 
+const CARRIER_LOADS_ACTIVE_TAB = "CARRIER_LOADS_ACTIVE_TAB"
+
 const CarrierDashboard: React.FC = () => {
+  const navigate = useNavigate()
   const [stats, setStats] = useState<dashboardStats>({
     dispatchLoadStats: [
       {
@@ -50,6 +54,16 @@ const CarrierDashboard: React.FC = () => {
     };
     fetchData();
   }, []);
+
+  const handleLoadNavigation = (title:string) =>{
+    localStorage.setItem(CARRIER_LOADS_ACTIVE_TAB, title)
+    navigate('load-board')
+  }
+
+  const handleTruckLoadNavigation = () =>{
+    navigate('truck')
+  }
+
   return loading ? (
     <Loading />
   ) : (
@@ -65,6 +79,7 @@ const CarrierDashboard: React.FC = () => {
                 title={load.status}
                 value={load.count}
                 suffix="loads"
+                handleClick={handleLoadNavigation}
               />
             ))}
         </div>
@@ -78,6 +93,7 @@ const CarrierDashboard: React.FC = () => {
             value={stats.activeLoads}
             suffix="loads"
             color="#ff9800"
+            handleClick={handleTruckLoadNavigation}
           />
           <DashboardTile
             key={1}
@@ -85,6 +101,7 @@ const CarrierDashboard: React.FC = () => {
             value={stats.completedLoads}
             suffix="loads"
             color="#ff9800"
+            handleClick={handleTruckLoadNavigation}
           />
           <DashboardTile
             key={2}
@@ -92,6 +109,7 @@ const CarrierDashboard: React.FC = () => {
             value={stats.totalTrucks}
             suffix="loads"
             color="#ff9800"
+            handleClick={handleTruckLoadNavigation}
           />
           <DashboardTile
             key={3}
