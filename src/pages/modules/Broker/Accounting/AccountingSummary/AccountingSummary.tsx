@@ -35,7 +35,7 @@ const AccountingSummary: React.FC = () => {
 
   const downloadSummary = async () => {
     try {
-      let result: any = await createData("summary", formData);
+      const result: any = await createData("summary", formData);
       if (result) {
         const blob = new Blob([result], { type: "application/pdf" }); 
         downloadFile(blob, "Account_Summary.pdf");

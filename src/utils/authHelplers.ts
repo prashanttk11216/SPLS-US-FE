@@ -8,7 +8,7 @@ export const removeAuthTokenFromStorage = (): void => {
   localStorage.removeItem("authToken");
 };
 
-export const setUserDataInStorage = (data: any): void => {
+export const setUserDataInStorage = (data: unknown): void => {
   localStorage.setItem("user", JSON.stringify(data)); // It's recommended to store objects as JSON strings.
 };
 

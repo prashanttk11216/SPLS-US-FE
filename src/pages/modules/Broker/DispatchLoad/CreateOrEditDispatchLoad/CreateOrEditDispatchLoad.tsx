@@ -199,7 +199,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
     });
 
   const fetchLoad = async (loadId: string) => {
-    let query = `?populate=brokerId:-password,postedBy:-password`;
+    const query = `?populate=brokerId:-password,postedBy:-password`;
     const result = await getDataById("load", loadId, query);
     if (result.success) {
       setLoadData(result.data);
@@ -288,7 +288,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
   };
 
   const fetchLoadsData = async () => {
-    let query = `?page=1&limit=999&status=${LoadStatus.DealClosed}`;
+    const query = `?page=1&limit=999&status=${LoadStatus.DealClosed}`;
 
     const result = await getData("load", query);
     if (result.success) {
@@ -483,7 +483,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
   const loadIdField = watch("loadId");
   useEffect(()=>{
     if(loadIdField){
-      let load = loadsList.filter((load) => load.value == loadIdField);
+      const load = loadsList.filter((load) => load.value == loadIdField);
       if(load.length && load[0].customerId){
         setValue("customerId", load[0].customerId);
         setValue("carrierId", load[0].carrierId);

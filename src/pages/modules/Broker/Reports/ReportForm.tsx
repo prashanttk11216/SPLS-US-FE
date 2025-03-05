@@ -39,13 +39,13 @@ const ReportForm: React.FC<ReoprtsFormProps> = ({ handleData }) => {
     async (category: string, page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return; // Wait for user data
       try {
-        let query = `?role=${
+        const query = `?role=${
           category === "CUSTOMER" ? UserRole.CUSTOMER : UserRole.CARRIER
         }&page=${page}&limit=${limit}`;
 
         const result = await getData("user", query);
         if (result.success) {
-          let users: any = [];
+          const users: any = [];
           const allArr: any = [
             {
               label: category === "CUSTOMER" ? "ALL CUSTOMER" : "ALL CARRIER",

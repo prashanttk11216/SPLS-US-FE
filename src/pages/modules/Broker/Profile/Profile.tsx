@@ -54,7 +54,7 @@ const Profile: React.FC = () => {
 
   const getProfile = async (resetUserState: boolean = false) => {
     setLoading(true);
-    let query = resetUserState ? '?populate=roles' : ''
+    const query = resetUserState ? '?populate=roles' : ''
     const result = await getDataById("user", '', query);
     if (result.success && result.data) {
       if(resetUserState){        

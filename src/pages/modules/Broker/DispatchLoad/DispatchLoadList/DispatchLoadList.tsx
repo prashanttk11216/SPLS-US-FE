@@ -317,7 +317,7 @@ const DispatchLoadList: React.FC = () => {
 
   const printRateAndConfirmation = async (row: Record<string, any>) => {
     try {
-      let result: any = await createData("LoadConfirmation", row._id);
+      const result: any = await createData("LoadConfirmation", row._id);
       if (result) {
         const blob = new Blob([result], { type: "application/pdf" });
         downloadFile(blob, `Load_Confirmation_${row.loadNumber}.pdf`);

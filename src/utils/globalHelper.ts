@@ -65,5 +65,15 @@ export const downloadFile = (
 
 
 
-export const getEnumValue  = <T extends Record<string, any>>(enumObj: T, key: string | undefined): string => key && enumObj[key as keyof T] ? enumObj[key as keyof T] : "N/A";
-
+export const getEnumValue = <T extends Record<string, string | number>>(
+  enumObj: T,
+  key: string | undefined
+): string => {
+  if (key && (key in enumObj)) {
+    const value = enumObj[key as keyof T];
+    if (typeof value === 'string' || typeof value === 'number') {
+      return String(value);
+    }
+  }
+  return "N/A";
+};

@@ -87,7 +87,7 @@ const LoadList: React.FC = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
   const [loadDetails, setLoadDetails] = useState<Partial<Load> | null>(null);
 
-  const { getData, loading, error } = useFetchData<any>({
+  const { getData, loading, error } = useFetchData<unknown>({
     getAll: {
       load: getloads,
     },

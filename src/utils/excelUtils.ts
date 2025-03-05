@@ -9,7 +9,7 @@ import { saveAs } from "file-saver";
  * @param sheetName - Name of the worksheet.
  */
 export const exportToExcel = (
-  data: any[],
+  data: unknown[],
   fileName: string = "ExportedData",
   sheetName: string = "Sheet1"
 ) => {

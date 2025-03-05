@@ -64,7 +64,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   });
 
   const fetchLoad = async (loadId: string) => {
-    let query = `?populate=brokerId:-password,postedBy:-password`;
+    const query = `?populate=brokerId:-password,postedBy:-password`;
     const result = await getDataById("load", loadId, query);
     if (result.success) {
       setLoadData(result.data);
