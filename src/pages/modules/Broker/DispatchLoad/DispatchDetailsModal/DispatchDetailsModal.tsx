@@ -28,13 +28,13 @@ const DispatchDetailsModal: React.FC<{
         {
           label: "Ship Date",
           value: dispatch.shipper?.date
-            ? formatDate(dispatch.shipper.date, "MM/dd/yyyy")
+            ? formatDate(dispatch.shipper.date, "yyyy/MM/dd")
             : "N/A",
         },
         {
           label: "Del Date",
           value: dispatch.consignee?.date
-            ? formatDate(dispatch.consignee.date, "MM/dd/yyyy")
+            ? formatDate(dispatch.consignee.date, "yyyy/MM/dd")
             : "N/A",
         },
         {

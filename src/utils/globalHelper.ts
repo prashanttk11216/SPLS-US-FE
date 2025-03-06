@@ -1,3 +1,5 @@
+import { VALIDATION_MESSAGES } from "../constants/messages";
+
 // Utility to truncate text
 export const truncateText = (text: string, maxLength: number) => {
     return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
@@ -76,4 +78,21 @@ export const getEnumValue = <T extends Record<string, string | number>>(
     }
   }
   return "N/A";
+};
+
+
+
+export const dateTimeOptions ={
+  showTimeSelectOnly: true,
+  timeCaption: "Time",
+  showTimeSelect: true,
+  dateFormat: "h:mm aa",
+  timeIntervals: 15,
+}
+
+
+export const validateLocation = (value: any): boolean | string => {
+  return value?.str && value?.lat && value?.lng 
+    ? true 
+    : VALIDATION_MESSAGES.locationInvalid;
 };

@@ -21,6 +21,7 @@ import {
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 import { Address } from "../../../../../types/Address";
 import PhoneNumberInput from "../../../../../components/common/PhoneNumberInput/PhoneNumberInput";
+import { validateLocation } from "../../../../../utils/globalHelper";
 
 export type ConsigneeForm = {
   firstName: string;
@@ -289,8 +290,7 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
                 setValue={setValue}
                 rules={{
                   required: VALIDATION_MESSAGES.addressRequired,
-                  validate: (value: any) =>
-                    value?.str ? true : VALIDATION_MESSAGES.addressRequired,
+                  validate: validateLocation,
                 }}
               />
             </div>

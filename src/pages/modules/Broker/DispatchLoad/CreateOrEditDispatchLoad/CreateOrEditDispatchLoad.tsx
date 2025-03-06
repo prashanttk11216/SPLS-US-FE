@@ -44,6 +44,7 @@ import {
 import {
   calculatePercentage,
   calculatePercentageByUnit,
+  dateTimeOptions,
 } from "../../../../../utils/globalHelper";
 import CurrencyNumberInput from "../../../../../components/common/CurrencyNumberInput/CurrencyNumberInput";
 import TextAreaBox from "../../../../../components/common/TextAreaBox/TextAreaBox";
@@ -874,7 +875,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               label="Date"
               placeholder="Choose a date"
               datePickerProps={{
-                dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
                 minDate: new Date(), // Disable past dates
               }}
             />
@@ -887,12 +888,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               control={control}
               label="Time"
               placeholder="Choose a Time"
-              datePickerProps={{
-                showTimeSelectOnly: true,
-                timeCaption: "Time",
-                showTimeSelect: true,
-                dateFormat: "h:mm aa",
-              }}
+              datePickerProps={dateTimeOptions}
             />
           </div>
 
@@ -1031,7 +1027,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               label="Date"
               placeholder="Choose a date"
               datePickerProps={{
-                dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
                 minDate: new Date(), // Disable past dates
               }}
             />
@@ -1044,12 +1040,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               control={control}
               label="Time"
               placeholder="Choose a Time"
-              datePickerProps={{
-                showTimeSelectOnly: true,
-                timeCaption: "Time",
-                showTimeSelect: true,
-                dateFormat: "h:mm aa",
-              }}
+              datePickerProps={dateTimeOptions}
             />
           </div>
 

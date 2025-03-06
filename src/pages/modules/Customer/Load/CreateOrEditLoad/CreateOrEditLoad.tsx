@@ -25,6 +25,7 @@ import TextAreaBox from "../../../../../components/common/TextAreaBox/TextAreaBo
 import { RootState } from "../../../../../store/store";
 import { useSelector } from "react-redux";
 import { LoadForm } from "../../../Broker/Load/CreateOrEditLoad/CreateOrEditLoad";
+import { dateTimeOptions, validateLocation } from "../../../../../utils/globalHelper";
 
 interface CreateOrEditLoadProps {}
 
@@ -230,7 +231,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               setValue={setValue}
               rules={{ 
                 required: VALIDATION_MESSAGES.originRequired,
-                validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.originRequired)
+                validate: validateLocation,
               }}
             />
           </div>
@@ -246,7 +247,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                 required: VALIDATION_MESSAGES.dateRequired,
               }}
               datePickerProps={{
-                dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
                 minDate: new Date(), // Disable past dates
               }}
             />
@@ -258,12 +259,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               control={control}
               label="Early Pick-Up Time"
               placeholder="Choose a Time"
-              datePickerProps={{
-                showTimeSelectOnly: true,
-                timeCaption: "Time",
-                showTimeSelect: true,
-                dateFormat: "h:mm aa",
-              }}
+              datePickerProps={dateTimeOptions}
             />
           </div>
           {/* Origin Late Pickup Date*/}
@@ -274,7 +270,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               label="Late Pick-Up Date"
               placeholder="Choose a date"
               datePickerProps={{
-                dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
                 minDate: new Date(), // Disable past dates
               }}
             />
@@ -286,12 +282,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               control={control}
               label="Late Pick-Up Time"
               placeholder="Choose a Time"
-              datePickerProps={{
-                showTimeSelectOnly: true,
-                timeCaption: "Time",
-                showTimeSelect: true,
-                dateFormat: "h:mm aa",
-              }}
+              datePickerProps={dateTimeOptions}
             />
           </div>
 
@@ -325,7 +316,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                       setValue={setValue}
                       rules={{ 
                         required: VALIDATION_MESSAGES.originRequired,
-                        validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.originRequired)
+                        validate: validateLocation,
                       }}
                     />
                   </div>
@@ -337,7 +328,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                       label="Early Pick-Up Date"
                       placeholder="Choose a date"
                       datePickerProps={{
-                        dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                        dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
                         minDate: new Date(), // Disable past dates
                       }}
                     />
@@ -349,12 +340,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                       control={control}
                       label="Early Pick-Up Time"
                       placeholder="Choose a Time"
-                      datePickerProps={{
-                        showTimeSelectOnly: true,
-                        timeCaption: "Time",
-                        showTimeSelect: true,
-                        dateFormat: "h:mm aa",
-                      }}
+                      datePickerProps={dateTimeOptions}
                     />
                   </div>
                   {/* Origin Late Pickup Date*/}
@@ -365,7 +351,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                       label="Late Pick-Up Date"
                       placeholder="Choose a date"
                       datePickerProps={{
-                        dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                        dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
                         minDate: new Date(), // Disable past dates
                       }}
                     />
@@ -377,12 +363,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                       control={control}
                       label="Late Pick-Up Time"
                       placeholder="Choose a Time"
-                      datePickerProps={{
-                        showTimeSelectOnly: true,
-                        timeCaption: "Time",
-                        showTimeSelect: true,
-                        dateFormat: "h:mm aa",
-                      }}
+                      datePickerProps={dateTimeOptions}
                     />
                   </div>
                 </div>
@@ -415,7 +396,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               setValue={setValue}
               rules={{ 
                 required: VALIDATION_MESSAGES.destinationRequired,
-                validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.destinationRequired)
+                validate: validateLocation,
               }}
             />
           </div>
@@ -427,7 +408,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               label="Early Drop-off Date"
               placeholder="Choose a date"
               datePickerProps={{
-                dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
                 minDate: new Date(), // Disable past dates
               }}
             />
@@ -439,12 +420,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               control={control}
               label="Early Drop-off Time"
               placeholder="Choose a Time"
-              datePickerProps={{
-                showTimeSelectOnly: true,
-                timeCaption: "Time",
-                showTimeSelect: true,
-                dateFormat: "h:mm aa",
-              }}
+              datePickerProps={dateTimeOptions}
             />
           </div>
           {/* Destination Late drop-off Date*/}
@@ -455,7 +431,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               label="Late Drop-off Date"
               placeholder="Choose a date"
               datePickerProps={{
-                dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
                 minDate: new Date(), // Disable past dates
               }}
             />
@@ -467,12 +443,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               control={control}
               label="Late Drop-off Time"
               placeholder="Choose a Time"
-              datePickerProps={{
-                showTimeSelectOnly: true,
-                timeCaption: "Time",
-                showTimeSelect: true,
-                dateFormat: "h:mm aa",
-              }}
+              datePickerProps={dateTimeOptions}
             />
           </div>
 
@@ -506,7 +477,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                       setValue={setValue}
                       rules={{ 
                         required: VALIDATION_MESSAGES.destinationRequired,
-                        validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.destinationRequired)
+                        validate: validateLocation,
                       }}
                     />
                   </div>
@@ -518,7 +489,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                       label="Early Drop-off Date"
                       placeholder="Choose a date"
                       datePickerProps={{
-                        dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                        dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
                         minDate: new Date(), // Disable past dates
                       }}
                     />
@@ -530,12 +501,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                       control={control}
                       label="Early Drop-off Time"
                       placeholder="Choose a Time"
-                      datePickerProps={{
-                        showTimeSelectOnly: true,
-                        timeCaption: "Time",
-                        showTimeSelect: true,
-                        dateFormat: "h:mm aa",
-                      }}
+                      datePickerProps={dateTimeOptions}
                     />
                   </div>
                   {/* Late Drop-off Date*/}
@@ -546,7 +512,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                       label="Late Drop-off Date"
                       placeholder="Choose a date"
                       datePickerProps={{
-                        dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                        dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
                         minDate: new Date(), // Disable past dates
                       }}
                     />
@@ -558,12 +524,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                       control={control}
                       label="Late Drop-off Time"
                       placeholder="Choose a Time"
-                      datePickerProps={{
-                        showTimeSelectOnly: true,
-                        timeCaption: "Time",
-                        showTimeSelect: true,
-                        dateFormat: "h:mm aa",
-                      }}
+                      datePickerProps={dateTimeOptions}
                     />
                   </div>
                 </div>

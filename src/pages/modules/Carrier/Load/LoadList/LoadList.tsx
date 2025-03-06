@@ -26,13 +26,16 @@ import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
 import { equipmentOptions } from "../../../../../utils/dropdownOptions";
 import { formatNumber } from "../../../../../utils/numberUtils";
 import { Equipment } from "../../../../../enums/Equipment";
-import { getEnumValue } from "../../../../../utils/globalHelper";
+import {
+  getEnumValue,
+  validateLocation,
+} from "../../../../../utils/globalHelper";
 import usePagination from "../../../../../hooks/usePagination";
 import { LoadStatus } from "../../../../../enums/LoadStatus";
 import { SortOption } from "../../../../../types/GeneralTypes";
 import Tabs from "../../../../../components/common/Tabs/Tabs";
 
-const CARRIER_LOADS_ACTIVE_TAB = "CARRIER_LOADS_ACTIVE_TAB"
+const CARRIER_LOADS_ACTIVE_TAB = "CARRIER_LOADS_ACTIVE_TAB";
 
 const tabOptions = [
   { label: "Loads", value: LoadStatus.Published },
@@ -74,9 +77,9 @@ const LoadList: React.FC = () => {
   });
 
   // Update active tab in localStorage whenever it changes
-    useEffect(() => {
-      localStorage.setItem(CARRIER_LOADS_ACTIVE_TAB, activeTab);
-    }, [activeTab]);
+  useEffect(() => {
+    localStorage.setItem(CARRIER_LOADS_ACTIVE_TAB, activeTab);
+  }, [activeTab]);
 
   // Fetch Load data
   const fetchLoads = useCallback(
@@ -173,7 +176,7 @@ const LoadList: React.FC = () => {
 
   const getActionsForLoad = (load: Load): string[] => {
     const actions = ["View Details"];
-    if(load.status === LoadStatus.Published) {
+    if (load.status === LoadStatus.Published) {
       actions.push("Send Request");
     }
     return actions;
@@ -188,7 +191,7 @@ const LoadList: React.FC = () => {
         destination: load.destination?.str || "N/A",
         dhdDistance: load.dhdDistance || "N/A", // Add dhdDistance conditionally
         originEarlyPickupDate:
-          formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
+          formatDate(load.originEarlyPickupDate, "yyyy/MM/dd") || "N/A",
         equipment: getEnumValue(Equipment, load.equipment),
         miles: load.miles ? `${formatNumber(load.miles)} mi` : "N/A",
         postedBy:
@@ -299,6 +302,9 @@ const LoadList: React.FC = () => {
               control={control}
               placeholder="Origin"
               setValue={setValue}
+              rules={{
+                validate: validateLocation,
+              }}
             />
           </div>
           {/* DH-O */}
@@ -329,6 +335,9 @@ const LoadList: React.FC = () => {
               control={control}
               placeholder="Destination"
               setValue={setValue}
+              rules={{
+                validate: validateLocation,
+              }}
             />
           </div>
           {/* DH-D */}
@@ -363,7 +372,7 @@ const LoadList: React.FC = () => {
               isRange={true}
               placeholder="Choose a date range"
               datePickerProps={{
-                dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
                 isClearable: true,
                 selectsRange: true,
               }}
@@ -403,7 +412,6 @@ const LoadList: React.FC = () => {
             onActionClick={handleAction}
             rowClickable={true}
             onSort={(sortStr: SortOption) => setSortConfig(sortStr)}
-
             sortConfig={sortConfig}
             onRowClick={handleRowClick}
           />

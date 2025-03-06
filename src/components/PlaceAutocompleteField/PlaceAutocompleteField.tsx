@@ -5,6 +5,7 @@ import { Controller, UseFormSetValue, useWatch } from "react-hook-form";
 interface PlaceAutocompleteFieldProps {
   name: string; // Field name for react-hook-form
   label: string;
+  hintText?: string;
   placeholder?: string;
   rules?: any;
   control?: any;
@@ -27,6 +28,7 @@ interface PlaceAutocompleteFieldProps {
 const PlaceAutocompleteField = ({
   name,
   label,
+  hintText = "Enter Zip Code to retrieve full address",
   placeholder = "Enter your address",
   rules,
   setValue,
@@ -153,6 +155,7 @@ const PlaceAutocompleteField = ({
                 });
               }}
             />
+            {(hintText && !fieldState?.error) && <small className="form-text">{hintText}</small>}
             {fieldState?.error && <span className="text-danger">{fieldState.error.message}</span>}
           </>
         )}

@@ -30,7 +30,7 @@ const TruckDetailsModal: React.FC<{
         {
           label: "Available Date",
           value: truckData.availableDate
-            ? formatDate(truckData.availableDate, "MM/dd/yyyy")
+            ? formatDate(truckData.availableDate, "yyyy/MM/dd")
             : "N/A",
         },
         {

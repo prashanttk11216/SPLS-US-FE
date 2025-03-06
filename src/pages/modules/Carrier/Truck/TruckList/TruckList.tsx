@@ -208,7 +208,7 @@ const TruckList: React.FC = () => {
         : "N/A",
       "origin.str": truck.origin.str,
       "destination.str": truck?.destination?.str || "Anywhere",
-      availableDate: formatDate(truck.availableDate, "MM/dd/yyyy") || "N/A",
+      availableDate: formatDate(truck.availableDate, "yyyy/MM/dd") || "N/A",
       equipment: getEnumValue(Equipment, truck.equipment),
       allInRate: truck.allInRate ? `$ ${formatNumber(truck.allInRate)}` : "N/A",
       weight: truck.weight ? `${formatNumber(truck.weight)} lbs` : "N/A",

@@ -23,6 +23,7 @@ import Loading from "../../../../components/common/Loading/Loading";
 import { Address } from "../../../../types/Address";
 import PhoneNumberInput from "../../../../components/common/PhoneNumberInput/PhoneNumberInput";
 import useFetchData from "../../../../hooks/useFetchData/useFetchData";
+import { validateLocation } from "../../../../utils/globalHelper";
 
 const Profile: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -258,7 +259,7 @@ const Profile: React.FC = () => {
                   setValue={setValue}
                   rules={{ 
                     required: VALIDATION_MESSAGES.addressRequired,
-                    validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.addressRequired)
+                    validate: validateLocation,
                   }}
                 />
               </div>
@@ -377,7 +378,7 @@ const Profile: React.FC = () => {
               setValue={setValue}
               rules={{ 
                 required: VALIDATION_MESSAGES.addressRequired,
-                validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.addressRequired)
+                validate: validateLocation,
               }}
             />
           </div>

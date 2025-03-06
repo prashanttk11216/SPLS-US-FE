@@ -315,7 +315,7 @@ const LoadList: React.FC = () => {
       "origin.str": load.origin.str,
       "destination.str": load.destination.str || "N/A",
       originEarlyPickupDate:
-        formatDate(load.originEarlyPickupDate, "MM/dd/yyyy") || "N/A",
+        formatDate(load.originEarlyPickupDate, "yyyy/MM/dd") || "N/A",
       equipment: getEnumValue(Equipment, load.equipment),
       miles: load.miles ? `${formatNumber(load.miles)} mi` : "N/A",
       loadNumber: load.loadNumber || "N/A",

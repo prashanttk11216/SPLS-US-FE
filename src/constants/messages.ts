@@ -30,7 +30,8 @@ export const VALIDATION_MESSAGES = {
 
     originRequired: "Origin is required",
     destinationRequired: "Destination is required",
-    dateRequired: "Date is required"
+    dateRequired: "Date is required",
+    locationInvalid: "Please enter a valid location (type a zip code and select an address from the dropdown)",
   };
   
   export const ERROR_MESSAGES = {

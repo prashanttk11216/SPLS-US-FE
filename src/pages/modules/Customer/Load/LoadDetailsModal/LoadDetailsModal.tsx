@@ -25,7 +25,7 @@ const LoadDetailsModal: React.FC<{
         {
           label: "Pick-Up",
           value: load.originEarlyPickupDate
-            ? formatDate(load.originEarlyPickupDate, "MM/dd/yyyy")
+            ? formatDate(load.originEarlyPickupDate, "yyyy/MM/dd")
             : "N/A",
           fullWidth: true,
         },
@@ -54,7 +54,7 @@ const LoadDetailsModal: React.FC<{
         {
           label: "Early Drop-off Date",
           value: load.destinationEarlyDropoffDate
-            ? formatDate(load.destinationEarlyDropoffDate, "MM/dd/yyyy")
+            ? formatDate(load.destinationEarlyDropoffDate, "yyyy/MM/dd")
             : "N/A",
           fullWidth: true,
         },
@@ -68,7 +68,7 @@ const LoadDetailsModal: React.FC<{
         {
           label: "Late Drop-off Date",
           value: load.destinationLateDropoffDate
-            ? formatDate(load.destinationLateDropoffDate, "MM/dd/yyyy")
+            ? formatDate(load.destinationLateDropoffDate, "yyyy/MM/dd")
             : "N/A",
           fullWidth: true,
         },

@@ -47,7 +47,7 @@ const SummaryForm: React.FC<FormProps> = ({handleData}) => {
         isRange={true}
         required={true}
         datePickerProps={{
-          dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+          dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
           isClearable: true,
           selectsRange: true,
         }}

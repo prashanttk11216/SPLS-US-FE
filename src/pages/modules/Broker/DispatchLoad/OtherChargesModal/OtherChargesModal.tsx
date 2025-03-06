@@ -132,7 +132,7 @@ const OtherChargesModal: React.FC<{
                   label="Date"
                   placeholder="date"
                   datePickerProps={{
-                    dateFormat: "MM/dd/yyyy",
+                    dateFormat: "yyyy/MM/dd",
                   }}
                 />
               </div>

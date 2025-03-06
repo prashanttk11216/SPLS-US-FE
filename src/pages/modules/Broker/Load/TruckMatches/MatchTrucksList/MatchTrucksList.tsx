@@ -144,7 +144,7 @@ const MatcheTrucksList: React.FC = () => {
         dhoDistance: truck.dhoDistance || "N/A", // Add dhoDistance conditionally
         "destination.str": truck?.destination?.str || "Anywhere",
         dhdDistance: truck.dhdDistance || "N/A", // Add dhoDistance conditionally
-        availableDate: formatDate(truck.availableDate, "MM/dd/yyyy") || "N/A",
+        availableDate: formatDate(truck.availableDate, "yyyy/MM/dd") || "N/A",
         equipment: getEnumValue(Equipment, truck.equipment),
         allInRate: truck.allInRate ? `${truck.allInRate} $` : "N/A",
         weight: (truck.weight && truck.weight + " lbs") || "N/A",

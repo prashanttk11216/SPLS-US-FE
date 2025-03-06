@@ -260,10 +260,10 @@ const AccountingDispatchLoadList: React.FC = () => {
       "shipper.address": load?.shipper?.address?.str || "N/A",
       "consignee.address": load?.consignee?.address?.str || "N/A",
       "shipper.date": load?.shipper?.date
-        ? formatDate(load?.shipper?.date, "MM/dd/yyyy")
+        ? formatDate(load?.shipper?.date, "yyyy/MM/dd")
         : "N/A",
       "consignee.date": load?.consignee?.date
-        ? formatDate(load?.consignee?.date, "MM/dd/yyyy")
+        ? formatDate(load?.consignee?.date, "yyyy/MM/dd")
         : "N/A",
 
       equipment:  getEnumValue(Equipment, load.equipment),   
@@ -374,7 +374,7 @@ const AccountingDispatchLoadList: React.FC = () => {
             isRange={true}
             required={true}
             datePickerProps={{
-              dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+              dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
               isClearable: true,
               selectsRange: true
             }}

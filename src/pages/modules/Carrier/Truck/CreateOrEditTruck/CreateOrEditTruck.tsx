@@ -15,7 +15,7 @@ import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
 import NumberInput from "../../../../../components/common/NumberInput/NumberInput";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
-import { filterObjectKeys } from "../../../../../utils/globalHelper";
+import { filterObjectKeys, validateLocation } from "../../../../../utils/globalHelper";
 import { equipmentOptions } from "../../../../../utils/dropdownOptions";
 import CurrencyNumberInput from "../../../../../components/common/CurrencyNumberInput/CurrencyNumberInput";
 import TextAreaBox from "../../../../../components/common/TextAreaBox/TextAreaBox";
@@ -166,7 +166,7 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
               setValue={setValue}
               rules={{ 
                 required: VALIDATION_MESSAGES.addressRequired,
-                validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.addressRequired)
+                validate: validateLocation,
               }}
             />
           </div>
@@ -192,7 +192,7 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
                 required: VALIDATION_MESSAGES.dateRequired,
               }}
               datePickerProps={{
-                dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
                 minDate: new Date(), // Disable past dates
               }}
             />

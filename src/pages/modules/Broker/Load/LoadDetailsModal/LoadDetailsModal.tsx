@@ -25,7 +25,7 @@ const LoadDetailsModal: React.FC<{
         {
           label: "Early Pick-Up Date",
           value: load.originEarlyPickupDate
-            ? formatDate(load.originEarlyPickupDate, "MM/dd/yyyy")
+            ? formatDate(load.originEarlyPickupDate, "yyyy/MM/dd")
             : "N/A",
           fullWidth: true,
         },
@@ -39,7 +39,7 @@ const LoadDetailsModal: React.FC<{
         {
           label: "Late Pick-Up Date",
           value: load.originLatePickupDate
-            ? formatDate(load.originLatePickupDate, "MM/dd/yyyy")
+            ? formatDate(load.originLatePickupDate, "yyyy/MM/dd")
             : "N/A",
           fullWidth: true,
         },
@@ -63,7 +63,7 @@ const LoadDetailsModal: React.FC<{
         {
           label: "Early Drop-off Date",
           value: load.destinationEarlyDropoffDate
-            ? formatDate(load.destinationEarlyDropoffDate, "MM/dd/yyyy")
+            ? formatDate(load.destinationEarlyDropoffDate, "yyyy/MM/dd")
             : "N/A",
           fullWidth: true,
         },
@@ -77,7 +77,7 @@ const LoadDetailsModal: React.FC<{
         {
           label: "Late Drop-off Date",
           value: load.destinationLateDropoffDate
-            ? formatDate(load.destinationLateDropoffDate, "MM/dd/yyyy")
+            ? formatDate(load.destinationLateDropoffDate, "yyyy/MM/dd")
             : "N/A",
           fullWidth: true,
         },
@@ -95,7 +95,7 @@ const LoadDetailsModal: React.FC<{
       rows: [
               { label: "Equipment", value: getEnumValue(Equipment, load.equipment) },
         
-        { label: "Mode", value: getEnumValue(Mode, load.mode) },
+        { label: "Mode", value: getEnumValue(Mode, load.mode as string) },
         {
           label: "Broker Rate",
           value: load.allInRate ? `$ ${formatNumber(load.allInRate)}` : "N/A",
@@ -134,7 +134,7 @@ const LoadDetailsModal: React.FC<{
           label: "Pallets",
           value: load.pallets ? `${formatNumber(load.pallets)}` : "N/A",
         },
-        { label: "Load Option", value: getEnumValue(LoadOption, load.mode) },
+        { label: "Load Option", value: getEnumValue(LoadOption, load.mode as string) },
         { label: "Commodity", value: getEnumValue(Commodity, load.commodity) },
         {
           label: "Load Number",

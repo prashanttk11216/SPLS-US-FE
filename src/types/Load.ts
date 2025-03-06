@@ -1,57 +1,50 @@
-import { Equipment } from "../enums/Equipment";
 import { Commodity } from "../enums/Commodity";
+import { Equipment } from "../enums/Equipment";
+import { Mode } from "fs";
+import { LoadStatus } from "../enums/LoadStatus";
 import { LoadOption } from "../enums/LoadOption";
 import { User } from "./User";
-import { Mode } from "../enums/Mode";
 
+interface Location {
+  str: string;
+  lat: number;
+  lng: number;
+}
 export interface Load {
-  _id: string;
-  customerId?: string;
-  brokerId?: string | User;
-  adminId?: string;
-  carrierId?: string;
-  origin:  {
-    str: string; // String representation of the address
-    lat: number; // Latitude
-    lng: number; // Longitude
-  };
+  _id?: string;
+  origin: Location;
   originEarlyPickupDate: Date;
   originLatePickupDate?: Date;
   originEarlyPickupTime?: Date;
   originLatePickupTime?: Date;
   originStops?: {
-    address: {
-      str: string; // String representation of the address
-      lat: number; // Latitude
-      lng: number; // Longitude
-    };
+    address: Location;
     earlyPickupDate?: Date;
     latePickupDate?: Date;
     earlyPickupTime?: Date;
     latePickupTime?: Date;
   }[];
-  destination:  {
-    str: string; // String representation of the address
-    lat: number; // Latitude
-    lng: number; // Longitude
-  };
+
+
+  destination: Location
   destinationEarlyDropoffDate?: Date;
   destinationLateDropoffDate?: Date;
   destinationEarlyDropoffTime?: Date;
   destinationLateDropoffTime?: Date;
   destinationStops?: {
-    address: {
-      str: string; // String representation of the address
-      lat: number; // Latitude
-      lng: number; // Longitude
-    };
+    address: Location;
     earlyDropoffDate?: Date;
     lateDropoffDate?: Date;
     earlyDropoffTime?: Date;
     lateDropoffTime?: Date;
   }[];
+
   equipment: Equipment;
   mode: Mode;
+  commodity?: Commodity;
+  loadOption?: LoadOption;
+  status?: LoadStatus;
+
   allInRate?: number;
   customerRate?: number;
   weight?: number;
@@ -60,17 +53,22 @@ export interface Load {
   height?: number;
   pieces?: number;
   pallets?: number;
-  age?: Date;
-  formattedAge?: string;
   miles?: number;
-  loadOption?: LoadOption;
-  specialInstructions?: string;
-  commodity: Commodity;
-  loadNumber?: number;
-  postedBy?:  string | User;
-  status: string;
   dhoDistance?: number;
   dhdDistance?: number;
+  loadNumber: number;
+
+
+  specialInstructions?: string;
+  formattedAge?: string;
+
+
+  age?: Date;
   createdAt?: Date;
   updatedAt?: Date;
+
+  customerId?: string | User;
+  brokerId?: string | User;
+  carrierId?: string | User;
+  postedBy?: string | User;
 }

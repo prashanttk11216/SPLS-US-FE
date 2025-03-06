@@ -1,4 +1,11 @@
-import { FC, useCallback, useEffect, useState } from "react";
+import {
+  Dispatch,
+  FC,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
@@ -13,21 +20,33 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
-import SelectField, { SelectOption } from "../../../../../components/common/SelectField/SelectField";
+import SelectField, {
+  SelectOption,
+} from "../../../../../components/common/SelectField/SelectField";
 import NumberInput from "../../../../../components/common/NumberInput/NumberInput";
 import { UserRole } from "../../../../../enums/UserRole";
 import { getUsers } from "../../../../../services/user/userService";
-import { baseLoadSchema, createLoadSchema, updateLoadSchema } from "../../../../../schema/Load";
+import {
+  baseLoadSchema,
+  createLoadSchema,
+  updateLoadSchema,
+} from "../../../../../schema/Load";
 import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 import calculateDistance, {
   formatDistance,
 } from "../../../../../utils/distanceCalculator";
 import MapModal from "../../../../../components/common/MapModal/MapModal";
-import { commodityOptions, equipmentOptions, loadOptions, modeOptions } from "../../../../../utils/dropdownOptions";
+import {
+  commodityOptions,
+  equipmentOptions,
+  loadOptions,
+  modeOptions,
+} from "../../../../../utils/dropdownOptions";
 import CurrencyNumberInput from "../../../../../components/common/CurrencyNumberInput/CurrencyNumberInput";
 import TextAreaBox from "../../../../../components/common/TextAreaBox/TextAreaBox";
 import { z } from "zod";
 import { hasAccess } from "../../../../../utils/permissions";
+import { dateTimeOptions, validateLocation } from "../../../../../utils/globalHelper";
 
 export type LoadForm = z.infer<typeof baseLoadSchema>;
 
@@ -37,15 +56,14 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   const user = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
   const { loadId } = useParams();
-  const [loadData, setLoadData] = useState<LoadForm>();
   const [usersList, setUsersList] = useState<SelectOption[]>([]);
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [customersList, setCustomersList] = useState<
-    { value: string; label: string; email: string }[]
+    (SelectOption & { email?: string })[]
   >([]);
 
   const [carriersList, setCarriersList] = useState<
-    { value: string; label: string; email: string }[]
+    (SelectOption & { email?: string })[]
   >([]);
 
   const {
@@ -61,10 +79,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   });
 
   const {
-    getData,       // Fetch all data for any entity
-    getDataById,   // Fetch a single item by ID
-    createData,    // Create new item
-    updateData,    // Update existing item
+    getData, // Fetch all data for any entity
+    getDataById, // Fetch a single item by ID
+    createData, // Create new item
+    updateData, // Update existing item
     loading,
     error,
   } = useFetchData<any>({
@@ -81,86 +99,6 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
       load: editLoad,
     },
   });
-  
-
-  const fetchLoad = async (loadId: string) => {
-    const query = `?populate=brokerId:-password,postedBy:-password`;
-    const result = await getDataById("load",loadId, query);
-    if (result.success) {
-      setLoadData(result.data);
-    }
-  };
-
-  const fetchUsersData = async () => {
-    const query = `?role=${UserRole.BROKER_USER}&isActive=true`;
-    const result = await getData("users",query);
-    if (result.success) {
-      const users: any = [];
-      result?.data?.forEach((user) => {
-        users.push({
-          value: user._id,
-          label: `${user.firstName} ${user.lastName} (${user.email})`,
-        });
-      });
-      setUsersList(users);
-    }
-  };
-
-  const fetchCustomersData = useCallback(async () => {
-      try {
-        const query = `?role=${UserRole.CUSTOMER}&isActive=true`;
-        const result = await getData("users", query);
-        if (result.success) {
-          const users = result?.data?.map((user) => ({
-            value: user._id,
-            label: `${user.firstName} ${user.lastName} (${user.email})`,
-            email: user?.email,
-          }));
-          setCustomersList(users || []);
-        } else {
-          toast.error("Failed to fetch customers.");
-        }
-      } catch (error) {
-        console.error(error);
-        toast.error("An error occurred while fetching customers.");
-      }
-    }, [getData]);
-
-
-    const fetchCarriersData = useCallback(async () => {
-      try {
-        const query = `?role=${UserRole.CARRIER}&isActive=true`;
-        const result = await getData("users", query);
-        if (result.success) {
-          const users = result?.data?.map((user) => ({
-            value: user._id,
-            label: `${user.firstName} ${user.lastName} (${user.email})`,
-            email: user?.email,
-          }));
-          setCarriersList(users || []);
-        } else {
-          toast.error("Failed to fetch Carrier.");
-        }
-      } catch (error) {
-        console.error(error);
-        toast.error("An error occurred while fetching Carrier.");
-      }
-    }, [getData]);
-
-  useEffect(() => {
-    if (loadId) fetchLoad(loadId);
-  }, [loadId]);
-  useEffect(() => {
-    if (loadData) {
-      reset(loadData);
-    }
-  }, [loadData]);
-
-  useEffect(() => {
-    fetchUsersData();
-    fetchCustomersData();
-    fetchCarriersData();
-  }, []);
 
   const {
     fields: originFields,
@@ -208,6 +146,63 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
     });
   };
 
+  const fetchLoad = async (loadId: string) => {
+    const query = `?populate=brokerId:-password,postedBy:-password`;
+    const result = await getDataById("load", loadId, query);
+    if (result.success) {
+      reset(result.data);
+    }
+  };
+
+  const fetchSelectOptionsList = useCallback(
+    async (
+      role: UserRole,
+      setList: Dispatch<SetStateAction<(SelectOption & { email?: string })[]>>,
+      roleName: string
+    ) => {
+      try {
+        const query = `?page=1&limit=999&role=${role}&isActive=true`;
+        const result = await getData("users", query);
+        if (result.success) {
+          const users = result?.data?.map((user) => ({
+            value: user._id,
+            label: `${user.firstName} ${user.lastName} (${user.email})`,
+            email: user?.email,
+          }));
+          setList(users || []);
+        } else {
+          toast.error(`Failed to fetch ${roleName}.`);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error(`An error occurred while fetching ${roleName}.`);
+      }
+    },
+    [getData]
+  );
+
+  // Usage for different roles:
+  const fetchBrokerUsersData = useCallback(
+    () =>
+      fetchSelectOptionsList(
+        UserRole.BROKER_USER,
+        setUsersList,
+        "Broker Users"
+      ),
+    [fetchSelectOptionsList]
+  );
+
+  const fetchCustomersData = useCallback(
+    () =>
+      fetchSelectOptionsList(UserRole.CUSTOMER, setCustomersList, "Customers"),
+    [fetchSelectOptionsList]
+  );
+
+  const fetchCarriersData = useCallback(
+    () => fetchSelectOptionsList(UserRole.CARRIER, setCarriersList, "Carriers"),
+    [fetchSelectOptionsList]
+  );
+
   /**
    * Handles form submission for creating or editing a Load.
    * @param data - Form data
@@ -215,16 +210,16 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   const submit = async (data: LoadForm) => {
     try {
       let result;
-      if (loadId && loadData?._id) {
+      if (loadId) {
         const validatedData = updateLoadSchema.parse(data);
-        result = await updateData("load", loadData._id!, validatedData);
+        result = await updateData("load", loadId, validatedData);
       } else {
-        if(typeof user.brokerId === "string") data.brokerId = user.brokerId;
-        if(!data.postedBy){
+        if (typeof user.brokerId === "string") data.brokerId = user.brokerId;
+        if (!data.postedBy) {
           data.postedBy = user._id;
         }
         const validatedData = createLoadSchema.parse(data);
-        result = await createData("load",validatedData);
+        result = await createData("load", validatedData);
       }
 
       if (result.success) {
@@ -244,22 +239,27 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
   const getDistance = async () => {
     const origin = getValues("origin");
     const destination = getValues("destination");
-  
-    if (!origin?.lat || !origin?.lng || !destination?.lat || !destination?.lng) {
+
+    if (
+      !origin?.lat ||
+      !origin?.lng ||
+      !destination?.lat ||
+      !destination?.lng
+    ) {
       console.error("Origin or destination is missing required coordinates.");
       return 0; // Return a default value if data is missing
     }
-  
+
     const originData = {
       lat: origin.lat,
       lng: origin.lng,
     };
-  
+
     const destinationData = {
       lat: destination.lat,
       lng: destination.lng,
     };
-  
+
     try {
       const distance = await calculateDistance(originData, destinationData);
       return distance;
@@ -282,6 +282,16 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
 
     calculateDistance();
   }, [origin, destination]);
+
+  useEffect(() => {
+    if (loadId) fetchLoad(loadId);
+  }, [loadId]);
+
+  useEffect(() => {
+    fetchBrokerUsersData();
+    fetchCustomersData();
+    fetchCarriersData();
+  }, []);
 
   return (
     <>
@@ -311,9 +321,9 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               control={control}
               placeholder="Enter Origin City & State, or Zip Code"
               setValue={setValue}
-              rules={{ 
+              rules={{
                 required: VALIDATION_MESSAGES.originRequired,
-                validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.originRequired)
+                validate: validateLocation,
               }}
             />
           </div>
@@ -329,7 +339,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                 required: VALIDATION_MESSAGES.dateRequired,
               }}
               datePickerProps={{
-                dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
                 minDate: new Date(), // Disable past dates
               }}
             />
@@ -341,12 +351,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               control={control}
               label="Early Pick-Up Time"
               placeholder="Choose a Time"
-              datePickerProps={{
-                showTimeSelectOnly: true,
-                timeCaption: "Time",
-                showTimeSelect: true,
-                dateFormat: "h:mm aa",
-              }}
+              datePickerProps={dateTimeOptions}
             />
           </div>
           {/* Origin Late Pickup Date*/}
@@ -357,7 +362,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               label="Late Pick-Up Date"
               placeholder="Choose a date"
               datePickerProps={{
-                dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
                 minDate: new Date(), // Disable past dates
               }}
             />
@@ -369,12 +374,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               control={control}
               label="Late Pick-Up Time"
               placeholder="Choose a Time"
-              datePickerProps={{
-                showTimeSelectOnly: true,
-                timeCaption: "Time",
-                showTimeSelect: true,
-                dateFormat: "h:mm aa",
-              }}
+              datePickerProps={dateTimeOptions}
             />
           </div>
 
@@ -405,11 +405,11 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                       index + 1
                     } City & State, or Zip Code`}
                     setValue={setValue}
-                    rules={{ 
+                    rules={{
                       required: VALIDATION_MESSAGES.originRequired,
-                      validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.originRequired)
+                      validate: validateLocation,
                     }}
-                   />
+                  />
                 </div>
                 {/* Origin Early Pickup Date*/}
                 <div className="col-2">
@@ -419,7 +419,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                     label="Early Pick-Up Date"
                     placeholder="Choose a date"
                     datePickerProps={{
-                      dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                      dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
                       minDate: new Date(), // Disable past dates
                     }}
                   />
@@ -431,12 +431,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                     control={control}
                     label="Early Pick-Up Time"
                     placeholder="Choose a Time"
-                    datePickerProps={{
-                      showTimeSelectOnly: true,
-                      timeCaption: "Time",
-                      showTimeSelect: true,
-                      dateFormat: "h:mm aa",
-                    }}
+                    datePickerProps={dateTimeOptions}
                   />
                 </div>
                 {/* Origin Late Pickup Date*/}
@@ -447,7 +442,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                     label="Late Pick-Up Date"
                     placeholder="Choose a date"
                     datePickerProps={{
-                      dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                      dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
                       minDate: new Date(), // Disable past dates
                     }}
                   />
@@ -459,12 +454,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                     control={control}
                     label="Late Pick-Up Time"
                     placeholder="Choose a Time"
-                    datePickerProps={{
-                      showTimeSelectOnly: true,
-                      timeCaption: "Time",
-                      showTimeSelect: true,
-                      dateFormat: "h:mm aa",
-                    }}
+                    datePickerProps={dateTimeOptions}
                   />
                 </div>
               </div>
@@ -494,9 +484,9 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               control={control}
               placeholder="Enter Destination City & State, or Zip Code"
               setValue={setValue}
-              rules={{ 
+              rules={{
                 required: VALIDATION_MESSAGES.destinationRequired,
-                validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.destinationRequired)
+                validate: validateLocation,
               }}
             />
           </div>
@@ -508,7 +498,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               label="Early Drop-off Date"
               placeholder="Choose a date"
               datePickerProps={{
-                dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
                 minDate: new Date(), // Disable past dates
               }}
             />
@@ -520,12 +510,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               control={control}
               label="Early Drop-off Time"
               placeholder="Choose a Time"
-              datePickerProps={{
-                showTimeSelectOnly: true,
-                timeCaption: "Time",
-                showTimeSelect: true,
-                dateFormat: "h:mm aa",
-              }}
+              datePickerProps={dateTimeOptions}
             />
           </div>
           {/* Destination Late drop-off Date*/}
@@ -536,7 +521,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               label="Late Drop-off Date"
               placeholder="Choose a date"
               datePickerProps={{
-                dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
                 minDate: new Date(), // Disable past dates
               }}
             />
@@ -548,12 +533,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               control={control}
               label="Late Drop-off Time"
               placeholder="Choose a Time"
-              datePickerProps={{
-                showTimeSelectOnly: true,
-                timeCaption: "Time",
-                showTimeSelect: true,
-                dateFormat: "h:mm aa",
-              }}
+              datePickerProps={dateTimeOptions}
             />
           </div>
 
@@ -584,9 +564,9 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                       index + 1
                     } City & State, or Zip Code`}
                     setValue={setValue}
-                    rules={{ 
+                    rules={{
                       required: VALIDATION_MESSAGES.destinationRequired,
-                      validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.destinationRequired)
+                      validate: validateLocation,
                     }}
                   />
                 </div>
@@ -598,7 +578,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                     label="Early Drop-off Date"
                     placeholder="Choose a date"
                     datePickerProps={{
-                      dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                      dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
                       minDate: new Date(), // Disable past dates
                     }}
                   />
@@ -610,12 +590,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                     control={control}
                     label="Early Drop-off Time"
                     placeholder="Choose a Time"
-                    datePickerProps={{
-                      showTimeSelectOnly: true,
-                      timeCaption: "Time",
-                      showTimeSelect: true,
-                      dateFormat: "h:mm aa",
-                    }}
+                    datePickerProps={dateTimeOptions}
                   />
                 </div>
                 {/* Late Drop-off Date*/}
@@ -626,7 +601,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                     label="Late Drop-off Date"
                     placeholder="Choose a date"
                     datePickerProps={{
-                      dateFormat: "MM/dd/yyyy", // Custom prop for formatting the date
+                      dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
                       minDate: new Date(), // Disable past dates
                     }}
                   />
@@ -638,12 +613,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                     control={control}
                     label="Late Drop-off Time"
                     placeholder="Choose a Time"
-                    datePickerProps={{
-                      showTimeSelectOnly: true,
-                      timeCaption: "Time",
-                      showTimeSelect: true,
-                      dateFormat: "h:mm aa",
-                    }}
+                    datePickerProps={dateTimeOptions}
                   />
                 </div>
               </div>
@@ -669,10 +639,12 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               placeholder="Select Equipment"
               control={control}
               options={equipmentOptions}
-              rules={{ required: {
-                value: true,
-                message: "Please select Equipment"
-              }}}
+              rules={{
+                required: {
+                  value: true,
+                  message: "Please select Equipment",
+                },
+              }}
             />
           </div>
 
@@ -684,10 +656,12 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               placeholder="Select Mode"
               control={control}
               options={modeOptions}
-              rules={{ required: {
-                value: true,
-                message: "Please select Mode"
-              }}}
+              rules={{
+                required: {
+                  value: true,
+                  message: "Please select Mode",
+                },
+              }}
             />
           </div>
 
@@ -700,7 +674,9 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               placeholder="Enter All-in Rate"
               control={control}
               currency
-              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
+              rules={{
+                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+              }}
             />
           </div>
 
@@ -713,7 +689,9 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               placeholder="Enter All-in Rate"
               control={control}
               currency
-              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
+              rules={{
+                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+              }}
             />
           </div>
 
@@ -725,7 +703,9 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               name="weight"
               placeholder="Weight (Ibs.)"
               control={control}
-              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
+              rules={{
+                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+              }}
             />
           </div>
           {/* length */}
@@ -736,7 +716,9 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               name="length"
               placeholder="Length (ft.)"
               control={control}
-              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
+              rules={{
+                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+              }}
             />
           </div>
           {/* width */}
@@ -747,7 +729,9 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               name="width"
               placeholder="Width (ft.)"
               control={control}
-              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
+              rules={{
+                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+              }}
             />
           </div>
           {/* height */}
@@ -758,7 +742,9 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               name="height"
               placeholder="Height (ft.)"
               control={control}
-              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
+              rules={{
+                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+              }}
             />
           </div>
           {/* Distance */}
@@ -769,7 +755,9 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               name="miles"
               placeholder="Mile"
               control={control}
-              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
+              rules={{
+                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+              }}
             />
           </div>
           {/* Pieces */}
@@ -780,7 +768,9 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               name="pieces"
               placeholder="Enter Pieces"
               control={control}
-              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
+              rules={{
+                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+              }}
             />
           </div>
           {/* Pallets */}
@@ -791,7 +781,9 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               name="pallets"
               placeholder="Enter Pallets"
               control={control}
-              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
+              rules={{
+                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+              }}
             />
           </div>
           {/* Load Options */}
@@ -823,45 +815,50 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               disabled={loadId ? true : false}
               placeholder="Enter Load / Reference Number"
               control={control}
-              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
+              rules={{
+                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+              }}
             />
           </div>
           <div className="col-3">
-              <SelectField
-                label="Select Customer"
-                name="customerId"
-                placeholder="Select Customer"
-                control={control}
-                options={customersList}
-              />
+            <SelectField
+              label="Select Customer"
+              name="customerId"
+              placeholder="Select Customer"
+              control={control}
+              options={customersList}
+            />
           </div>
 
-           <div className="col-3">
-              <SelectField
-                label="Select Carrier"
-                name="carrierId"
-                placeholder="Select Carrier"
-                control={control}
-                options={carriersList}
-              />
-          </div>   
+          <div className="col-3">
+            <SelectField
+              label="Select Carrier"
+              name="carrierId"
+              placeholder="Select Carrier"
+              control={control}
+              options={carriersList}
+            />
+          </div>
 
           {/* Assign User */}
-          {user && hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN]})&& (
-            <div className="col-3">
-              <SelectField
-                label="Assign User"
-                name="postedBy"
-                placeholder="Select User"
-                control={control}
-                options={usersList}
-              />
-            </div>
-          )}
+          {user &&
+            hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN] }) && (
+              <div className="col-3">
+                <SelectField
+                  label="Assign User"
+                  name="postedBy"
+                  placeholder="Select User"
+                  control={control}
+                  options={usersList}
+                />
+              </div>
+            )}
           {/* Special Information */}
           <div
             className={`${
-              user && hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN]}) ? "col-9" : "col-12"
+              user && hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN] })
+                ? "col-9"
+                : "col-12"
             }`}
           >
             <TextAreaBox
@@ -886,7 +883,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               <button
                 className="btn btn-accent btn-lg"
                 type="button"
-                onClick={()=> setIsMapModalOpen((prev) => !prev)}
+                onClick={() => setIsMapModalOpen((prev) => !prev)}
               >
                 View Routes
               </button>
@@ -906,7 +903,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                     lat: getValues("destination").lat,
                     lng: getValues("destination").lng,
                   }}
-                  onClose={()=> setIsMapModalOpen((prev) => !prev)}
+                  onClose={() => setIsMapModalOpen((prev) => !prev)}
                 />
               </div>
             </>

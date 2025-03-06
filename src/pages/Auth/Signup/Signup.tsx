@@ -18,6 +18,7 @@ import PasswordInput from "../../../components/common/PasswordInput/PasswordInpu
 import PhoneNumberInput from "../../../components/common/PhoneNumberInput/PhoneNumberInput";
 import { RootState } from "../../../store/store";
 import { useSelector } from "react-redux";
+import { validateLocation } from "../../../utils/globalHelper";
 
 interface SignupProps {
   role?: UserRole | null;
@@ -271,7 +272,7 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
                     setValue={setValue}
                     rules={{ 
                       required: VALIDATION_MESSAGES.addressRequired,
-                      validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.addressRequired)
+                      validate: validateLocation,
                     }}
                     onPlaceSelect={handlePlaceSelect}
                   />
@@ -391,7 +392,7 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
               setValue={setValue}
               rules={{ 
                 required: VALIDATION_MESSAGES.addressRequired,
-                validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.addressRequired)
+                validate: validateLocation,
               }}
             />
           </div>

@@ -21,6 +21,7 @@ import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteF
 import { Address } from "../../../../../types/Address";
 import PasswordInput from "../../../../../components/common/PasswordInput/PasswordInput";
 import PhoneNumberInput from "../../../../../components/common/PhoneNumberInput/PhoneNumberInput";
+import { validateLocation } from "../../../../../utils/globalHelper";
 
 interface CreateOrEditCarrierProps {
   isModalOpen: boolean; // Controls modal visibility
@@ -315,7 +316,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                 setValue={setValue}
                 rules={{ 
                   required: VALIDATION_MESSAGES.addressRequired,
-                  validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.addressRequired)
+                  validate: validateLocation,
                 }}
               />
             </div>
@@ -434,7 +435,7 @@ const CreateOrEditCarrier: FC<CreateOrEditCarrierProps> = ({
                 setValue={setValue}
                 rules={{ 
                   required: VALIDATION_MESSAGES.addressRequired,
-                  validate: (value: any) => (value?.str ? true : VALIDATION_MESSAGES.addressRequired)
+                  validate: validateLocation,
                 }}
               />
             </div>

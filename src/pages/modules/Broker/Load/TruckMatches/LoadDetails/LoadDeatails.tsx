@@ -89,7 +89,7 @@ const LoadDetails: React.FC = () => {
                   <div className="ms-2">
                     {formatDate(
                       loadDetails.originEarlyPickupDate as Date,
-                      "MM/dd/yyyy"
+                      "yyyy/MM/dd"
                     )}
                   </div>
                 </div>
