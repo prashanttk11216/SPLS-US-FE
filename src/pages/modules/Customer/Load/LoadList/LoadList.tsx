@@ -67,6 +67,19 @@ const tabOptions = [
   { label: "Cancelled", value: LoadStatus.Cancelled },
 ];
 
+const searchFieldOptions = [
+  { label: "Ref No", value: "loadNumber" },
+  { label: "Equipment", value: "equipment" },
+  { label: "Weight", value: "weight" },
+  { label: "Width", value: "width" },
+  { label: "Height", value: "height" },
+  { label: "Distance", value: "miles" },
+  { label: "Broker Rate", value: "allInRate" },
+  { label: "Customer Rate", value: "customerRate" },
+  { label: "Commodity", value: "commodity" },
+  { label: "Load Option", value: "loadOption" },
+]
+
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
@@ -205,18 +218,7 @@ const LoadList: React.FC = () => {
         <div className="searchbar-container">
           <SearchBar
             onSearch={(query: string) => setSearchQuery(query)}
-            searchFieldOptions={[
-              { label: "Ref No", value: "loadNumber" },
-              { label: "Equipment", value: "equipment" },
-              { label: "Weight", value: "weight" },
-              { label: "Width", value: "width" },
-              { label: "Height", value: "height" },
-              { label: "Distance", value: "miles" },
-              { label: "Broker Rate", value: "allInRate" },
-              { label: "Customer Rate", value: "customerRate" },
-              { label: "Commodity", value: "commodity" },
-              { label: "Load Option", value: "loadOption" },
-            ]}
+            searchFieldOptions={searchFieldOptions}
             defaultField={searchField}
             onSearchFieldChange={(value) => setSearchField(value.value)}
           />

@@ -28,6 +28,24 @@ import { CreateUserForm } from "../../../../Auth/Signup/Signup";
 import usePagination from "../../../../../hooks/usePagination";
 import { SortOption } from "../../../../../types/GeneralTypes";
 
+const columns = [
+  { width: "250px", key: "name", label: "Name" },
+  { width: "210px", key: "employeeId", label: "Employee ID", sortable: true },
+  { width: "210px", key: "email", label: "Email", sortable: true },
+  { width: "150px", key: "contact", label: "Contact", sortable: true },
+  { width: "150px", key: "company", label: "Company", sortable: true },
+  { width: "90px", key: "isActive", label: "Status",sortable: true },
+  { width: "90px", key: "actions", label: "Actions", isAction: true },
+];
+
+const searchFieldOptions = [
+  { label: "Email", value: "email" },
+  { label: "Name", value: "name" },
+  { label: "Company", value: "company" },
+  { label: "Contact", value: "primaryNumber" },
+  { label: "Employee ID", value: "employeeId" },
+]
+
 const BrokerUserList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -193,16 +211,6 @@ const BrokerUserList: React.FC = () => {
     return actions;
   };
 
-  const columns = [
-    { width: "250px", key: "name", label: "Name" },
-    { width: "210px", key: "employeeId", label: "Employee ID", sortable: true },
-    { width: "210px", key: "email", label: "Email", sortable: true },
-    { width: "150px", key: "contact", label: "Contact", sortable: true },
-    { width: "150px", key: "company", label: "Company", sortable: true },
-    { width: "90px", key: "isActive", label: "Status",sortable: true },
-    { width: "90px", key: "actions", label: "Actions", isAction: true },
-  ];
-
   const getRowData = () => {
     return brokerUsers.map((broker) => ({
       _id: broker._id,
@@ -249,13 +257,7 @@ const BrokerUserList: React.FC = () => {
         <div className="searchbar-container">
           <SearchBar
             onSearch={(query: string) => setSearchQuery(query)}
-            searchFieldOptions={[
-              { label: "Email", value: "email" },
-              { label: "Name", value: "name" },
-              { label: "Company", value: "company" },
-              { label: "Contact", value: "primaryNumber" },
-              { label: "Employee ID", value: "employeeId" },
-            ]}
+            searchFieldOptions={searchFieldOptions}
             defaultField={searchField}
             onSearchFieldChange={(value) => setSearchField(value.value)}
           />

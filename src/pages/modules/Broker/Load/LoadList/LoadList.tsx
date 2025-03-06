@@ -29,6 +29,7 @@ import { Equipment } from "../../../../../enums/Equipment";
 import { getEnumValue } from "../../../../../utils/globalHelper";
 import usePagination from "../../../../../hooks/usePagination";
 import { SortOption } from "../../../../../types/GeneralTypes";
+import Tabs from "../../../../../components/common/Tabs/Tabs";
 
 const LOAD_ACTIVE_TAB = "LOAD_ACTIVE_TAB";
 
@@ -89,6 +90,17 @@ const columns = [
   { width: "90px", key: "actions", label: "Actions", isAction: true },
 ];
 
+const tabOptions = [
+  { label: "Loads", value: LoadStatus.Published },
+  { label: "Available/Draft", value: LoadStatus.Draft },
+  { label: "Pending Response", value: LoadStatus.PendingResponse },
+  { label: "Deal Closed", value: LoadStatus.DealClosed },
+  { label: "In Transit", value: LoadStatus.InTransit },
+  { label: "Delivered", value: LoadStatus.Delivered },
+  { label: "Completed", value: LoadStatus.Completed },
+  { label: "Cancelled", value: LoadStatus.Cancelled },
+];
+
 const LoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
@@ -99,7 +111,7 @@ const LoadList: React.FC = () => {
   const [searchField, setSearchField] = useState<string>("loadNumber");
 
   const savedActiveTab = localStorage.getItem(LOAD_ACTIVE_TAB);
-  const [activeTab, setActiveTab] = useState<LoadStatus>(
+  const [activeTab, setActiveTab] = useState<string>(
     savedActiveTab ? (savedActiveTab as LoadStatus) : LoadStatus.Published
   );
   const [sortConfig, setSortConfig] = useState<SortOption | null>({
@@ -366,113 +378,11 @@ const LoadList: React.FC = () => {
         <div className="text-danger">{error}</div>
       ) : (
         <>
-          <ul className="nav nav-tabs">
-            <li
-              className="nav-item"
-              onClick={() => setActiveTab(LoadStatus.Published)}
-            >
-              <a
-                className={`nav-link ${
-                  LoadStatus.Published == activeTab && "active"
-                }`}
-                aria-current="page"
-                href="#"
-              >
-                Loads
-              </a>
-            </li>
-            <li
-              className="nav-item"
-              onClick={() => setActiveTab(LoadStatus.Draft)}
-            >
-              <a
-                className={`nav-link ${
-                  LoadStatus.Draft == activeTab && "active"
-                }`}
-                href="#"
-              >
-                Available/Draft
-              </a>
-            </li>
-            <li
-              className="nav-item"
-              onClick={() => setActiveTab(LoadStatus.PendingResponse)}
-            >
-              <a
-                className={`nav-link ${
-                  LoadStatus.PendingResponse == activeTab && "active"
-                }`}
-                href="#"
-              >
-                Pending Response
-              </a>
-            </li>
-            <li
-              className="nav-item"
-              onClick={() => setActiveTab(LoadStatus.DealClosed)}
-            >
-              <a
-                className={`nav-link ${
-                  LoadStatus.DealClosed == activeTab && "active"
-                }`}
-                href="#"
-              >
-                Deal Closed
-              </a>
-            </li>
-            <li
-              className="nav-item"
-              onClick={() => setActiveTab(LoadStatus.InTransit)}
-            >
-              <a
-                className={`nav-link ${
-                  LoadStatus.InTransit == activeTab && "active"
-                }`}
-                href="#"
-              >
-                In Transit
-              </a>
-            </li>
-            <li
-              className="nav-item"
-              onClick={() => setActiveTab(LoadStatus.Delivered)}
-            >
-              <a
-                className={`nav-link ${
-                  LoadStatus.Delivered == activeTab && "active"
-                }`}
-                href="#"
-              >
-                Delivered
-              </a>
-            </li>
-            <li
-              className="nav-item"
-              onClick={() => setActiveTab(LoadStatus.Completed)}
-            >
-              <a
-                className={`nav-link ${
-                  LoadStatus.Completed == activeTab && "active"
-                }`}
-                href="#"
-              >
-                Completed
-              </a>
-            </li>
-            <li
-              className="nav-item"
-              onClick={() => setActiveTab(LoadStatus.Cancelled)}
-            >
-              <a
-                className={`nav-link ${
-                  LoadStatus.Cancelled == activeTab && "active"
-                }`}
-                href="#"
-              >
-                Cancelled
-              </a>
-            </li>
-          </ul>
+          <Tabs
+            tabs={tabOptions}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
           <Table
             columns={columns}
             rows={getRowData()}

@@ -15,18 +15,39 @@ import SearchBar from "../../../../../components/common/SearchBar/SearchBar";
 import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 import usePagination from "../../../../../hooks/usePagination";
 import { SortOption } from "../../../../../types/GeneralTypes";
+import Tabs from "../../../../../components/common/Tabs/Tabs";
 
 export enum CustomerStatus {
     Active = "Active",
     Inactive = "Inactive"
 }
 
+const columns = [
+  { width: "150px", key: "company", label: "Company", sortable: true },
+  { width: "150px", key: "address", label: "Contact", sortable: true },
+  { width: "150px", key: "contact", label: "Phone", sortable: true },
+  { width: "90px", key: "isActive", label: "Status", sortable: true },
+  // { width: "90px", key: "actions", label: "Actions", isAction: true },
+];
+
+const searchFieldOptions = [
+  { label: "Email", value: "email" },
+  { label: "Name", value: "name" },
+  { label: "Company", value: "company" },
+  { label: "Contact", value: "primaryNumber" },
+]
+
+const tabOptions = [
+  { label: "Active", value: CustomerStatus.Active },
+  { label: "InActive", value: CustomerStatus.Inactive },
+];
+
 const CUSTOMER_ACTIVE_INACTIVE_TAB = "CUSTOMER_ACTIVE_INACTIVE_TAB"
 const CustomerDashboardList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [customers, setCustomers] = useState<User[]>([]);
   const savedActiveTab = localStorage.getItem(CUSTOMER_ACTIVE_INACTIVE_TAB);
-  const [activeTab, setActiveTab] = useState<CustomerStatus>(
+  const [activeTab, setActiveTab] = useState<string>(
       savedActiveTab
         ? (savedActiveTab as CustomerStatus)
         : CustomerStatus.Active
@@ -90,14 +111,6 @@ const CustomerDashboardList: React.FC = () => {
       localStorage.setItem(CUSTOMER_ACTIVE_INACTIVE_TAB, activeTab);
     }, [activeTab]);
 
-  const columns = [
-    { width: "150px", key: "company", label: "Company", sortable: true },
-    { width: "150px", key: "address", label: "Contact", sortable: true },
-    { width: "150px", key: "contact", label: "Phone", sortable: true },
-    { width: "90px", key: "isActive", label: "Status", sortable: true },
-    // { width: "90px", key: "actions", label: "Actions", isAction: true },
-  ];
-
   const handleAction = async (action: string) => {
     switch (action) {
       default:
@@ -128,12 +141,7 @@ const CustomerDashboardList: React.FC = () => {
         <div className="searchbar-container">
           <SearchBar
             onSearch={(query: string) => setSearchQuery(query)}
-            searchFieldOptions={[
-              { label: "Email", value: "email" },
-              { label: "Name", value: "name" },
-              { label: "Company", value: "company" },
-              { label: "Contact", value: "primaryNumber" },
-            ]}
+            searchFieldOptions={searchFieldOptions}
             defaultField={searchField}
             onSearchFieldChange={(value) => setSearchField(value.value)}
           />
@@ -146,35 +154,11 @@ const CustomerDashboardList: React.FC = () => {
         <div className="text-danger">{error}</div>
       ) : (
         <>
-        <ul className="nav nav-tabs">
-                      <li
-                        className="nav-item"
-                        onClick={() => setActiveTab(CustomerStatus.Active)}
-                      >
-                        <a
-                          className={`nav-link ${
-                            CustomerStatus.Active == activeTab && "active"
-                          }`}
-                          aria-current="page"
-                          href="#"
-                        >
-                          Customers
-                        </a>
-                      </li>
-                      <li
-                        className="nav-item"
-                        onClick={() => setActiveTab(CustomerStatus.Inactive)}
-                      >
-                        <a
-                          className={`nav-link ${
-                            CustomerStatus.Inactive == activeTab && "active"
-                          }`}
-                          href="#"
-                        >
-                          Inactive
-                        </a>
-                      </li>
-                    </ul>
+          <Tabs
+            tabs={tabOptions}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
           <Table
             columns={columns}
             rows={getRowData()}
