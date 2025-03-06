@@ -1,7 +1,7 @@
-import { FC, useEffect, useState, useCallback, useMemo } from "react";
+import { FC, useEffect, useState, useCallback, useMemo, SetStateAction, Dispatch } from "react";
 import { useForm } from "react-hook-form";
 import Modal from "../../../../../components/common/Modal/Modal";
-import SelectField from "../../../../../components/common/SelectField/SelectField";
+import SelectField, { SelectOption } from "../../../../../components/common/SelectField/SelectField";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import { getUsers } from "../../../../../services/user/userService";
 import { UserRole } from "../../../../../enums/UserRole";
@@ -33,8 +33,8 @@ export const LoadCreationAlert: FC<LoadCreationAlertProps> = ({
   selectedLoads,
   closeModal,
 }) => {
-  const [carrierList, setCarriersList] = useState<
-    { value: string; label: string; email: string }[]
+  const [carriersList, setCarriersList] = useState<
+    (SelectOption & { email: string })[]
   >([]);
 
   const {
@@ -61,28 +61,37 @@ export const LoadCreationAlert: FC<LoadCreationAlertProps> = ({
   const carrierSelected = watch("carrier");
   const notifyAll = watch("notifyAll", false); // Watch checkbox state
 
-  /**
-   * Fetch carrier data from the server
-   */
-  const fetchCarriersData = useCallback(async () => {
-    try {
-      const query = `?role=${UserRole.CARRIER}&isActive=true`;
-      const result = await getData("user", query);
-      if (result.success) {
-        const users = result?.data?.map((user) => ({
-          value: user._id,
-          label: `${user.firstName} ${user.lastName} (${user.email})`,
-          email: user?.email,
-        }));
-        setCarriersList(users || []);
-      } else {
-        toast.error("Failed to fetch carriers.");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("An error occurred while fetching carriers.");
-    }
-  }, [getData]);
+  const fetchSelectOptionsList = useCallback(
+     async (
+       role: UserRole,
+       setList: Dispatch<SetStateAction<(SelectOption & { email: string })[]>>,
+       roleName: string
+     ) => {
+       try {
+         const query = `?page=1&limit=999&role=${role}&isActive=true`;
+         const result = await getData("users", query);
+         if (result.success) {
+           const users = result?.data?.map((user) => ({
+             value: user._id,
+             label: `${user.firstName} ${user.lastName} (${user.email})`,
+             email: user?.email,
+           }));
+           setList(users || []);
+         } else {
+           toast.error(`Failed to fetch ${roleName}.`);
+         }
+       } catch (error) {
+         console.error(error);
+         toast.error(`An error occurred while fetching ${roleName}.`);
+       }
+     },
+     [getData]
+   );
+
+   const fetchCarriersData = useCallback(
+    () => fetchSelectOptionsList(UserRole.CARRIER, setCarriersList, "Carriers"),
+    [fetchSelectOptionsList]
+  );
 
   useEffect(() => {
     fetchCarriersData();
@@ -110,7 +119,7 @@ export const LoadCreationAlert: FC<LoadCreationAlertProps> = ({
     if (!notifyAll && carrierSelected) {
       if (Array.isArray(carrierSelected)) {
         emails.push(
-          ...carrierList
+          ...carriersList
             .filter((carrier) =>
               carrierSelected.some((selected) => selected === carrier.value)
             )
@@ -118,7 +127,7 @@ export const LoadCreationAlert: FC<LoadCreationAlertProps> = ({
         );
       } else {
         emails.push(
-          ...carrierList
+          ...carriersList
             .filter((carrier) => carrier.value === carrierSelected)
             .map((carrier) => carrier.email)
         );
@@ -198,7 +207,7 @@ export const LoadCreationAlert: FC<LoadCreationAlertProps> = ({
             name="carrier"
             placeholder="Select Registered Carrier"
             control={control}
-            options={carrierList}
+            options={carriersList}
             isClearable={true}
             isDisabled={notifyAll}
           />

@@ -92,6 +92,7 @@ export const dateTimeOptions ={
 
 
 export const validateLocation = (value: any): boolean | string => {
+  if(!value) return true;
   return value?.str && value?.lat && value?.lng 
     ? true 
     : VALIDATION_MESSAGES.locationInvalid;

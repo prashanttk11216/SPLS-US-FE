@@ -45,6 +45,7 @@ import {
   calculatePercentage,
   calculatePercentageByUnit,
   dateTimeOptions,
+  validateLocation,
 } from "../../../../../utils/globalHelper";
 import CurrencyNumberInput from "../../../../../components/common/CurrencyNumberInput/CurrencyNumberInput";
 import TextAreaBox from "../../../../../components/common/TextAreaBox/TextAreaBox";
@@ -175,7 +176,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
   } = useForm<DispatchLoadForm>({
     mode: "onBlur",
     defaultValues: {
-      brokerId: (typeof user.brokerId === "string") ? user.brokerId : "",
+      brokerId: typeof user.brokerId === "string" ? user.brokerId : "",
       postedBy: user._id,
     },
   });
@@ -186,7 +187,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
         user: getUsers,
         shipper: getShipper,
         consignee: getConsignee,
-        load: getloads
+        load: getloads,
       },
       getById: {
         load: getLoadById,
@@ -299,6 +300,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
           value: load._id,
           label: `${load.loadNumber}`,
           customerId: load.customerId,
+          carrierId: load.carrierId
         });
       });
       setLoadsList(loads);
@@ -336,8 +338,9 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
         result = await updateData("load", loadData._id!, validatedData);
       } else {
         const validatedData = transformedCreateDispatchSchema.parse(data);
-        if(typeof user.brokerId === "string") validatedData.brokerId = user.brokerId;
-        if(!validatedData.postedBy){
+        if (typeof user.brokerId === "string")
+          validatedData.brokerId = user.brokerId;
+        if (!validatedData.postedBy) {
           validatedData.postedBy = user._id;
         }
         if (isDraft) {
@@ -482,15 +485,16 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
   }, [customerRateValue, fuelServiceCharge?.value, unitsValue]);
 
   const loadIdField = watch("loadId");
-  useEffect(()=>{
-    if(loadIdField){
+  useEffect(() => {
+    if (loadIdField) {
       const load = loadsList.filter((load) => load.value == loadIdField);
-      if(load.length && load[0].customerId){
-        setValue("customerId", load[0].customerId);
-        setValue("carrierId", load[0].carrierId);
-      }
+      console.log(load);
+      
+      if (load.length) {
+        setValue("customerId", load[0].customerId,{ shouldValidate: true });
+        setValue("carrierId", load[0].carrierId,{ shouldValidate: true });      }
     }
-  },[loadIdField]);
+  }, [loadIdField]);
 
   return (
     <>
@@ -847,11 +851,15 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               control={control}
               options={shipperList}
               onChangeOption={(selectedOption) => {
-                shipperList.forEach((shipper) => {
-                  if (shipper.value === selectedOption?.value) {
-                    setValue("shipper.address", shipper.address);
-                  }
-                });
+                if(selectedOption?.value){
+                  shipperList.forEach((shipper) => {
+                    if (shipper.value === selectedOption?.value) {
+                      setValue("shipper.address", shipper.address);
+                    }
+                  });
+                }else {
+                  setValue("shipper.address", undefined, {shouldValidate: true});
+                }
               }}
             />
           </div>
@@ -864,6 +872,9 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               control={control}
               placeholder="Enter address"
               setValue={setValue}
+              rules={{
+                validate: validateLocation,
+              }}
             />
           </div>
 
@@ -999,11 +1010,15 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               control={control}
               options={consigneeList}
               onChangeOption={(selectedOption) => {
-                consigneeList.forEach((consignee) => {
-                  if (consignee.value === selectedOption?.value) {
-                    setValue("consignee.address", consignee.address);
-                  }
-                });
+                if(selectedOption?.value){
+                  consigneeList.forEach((consignee) => {
+                    if (consignee.value === selectedOption?.value) {
+                      setValue("consignee.address", consignee.address);
+                    }
+                  });
+                }else {
+                  setValue("consignee.address", undefined, {shouldValidate: true});
+                }
               }}
             />
           </div>
@@ -1016,6 +1031,9 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               control={control}
               placeholder="Enter address"
               setValue={setValue}
+              rules={{
+                validate: validateLocation,
+              }}
             />
           </div>
 
@@ -1134,7 +1152,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
               }}
             />
           </div>
-           {/* Submit Buttons */}
+          {/* Submit Buttons */}
           <div className="col-12 text-center d-flex justify-content-center">
             <button
               className="btn btn-outline btn-lg"

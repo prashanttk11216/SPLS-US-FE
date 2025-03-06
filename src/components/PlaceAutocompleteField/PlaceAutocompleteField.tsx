@@ -148,11 +148,11 @@ const PlaceAutocompleteField = ({
               aria-autocomplete="none"
               onChange={(e) => {
                 setInputValue(e.target.value);
-                field.onChange({
+                field.onChange(e.target.value ? {
                   str: e.target.value, // Maintain object format
                   lat: field.value?.lat || null,
                   lng: field.value?.lng || null,
-                });
+                }: undefined);
               }}
             />
             {(hintText && !fieldState?.error) && <small className="form-text">{hintText}</small>}
