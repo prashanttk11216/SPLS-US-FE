@@ -14,6 +14,16 @@ import CreateOrEditQuote from "../CreateOrEditQuote/CreateOrEditQuote";
 import usePagination from "../../../../../hooks/usePagination";
 import { SortOption } from "../../../../../types/GeneralTypes";
 
+const columns = [
+  { width: "250px", key: "name", label: "Name" },
+  { width: "90px", key: "isActive", label: "Status", sortable: true },
+  { width: "90px", key: "actions", label: "Actions", isAction: true },
+];
+
+const searchFieldOptions = [
+  { label: "Name", value: "name" },
+]
+
 const QuoteList: React.FC = () => {
     const user = useSelector((state: RootState) => state.user);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -124,12 +134,6 @@ const QuoteList: React.FC = () => {
       return actions;
     };
   
-    const columns = [
-      { width: "250px", key: "name", label: "Name" },
-      { width: "90px", key: "isActive", label: "Status", sortable: true },
-      { width: "90px", key: "actions", label: "Actions", isAction: true },
-    ];
-  
     const getRowData = () => {
       return quotes.map((quote) => ({
         _id: quote._id,
@@ -157,9 +161,7 @@ const QuoteList: React.FC = () => {
           <div className="searchbar-container">
             <SearchBar
               onSearch={(query: string) => setSearchQuery(query)}
-              searchFieldOptions={[
-                { label: "Name", value: "name" },
-              ]}
+              searchFieldOptions={searchFieldOptions}
               defaultField={searchField}
               onSearchFieldChange={(value) => setSearchField(value.value)}
             />

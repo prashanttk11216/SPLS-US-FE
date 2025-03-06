@@ -24,7 +24,13 @@ import { Equipment } from "../../../../../enums/Equipment";
 import usePagination from "../../../../../hooks/usePagination";
 import { SortOption } from "../../../../../types/GeneralTypes";
 
-
+const searchFieldOptions = [
+  { label: "Ref No", value: "referenceNumber" },
+  { label: "Equipment", value: "equipment" },
+  { label: "All-in Rate", value: "allInRate" },
+  { label: "Weight", value: "weight" },
+  { label: "Length", value: "length" },
+]
 
 const columns = [
   {
@@ -229,13 +235,7 @@ const TruckList: React.FC = () => {
         <div className="searchbar-container">
           <SearchBar
             onSearch={(query: string) => setSearchQuery(query)}
-            searchFieldOptions={[
-              { label: "Ref No", value: "referenceNumber" },
-              { label: "Equipment", value: "equipment" },
-              { label: "All-in Rate", value: "allInRate" },
-              { label: "Weight", value: "weight" },
-              { label: "Length", value: "length" },
-            ]}
+            searchFieldOptions={searchFieldOptions}
             defaultField={searchField}
             onSearchFieldChange={(value) => setSearchField(value.value)}
           />

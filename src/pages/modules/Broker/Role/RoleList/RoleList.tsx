@@ -14,6 +14,15 @@ import CreateOrEditRole from "../CreateOrEditRole/CreateOrEditRole";
 import usePagination from "../../../../../hooks/usePagination";
 import { SortOption } from "../../../../../types/GeneralTypes";
 
+const columns = [
+  { width: "250px", key: "name", label: "Name" },
+  { width: "90px", key: "actions", label: "Actions", isAction: true },
+];
+
+const searchFieldOptions = [
+  { label: "Name", value: "name" },
+]
+
 const RoleList: React.FC = () => {
     const user = useSelector((state: RootState) => state.user);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -145,11 +154,6 @@ const RoleList: React.FC = () => {
       return actions;
     };
   
-    const columns = [
-      { width: "250px", key: "name", label: "Name" },
-      { width: "90px", key: "actions", label: "Actions", isAction: true },
-    ];
-  
     const getRowData = () => {
       return roles.map((role) => ({
         _id: role._id,
@@ -176,9 +180,7 @@ const RoleList: React.FC = () => {
           <div className="searchbar-container">
             <SearchBar
               onSearch={(query: string) => setSearchQuery(query)}
-              searchFieldOptions={[
-                { label: "Name", value: "name" },
-              ]}
+              searchFieldOptions={searchFieldOptions}
               defaultField={searchField}
               onSearchFieldChange={(value) => setSearchField(value.value)}
             />

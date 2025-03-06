@@ -29,8 +29,69 @@ import { downloadFile, getEnumValue } from "../../../../../utils/globalHelper";
 import usePagination from "../../../../../hooks/usePagination";
 import ConfirmationModal from "../../../../../components/common/ConfirmationModal/ConfirmationModal";
 import { SortOption } from "../../../../../types/GeneralTypes";
+import Tabs from "../../../../../components/common/Tabs/Tabs";
 
 const ACCOUNTING_DISPATCH_ACTIVE_TAB = "ACCOUNTING_DISPATCH_ACTIVE_TAB";
+
+const searchFieldOptions = [
+  { label: "Ref No", value: "loadNumber" },
+  { label: "W/O", value: "WONumber" },
+  { label: "Equipment", value: "equipment" },
+  { label: "Rate", value: "allInRate" },
+  { label: "Shipper Weight", value: "shipper.weight" },
+  { label: "Consignee Weight", value: "consignee.weight" },
+]
+
+const columns = [
+  {
+    width: "90px",
+    key: "age",
+    label: "Age",
+    sortable: true,
+    render: (row: any) => <strong>{row.age}</strong>,
+  },
+  {
+    width: "100px",
+    key: "loadNumber",
+    label: "Ref No",
+    sortable: true,
+  },
+  {
+    width: "100px",
+    key: "WONumber",
+    label: "W/O",
+    sortable: true,
+  },
+  { width: "200px", key: "shipper.address", label: "Origin", sortable: true },
+  {
+    width: "200px",
+    key: "consignee.address",
+    label: "Destination",
+    sortable: true,
+  },
+  {
+    width: "120px",
+    key: "shipper.date",
+    label: "Ship Date",
+    sortable: true,
+  },
+  {
+    width: "120px",
+    key: "consignee.date",
+    label: "Del Date",
+    sortable: true,
+  },
+  { width: "130px", key: "equipment", label: "Equipment", sortable: true },
+  { width: "90px", key: "actions", label: "Actions", isAction: true },
+];
+
+const tabOptions = [
+  { label: "Delivered", value: DispatchLoadStatus.Delivered },
+  { label: "Completed", value: DispatchLoadStatus.Completed },
+  { label: "Invoiced", value: DispatchLoadStatus.Invoiced },
+  { label: "Invoiced Paid", value: DispatchLoadStatus.InvoicedPaid },
+  { label: "Cancelled", value: DispatchLoadStatus.Cancelled },
+];
 
 const AccountingDispatchLoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -44,7 +105,7 @@ const AccountingDispatchLoadList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("loadNumber");
   const savedActiveTab = localStorage.getItem(ACCOUNTING_DISPATCH_ACTIVE_TAB);
-  const [activeTab, setActiveTab] = useState<DispatchLoadStatus>(
+  const [activeTab, setActiveTab] = useState<string>(
     savedActiveTab
       ? (savedActiveTab as DispatchLoadStatus)
       : DispatchLoadStatus.Published
@@ -147,49 +208,6 @@ const AccountingDispatchLoadList: React.FC = () => {
   useEffect(() => {
     localStorage.setItem(ACCOUNTING_DISPATCH_ACTIVE_TAB, activeTab);
   }, [activeTab]);
-
-  const columns = [
-    {
-      width: "90px",
-      key: "age",
-      label: "Age",
-      sortable: true,
-      render: (row: any) => <strong>{row.age}</strong>,
-    },
-    {
-      width: "100px",
-      key: "loadNumber",
-      label: "Ref No",
-      sortable: true,
-    },
-    {
-      width: "100px",
-      key: "WONumber",
-      label: "W/O",
-      sortable: true,
-    },
-    { width: "200px", key: "shipper.address", label: "Origin", sortable: true },
-    {
-      width: "200px",
-      key: "consignee.address",
-      label: "Destination",
-      sortable: true,
-    },
-    {
-      width: "120px",
-      key: "shipper.date",
-      label: "Ship Date",
-      sortable: true,
-    },
-    {
-      width: "120px",
-      key: "consignee.date",
-      label: "Del Date",
-      sortable: true,
-    },
-    { width: "130px", key: "equipment", label: "Equipment", sortable: true },
-    { width: "90px", key: "actions", label: "Actions", isAction: true },
-  ];
 
   const getActionsForLoad = (_: IDispatch): string[] => {
     const actions = ["View Details"];
@@ -326,14 +344,7 @@ const AccountingDispatchLoadList: React.FC = () => {
         <div className="searchbar-container">
           <SearchBar
             onSearch={(query: string) => setSearchQuery(query)}
-            searchFieldOptions={[
-              { label: "Ref No", value: "loadNumber" },
-              { label: "W/O", value: "WONumber" },
-              { label: "Equipment", value: "equipment" },
-              { label: "Rate", value: "allInRate" },
-              { label: "Shipper Weight", value: "shipper.weight" },
-              { label: "Consignee Weight", value: "consignee.weight" },
-            ]}
+            searchFieldOptions={searchFieldOptions}
             defaultField={searchField}
             onSearchFieldChange={(value) => setSearchField(value.value)}
           />
@@ -388,73 +399,11 @@ const AccountingDispatchLoadList: React.FC = () => {
         <div className="text-danger">{error}</div>
       ) : (
         <>
-            <ul className="nav nav-tabs">
-              <li
-                className="nav-item"
-                onClick={() => setActiveTab(DispatchLoadStatus.Delivered)}
-              >
-                <a
-                  className={`nav-link ${
-                    DispatchLoadStatus.Delivered == activeTab && "active"
-                  }`}
-                  href="#"
-                >
-                  Delivered
-                </a>
-              </li>
-              <li
-                className="nav-item"
-                onClick={() => setActiveTab(DispatchLoadStatus.Completed)}
-              >
-                <a
-                  className={`nav-link ${
-                    DispatchLoadStatus.Completed == activeTab && "active"
-                  }`}
-                  href="#"
-                >
-                  Completed
-                </a>
-              </li>
-              <li
-                className="nav-item"
-                onClick={() => setActiveTab(DispatchLoadStatus.Invoiced)}
-              >
-                <a
-                  className={`nav-link ${
-                    DispatchLoadStatus.Invoiced == activeTab && "active"
-                  }`}
-                  href="#"
-                >
-                  Invoiced
-                </a>
-              </li>
-              <li
-                className="nav-item"
-                onClick={() => setActiveTab(DispatchLoadStatus.InvoicedPaid)}
-              >
-                <a
-                  className={`nav-link ${
-                    DispatchLoadStatus.InvoicedPaid == activeTab && "active"
-                  }`}
-                  href="#"
-                >
-                  Invoiced Paid
-                </a>
-              </li>
-              <li
-                className="nav-item"
-                onClick={() => setActiveTab(DispatchLoadStatus.Cancelled)}
-              >
-                <a
-                  className={`nav-link ${
-                    DispatchLoadStatus.Cancelled == activeTab && "active"
-                  }`}
-                  href="#"
-                >
-                  Cancelled
-                </a>
-              </li>
-            </ul>
+          <Tabs 
+            tabs={tabOptions}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
           <Table
             columns={columns}
             rows={getRowData()}

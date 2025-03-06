@@ -26,9 +26,73 @@ import FileUploadModal from "../../../../../components/common/FileUploadModal/Fi
 import Pagination from "../../../../../components/common/Pagination/Pagination";
 import usePagination from "../../../../../hooks/usePagination";
 import { SortOption } from "../../../../../types/GeneralTypes";
+import Tabs from "../../../../../components/common/Tabs/Tabs";
 
 
 const DISPATCH_ACTIVE_TAB = "DISPATCH_ACTIVE_TAB";
+
+const columns = [
+  {
+    width: "90px",
+    key: "age",
+    label: "Age",
+    sortable: true,
+    render: (row: any) => <strong>{row.age}</strong>,
+  },
+  {
+    width: "100px",
+    key: "loadNumber",
+    label: "Ref No",
+    sortable: true,
+  },
+  {
+    width: "100px",
+    key: "WONumber",
+    label: "W/O",
+    sortable: true,
+  },
+  { width: "200px", key: "shipper.address", label: "Origin", sortable: true },
+  {
+    width: "200px",
+    key: "consignee.address",
+    label: "Destination",
+    sortable: true,
+  },
+  {
+    width: "120px",
+    key: "shipper.date",
+    label: "Ship Date",
+    sortable: true,
+  },
+  {
+    width: "120px",
+    key: "consignee.date",
+    label: "Del Date",
+    sortable: true,
+  },
+  { width: "130px", key: "equipment", label: "Equipment", sortable: true },
+  { width: "90px", key: "actions", label: "Actions", isAction: true },
+];
+
+const searchFieldOptions = [
+  { label: "Ref No", value: "loadNumber" },
+  { label: "W/O", value: "WONumber" },
+  { label: "Equipment", value: "equipment" },
+  { label: "Rate", value: "allInRate" },
+  { label: "Shipper Weight", value: "shipper.weight" },
+  { label: "Consignee Weight", value: "consignee.weight" },
+]
+
+const tabOptions = [
+  { label: "Loads", value: DispatchLoadStatus.Published },
+  { label: "Pending/Draft", value: DispatchLoadStatus.Draft },
+  { label: "In Transit", value: DispatchLoadStatus.InTransit },
+  { label: "Delivered", value: DispatchLoadStatus.Delivered },
+  { label: "Completed", value: DispatchLoadStatus.Completed },
+  { label: "Invoiced", value: DispatchLoadStatus.Invoiced },
+  { label: "Invoiced Paid", value: DispatchLoadStatus.InvoicedPaid },
+  { label: "Cancelled", value: DispatchLoadStatus.Cancelled },
+];
 
 const DispatchLoadList: React.FC = () => {
   const navigate = useNavigate();
@@ -38,7 +102,7 @@ const DispatchLoadList: React.FC = () => {
   const savedActiveTab = localStorage.getItem(DISPATCH_ACTIVE_TAB);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("loadNumber");
-  const [activeTab, setActiveTab] = useState<DispatchLoadStatus>(
+  const [activeTab, setActiveTab] = useState<string>(
     savedActiveTab
       ? (savedActiveTab as DispatchLoadStatus)
       : DispatchLoadStatus.Published
@@ -138,49 +202,6 @@ const DispatchLoadList: React.FC = () => {
   useEffect(() => {
     localStorage.setItem(DISPATCH_ACTIVE_TAB, activeTab);
   }, [activeTab]);
-
-  const columns = [
-    {
-      width: "90px",
-      key: "age",
-      label: "Age",
-      sortable: true,
-      render: (row: any) => <strong>{row.age}</strong>,
-    },
-    {
-      width: "100px",
-      key: "loadNumber",
-      label: "Ref No",
-      sortable: true,
-    },
-    {
-      width: "100px",
-      key: "WONumber",
-      label: "W/O",
-      sortable: true,
-    },
-    { width: "200px", key: "shipper.address", label: "Origin", sortable: true },
-    {
-      width: "200px",
-      key: "consignee.address",
-      label: "Destination",
-      sortable: true,
-    },
-    {
-      width: "120px",
-      key: "shipper.date",
-      label: "Ship Date",
-      sortable: true,
-    },
-    {
-      width: "120px",
-      key: "consignee.date",
-      label: "Del Date",
-      sortable: true,
-    },
-    { width: "130px", key: "equipment", label: "Equipment", sortable: true },
-    { width: "90px", key: "actions", label: "Actions", isAction: true },
-  ];
 
   const getActionsForLoad = (_: IDispatch): string[] => {
     const actions = ["View Details", "Edit"];
@@ -368,14 +389,7 @@ const DispatchLoadList: React.FC = () => {
         <div className="searchbar-container">
           <SearchBar
             onSearch={(query: string) => setSearchQuery(query)}
-            searchFieldOptions={[
-              { label: "Ref No", value: "loadNumber" },
-              { label: "W/O", value: "WONumber" },
-              { label: "Equipment", value: "equipment" },
-              { label: "Rate", value: "allInRate" },
-              { label: "Shipper Weight", value: "shipper.weight" },
-              { label: "Consignee Weight", value: "consignee.weight" },
-            ]}
+            searchFieldOptions={searchFieldOptions}
             defaultField={searchField}
             onSearchFieldChange={(value) => setSearchField(value.value)}
           />
@@ -433,113 +447,11 @@ const DispatchLoadList: React.FC = () => {
       {!loading && error && <div className="text-danger">{error}</div>}
       {!loading && !error && (
         <>
-          <ul className="nav nav-tabs">
-            <li
-              className="nav-item"
-              onClick={() => setActiveTab(DispatchLoadStatus.Published)}
-            >
-              <a
-                className={`nav-link ${
-                  DispatchLoadStatus.Published == activeTab && "active"
-                }`}
-                aria-current="page"
-                href="#"
-              >
-                Loads
-              </a>
-            </li>
-            <li
-              className="nav-item"
-              onClick={() => setActiveTab(DispatchLoadStatus.Draft)}
-            >
-              <a
-                className={`nav-link ${
-                  DispatchLoadStatus.Draft == activeTab && "active"
-                }`}
-                href="#"
-              >
-                Pending/Draft
-              </a>
-            </li>
-            <li
-              className="nav-item"
-              onClick={() => setActiveTab(DispatchLoadStatus.InTransit)}
-            >
-              <a
-                className={`nav-link ${
-                  DispatchLoadStatus.InTransit == activeTab && "active"
-                }`}
-                href="#"
-              >
-                In Transit
-              </a>
-            </li>
-            <li
-              className="nav-item"
-              onClick={() => setActiveTab(DispatchLoadStatus.Delivered)}
-            >
-              <a
-                className={`nav-link ${
-                  DispatchLoadStatus.Delivered == activeTab && "active"
-                }`}
-                href="#"
-              >
-                Delivered
-              </a>
-            </li>
-            <li
-              className="nav-item"
-              onClick={() => setActiveTab(DispatchLoadStatus.Completed)}
-            >
-              <a
-                className={`nav-link ${
-                  DispatchLoadStatus.Completed == activeTab && "active"
-                }`}
-                href="#"
-              >
-                Completed
-              </a>
-            </li>
-            <li
-              className="nav-item"
-              onClick={() => setActiveTab(DispatchLoadStatus.Invoiced)}
-            >
-              <a
-                className={`nav-link ${
-                  DispatchLoadStatus.Invoiced == activeTab && "active"
-                }`}
-                href="#"
-              >
-                Invoiced
-              </a>
-            </li>
-            <li
-              className="nav-item"
-              onClick={() => setActiveTab(DispatchLoadStatus.InvoicedPaid)}
-            >
-              <a
-                className={`nav-link ${
-                  DispatchLoadStatus.InvoicedPaid == activeTab && "active"
-                }`}
-                href="#"
-              >
-                Invoiced Paid
-              </a>
-            </li>
-            <li
-              className="nav-item"
-              onClick={() => setActiveTab(DispatchLoadStatus.Cancelled)}
-            >
-              <a
-                className={`nav-link ${
-                  DispatchLoadStatus.Cancelled == activeTab && "active"
-                }`}
-                href="#"
-              >
-                Cancelled
-              </a>
-            </li>
-          </ul>
+          <Tabs 
+            tabs={tabOptions}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
           <Table
             columns={columns}
             rows={getRowData()}

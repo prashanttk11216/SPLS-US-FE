@@ -24,6 +24,62 @@ import { downloadExcelFile } from "../../../../../utils/excelUtils";
 import usePagination from "../../../../../hooks/usePagination";
 import { SortOption } from "../../../../../types/GeneralTypes";
 
+const columns = [
+    
+  {
+    width: "100px",
+    key: "loadNumber",
+    label: "Ref No",
+    sortable: true,
+  },
+  {
+    width: "100px",
+    key: "WONumber",
+    label: "W/O",
+    sortable: true,
+  },
+  {
+    width: "130px",
+    key: "invoiceNumber",
+    label: "Invoice No",
+    sortable: true,
+  },
+  {
+    width: "90px",
+    key: "invoiceDate",
+    label: "Invoice Date",
+    sortable: true,
+  },
+  { width: "200px", key: "shipper.address", label: "Origin", sortable: true },
+  {
+    width: "200px",
+    key: "consignee.address",
+    label: "Destination",
+    sortable: true,
+  },
+  {
+    width: "120px",
+    key: "shipper.date",
+    label: "Ship Date",
+    sortable: true,
+  },
+  {
+    width: "120px",
+    key: "consignee.date",
+    label: "Del Date",
+    sortable: true,
+  },
+  { width: "90px", key: "actions", label: "Actions", isAction: true },
+];
+
+const searchFieldOptions = [
+  { label: "Ref No", value: "loadNumber" },
+  { label: "W/O", value: "WONumber" },
+  { label: "Equipment", value: "equipment" },
+  { label: "Rate", value: "allInRate" },
+  { label: "Shipper Weight", value: "shipper.weight" },
+  { label: "Consignee Weight", value: "consignee.weight" },
+]
 
 const AccountingLoadExport: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -114,54 +170,6 @@ const AccountingLoadExport: React.FC = () => {
     sortConfig,
   ]);
 
-  const columns = [
-    
-    {
-      width: "100px",
-      key: "loadNumber",
-      label: "Ref No",
-      sortable: true,
-    },
-    {
-      width: "100px",
-      key: "WONumber",
-      label: "W/O",
-      sortable: true,
-    },
-    {
-      width: "130px",
-      key: "invoiceNumber",
-      label: "Invoice No",
-      sortable: true,
-    },
-    {
-      width: "90px",
-      key: "invoiceDate",
-      label: "Invoice Date",
-      sortable: true,
-    },
-    { width: "200px", key: "shipper.address", label: "Origin", sortable: true },
-    {
-      width: "200px",
-      key: "consignee.address",
-      label: "Destination",
-      sortable: true,
-    },
-    {
-      width: "120px",
-      key: "shipper.date",
-      label: "Ship Date",
-      sortable: true,
-    },
-    {
-      width: "120px",
-      key: "consignee.date",
-      label: "Del Date",
-      sortable: true,
-    },
-    { width: "90px", key: "actions", label: "Actions", isAction: true },
-  ];
-
   const getActionsForLoad = (_: IDispatch): string[] => {
     const actions = ["View Details"];
     return actions;
@@ -246,14 +254,7 @@ const AccountingLoadExport: React.FC = () => {
         <div className="searchbar-container">
           <SearchBar
             onSearch={(query: string) => setSearchQuery(query)}
-            searchFieldOptions={[
-              { label: "Ref No", value: "loadNumber" },
-              { label: "W/O", value: "WONumber" },
-              { label: "Equipment", value: "equipment" },
-              { label: "Rate", value: "allInRate" },
-              { label: "Shipper Weight", value: "shipper.weight" },
-              { label: "Consignee Weight", value: "consignee.weight" },
-            ]}
+            searchFieldOptions={searchFieldOptions}
             defaultField={searchField}
             onSearchFieldChange={(value) => setSearchField(value.value)}
           />

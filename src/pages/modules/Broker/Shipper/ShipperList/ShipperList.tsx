@@ -23,6 +23,27 @@ import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 import usePagination from "../../../../../hooks/usePagination";
 import { SortOption } from "../../../../../types/GeneralTypes";
 
+const columns = [
+  { width: "250px", key: "name", label: "Name" },
+  { width: "210px", key: "email", label: "Email", sortable: true },
+  { width: "150px", key: "contact", label: "Contact", sortable: true },
+  {
+    width: "170px",
+    key: "shippingHours",
+    label: "Shipping Hours",
+    sortable: true,
+  },
+  { width: "90px", key: "isActive", label: "Status", sortable: true },
+  { width: "90px", key: "actions", label: "Actions", isAction: true },
+];
+
+const searchFieldOptions = [
+  { label: "Email", value: "email" },
+  { label: "Name", value: "name" },
+  { label: "Shipping Hours", value: "shippingHours" },
+  { label: "Contact", value: "primaryNumber" },
+]
+
 const ShipperList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -169,20 +190,6 @@ const ShipperList: React.FC = () => {
     return actions;
   };
 
-  const columns = [
-    { width: "250px", key: "name", label: "Name" },
-    { width: "210px", key: "email", label: "Email", sortable: true },
-    { width: "150px", key: "contact", label: "Contact", sortable: true },
-    {
-      width: "170px",
-      key: "shippingHours",
-      label: "Shipping Hours",
-      sortable: true,
-    },
-    { width: "90px", key: "isActive", label: "Status", sortable: true },
-    { width: "90px", key: "actions", label: "Actions", isAction: true },
-  ];
-
   const getRowData = () => {
     return shippers.map((shipper) => ({
       _id: shipper._id,
@@ -215,12 +222,7 @@ const ShipperList: React.FC = () => {
         <div className="searchbar-container">
           <SearchBar
             onSearch={(query: string) => setSearchQuery(query)}
-            searchFieldOptions={[
-              { label: "Email", value: "email" },
-              { label: "Name", value: "name" },
-              { label: "Shipping Hours", value: "shippingHours" },
-              { label: "Contact", value: "primaryNumber" },
-            ]}
+            searchFieldOptions={searchFieldOptions}
             defaultField={searchField}
             onSearchFieldChange={(value) => setSearchField(value.value)}
           />
