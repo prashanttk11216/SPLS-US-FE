@@ -197,7 +197,7 @@ const MatcheTrucksList: React.FC = () => {
       ) : (
         <>
           <h4 className="fw-bold">({trucks.length || "0"}) Matching Trucks</h4>
-          <div className="searchbar-container">
+          <div className="searchbar-container my-3">
             <SearchBar
               onSearch={(query: string) => setSearchQuery(query)}
               searchFieldOptions={searchFieldOptions}
