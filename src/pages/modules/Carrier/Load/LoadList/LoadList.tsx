@@ -290,9 +290,9 @@ const LoadList: React.FC = () => {
     <div className="customers-list-wrapper">
       <h2 className="fw-bolder">SPLS Load Board</h2>
       <form onSubmit={handleSubmit(handleSearchForm)}>
-        <div className="d-flex align-items-center">
+        <div className="d-flex">
           {/* Origin */}
-          <div style={{ width: "200px" }}>
+          <div style={{ width: "300px" }}>
             <PlaceAutocompleteField
               name="origin"
               label=""
@@ -318,11 +318,11 @@ const LoadList: React.FC = () => {
             src={arrowRightArrowLeft}
             height={20}
             width={20}
-            className="mx-3 mb-3"
+            className="mt-3 mx-3"
             onClick={swapAddress}
           />
           {/* Destination */}
-          <div style={{ width: "200px" }}>
+          <div style={{ width: "300px" }}>
             <PlaceAutocompleteField
               name="destination"
               label=""
