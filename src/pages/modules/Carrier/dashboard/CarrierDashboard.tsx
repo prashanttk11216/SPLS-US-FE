@@ -73,9 +73,9 @@ const CarrierDashboard: React.FC = () => {
         <h3>SPLS Dispatch Load Board</h3>
         <div className="dashboard">
           {stats.dispatchLoadStats.length &&
-            stats.dispatchLoadStats.map((load) => (
+            stats.dispatchLoadStats.map((load, index) => (
               <DashboardTile
-                key={load.count}
+                key={index}
                 title={load.status}
                 value={load.count}
                 suffix="loads"
@@ -88,7 +88,7 @@ const CarrierDashboard: React.FC = () => {
         <h3>Stats</h3>
         <div className="dashboard">
           <DashboardTile
-            key={0}
+            key={Math.random()}
             title={"Active Loads"}
             value={stats.activeLoads}
             suffix="loads"
@@ -96,7 +96,7 @@ const CarrierDashboard: React.FC = () => {
             handleClick={handleTruckLoadNavigation}
           />
           <DashboardTile
-            key={1}
+            key={Math.random()}
             title={"Completed Loads"}
             value={stats.completedLoads}
             suffix="loads"
@@ -104,7 +104,7 @@ const CarrierDashboard: React.FC = () => {
             handleClick={handleTruckLoadNavigation}
           />
           <DashboardTile
-            key={2}
+            key={Math.random()}
             title={"Total Trucks"}
             value={stats.totalTrucks}
             suffix="loads"
@@ -112,7 +112,7 @@ const CarrierDashboard: React.FC = () => {
             handleClick={handleTruckLoadNavigation}
           />
           <DashboardTile
-            key={3}
+            key={Math.random()}
             title={"Total Earnings"}
             value={`$${formatNumber(stats.totalEarnings)}`}
             color="#4caf50"

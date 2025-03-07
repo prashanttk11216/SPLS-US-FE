@@ -17,6 +17,18 @@ import { getEnumValue } from "../../../../../../utils/globalHelper";
 import { Equipment } from "../../../../../../enums/Equipment";
 import usePagination from "../../../../../../hooks/usePagination";
 import { SortOption } from "../../../../../../types/GeneralTypes";
+import SearchBar from "../../../../../../components/common/SearchBar/SearchBar";
+
+const searchFieldOptions = [
+  { label: "Ref No", value: "referenceNumber" },
+  { label: "Origin", value: "origin.str" },
+  { label: "Destination", value: "destination.str" },
+  { label: "Available Date", value: "availableDate" },
+  { label: "Equipment", value: "equipment" },
+  { label: "All-in Rate", value: "allInRate" },
+  { label: "Weight", value: "weight" },
+  { label: "Length", value: "length" },
+]
 
 const MatcheTrucksList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -25,6 +37,9 @@ const MatcheTrucksList: React.FC = () => {
   const { meta, updatePagination } = usePagination(); // Pagination metadata
 
   const [sortConfig, setSortConfig] = useState<SortOption | null>({ key: "age", direction: "desc" });
+
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchField, setSearchField] = useState<string>("referenceNumber");
 
   // View Details Option Added
   const [details, setDetails] = useState<{
@@ -46,6 +61,13 @@ const MatcheTrucksList: React.FC = () => {
       try {
         let query = `?&page=${page}&limit=${limit}`;
 
+        //Search Functionality
+        if (searchQuery && searchField) {
+          query += `&search=${encodeURIComponent(
+            searchQuery
+          )}&searchField=${searchField}`;
+        }
+
         if (sortConfig) {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
@@ -60,14 +82,14 @@ const MatcheTrucksList: React.FC = () => {
         toast.error("Error fetching Consignee data.");
       }
     },
-    [getDataById, user, sortConfig]
+    [getDataById, user, searchQuery, sortConfig]
   );
 
   useEffect(() => {
     if (user && user._id) {
       fetchTrucksData();
     }
-  }, [user, sortConfig, loadId]);
+  }, [user, sortConfig, searchQuery, loadId]);
 
   const openDetailsModal = (truck: Partial<Truck>) =>
     setDetails({ isOpen: true, truck });
@@ -175,6 +197,14 @@ const MatcheTrucksList: React.FC = () => {
       ) : (
         <>
           <h4 className="fw-bold">({trucks.length || "0"}) Matching Trucks</h4>
+          <div className="searchbar-container">
+            <SearchBar
+              onSearch={(query: string) => setSearchQuery(query)}
+              searchFieldOptions={searchFieldOptions}
+              defaultField={searchField}
+              onSearchFieldChange={(value) => setSearchField(value.value)}
+            />
+          </div>
           <Table
             columns={columns}
             rows={getRowData()}
