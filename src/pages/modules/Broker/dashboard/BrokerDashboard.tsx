@@ -108,9 +108,9 @@ const BrokerDashboard: React.FC = () => {
         <h3>SPLS Load Board</h3>
         <div className="dashboard">
           {stats.loadStats.length &&
-            stats.loadStats.map((load) => (
+            stats.loadStats.map((load, index) => (
               <DashboardTile
-                key={load.count}
+                key={index}
                 title={load.status}
                 value={load.count}
                 suffix="loads"
@@ -123,9 +123,9 @@ const BrokerDashboard: React.FC = () => {
         <h3>SPLS Dispatch Load Board</h3>
         <div className="dashboard">
           {stats.dispatchLoadStats.length &&
-            stats.dispatchLoadStats.map((load) => (
+            stats.dispatchLoadStats.map((load, index) => (
               <DashboardTile
-                key={load.count}
+                key={index}
                 title={load.status}
                 value={load.count}
                 suffix="loads"
@@ -139,9 +139,9 @@ const BrokerDashboard: React.FC = () => {
         <h3>SPLS Users Role</h3>
         <div className="dashboard">
           {stats.userRoleStats.length &&
-            stats.userRoleStats.map((load) => (
+            stats.userRoleStats.map((load, index) => (
               <DashboardTile
-                key={load.count}
+                key={index}
                 title={
                   load.role === "broker_user"
                     ? "Broker User"

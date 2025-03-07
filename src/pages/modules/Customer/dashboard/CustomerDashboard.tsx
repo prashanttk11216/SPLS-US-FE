@@ -78,9 +78,9 @@ const BrokerDashboard: React.FC = () => {
         <h3>SPLS Load Board</h3>
         <div className="dashboard">
           {stats.loadStats.length &&
-            stats.loadStats.map((load) => (
+            stats.loadStats.map((load, index) => (
               <DashboardTile
-                key={load.count}
+                key={index}
                 title={load.status}
                 value={load.count}
                 suffix="loads"
@@ -93,9 +93,9 @@ const BrokerDashboard: React.FC = () => {
         <h3>SPLS Dispatch Load Board</h3>
         <div className="dashboard">
           {stats.dispatchLoadStats.length &&
-            stats.dispatchLoadStats.map((load) => (
+            stats.dispatchLoadStats.map((load, index) => (
               <DashboardTile
-                key={load.count}
+                key={index}
                 title={load.status}
                 value={load.count}
                 suffix="loads"
@@ -108,21 +108,21 @@ const BrokerDashboard: React.FC = () => {
         <h3>Stats</h3>
         <div className="dashboard">
           <DashboardTile
-            key={0}
+            key={Math.random()}
             title={"Total Loads"}
             value={stats.totalLoads}
             suffix="loads"
             color="#ff9800"
           />
           <DashboardTile
-            key={1}
+            key={Math.random()}
             title={"Active Loads"}
             value={stats.activeLoads}
             suffix="loads"
             color="#ff9800"
           />
           <DashboardTile
-            key={2}
+            key={Math.random()}
             title={"Completed Loads"}
             value={stats.completedLoads}
             suffix="loads"
