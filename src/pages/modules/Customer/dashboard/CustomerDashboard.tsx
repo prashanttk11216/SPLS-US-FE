@@ -108,21 +108,18 @@ const BrokerDashboard: React.FC = () => {
         <h3>Stats</h3>
         <div className="dashboard">
           <DashboardTile
-            key={"Stats" + 1}
             title={"Total Loads"}
             value={stats.totalLoads}
             suffix="loads"
             color="#ff9800"
           />
           <DashboardTile
-            key={"Stats" + 2}
             title={"Active Loads"}
             value={stats.activeLoads}
             suffix="loads"
             color="#ff9800"
           />
           <DashboardTile
-            key={"Stats" + 3}
             title={"Completed Loads"}
             value={stats.completedLoads}
             suffix="loads"

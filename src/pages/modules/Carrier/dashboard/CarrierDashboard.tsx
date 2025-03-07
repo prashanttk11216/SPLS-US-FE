@@ -88,7 +88,6 @@ const CarrierDashboard: React.FC = () => {
         <h3>Stats</h3>
         <div className="dashboard">
           <DashboardTile
-            key={"Stats" + 1}
             title={"Active Loads"}
             value={stats.activeLoads}
             suffix="loads"
@@ -96,7 +95,6 @@ const CarrierDashboard: React.FC = () => {
             handleClick={handleTruckLoadNavigation}
           />
           <DashboardTile
-            key={"Stats" + 2}
             title={"Completed Loads"}
             value={stats.completedLoads}
             suffix="loads"
@@ -104,7 +102,6 @@ const CarrierDashboard: React.FC = () => {
             handleClick={handleTruckLoadNavigation}
           />
           <DashboardTile
-            key={"Stats" + 3}
             title={"Total Trucks"}
             value={stats.totalTrucks}
             suffix="loads"
@@ -112,7 +109,6 @@ const CarrierDashboard: React.FC = () => {
             handleClick={handleTruckLoadNavigation}
           />
           <DashboardTile
-            key={"Stats" + 4}
             title={"Total Earnings"}
             value={`$${formatNumber(stats.totalEarnings)}`}
             color="#4caf50"
