@@ -59,34 +59,24 @@ const DispatchDetailsModal: React.FC<{
       rows: [
         {
           label: "Type",
-          value: dispatch.shipper?.type,
+          value: dispatch.shipper?.type  || "N/A",
         },
         {
           label: "Quantity",
-          value:
-            (dispatch.shipper?.qty &&
-              `${formatNumber(dispatch.shipper.qty)}`) ||
-            "N/A",
+          value: dispatch.shipper?.qty || "N/A",
         },
         {
           label: "Weight",
-          value:
-            (dispatch.shipper?.weight &&
-              `${formatNumber(dispatch.shipper.weight)} lbs`) ||
-            "N/A",
+          value:  `${dispatch.shipper?.weight || 0} lbs`
         },
         {
           label: "Value",
-          value:
-            (dispatch.shipper?.value &&
-              `$ ${formatNumber(dispatch.shipper.value)}`) ||
-            "N/A",
+          value:  `$ ${dispatch.shipper?.value || 0.00}`
         },
         {
           label: "P/O Number",
-          value:
-            (dispatch.shipper?.PO && `${formatNumber(dispatch.shipper.PO)}`) ||
-            "N/A",
+          value: dispatch.shipper?.PO || "N/A", 
+            
         },
         {
           label: "Shipping Notes",
@@ -100,39 +90,27 @@ const DispatchDetailsModal: React.FC<{
       rows: [
         {
           label: "Type",
-          value: dispatch.consignee?.type,
+          value: dispatch.consignee?.type || "N/A",
         },
         {
           label: "Quantity",
-          value:
-            (dispatch.consignee?.qty &&
-              dispatch.consignee.qty) ||
-            "N/A",
+          value: dispatch.consignee?.qty || "N/A",
         },
         {
           label: "Weight",
-          value:
-            (dispatch.consignee?.weight &&
-              `${formatNumber(dispatch.consignee.weight)} lbs`) ||
-            "N/A",
+          value:  `${dispatch.consignee?.weight || 0} lbs`
         },
         {
           label: "Value",
-          value:
-            (dispatch.consignee?.value &&
-              `$ ${formatNumber(dispatch.consignee.value)}`) ||
-            "N/A",
+          value:  `$ ${dispatch.consignee?.value || 0.00}`
         },
         {
           label: "P/O Number",
-          value:
-            (dispatch.consignee?.PO &&
-              `${formatNumber(dispatch.consignee.PO)}`) ||
-            "N/A",
+          value: dispatch.consignee?.PO || "N/A", 
         },
         {
           label: "Shipping Notes",
-          value: dispatch.consignee?.notes || "N/A",
+          value: dispatch.consignee?.notes || "N/A",  
         },
       ],
     },

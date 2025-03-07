@@ -8,7 +8,7 @@ import { editLoad } from "../../../services/dispatch/dispatchServices";
 interface UploadModalProps {
   isOpen: boolean;
   multiple: boolean;
-  loadId: any;
+  dispatchDetails: any;
   onClose: () => void;
 }
 
@@ -20,7 +20,7 @@ interface UploadedFile {
 const FileUploadModal: React.FC<UploadModalProps> = ({
   isOpen,
   multiple,
-  loadId,
+  dispatchDetails,
   onClose,
 }) => {
   const [files, setFiles] = React.useState<UploadedFile[]>([]);
@@ -32,9 +32,13 @@ const FileUploadModal: React.FC<UploadModalProps> = ({
   });
 
   const submitForm = async () => {
-    if (files) {
-      const result = await updateData("updateDocument", loadId, {
-        documents: files,
+    if (files.length) {
+      let payload = files;
+      if(dispatchDetails?.documents?.length > 0){
+        payload = [...dispatchDetails.documents, ...files];
+      }
+      const result = await updateData("updateDocument", dispatchDetails._id as string, {
+        documents: payload,
       });
       if (result.success) {
         toast.success(result.message || "Files uploaded successfully");

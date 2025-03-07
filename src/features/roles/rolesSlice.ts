@@ -7,7 +7,7 @@ export const rolesSlice = createSlice({
   name: "roles",
   initialState,
   reducers: {
-    setRoles: (state, action: PayloadAction<Role[]>) => {
+    setRoles: (_, action: PayloadAction<Role[]>) => {
       return action.payload; // ✅ Update roles correctly
     },
     resetRoles: () => {

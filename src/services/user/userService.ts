@@ -39,7 +39,7 @@ export const getUserById = async (
   }
 };
 
-export const getUserProfile = async (userId: string,
+export const getUserProfile = async (_: string,
   query?: string): Promise<ApiResponse> => {
   try {
     // Construct endpoint based on presence of userId and/or role

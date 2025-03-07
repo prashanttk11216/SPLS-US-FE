@@ -2,6 +2,7 @@ import React from "react";
 import DatePicker, { DatePickerProps } from "react-datepicker";
 import { Controller } from "react-hook-form";
 import "react-datepicker/dist/react-datepicker.css";
+import './DateInput.scss'
 
 type DateInputProps = {
   name: string; // Field name for react-hook-form

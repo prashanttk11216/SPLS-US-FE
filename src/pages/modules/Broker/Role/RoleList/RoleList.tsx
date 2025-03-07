@@ -39,12 +39,6 @@ const RoleList: React.FC = () => {
       direction: "asc" | "desc";
     } | null>(null);
   
-    // View Details Option Added
-    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
-    const [shipperDetails, setRoleDetails] = useState<Partial<IRole> | null>(
-      null
-    );
-  
     const { getData, deleteData, loading } = useFetchData<any>({
       getAll: {
         role: getRoles,
@@ -113,12 +107,6 @@ const RoleList: React.FC = () => {
       setRoleId("");
     };
   
-    // View Details Option Added
-    const openDetailsModal = (roleData: Partial<IRole>) => {
-      setRoleDetails(roleData);
-      setIsDetailsModalOpen(true);
-    };
-  
     const handleAction = async (action: string, row: Record<string, any>) => {
       switch (action) {
         case "View Details":
@@ -145,11 +133,11 @@ const RoleList: React.FC = () => {
   
     const handleRowClick = async (row: Record<string, any>) => {
       if (row) {
-        openDetailsModal(row); // Open details modal
+        // Open details modal
       }
     };
   
-    const getActions = (role: IRole): string[] => {
+    const getActions = (): string[] => {
       const actions = ["View Details", "Edit", "Delete"];
       return actions;
     };
@@ -158,7 +146,7 @@ const RoleList: React.FC = () => {
       return roles.map((role) => ({
         _id: role._id,
         name: role.name,
-        actions: getActions(role),
+        actions: getActions(),
       }));
     };
   

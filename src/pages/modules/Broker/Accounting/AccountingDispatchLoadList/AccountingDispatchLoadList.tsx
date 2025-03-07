@@ -30,6 +30,8 @@ import usePagination from "../../../../../hooks/usePagination";
 import ConfirmationModal from "../../../../../components/common/ConfirmationModal/ConfirmationModal";
 import { SortOption } from "../../../../../types/GeneralTypes";
 import Tabs from "../../../../../components/common/Tabs/Tabs";
+import FileUploadModal from "../../../../../components/common/FileUploadModal/FileUploadModal";
+import DispatchDetailsModal from "../../DispatchLoad/DispatchDetailsModal/DispatchDetailsModal";
 
 const ACCOUNTING_DISPATCH_ACTIVE_TAB = "ACCOUNTING_DISPATCH_ACTIVE_TAB";
 
@@ -40,7 +42,7 @@ const searchFieldOptions = [
   { label: "Rate", value: "allInRate" },
   { label: "Shipper Weight", value: "shipper.weight" },
   { label: "Consignee Weight", value: "consignee.weight" },
-]
+];
 
 const columns = [
   {
@@ -97,8 +99,8 @@ const AccountingDispatchLoadList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const { control, getValues, reset } = useForm<any>();
 
-  const [confirm, setConfirm] = useState<boolean>(false)
-  const [item, setItem] = useState<any>({})
+  const [confirm, setConfirm] = useState<boolean>(false);
+  const [item, setItem] = useState<any>({});
   const [loads, setLoads] = useState<IDispatch[]>([]);
   const { meta, updatePagination } = usePagination(); // Pagination metadata
 
@@ -110,29 +112,33 @@ const AccountingDispatchLoadList: React.FC = () => {
       ? (savedActiveTab as DispatchLoadStatus)
       : DispatchLoadStatus.Published
   );
-  const [sortConfig, setSortConfig] = useState<SortOption | null>({ key: "age", direction: "desc" });
+  const [sortConfig, setSortConfig] = useState<SortOption | null>({
+    key: "age",
+    direction: "desc",
+  });
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
   const [dispatchDetails, setDispatchDetails] =
     useState<Partial<IDispatch> | null>(null);
 
   const [dateField, setDateField] = useState<string>("consignee.date"); // Default to "Delivery Date"
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
+  
 
   const openDetailsModal = (dispatchData: Partial<IDispatch>) => {
     setDispatchDetails(dispatchData);
     setIsDetailsModalOpen(true);
   };
 
-
   const { getData, loading, error } = useFetchData<any>({
-    getAll: { 
+    getAll: {
       load: getloads,
-     },
-     update: {
+    },
+    update: {
       load: updateLoadStatus,
-     },
-     remove: {
-      load: deleteLoad
-     }
+    },
+    remove: {
+      load: deleteLoad,
+    },
   });
 
   // Fetch Load data
@@ -153,18 +159,18 @@ const AccountingDispatchLoadList: React.FC = () => {
         if (dateField && getValues("dateRange")) {
           const dateRange = getValues("dateRange");
           query += `&dateField=${dateField}`;
-          if(dateRange[0]){
-            query += `&fromDate=${dateRange[0].toISOString()}`
+          if (dateRange[0]) {
+            query += `&fromDate=${dateRange[0].toISOString()}`;
           }
-          if(dateRange[1]){
-            query += `&toDate=${dateRange[1].toISOString()}`
+          if (dateRange[1]) {
+            query += `&toDate=${dateRange[1].toISOString()}`;
           }
         }
 
         if (sortConfig) {
           query += `&sort=${sortConfig.key}:${sortConfig.direction}`;
         }
-        
+
         const result = await getData("load", query);
         if (result.success) {
           const loadData = result.data as IDispatch[];
@@ -197,12 +203,7 @@ const AccountingDispatchLoadList: React.FC = () => {
     if (user && user._id) {
       fetchLoads();
     }
-  }, [
-    user,
-    searchQuery,
-    activeTab,
-    sortConfig,
-  ]);
+  }, [user, searchQuery, activeTab, sortConfig]);
 
   // Update active tab in localStorage whenever it changes
   useEffect(() => {
@@ -211,7 +212,7 @@ const AccountingDispatchLoadList: React.FC = () => {
 
   const getActionsForLoad = (_: IDispatch): string[] => {
     const actions = ["View Details"];
-  
+
     if (activeTab == DispatchLoadStatus.Delivered) {
       actions.push("Print BOL");
     }
@@ -231,12 +232,12 @@ const AccountingDispatchLoadList: React.FC = () => {
         // Implement print logic
         printBOL(row);
         break;
-  
+
       case "Print Invoice":
         // Implement print logic
         printInvoice(row);
         break;
-  
+
       case "Upload Documents":
         // Implement document upload logic
         uploadDocuments(row);
@@ -245,7 +246,6 @@ const AccountingDispatchLoadList: React.FC = () => {
         toast.info(`Action "${action}" is not yet implemented.`);
     }
   };
-  
 
   const handleRowClick = async (row: Record<string, any>) => {
     if (row) {
@@ -266,13 +266,13 @@ const AccountingDispatchLoadList: React.FC = () => {
         ? formatDate(load?.consignee?.date, "yyyy/MM/dd")
         : "N/A",
 
-      equipment:  getEnumValue(Equipment, load.equipment),   
+      equipment: getEnumValue(Equipment, load.equipment),
       WONumber: load?.WONumber || "N/A",
       loadNumber: load?.loadNumber || "N/A",
       actions: getActionsForLoad(load),
     }));
   };
-  
+
   const handleGeneralAction = (action: any, selectedData: any) => {
     switch (action) {
       case "Refresh Loads":
@@ -293,7 +293,11 @@ const AccountingDispatchLoadList: React.FC = () => {
     fetchLoads();
   };
 
-  const downloadPDF = async (fetchFunction: Function, id: string, fileName: string) => {
+  const downloadPDF = async (
+    fetchFunction: Function,
+    id: string,
+    fileName: string
+  ) => {
     try {
       const result: any = await fetchFunction(id);
       if (result) {
@@ -306,17 +310,20 @@ const AccountingDispatchLoadList: React.FC = () => {
     }
   };
 
-  
   const printBOL = async (row: Record<string, any>) => {
     await downloadPDF(BOLforLoad, row._id, `BOL_${row.loadNumber}.pdf`);
     toast.success("Downloaded Successfully.");
   };
 
-  const handleConfirm = async(e:any) => {
-    if(e){
-      await downloadPDF(invoicedforLoad, item._id, `Invoice_${item.loadNumber}.pdf`);
+  const handleConfirm = async (e: any) => {
+    if (e) {
+      await downloadPDF(
+        invoicedforLoad,
+        item._id,
+        `Invoice_${item.loadNumber}.pdf`
+      );
       toast.success("Downloaded Successfully.");
-      setConfirm(false)
+      setConfirm(false);
     }
   };
 
@@ -325,12 +332,15 @@ const AccountingDispatchLoadList: React.FC = () => {
   };
 
   const printInvoice = (row: Record<string, any>) => {
-    setItem(row)
+    setItem(row);
     setConfirm(true);
   };
 
+  // Implement document upload logic
   const uploadDocuments = (row: Record<string, any>) => {
-  }
+    setIsUploadModalOpen(true);
+    setDispatchDetails(row);
+  };
 
   return (
     <div className="customers-list-wrapper">
@@ -339,7 +349,6 @@ const AccountingDispatchLoadList: React.FC = () => {
         <h2 className="fw-bolder">Accounting Manager</h2>
       </div>
       <div className="d-flex align-items-center my-3">
-
         {/* Search Bar */}
         <div className="searchbar-container">
           <SearchBar
@@ -376,30 +385,30 @@ const AccountingDispatchLoadList: React.FC = () => {
             datePickerProps={{
               dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
               isClearable: true,
-              selectsRange: true
+              selectsRange: true,
             }}
           />
         </div>
 
-        <button className="btn btn-primary" onClick={()=>fetchLoads()}>
+        <button className="btn btn-primary" onClick={() => fetchLoads()}>
           Apply Filter
         </button>
         <button
-            type="button"
-            className="btn btn-outline-secondary ms-3"
-            onClick={resetFilter}
-          >
-            Reset
-          </button>
+          type="button"
+          className="btn btn-outline-secondary ms-3"
+          onClick={resetFilter}
+        >
+          Reset
+        </button>
       </div>
-      
+
       {loading ? (
         <Loading />
       ) : error ? (
         <div className="text-danger">{error}</div>
       ) : (
         <>
-          <Tabs 
+          <Tabs
             tabs={tabOptions}
             activeTab={activeTab}
             onTabChange={setActiveTab}
@@ -411,7 +420,6 @@ const AccountingDispatchLoadList: React.FC = () => {
             onActionClick={handleAction}
             onRowClick={handleRowClick}
             onSort={(sortStr: SortOption) => setSortConfig(sortStr)}
-
             sortConfig={sortConfig}
             rowClickable={true}
             showCheckbox={true}
@@ -430,21 +438,35 @@ const AccountingDispatchLoadList: React.FC = () => {
           )}
         </>
       )}
-      <ConfirmationModal 
+      <ConfirmationModal
         title={"Print Invoice Confirmation"}
-        description={"By continuing, an Invoice Number will be assigned to this load."}
+        description={
+          "By continuing, an Invoice Number will be assigned to this load."
+        }
         question={"Do you wish to continue?"}
-        isOpen={confirm} 
-        onCancel={handleCancel} 
+        isOpen={confirm}
+        onCancel={handleCancel}
         onConfirm={handleConfirm}
       />
-      {/* {isDetailsModalOpen && (
+      {isDetailsModalOpen && (
         <DispatchDetailsModal
           isOpen={isDetailsModalOpen}
           dispatch={dispatchDetails}
           onClose={() => setIsDetailsModalOpen(false)}
         />
-      )} */}
+      )}
+
+      {isUploadModalOpen && (
+        <FileUploadModal
+          isOpen={isUploadModalOpen}
+          multiple={true}
+          dispatchDetails={dispatchDetails}
+          onClose={() => {
+            setIsUploadModalOpen(false);
+            fetchLoads();
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -23,6 +23,7 @@ import SelectField from "../../../../../components/common/SelectField/SelectFiel
 import { downloadExcelFile } from "../../../../../utils/excelUtils";
 import usePagination from "../../../../../hooks/usePagination";
 import { SortOption } from "../../../../../types/GeneralTypes";
+import DispatchDetailsModal from "../../DispatchLoad/DispatchDetailsModal/DispatchDetailsModal";
 
 const columns = [
     
@@ -316,7 +317,6 @@ const AccountingLoadExport: React.FC = () => {
             onActionClick={handleAction}
             onRowClick={handleRowClick}
             onSort={(sortStr: SortOption) => setSortConfig(sortStr)}
-
             sortConfig={sortConfig}
             rowClickable={true}
             showCheckbox={true}
@@ -335,13 +335,13 @@ const AccountingLoadExport: React.FC = () => {
           )}
         </>
       )}
-      {/* {isDetailsModalOpen && (
+      {isDetailsModalOpen && (
         <DispatchDetailsModal
           isOpen={isDetailsModalOpen}
           dispatch={dispatchDetails}
           onClose={() => setIsDetailsModalOpen(false)}
         />
-      )} */}
+      )}
     </div>
   );
 };

@@ -11,7 +11,7 @@ import CheckboxField from "../../../../../components/common/CheckboxField/Checkb
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
 import { DispatchLoadTypeOptions } from "../../../../../utils/dropdownOptions";
-import { DispatchLoadType, WithoutUnit } from "../../../../../enums/DispatchLoadType";
+import { WithoutUnit } from "../../../../../enums/DispatchLoadType";
 import {
   calculatePercentage,
   calculatePercentageByUnit,

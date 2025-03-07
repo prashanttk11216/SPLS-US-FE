@@ -1,5 +1,4 @@
 import { useForm } from "react-hook-form";
-import Input from "../../../components/common/Input/Input";
 import { VALIDATION_MESSAGES } from "../../../constants/messages";
 import { REGEX_PATTERNS } from "../../../constants/patterns";
 import Modal from "../../../components/common/Modal/Modal";

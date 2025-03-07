@@ -81,7 +81,7 @@ const LoadDetails: React.FC = () => {
                 <div className="d-flex">
                   <div className="fw-bold">Mode : </div>
                   <div className="ms-2">
-                    {getEnumValue(Mode, loadDetails.mode)}
+                    {getEnumValue(Mode, loadDetails.mode as string)}
                   </div>
                 </div>
                 <div className="d-flex">

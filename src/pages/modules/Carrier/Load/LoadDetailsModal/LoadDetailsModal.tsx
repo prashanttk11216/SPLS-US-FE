@@ -88,7 +88,7 @@ const LoadDetailsModal: React.FC<{
           label: "Equipment",
           value: getEnumValue(Equipment, load.equipment),
         },
-                { label: "Mode", value: getEnumValue(Mode, load.mode) },
+                { label: "Mode", value: getEnumValue(Mode, load.mode as string) },
         {
           label: "Broker Rate",
           value: load.allInRate ? `$ ${formatNumber(load.allInRate)}` : "N/A",
@@ -121,7 +121,7 @@ const LoadDetailsModal: React.FC<{
           label: "Pallets",
           value: load.pallets ? formatNumber(load.pallets) : "N/A",
         },
-        { label: "Load Option", value: getEnumValue(LoadOption, load.mode) },
+        { label: "Load Option", value: getEnumValue(LoadOption, load.mode as string) },
         { label: "Commodity", value: getEnumValue(Commodity, load.commodity) },
         {
           label: "Load Number",

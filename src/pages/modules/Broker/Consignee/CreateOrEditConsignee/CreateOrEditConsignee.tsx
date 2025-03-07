@@ -271,7 +271,7 @@ const CreateOrEditConsignee: FC<CreateOrEditConsigneeProps> = ({
           </div>
         </>
       ),
-      fields: ["firstName", "lastName", "primaryNumber"],
+      fields: ["firstName", "lastName", "primaryNumber", "email"],
     },
     {
       label: "Address",

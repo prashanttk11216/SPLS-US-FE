@@ -491,8 +491,11 @@ const DispatchLoadList: React.FC = () => {
         <FileUploadModal
           isOpen={isUploadModalOpen}
           multiple={true}
-          loadId={dispatchDetails?._id}
-          onClose={() => setIsUploadModalOpen(false)}
+          dispatchDetails={dispatchDetails}
+          onClose={() => {
+            setIsUploadModalOpen(false);
+            fetchLoads();
+          }}
         />
       )}
     </div>

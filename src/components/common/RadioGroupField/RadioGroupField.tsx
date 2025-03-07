@@ -1,9 +1,7 @@
 import React from "react";
 import {
   Controller,
-  Control,
-  RegisterOptions,
-  FieldValues,
+  Control
 } from "react-hook-form";
 // import "./RadioField.scss";
 

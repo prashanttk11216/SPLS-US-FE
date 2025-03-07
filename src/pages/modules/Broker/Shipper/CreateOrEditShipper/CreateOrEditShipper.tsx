@@ -269,7 +269,7 @@ const CreateOrEditShipper: FC<CreateOrEditShipperProps> = ({
           </div>
         </>
       ),
-      fields: ["firstName", "lastName", "primaryNumber"],
+      fields: ["firstName", "lastName", "primaryNumber", "email"],
     },
     {
       label: "Address",
