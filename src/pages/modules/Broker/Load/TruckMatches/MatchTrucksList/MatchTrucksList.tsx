@@ -18,6 +18,9 @@ import { Equipment } from "../../../../../../enums/Equipment";
 import usePagination from "../../../../../../hooks/usePagination";
 import { SortOption } from "../../../../../../types/GeneralTypes";
 import SearchBar from "../../../../../../components/common/SearchBar/SearchBar";
+import NumberInput from "../../../../../../components/common/NumberInput/NumberInput";
+import { useForm } from "react-hook-form";
+import { VALIDATION_MESSAGES } from "../../../../../../constants/messages";
 
 const searchFieldOptions = [
   { label: "Ref No", value: "referenceNumber" },
@@ -30,6 +33,11 @@ const searchFieldOptions = [
   { label: "Length", value: "length" },
 ]
 
+type DestinationTypes={
+  dhdRadius: number;
+  dhoRadius: number;
+}
+
 const MatcheTrucksList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const { loadId } = useParams();
@@ -38,6 +46,7 @@ const MatcheTrucksList: React.FC = () => {
 
   const [sortConfig, setSortConfig] = useState<SortOption | null>({ key: "age", direction: "desc" });
 
+  const [formQuery, setFormQuery] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchField, setSearchField] = useState<string>("referenceNumber");
 
@@ -47,6 +56,14 @@ const MatcheTrucksList: React.FC = () => {
     truck?: Partial<Truck>;
   }>({
     isOpen: false,
+  });
+
+  const { handleSubmit, control, reset } = useForm<DestinationTypes>({
+    mode: "onBlur",
+    defaultValues: {
+      dhdRadius: 500 as number,
+      dhoRadius: 500 as number
+    }
   });
 
   const { getDataById, loading } = useFetchData<any>({
@@ -60,6 +77,10 @@ const MatcheTrucksList: React.FC = () => {
       if (!user || !user._id) return;
       try {
         let query = `?&page=${page}&limit=${limit}`;
+
+        if (formQuery) {
+          query += `&${formQuery}`;
+        }
 
         //Search Functionality
         if (searchQuery && searchField) {
@@ -82,14 +103,14 @@ const MatcheTrucksList: React.FC = () => {
         toast.error("Error fetching Consignee data.");
       }
     },
-    [getDataById, user, searchQuery, sortConfig]
+    [getDataById, user, searchQuery, formQuery, sortConfig]
   );
 
   useEffect(() => {
     if (user && user._id) {
       fetchTrucksData();
     }
-  }, [user, sortConfig, searchQuery, loadId]);
+  }, [user, sortConfig, searchQuery, formQuery, loadId]);
 
   const openDetailsModal = (truck: Partial<Truck>) =>
     setDetails({ isOpen: true, truck });
@@ -188,6 +209,44 @@ const MatcheTrucksList: React.FC = () => {
     });
   };
 
+  const handleSearchForm = (data: any) => {
+    // Initialize query object
+    const query: { [key: string]: any } = {};
+
+    // Populate the query object based on data
+    if (data.dhoRadius) {
+      query.dhoRadius = data.dhoRadius;
+    } else {
+      query.dhoRadius = 500;
+    }
+    if (data.dhdRadius) {
+      query.dhdRadius = data.dhdRadius;
+    } else {
+      query.dhdRadius = 500;
+    }
+
+    // Use URLSearchParams to generate the query string, excluding undefined fields
+    const searchParams = new URLSearchParams();
+    Object.entries(query).forEach(([key, value]) => {
+      if (value !== undefined) {
+        // Exclude undefined fields
+        searchParams.append(key, value.toString());
+      }
+    });
+
+    // Output the query string
+    const queryString = `${searchParams.toString()}`;
+    console.log(queryString);
+    setFormQuery(queryString);
+  };
+  const resetForm = () => {
+    reset({
+      dhoRadius: 500,
+      dhdRadius: 500,
+    });
+    setFormQuery(null);
+  };
+
   return (
     <div className="consignee-list-wrapper">
       <h2 className="fw-bolder">Trucks</h2>
@@ -197,13 +256,56 @@ const MatcheTrucksList: React.FC = () => {
       ) : (
         <>
           <h4 className="fw-bold">({trucks.length || "0"}) Matching Trucks</h4>
-          <div className="searchbar-container my-3">
-            <SearchBar
-              onSearch={(query: string) => setSearchQuery(query)}
-              searchFieldOptions={searchFieldOptions}
-              defaultField={searchField}
-              onSearchFieldChange={(value) => setSearchField(value.value)}
-            />
+          <div className="d-flex my-3">
+            <div className="searchbar-container">
+              <SearchBar
+                onSearch={(query: string) => setSearchQuery(query)}
+                searchFieldOptions={searchFieldOptions}
+                defaultField={searchField}
+                onSearchFieldChange={(value) => setSearchField(value.value)}
+              />
+            </div>
+            <form onSubmit={handleSubmit(handleSearchForm)}>
+              <div className="d-flex">
+                <div style={{ width: "90px" }} className="ms-2">
+                  <NumberInput
+                    label=""
+                    id="dhoRadius"
+                    name="dhoRadius"
+                    placeholder="DH-O"
+                    control={control}
+                    rules={{
+                      min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+                    }}
+                  />
+                </div>
+                <div style={{ width: "90px" }} className="ms-2 mx-2">
+                  <NumberInput
+                    label=""
+                    id="dhdRadius"
+                    name="dhdRadius"
+                    placeholder="DH-D"
+                    control={control}
+                    rules={{
+                      min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+                    }}
+                  />
+                </div>
+                <div className="mb-3">
+                  <button className="btn btn-primary" disabled={loading}>
+                    Search
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary ms-3"
+                    disabled={loading}
+                    onClick={resetForm}
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
           <Table
             columns={columns}
