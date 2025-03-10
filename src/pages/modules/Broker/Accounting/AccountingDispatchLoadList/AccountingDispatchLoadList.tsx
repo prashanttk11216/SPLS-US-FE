@@ -110,7 +110,7 @@ const AccountingDispatchLoadList: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>(
     savedActiveTab
       ? (savedActiveTab as DispatchLoadStatus)
-      : DispatchLoadStatus.Published
+      : DispatchLoadStatus.Delivered
   );
   const [sortConfig, setSortConfig] = useState<SortOption | null>({
     key: "age",

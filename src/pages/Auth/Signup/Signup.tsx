@@ -96,8 +96,8 @@ const Signup: React.FC<SignupProps> = ({ role }) => {
       } else if (role === UserRole.CUSTOMER) {
         data.roles = roles.filter((role)=> role.name === UserRole.CUSTOMER).map((role)=>role._id);
       }
-      data.brokerId = "67aa160fbcb994bc4edfbca4";
-      data.postedBy = "67aa160fbcb994bc4edfbca4";
+      data.brokerId = "67cefceb42c5de89fae83399";
+      data.postedBy = "67cefceb42c5de89fae83399";
 
       // Call signup service
       const result = await signup(data);

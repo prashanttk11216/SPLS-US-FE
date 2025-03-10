@@ -36,7 +36,8 @@ const Reports: React.FC = () => {
     if (result.success) {
       downloadExcelFile(result.data.data, `Report.xlsx`);
       toast.success(result.message);
-
+    }else{
+      toast.error(result.message);
     }
   };
 
