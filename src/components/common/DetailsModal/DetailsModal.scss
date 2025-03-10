@@ -13,14 +13,21 @@
     margin-bottom: 0.5rem;
   }
 
+  .full-width {
+    display: block;
+    span {
+      width: 100%;
+    }
+  }
+
   .details-label {
     font-weight: bold;
-    width: 40%;
+    width: 50%;
   }
 
   .details-value {
     text-align: left;
-    width: 60%;
+    width: 50%;
     display: inline-block;
     max-width: 100%;
     vertical-align: middle;

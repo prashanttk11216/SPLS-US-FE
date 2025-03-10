@@ -42,7 +42,7 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
                     className={`details-row ${fullWidth ? "full-width" : ""}`}
                   >
                     <span className="details-label">{label}</span>
-                    <span className="details-value">: {value}</span>
+                    <span className="details-value"> {!fullWidth ? ":" : ""} {value}</span>
                   </div>
                 </div>
               ))}
