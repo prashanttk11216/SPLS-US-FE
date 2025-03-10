@@ -13,6 +13,7 @@ import Table from "../../../../../components/common/Table/Table";
 import CreateOrEditRole from "../CreateOrEditRole/CreateOrEditRole";
 import usePagination from "../../../../../hooks/usePagination";
 import { SortOption } from "../../../../../types/GeneralTypes";
+import RoleDetailsModal from "../RoleDetailsModal/RoleDetailsModal";
 
 const columns = [
   { width: "250px", key: "name", label: "Name" },
@@ -26,6 +27,8 @@ const searchFieldOptions = [
 const RoleList: React.FC = () => {
     const user = useSelector((state: RootState) => state.user);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [showDetailModal, setShowDetailModal] = useState<boolean>(false);
+    const [rowData, setRowData] = useState<any>({});
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [roleId, setRoleId] = useState<string>();
     const [roles, setRoles] = useState<IRole[]>([]);
@@ -133,7 +136,10 @@ const RoleList: React.FC = () => {
   
     const handleRowClick = async (row: Record<string, any>) => {
       if (row) {
+        console.log(row);
         // Open details modal
+        setRowData(row);
+        setShowDetailModal(true)
       }
     };
   
@@ -212,6 +218,11 @@ const RoleList: React.FC = () => {
             roleId={roleId}
           />
         )}
+        <RoleDetailsModal 
+          isOpen={showDetailModal}
+          onClose={() => setShowDetailModal(false)}
+          roleData={rowData}
+        />
   
         {/* {isDetailsModalOpen && (
           <ShipperDetailsModal
