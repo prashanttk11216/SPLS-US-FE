@@ -55,8 +55,9 @@ const NumberInput: React.FC<NumberInputProps> = ({
               value={format ? (formatNumber(field.value) ?? "") : (field.value ?? "")} // Ensures a controlled value
               onChange={(e) => {
                 let value = e.target.value;
-                if (value === "") {
-                  field.onChange(undefined);
+                if (value.trim() === "") {
+                  field.onChange("");
+                  return;
                 }
                 const lastChar = value.charAt(value.length - 1); // Get only the last typed character
 

@@ -61,8 +61,8 @@ const MatcheTrucksList: React.FC = () => {
   const { handleSubmit, control, reset } = useForm<DestinationTypes>({
     mode: "onBlur",
     defaultValues: {
-      dhdRadius: 500 as number,
-      dhoRadius: 500 as number
+      dhdRadius: 500,
+      dhoRadius: 500
     }
   });
 
@@ -267,7 +267,7 @@ const MatcheTrucksList: React.FC = () => {
             </div>
             <form onSubmit={handleSubmit(handleSearchForm)}>
               <div className="d-flex">
-                <div style={{ width: "90px" }} className="ms-2">
+                <div style={{ width: "120px" }} className="ms-2">
                   <NumberInput
                     label=""
                     id="dhoRadius"
@@ -279,7 +279,7 @@ const MatcheTrucksList: React.FC = () => {
                     }}
                   />
                 </div>
-                <div style={{ width: "90px" }} className="ms-2 mx-2">
+                <div style={{ width: "120px" }} className="ms-2 mx-2">
                   <NumberInput
                     label=""
                     id="dhdRadius"
