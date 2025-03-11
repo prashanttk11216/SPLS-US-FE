@@ -16,7 +16,7 @@ const DispatchDetailsModal: React.FC<{
   onClose: () => void;
 }> = ({ isOpen, dispatch, onClose }) => {
   if (!dispatch) return null;
-  const [dispatchData, setDispatchData] = React.useState<IDispatch | null>(dispatch as IDispatch);
+  const [documents, setDocuments] = React.useState<any[] | undefined>(dispatch.documents);
 
   const {updateData} = useFetchData<any>({
     update: {
@@ -29,12 +29,9 @@ const DispatchDetailsModal: React.FC<{
       toast.success("Document deleted successfully");
       const updatedDocuments = dispatch.documents?.filter((doc) => doc.filename !== file);
       dispatch.documents = updatedDocuments
-      setDispatchData((prevData) => {
-        if (!prevData) return null;
-        return {
-          ...prevData,
-          documents: updatedDocuments
-        } as IDispatch;
+      setDocuments((prevData: any[] | undefined) => {
+        if (!prevData) return undefined;
+        return updatedDocuments;
       });
     }
   }
@@ -43,39 +40,39 @@ const DispatchDetailsModal: React.FC<{
     {
       heading: "BASIC DETAILS",
       rows: [
-        { label: "Age", value: dispatchData?.formattedAge || "N/A" },
-        { label: "W/O", value: dispatchData?.WONumber || "N/A" },
-        { label: "Origin", value: dispatchData?.shipper?.address?.str || "N/A" },
+        { label: "Age", value: dispatch?.formattedAge || "N/A" },
+        { label: "W/O", value: dispatch?.WONumber || "N/A" },
+        { label: "Origin", value: dispatch?.shipper?.address?.str || "N/A" },
         {
           label: "Destination",
-          value: dispatchData?.consignee?.address?.str || "N/A",
+          value: dispatch?.consignee?.address?.str || "N/A",
         },
         {
           label: "Ship Date",
-          value: dispatchData?.shipper?.date
-            ? formatDate(dispatchData?.shipper.date, "yyyy/MM/dd")
+          value: dispatch?.shipper?.date
+            ? formatDate(dispatch?.shipper.date, "yyyy/MM/dd")
             : "N/A",
         },
         {
           label: "Del Date",
-          value: dispatchData?.consignee?.date
-            ? formatDate(dispatchData?.consignee.date, "yyyy/MM/dd")
+          value: dispatch?.consignee?.date
+            ? formatDate(dispatch?.consignee.date, "yyyy/MM/dd")
             : "N/A",
         },
         {
           label: "Equipment",
-          value: getEnumValue(Equipment, dispatchData?.equipment),
+          value: getEnumValue(Equipment, dispatch?.equipment),
         },
         {
           label: "All-in Rate",
           value:
-            (dispatchData?.allInRate && `$ ${formatNumber(dispatchData?.allInRate)}`) ||
+            (dispatch?.allInRate && `$ ${formatNumber(dispatch?.allInRate)}`) ||
             "N/A",
         },
-        { label: "Load/Reference Number", value: dispatchData?.loadNumber || "N/A" },
+        { label: "Load/Reference Number", value: dispatch?.loadNumber || "N/A" },
         {
           label: "Assign User",
-          value: (dispatchData?.postedBy as User)?.email || "N/A",
+          value: (dispatch?.postedBy as User)?.email || "N/A",
         },
       ],
     },
@@ -84,28 +81,28 @@ const DispatchDetailsModal: React.FC<{
       rows: [
         {
           label: "Type",
-          value: dispatchData?.shipper?.type  || "N/A",
+          value: dispatch?.shipper?.type  || "N/A",
         },
         {
           label: "Quantity",
-          value: dispatchData?.shipper?.qty || "N/A",
+          value: dispatch?.shipper?.qty || "N/A",
         },
         {
           label: "Weight",
-          value:  `${dispatchData?.shipper?.weight || 0} lbs`
+          value:  `${dispatch?.shipper?.weight || 0} lbs`
         },
         {
           label: "Value",
-          value:  `$ ${dispatchData?.shipper?.value || 0.00}`
+          value:  `$ ${dispatch?.shipper?.value || 0.00}`
         },
         {
           label: "P/O Number",
-          value: dispatchData?.shipper?.PO || "N/A", 
+          value: dispatch?.shipper?.PO || "N/A", 
             
         },
         {
           label: "Shipping Notes",
-          value: dispatchData?.shipper?.notes || "N/A",
+          value: dispatch?.shipper?.notes || "N/A",
         },
       ],
     },
@@ -115,39 +112,39 @@ const DispatchDetailsModal: React.FC<{
       rows: [
         {
           label: "Type",
-          value: dispatchData?.consignee?.type || "N/A",
+          value: dispatch?.consignee?.type || "N/A",
         },
         {
           label: "Quantity",
-          value: dispatchData?.consignee?.qty || "N/A",
+          value: dispatch?.consignee?.qty || "N/A",
         },
         {
           label: "Weight",
-          value:  `${dispatchData?.consignee?.weight || 0} lbs`
+          value:  `${dispatch?.consignee?.weight || 0} lbs`
         },
         {
           label: "Value",
-          value:  `$ ${dispatchData?.consignee?.value || 0.00}`
+          value:  `$ ${dispatch?.consignee?.value || 0.00}`
         },
         {
           label: "P/O Number",
-          value: dispatchData?.consignee?.PO || "N/A", 
+          value: dispatch?.consignee?.PO || "N/A", 
         },
         {
           label: "Shipping Notes",
-          value: dispatchData?.consignee?.notes || "N/A",  
+          value: dispatch?.consignee?.notes || "N/A",  
         },
       ],
     },
   ];
-  console.log(dispatchData);
+  
   return (
     <DetailsModal
       isOpen={isOpen}
       title="Dispatch Details"
       onClose={onClose}
       details={details}
-      documents={dispatchData?.documents ? dispatchData?.documents : []}
+      documents={documents ? documents : []}
       handleRemoveDocument={removeDocument}
     />
   );  

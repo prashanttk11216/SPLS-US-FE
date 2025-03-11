@@ -44,8 +44,11 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       formData.append("file", fileList[0]);
       const result = await createData("uploadSingle", formData);
       if (result.success) {
-        setUploaded(result.data);
+        // Combine previous uploads with new upload
+        const newUploadedFiles = [...uploaded, result.data];
+        setUploaded(newUploadedFiles);
         handleSelectedFiles([
+          ...uploaded,
           {
             filename: result.data.filename,
             originalname: result.data.originalname,
@@ -64,14 +67,17 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       const result = await createData("uploadMultiple", formData);
       if (result.success) {
         toast.success(result.message);
-        setUploaded(result.data.files);
+        // Combine previous uploads with new uploads
+        const newUploadedFiles = [...uploaded, ...result.data.files];
+        setUploaded(newUploadedFiles);
         const uploadedFiles: UploadedFile[] = result.data.files.map(
           (file: any) => ({
             filename: file.filename,
+            originalname: file.originalname,
             path: file.path,
           })
         );
-        handleSelectedFiles(uploadedFiles);
+        handleSelectedFiles([...uploaded, ...uploadedFiles]);
       } else {
         toast.error(result.message || "Failed to upload file.");
       }
