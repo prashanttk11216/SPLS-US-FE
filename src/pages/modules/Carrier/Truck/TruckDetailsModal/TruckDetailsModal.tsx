@@ -67,8 +67,8 @@ const TruckDetailsModal: React.FC<{
           value: truckData.allInRate ? `$ ${formatNumber(truckData.allInRate)}` : "N/A",
         },
         {
-          label: "Assign User",
-          value: (truckData.postedBy as User)?.company || "N/A",
+          label: "Posted By",
+          value: (truckData.postedBy as User)?.company + ' (' + (truckData.postedBy as User)?.email + ')',
         },
         { label: "Comments", value: truckData.comments || "N/A" },
       ],

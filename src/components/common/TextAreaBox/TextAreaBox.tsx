@@ -48,6 +48,7 @@ const TextAreaBox: React.FC<TextAreaBoxProps> = ({
         name={name}
         control={control}
         rules={rules}
+        disabled={disabled}
         render={({ field, fieldState }) => (
           <>
             <textarea

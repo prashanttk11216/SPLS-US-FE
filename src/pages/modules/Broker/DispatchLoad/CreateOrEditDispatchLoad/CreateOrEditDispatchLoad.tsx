@@ -213,17 +213,35 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
     const result = await getData("user", query);
     if (result.success) {
       const users: any = [];
+      const userId = user._id;
       result?.data?.forEach((user) => {
         users.push({
           value: user._id,
-          label: `${user.firstName} ${user.lastName} (${user.email})`,
+          label: `${user.firstName} ${user.lastName} (${user.email}) ${user._id == userId ? '(You)': ''}`,
         });
       });
-      users.unshift({
-        value: user._id,
-        label: `${user.firstName} ${user.lastName} (${user.email}) (Admin)`,
-      });
+
+      let admin = await fetchBrokerData();
+      
+      users.unshift(admin[0]);
+      
       setBrokersList(users);
+    }
+  };
+
+
+  const fetchBrokerData = async () => {
+    const query = `?role=${UserRole.BROKER_ADMIN}&isActive=true`;
+    const result = await getData("user", query);
+    if (result.success) {
+      const users: any = [];
+      result?.data?.forEach((user) => {
+        users.push({
+          value: user._id,
+          label: `${user.firstName} ${user.lastName} (${user.email}) (Admin)`,
+        });
+      });
+      return users;
     }
   };
 
@@ -827,7 +845,7 @@ const CreateOrEditDispatchLoad: FC<CreateOrEditDispatchLoadProps> = ({}) => {
           {/* Assign User */}
           <div className="col-3">
             <SelectField
-              label="Assign User"
+              label="Posted By"
               name="postedBy"
               placeholder="Select User"
               control={control}

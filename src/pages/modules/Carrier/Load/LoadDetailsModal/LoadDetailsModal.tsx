@@ -121,8 +121,8 @@ const LoadDetailsModal: React.FC<{
         { label: "Load Option", value: getEnumValue(LoadOption, load.mode as string) },
         { label: "Commodity", value: getEnumValue(Commodity, load.commodity) },
         {
-          label: "Assign User",
-          value: (load.postedBy as User)?.company || "N/A",
+          label: "Posted By",
+          value: (load.postedBy as User)?.company + ' (' + (load.postedBy as User)?.email + ')',
         },
         { label: "Special Info", value: load.specialInstructions || "N/A", fullWidth: true },
       ],

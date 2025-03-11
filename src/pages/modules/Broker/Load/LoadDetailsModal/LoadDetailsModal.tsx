@@ -9,6 +9,7 @@ import { getEnumValue } from "../../../../../utils/globalHelper";
 import { Mode } from "../../../../../enums/Mode";
 import { LoadOption } from "../../../../../enums/LoadOption";
 import { Commodity } from "../../../../../enums/Commodity";
+import { formatPhoneNumber } from "../../../../../utils/phoneUtils";
 
 const LoadDetailsModal: React.FC<{
   isOpen: boolean;
@@ -133,13 +134,29 @@ const LoadDetailsModal: React.FC<{
         { label: "Load Option", value: getEnumValue(LoadOption, load.mode as string) },
         { label: "Commodity", value: getEnumValue(Commodity, load.commodity) },
         {
-          label: "Assign User",
-          value: (load.postedBy as User)?.company || "N/A",
+          label: "Posted By",
+          value: (load.postedBy as User)?.company + ' (' + (load.postedBy as User)?.email + ')',
         },
         { label: "Special Info", value: load.specialInstructions || "N/A" , fullWidth: true },
       ],
     },
   ];
+
+  if(load?.customerId){
+    let customer = load?.customerId as User;
+    details.push({
+          heading: "CUSTOMER DETAILS",
+          rows: [
+            {
+              label: "Name",
+              value: `${customer.firstName || ""} ${customer.lastName || ""}`,
+            },
+            { label: "Email", value: customer.email || "N/A" },
+            { label: "Contact", value: formatPhoneNumber(customer.primaryNumber) },
+            { label: "Company", value: customer.company || "N/A" },
+          ],
+        })
+  }
 
   return (
     <DetailsModal

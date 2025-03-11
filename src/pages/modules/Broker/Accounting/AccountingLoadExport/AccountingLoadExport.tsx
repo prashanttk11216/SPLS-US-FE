@@ -14,7 +14,6 @@ import {
   getloads,
 } from "../../../../../services/dispatch/dispatchServices";
 import { formatDate } from "../../../../../utils/dateFormat";
-import { DispatchLoadStatus } from "../../../../../enums/DispatchLoadStatus";
 import { IDispatch } from "../../../../../types/Dispatch";
 // import DispatchDetailsModal from "../DispatchDetailsModal/DispatchDetailsModal";
 import { useForm } from "react-hook-form";
@@ -118,7 +117,7 @@ const AccountingLoadExport: React.FC = () => {
     async (page: number = 1, limit: number = 10) => {
       if (!user || !user._id) return; // Wait for user data
       try {
-        let query = `?page=${page}&limit=${limit}&status=${DispatchLoadStatus.Invoiced}&populate=brokerId:-password,postedBy:-password`;
+        let query = `?page=${page}&limit=${limit}&isExport=true&populate=brokerId:-password,postedBy:-password`;
 
         //Search Functionality
         if (searchQuery && searchField) {

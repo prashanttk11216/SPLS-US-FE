@@ -149,7 +149,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
         toast.success(
           loadId ? "Load updated successfully." : "Load created successfully."
         );
-        navigate("/customer");
+        navigate("/customer/load-board");
       } else {
         throw new Error(result.message || "Action failed.");
       }

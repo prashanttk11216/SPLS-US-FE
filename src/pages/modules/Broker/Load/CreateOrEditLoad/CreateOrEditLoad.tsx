@@ -845,7 +845,7 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
             hasAccess(user.roles, { roles: [UserRole.BROKER_ADMIN] }) && (
               <div className="col-3">
                 <SelectField
-                  label="Assign User"
+                  label="Posted By"
                   name="postedBy"
                   placeholder="Select User"
                   control={control}

@@ -71,8 +71,8 @@ const DispatchDetailsModal: React.FC<{
         },
         { label: "Load/Reference Number", value: dispatch?.loadNumber || "N/A" },
         {
-          label: "Assign User",
-          value: (dispatch?.postedBy as User)?.email || "N/A",
+          label: "Posted By",
+          value: (dispatch.postedBy as User)?.email || "N/A",
         },
       ],
     },

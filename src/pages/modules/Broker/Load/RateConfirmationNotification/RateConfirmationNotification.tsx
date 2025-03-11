@@ -69,7 +69,7 @@ export const RateConfirmationNotification: FC<
   // On component mount, fetch customer data
   useEffect(() => {
     fetchCustomersData();
-  }, [fetchCustomersData]);
+  }, []);
 
   // Validate and clean emails input
   const processEmailsInput = useCallback((): string[] => {
@@ -126,6 +126,7 @@ export const RateConfirmationNotification: FC<
   }, [emailsInput]);
 
   const validateEmails = (value: any) => {
+    if(!value) return true;
     const emails =
       value?.split(/[\s,;]+/).filter((email: any) => email.trim() !== "") || [];
     return (

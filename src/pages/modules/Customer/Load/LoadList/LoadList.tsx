@@ -154,7 +154,7 @@ const LoadList: React.FC = () => {
         break;
       case "Edit":
         navigate(
-          `load-board/create/${row._id}${
+          `create/${row._id}${
             row.status === LoadStatus.Draft ? "?draft=true" : ""
           }`
         );
