@@ -1,6 +1,7 @@
 import React, { useState, DragEvent } from "react";
 import useFetchData from "../../../hooks/useFetchData/useFetchData";
 import {
+  deleteUploadedDocument,
   uploadMultipleDocument,
   uploadSingleDocument,
 } from "../../../services/upload/uploadServices";
@@ -9,6 +10,7 @@ import "./FileUploader.scss";
 
 interface UploadedFile {
   filename: string;
+  originalname: string;
   path: string;
 }
 
@@ -21,12 +23,14 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   multiple,
   handleSelectedFiles,
 }) => {
-  const [files, setFiles] = useState<File[]>([]);
   const [uploaded, setUploaded] = useState<UploadedFile[]>([]);
-  const { createData } = useFetchData<any>({
+  const { createData, deleteData } = useFetchData<any>({
     create: {
       uploadSingle: uploadSingleDocument,
       uploadMultiple: uploadMultipleDocument,
+    },
+    remove: {
+      removeDoc: deleteUploadedDocument,
     },
   });
 
@@ -37,14 +41,17 @@ const FileUploader: React.FC<FileUploaderProps> = ({
     if (!multiple) {
       const formData = new FormData();
       // Only take the first file if not multiple
-      setFiles(fileList.slice(0, 1));
       formData.append("file", fileList[0]);
       const result = await createData("uploadSingle", formData);
       if (result.success) {
-        setUploaded(result.data);
+        // Combine previous uploads with new upload
+        const newUploadedFiles = [...uploaded, result.data];
+        setUploaded(newUploadedFiles);
         handleSelectedFiles([
+          ...uploaded,
           {
             filename: result.data.filename,
+            originalname: result.data.originalname,
             path: result.data.path,
           },
         ]);
@@ -52,7 +59,6 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         toast.error(result.message || "Failed to upload file.");
       }
     } else {
-      setFiles((prevFiles) => [...prevFiles, ...fileList]);
       const formData = new FormData();
       // Append each file individually to FormData
       fileList.forEach((file) => {
@@ -61,14 +67,17 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       const result = await createData("uploadMultiple", formData);
       if (result.success) {
         toast.success(result.message);
-        setUploaded(result.data.files);
+        // Combine previous uploads with new uploads
+        const newUploadedFiles = [...uploaded, ...result.data.files];
+        setUploaded(newUploadedFiles);
         const uploadedFiles: UploadedFile[] = result.data.files.map(
           (file: any) => ({
             filename: file.filename,
+            originalname: file.originalname,
             path: file.path,
           })
         );
-        handleSelectedFiles(uploadedFiles);
+        handleSelectedFiles([...uploaded, ...uploadedFiles]);
       } else {
         toast.error(result.message || "Failed to upload file.");
       }
@@ -91,23 +100,25 @@ const FileUploader: React.FC<FileUploaderProps> = ({
     await handleFiles(event.target.files);
   };
 
-  const removeFile = (index: number) => {
-    let updatedFiles: any = [];
-    setFiles((prevFiles) => {
-      updatedFiles = prevFiles.filter((_, i) => i !== index);
-      const filteredUploaded = uploaded.filter((uploadItem: any) =>
-        updatedFiles.some((file: any) => file.name === uploadItem.originalname)
-      );
-      setUploaded(filteredUploaded);
+  const handleFileDelete = async (filename: string, index: number) => {
+    const result = await deleteData('removeDoc', filename);
+    if (result.success) {
+      toast.success("Document removed successfully");
+      // Remove the file at the specific index
+      const updatedFiles = uploaded.filter((_, i) => i !== index);
+      setUploaded(updatedFiles);
 
-      const newFiles: UploadedFile[] = filteredUploaded.map((file: any) => ({
+      // Map the updated files to the expected format and notify parent
+      const newFiles: UploadedFile[] = updatedFiles.map((file) => ({
         filename: file.filename,
+        originalname: file.originalname,
         path: file.path,
       }));
 
       handleSelectedFiles(newFiles);
-      return updatedFiles;
-    });
+    } else {
+      toast.error(result.message || 'Failed to delete file.');
+    }
   };
 
   return (
@@ -129,14 +140,14 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         </label>
       </div>
       <div>
-        {files.length > 0 && (
+        {uploaded.length > 0 && (
           <ol style={{ listStyleType: "none" }}>
-            {files.map((file, index) => (
+            {uploaded.map((file, index) => (
               <li key={index}>
-                {file.name}{" "}
+                {file.originalname}{" "}
                 <button
                   className="btn btn-outline btn-sm text-danger"
-                  onClick={() => removeFile(index)}
+                  onClick={() => handleFileDelete(file.filename, index)}
                 >
                   X
                 </button>
