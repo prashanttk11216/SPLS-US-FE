@@ -17,6 +17,7 @@ interface DetailsModalProps {
     rows: DetailsGroupRow[];
   }[];
   documents?: any[];
+  handleRemoveDocument?: (doc: any) => void;
 }
 
 const DetailsModal: React.FC<DetailsModalProps> = ({
@@ -25,6 +26,7 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
   onClose,
   details,
   documents,
+  handleRemoveDocument
 }) => (
   <div className="splsdetailsModal-wrapper">
     <Modal isOpen={isOpen} onClose={onClose} title={title} size="lg">
@@ -61,8 +63,14 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
                   target="_blank"
                   rel="noreferrer"
                 >
-                  {doc.filename}
+                  {doc.filename.includes('_') ? doc.filename.substring(doc.filename.indexOf('_') + 1) : doc.filename}
                 </a>
+                <button
+                 className="btn btn-outline btn-sm text-danger mx-2"
+                 onClick={() => handleRemoveDocument && handleRemoveDocument(doc.filename)}
+                >
+                  x
+                </button>
               </div>
             ))}
           </div>
