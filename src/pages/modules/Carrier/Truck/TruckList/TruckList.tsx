@@ -62,7 +62,6 @@ const columns = [
   { width: "150px", key: "equipment", label: "Equipment", sortable: true },
   { width: "140px", key: "allInRate", label: "All-in Rate", sortable: true },
   { width: "120px", key: "weight", label: "Weight", sortable: true },
-  { width: "120px", key: "length", label: "Length", sortable: true },
   { width: "90px", key: "actions", label: "Actions", isAction: true },
 ];
 
@@ -212,7 +211,6 @@ const TruckList: React.FC = () => {
       equipment: getEnumValue(Equipment, truck.equipment),
       allInRate: truck.allInRate ? `$ ${formatNumber(truck.allInRate)}` : "N/A",
       weight: truck.weight ? `${formatNumber(truck.weight)} lbs` : "N/A",
-      length: truck.length ? `${formatNumber(truck.length)} ft` : "N/A",
       actions: getActions(truck),
     }));
   };
