@@ -15,10 +15,14 @@ import { VALIDATION_MESSAGES } from "../../../../../constants/messages";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
 import NumberInput from "../../../../../components/common/NumberInput/NumberInput";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
-import { filterObjectKeys, validateLocation } from "../../../../../utils/globalHelper";
+import {
+  filterObjectKeys,
+  validateLocation,
+} from "../../../../../utils/globalHelper";
 import { equipmentOptions } from "../../../../../utils/dropdownOptions";
 import CurrencyNumberInput from "../../../../../components/common/CurrencyNumberInput/CurrencyNumberInput";
 import TextAreaBox from "../../../../../components/common/TextAreaBox/TextAreaBox";
+import calculateDistance, { formatDistance } from "../../../../../utils/distanceCalculator";
 
 export type truckForm = {
   origin: {
@@ -56,26 +60,25 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
   truckData,
   closeModal,
 }) => {
-
   const {
     handleSubmit,
     control,
     formState: { isValid },
     setValue,
+    getValues,
+    watch,
     reset,
   } = useForm<truckForm>({
     mode: "onBlur",
   });
 
-  
-
   const { createData, updateData, loading, error } = useFetchData<any>({
-    create: { 
+    create: {
       truck: createTruck,
-     },
-     update: {
+    },
+    update: {
       truck: editTruck,
-     },
+    },
   });
 
   const submit = async (data: truckForm) => {
@@ -133,6 +136,53 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
     }
   }, [isModalOpen]);
 
+  const getDistance = async () => {
+    const origin = getValues("origin");
+    const destination = getValues("destination");
+
+    if (
+      !origin?.lat ||
+      !origin?.lng ||
+      !destination?.lat ||
+      !destination?.lng
+    ) {
+      console.error("Origin or destination is missing required coordinates.");
+      return 0; // Return a default value if data is missing
+    }
+
+    const originData = {
+      lat: origin.lat,
+      lng: origin.lng,
+    };
+
+    const destinationData = {
+      lat: destination.lat,
+      lng: destination.lng,
+    };
+
+    try {
+      const distance = await calculateDistance(originData, destinationData);
+      return distance;
+    } catch (error) {
+      console.error("Error calculating distance:", error);
+      return 0;
+    }
+  };
+
+  const origin = watch("origin");
+  const destination = watch("destination");
+
+  useEffect(() => {
+    const calculateDistance = async () => {
+      if (origin && destination) {
+        const distance: number = await getDistance();
+        setValue("miles", formatDistance(distance));
+      }
+    };
+
+    calculateDistance();
+  }, [origin, destination]);
+
   return (
     <Modal
       isOpen={isModalOpen}
@@ -164,7 +214,7 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
               control={control}
               placeholder="Enter Origin City & State, or Zip Code"
               setValue={setValue}
-              rules={{ 
+              rules={{
                 required: VALIDATION_MESSAGES.addressRequired,
                 validate: validateLocation,
               }}
@@ -205,10 +255,12 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
               placeholder="Select Equipment"
               control={control}
               options={equipmentOptions}
-              rules={{ required: {
-                value: true,
-                message: "Please select Equipment"
-              }}}
+              rules={{
+                required: {
+                  value: true,
+                  message: "Please select Equipment",
+                },
+              }}
             />
           </div>
           {/* weight */}
@@ -219,7 +271,9 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
               name="weight"
               placeholder="Weight(Ibs.)"
               control={control}
-              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
+              rules={{
+                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+              }}
             />
           </div>
           {/* length */}
@@ -230,7 +284,9 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
               name="length"
               placeholder="Length(ft.)"
               control={control}
-              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
+              rules={{
+                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+              }}
             />
           </div>
           {/* All-in Rate*/}
@@ -242,7 +298,23 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
               placeholder="Enter All-in Rate"
               control={control}
               currency
-              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
+              rules={{
+                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+              }}
+            />
+          </div>
+
+          {/* Distance */}
+          <div className="col-4">
+            <NumberInput
+              label="Distance"
+              id="miles"
+              name="miles"
+              placeholder="Mile"
+              control={control}
+              rules={{
+                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+              }}
             />
           </div>
 
@@ -255,7 +327,9 @@ const CreateOrEditTruck: FC<CreateOrEditTruckProps> = ({
               disabled={isEditing ? true : false}
               placeholder="Enter Reference Number"
               control={control}
-              rules={{min: {value: 0, message: VALIDATION_MESSAGES.nonNegative}}}
+              rules={{
+                min: { value: 0, message: VALIDATION_MESSAGES.nonNegative },
+              }}
             />
           </div>
 

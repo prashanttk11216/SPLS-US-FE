@@ -1,7 +1,6 @@
 import React from "react";
 import { Load } from "../../../../../types/Load";
 import DetailsModal from "../../../../../components/common/DetailsModal/DetailsModal";
-import { User } from "../../../../../types/User";
 import { formatDate } from "../../../../../utils/dateFormat";
 import { formatNumber } from "../../../../../utils/numberUtils";
 import { Equipment } from "../../../../../enums/Equipment";
