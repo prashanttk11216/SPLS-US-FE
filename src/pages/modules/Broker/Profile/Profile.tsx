@@ -11,7 +11,6 @@ import {
 import { RootState } from "../../../../store/store";
 import { useDispatch, useSelector } from "react-redux";
 import ProfileAvatar from "../../../../components/ProfileAvatar/ProfileAvatar";
-import { validatePhoneNumber } from "../../../../utils/phoneValidate";
 import Stepper, { Step } from "../../../../components/common/Stepper/Stepper";
 import PlaceAutocompleteField from "../../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
 import CheckboxField from "../../../../components/common/CheckboxField/CheckboxField";
@@ -24,6 +23,7 @@ import { Address } from "../../../../types/Address";
 import PhoneNumberInput from "../../../../components/common/PhoneNumberInput/PhoneNumberInput";
 import useFetchData from "../../../../hooks/useFetchData/useFetchData";
 import { validateLocation } from "../../../../utils/globalHelper";
+import { validatePhoneNumber } from "../../../../utils/phoneUtils";
 
 const Profile: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);

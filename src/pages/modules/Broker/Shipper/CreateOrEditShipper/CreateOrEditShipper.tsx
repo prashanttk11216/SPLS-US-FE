@@ -9,7 +9,6 @@ import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import Loading from "../../../../../components/common/Loading/Loading";
 import { RootState } from "../../../../../store/store";
 import { useSelector } from "react-redux";
-import { validatePhoneNumber } from "../../../../../utils/phoneValidate";
 import Stepper, {
   Step,
 } from "../../../../../components/common/Stepper/Stepper";
@@ -22,6 +21,7 @@ import PlaceAutocompleteField from "../../../../../components/PlaceAutocompleteF
 import { Address } from "../../../../../types/Address";
 import PhoneNumberInput from "../../../../../components/common/PhoneNumberInput/PhoneNumberInput";
 import { validateLocation } from "../../../../../utils/globalHelper";
+import { validatePhoneNumber } from "../../../../../utils/phoneUtils";
 
 export type ShipperForm = {
   firstName: string;

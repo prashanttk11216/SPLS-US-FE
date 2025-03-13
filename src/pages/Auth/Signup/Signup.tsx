@@ -9,7 +9,6 @@ import { VALIDATION_MESSAGES } from "../../../constants/messages";
 import { REGEX_PATTERNS } from "../../../constants/patterns";
 import MenWithBox from "../../../assets/images/menWithBox.svg";
 import "./Signup.scss";
-import { validatePhoneNumber } from "../../../utils/phoneValidate";
 import Stepper, { Step } from "../../../components/common/Stepper/Stepper";
 import CheckboxField from "../../../components/common/CheckboxField/CheckboxField";
 import PlaceAutocompleteField from "../../../components/PlaceAutocompleteField/PlaceAutocompleteField";
@@ -19,6 +18,7 @@ import PhoneNumberInput from "../../../components/common/PhoneNumberInput/PhoneN
 import { RootState } from "../../../store/store";
 import { useSelector } from "react-redux";
 import { validateLocation } from "../../../utils/globalHelper";
+import { validatePhoneNumber } from "../../../utils/phoneUtils";
 
 interface SignupProps {
   role?: UserRole | null;
