@@ -62,6 +62,7 @@ const Profile: React.FC = () => {
         dispatch(setUser(result.data));
         setUserDataInStorage(result.data);
       }
+      delete result.data.roles
       reset(result.data); // Pre-filling form data with user profile data
     }
     setLoading(false);
@@ -490,21 +491,12 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <div className="container vh-100 d-flex align-items-center">
+    <div className="container">
       {loading ? (
         <Loading />
       ) : (
         <div className="profile-form">
           <div className="mb-5">
-            <div className="text-end mb-3 mt-5 mx-auto">
-              <button
-                className="btn btn-primary"
-                onClick={handleSubmit(submit)}
-                disabled={!isValid || activeStep < steps.length - 1}
-              >
-                Save Profile
-              </button>
-            </div>
             <ProfileAvatar
               email={user.email}
               firstName={user.firstName}
@@ -517,6 +509,15 @@ const Profile: React.FC = () => {
               onAvatarChange={onAvatarChange}
             />
           </div>
+          <div className="text-end mb-3 mt-5 mx-auto">
+              <button
+                className="btn btn-primary"
+                onClick={handleSubmit(submit)}
+                disabled={!isValid}
+              >
+                Save Profile
+              </button>
+            </div>
 
           {/* Form for creating/editing customer */}
           <Stepper

@@ -36,10 +36,12 @@ const AccountingSummary: React.FC = () => {
   const downloadSummary = async () => {
     try {
       const result: any = await createData("summary", formData);
-      if (result) {
+      if (result.size) {        
         const blob = new Blob([result], { type: "application/pdf" }); 
         downloadFile(blob, "Account_Summary.pdf");
         toast.success("Downloaded Successfully.");
+      }else{
+        toast.error("No matching loads found.");
       }
     } catch (err) {
       toast.error("Error downloading pdf.");

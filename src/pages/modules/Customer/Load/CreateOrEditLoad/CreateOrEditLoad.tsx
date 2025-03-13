@@ -271,7 +271,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               placeholder="Choose a date"
               datePickerProps={{
                 dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
-                minDate: new Date(), // Disable past dates
+                minDate: (() => {
+                  const earlyPickupDate = watch("originEarlyPickupDate");
+                  return earlyPickupDate ? new Date(earlyPickupDate) : new Date();
+                })(),
               }}
             />
           </div>
@@ -352,7 +355,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                       placeholder="Choose a date"
                       datePickerProps={{
                         dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
-                        minDate: new Date(), // Disable past dates
+                        minDate: (() => {
+                          const earlyPickupDate = watch(`originStops.${index}.earlyPickupDate`);
+                          return earlyPickupDate ? new Date(earlyPickupDate) : new Date();
+                        })(),
                       }}
                     />
                   </div>
@@ -432,7 +438,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
               placeholder="Choose a date"
               datePickerProps={{
                 dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
-                minDate: new Date(), // Disable past dates
+                minDate: (() => {
+                  const earlyPickupDate = watch(`destinationEarlyDropoffDate`);
+                  return earlyPickupDate ? new Date(earlyPickupDate) : new Date();
+                })(),
               }}
             />
           </div>
@@ -513,7 +522,10 @@ const CreateOrEditLoad: FC<CreateOrEditLoadProps> = ({}) => {
                       placeholder="Choose a date"
                       datePickerProps={{
                         dateFormat: "yyyy/MM/dd", // Custom prop for formatting the date
-                        minDate: new Date(), // Disable past dates
+                        minDate: (() => {
+                          const earlyPickupDate = watch(`destinationStops.${index}.earlyDropoffDate`);
+                          return earlyPickupDate ? new Date(earlyPickupDate) : new Date();
+                        })(),
                       }}
                     />
                   </div>

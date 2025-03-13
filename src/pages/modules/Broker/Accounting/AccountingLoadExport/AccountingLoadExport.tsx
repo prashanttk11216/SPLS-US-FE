@@ -239,6 +239,8 @@ const AccountingLoadExport: React.FC = () => {
       if (result.success) {
         downloadExcelFile(result.data.data, `Loads.xlsx`);
         toast.success(result.message);
+      }else{
+        toast.error(result.message);
       }
   };
 
