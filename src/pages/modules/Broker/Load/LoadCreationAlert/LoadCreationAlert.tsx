@@ -69,7 +69,7 @@ export const LoadCreationAlert: FC<LoadCreationAlertProps> = ({
      ) => {
        try {
          const query = `?page=1&limit=999&role=${role}&isActive=true`;
-         const result = await getData("users", query);
+         const result = await getData("user", query);
          if (result.success) {
            const users = result?.data?.map((user) => ({
              value: user._id,
@@ -209,7 +209,7 @@ export const LoadCreationAlert: FC<LoadCreationAlertProps> = ({
             control={control}
             options={carriersList}
             isClearable={true}
-            isDisabled={notifyAll}
+            disabled={notifyAll}
           />
         </div>
 

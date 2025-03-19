@@ -15,23 +15,7 @@ const ProtectedRoutes: React.FC = () => {
   const token = getAuthTokenFromStorage(); // Retrieve token from local storage or cookies
   // const [isLoading, setIsLoading] = useState(true);
 
-  const { getData } = useFetchData<any>({
-    getAll: {
-      role: getRoles
-    }
-  });
-
-  const getRolesData = async () => {
-    const result = await getData("role");
-    if(result.success){
-      dispatch(setRoles(result.data as Role[]));
-    }
-  }
-
-  useEffect(() => {
-    getRolesData();
-  }, []);
-  
+ 
 
   useEffect(() => {
     const initializeUser = () => {

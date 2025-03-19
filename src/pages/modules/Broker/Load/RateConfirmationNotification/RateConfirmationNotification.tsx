@@ -172,7 +172,7 @@ export const RateConfirmationNotification: FC<
             control={control}
             options={customersList}
             isClearable={true}
-            isDisabled={!!emailsInput?.trim()}
+            disabled={!!emailsInput?.trim()}
             rules={{
               required: {
                 value: true,

@@ -87,7 +87,7 @@ const LoadDetailsModal: React.FC<{
         },
         { label: "Mode", value: getEnumValue(Mode, load.mode as string) },
         {
-          label: "Broker Rate",
+          label: "Carrier Rate",
           value: load.allInRate ? `$ ${formatNumber(load.allInRate)}` : "N/A",
         },
         {
