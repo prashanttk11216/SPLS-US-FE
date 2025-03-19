@@ -4,10 +4,6 @@ import { setUser } from "../../features/user/userSlice";
 import { RootState } from "../../store/store";
 import { getAuthTokenFromStorage, getUserDataInStorage } from "../../utils/authHelplers";
 import { useEffect } from "react";
-import useFetchData from "../../hooks/useFetchData/useFetchData";
-import { getRoles } from "../../services/role/roleServices";
-import { setRoles } from "../../features/roles/rolesSlice";
-import { Role } from "../../types/User";
 
 const ProtectedRoutes: React.FC = () => {
   const dispatch = useDispatch();
