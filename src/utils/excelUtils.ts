@@ -38,7 +38,7 @@ export const exportToExcel = (
  * @param {ArrayBuffer} buffer - The Excel file data as an ArrayBuffer.
  * @param {string} filename - The name for the downloaded file.
  */
-export const downloadExcelFile = (buffer: ArrayBuffer, filename = "export.xlsx") => {
+export const downloadExcelFile = (buffer: Buffer, filename = "export.xlsx") => {
   if (!buffer) {
     console.error("No data provided to download.");
     return;

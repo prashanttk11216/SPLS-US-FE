@@ -103,7 +103,7 @@ const AccountingLoadExport: React.FC = () => {
   };
 
 
-  const { getData,createData, loading, error } = useFetchData<any>({
+  const { getData, createData, loading, error } = useFetchData<any>({
     getAll: { 
       load: getloads,
      },
@@ -234,15 +234,14 @@ const AccountingLoadExport: React.FC = () => {
     fetchLoads();
   };
 
-  const exportLoadsHandler = async (data: any) => {
-      const result = await createData("load", data);
-      if (result.success) {
-        downloadExcelFile(result.data.data, `Loads.xlsx`);
-        toast.success(result.message);
-      }else{
-        toast.error(result.message);
-      }
-  };
+    const exportLoadsHandler = async (data: any) => {
+        const result: any = await createData("load", data); 
+        if(result.size != 0){
+          downloadExcelFile(result, `Loads.xlsx`);
+        }else{
+          toast.error("No matching loads found for the given filters.")
+        }            
+    };
 
   return (
     <div className="customers-list-wrapper">

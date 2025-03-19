@@ -125,7 +125,7 @@ export const exportLoads = async (data: any): Promise<ApiResponse> => {
   try {
     const response = await axiosApi.post<ApiResponse>(
       "/dispatch/accounting-export",
-      data
+      data,  { responseType: "blob" }
     );
     return handleResponse(response);
   } catch (error) {
@@ -146,7 +146,7 @@ export const downloadReport = async (data: any): Promise<ApiResponse> => {
   try {
     const response = await axiosApi.post<ApiResponse>(
       "/dispatch/reports",
-      data
+      data, { responseType: "blob" }
     );
     return handleResponse(response);
   } catch (error) {

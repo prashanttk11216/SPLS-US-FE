@@ -32,12 +32,11 @@ const Reports: React.FC = () => {
   });
 
   const handleSubmit = async () => {
-    const result = await createData("report", formData);
-    if (result.success) {
-      downloadExcelFile(result.data.data, `Report.xlsx`);
-      toast.success(result.message);
+    const result: any = await createData("report", formData);
+    if(result.size != 0){
+      downloadExcelFile(result, `Report.xlsx`);
     }else{
-      toast.error(result.message);
+      toast.error("No matching loads found for the given filters.")
     }
   };
 
