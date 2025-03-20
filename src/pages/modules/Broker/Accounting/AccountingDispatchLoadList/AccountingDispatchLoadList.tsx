@@ -300,9 +300,12 @@ const AccountingDispatchLoadList: React.FC = () => {
   ) => {
     try {
       const result: any = await fetchFunction(id);
-      if (result) {
-        const blob = new Blob([result], { type: "application/pdf" });
+      if (result.size) {        
+        const blob = new Blob([result], { type: "application/pdf" }); 
         downloadFile(blob, fileName);
+        toast.success("Downloaded Successfully.");
+      }else{
+        toast.error("No matching loads found.");
       }
     } catch (err) {
       console.log(err);
@@ -312,7 +315,6 @@ const AccountingDispatchLoadList: React.FC = () => {
 
   const printBOL = async (row: Record<string, any>) => {
     await downloadPDF(BOLforLoad, row._id, `BOL_${row.loadNumber}.pdf`);
-    toast.success("Downloaded Successfully.");
   };
 
   const handleConfirm = async (e: any) => {
@@ -322,7 +324,6 @@ const AccountingDispatchLoadList: React.FC = () => {
         item._id,
         `Invoice_${item.loadNumber}.pdf`
       );
-      toast.success("Downloaded Successfully.");
       setConfirm(false);
     }
   };

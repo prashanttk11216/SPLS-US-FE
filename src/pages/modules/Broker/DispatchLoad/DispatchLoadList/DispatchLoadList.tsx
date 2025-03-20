@@ -28,7 +28,6 @@ import usePagination from "../../../../../hooks/usePagination";
 import { SortOption } from "../../../../../types/GeneralTypes";
 import Tabs from "../../../../../components/common/Tabs/Tabs";
 
-
 const DISPATCH_ACTIVE_TAB = "DISPATCH_ACTIVE_TAB";
 
 const columns = [
@@ -81,7 +80,7 @@ const searchFieldOptions = [
   { label: "Rate", value: "allInRate" },
   { label: "Shipper Weight", value: "shipper.weight" },
   { label: "Consignee Weight", value: "consignee.weight" },
-]
+];
 
 const tabOptions = [
   { label: "Loads", value: DispatchLoadStatus.Published },
@@ -107,12 +106,15 @@ const DispatchLoadList: React.FC = () => {
       ? (savedActiveTab as DispatchLoadStatus)
       : DispatchLoadStatus.Published
   );
-  const [sortConfig, setSortConfig] = useState<SortOption | null>({ key: "age", direction: "desc" });
+  const [sortConfig, setSortConfig] = useState<SortOption | null>({
+    key: "age",
+    direction: "desc",
+  });
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
   const [dispatchDetails, setDispatchDetails] =
     useState<Partial<IDispatch> | null>(null);
-    
+
   const [dateField, setDateField] = useState<string>("consignee.date"); // Default to "Delivery Date"
 
   const openDetailsModal = (dispatchData: Partial<IDispatch>) => {
@@ -120,10 +122,10 @@ const DispatchLoadList: React.FC = () => {
     setIsDetailsModalOpen(true);
   };
 
-  const { getData, createData, updateData, deleteData, loading, error } = useFetchData<any>(
-    {
+  const { getData, createData, updateData, deleteData, loading, error } =
+    useFetchData<any>({
       create: {
-        LoadConfirmation: rateConfirmationforLoad
+        LoadConfirmation: rateConfirmationforLoad,
       },
       getAll: {
         load: getloads,
@@ -134,8 +136,7 @@ const DispatchLoadList: React.FC = () => {
       remove: {
         load: deleteLoad,
       },
-    }
-  );
+    });
 
   // Fetch Load data
   const fetchLoads = useCallback(
@@ -172,7 +173,7 @@ const DispatchLoadList: React.FC = () => {
 
           // setCustomers(result.data as User[]);
           setLoads(loadData);
-          updatePagination(result.meta)
+          updatePagination(result.meta);
         } else {
           toast.error(result.message || "Failed to fetch customers.");
         }
@@ -195,7 +196,7 @@ const DispatchLoadList: React.FC = () => {
 
   // Trigger fetch when user is populated
   useEffect(() => {
-   fetchLoads();
+    fetchLoads();
   }, [searchQuery, activeTab, sortConfig]);
 
   // Update active tab in localStorage whenever it changes
@@ -316,7 +317,7 @@ const DispatchLoadList: React.FC = () => {
       actions: getActionsForLoad(load),
     }));
   };
-  
+
   const handleGeneralAction = (action: any, selectedData: any) => {
     switch (action) {
       case "Refresh Loads":
@@ -339,10 +340,12 @@ const DispatchLoadList: React.FC = () => {
   const printRateAndConfirmation = async (row: Record<string, any>) => {
     try {
       const result: any = await createData("LoadConfirmation", row._id);
-      if (result) {
+      if (result.size) {
         const blob = new Blob([result], { type: "application/pdf" });
         downloadFile(blob, `Load_Confirmation_${row.loadNumber}.pdf`);
         toast.success("Downloaded Successfully.");
+      } else {
+        toast.error("No matching loads found.");
       }
     } catch (err) {
       toast.error("Error downloading pdf.");
@@ -447,7 +450,7 @@ const DispatchLoadList: React.FC = () => {
       {!loading && error && <div className="text-danger">{error}</div>}
       {!loading && !error && (
         <>
-          <Tabs 
+          <Tabs
             tabs={tabOptions}
             activeTab={activeTab}
             onTabChange={setActiveTab}
@@ -459,7 +462,6 @@ const DispatchLoadList: React.FC = () => {
             onActionClick={handleAction}
             onRowClick={handleRowClick}
             onSort={(sortStr: SortOption) => setSortConfig(sortStr)}
-
             sortConfig={sortConfig}
             rowClickable={true}
             showCheckbox={true}
@@ -486,7 +488,7 @@ const DispatchLoadList: React.FC = () => {
           onClose={() => setIsDetailsModalOpen(false)}
         />
       )}
-      
+
       {isUploadModalOpen && (
         <FileUploadModal
           isOpen={isUploadModalOpen}
