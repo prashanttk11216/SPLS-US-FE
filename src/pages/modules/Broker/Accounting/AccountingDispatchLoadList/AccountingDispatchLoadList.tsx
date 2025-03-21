@@ -305,7 +305,7 @@ const AccountingDispatchLoadList: React.FC = () => {
   const downloadPDF = async (
     fetchFunction: Function,
     id: string,
-    fileName: string
+    _: string
   ) => {
     try {
       const result = await fetchFunction(id);
