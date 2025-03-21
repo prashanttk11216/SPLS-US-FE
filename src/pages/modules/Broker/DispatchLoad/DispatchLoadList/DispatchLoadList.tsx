@@ -21,7 +21,7 @@ import { useForm } from "react-hook-form";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
 import { Equipment } from "../../../../../enums/Equipment";
-import { downloadFile, getEnumValue, printContent } from "../../../../../utils/globalHelper";
+import { getEnumValue, printContent } from "../../../../../utils/globalHelper";
 import FileUploadModal from "../../../../../components/common/FileUploadModal/FileUploadModal";
 import Pagination from "../../../../../components/common/Pagination/Pagination";
 import usePagination from "../../../../../hooks/usePagination";
