@@ -25,7 +25,7 @@ import { useForm } from "react-hook-form";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
 import { Equipment } from "../../../../../enums/Equipment";
-import { downloadFile, getEnumValue } from "../../../../../utils/globalHelper";
+import { downloadFile, getEnumValue, printContent } from "../../../../../utils/globalHelper";
 import usePagination from "../../../../../hooks/usePagination";
 import ConfirmationModal from "../../../../../components/common/ConfirmationModal/ConfirmationModal";
 import { SortOption } from "../../../../../types/GeneralTypes";
@@ -299,10 +299,11 @@ const AccountingDispatchLoadList: React.FC = () => {
     fileName: string
   ) => {
     try {
-      const result: any = await fetchFunction(id);
-      if (result.size) {        
-        const blob = new Blob([result], { type: "application/pdf" }); 
-        downloadFile(blob, fileName);
+      const result = await fetchFunction(id);
+      if (result.success) {        
+        // const blob = new Blob([result], { type: "application/pdf" }); 
+        // downloadFile(blob, fileName);
+        printContent(result.data.file);
         toast.success("Downloaded Successfully.");
       }else{
         toast.error("No matching loads found.");

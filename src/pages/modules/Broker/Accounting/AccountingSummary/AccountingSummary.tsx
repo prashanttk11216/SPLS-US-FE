@@ -3,20 +3,19 @@ import SummaryForm from "./SummaryForm";
 import useFetchData from "../../../../../hooks/useFetchData/useFetchData";
 import { exportAccountSummary } from "../../../../../services/dispatch/dispatchServices";
 import { toast } from "react-toastify";
-import { downloadFile } from "../../../../../utils/globalHelper";
+import { printContent } from "../../../../../utils/globalHelper";
 
 type FormType = {
   fromDate: string;
   toDate: string;
-}
+};
 
 const AccountingSummary: React.FC = () => {
   const [formData, setFormData] = useState<FormType>({
     fromDate: "",
-    toDate: ""
+    toDate: "",
   });
   const [isDisabled, setIsDisabled] = useState<boolean>(true);
-
 
   const handleData = (data: FormType) => {
     setFormData(data);
@@ -35,15 +34,19 @@ const AccountingSummary: React.FC = () => {
 
   const downloadSummary = async () => {
     try {
-      const result: any = await createData("summary", formData);
-      if (result.size) {        
-        const blob = new Blob([result], { type: "application/pdf" }); 
-        downloadFile(blob, "Account_Summary.pdf");
+      const result = await createData("summary", formData);
+      if (result.success) {
+        // const blob = new Blob([result], { type: "application/pdf" });
+        // downloadFile(blob, "Account_Summary.pdf");
+
+        printContent(result.data.file);
+
         toast.success("Downloaded Successfully.");
-      }else{
+      } else {
         toast.error("No matching loads found.");
       }
     } catch (err) {
+      console.log(err);
       toast.error("Error downloading pdf.");
     }
   };

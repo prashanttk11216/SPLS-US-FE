@@ -84,11 +84,7 @@ export const rateConfirmationforLoad = async (
   loadId: string
 ): Promise<ApiResponse> => {
   try {
-    const response = await axiosApi.post<ApiResponse>(
-      "/dispatch/rate-confirmation/" + loadId,
-      {},
-      { responseType: "blob" }
-    );
+    const response = await axiosApi.post<ApiResponse>("/dispatch/rate-confirmation/" + loadId,{});
     return handleResponse(response);
   } catch (error) {
     return handleAxiosError(error, "failed");
@@ -99,9 +95,7 @@ export const BOLforLoad = async (loadId: string): Promise<ApiResponse> => {
   try {
     const response = await axiosApi.post<ApiResponse>(
       "/dispatch/BOL/" + loadId,
-      {},
-      { responseType: "blob" }
-    );
+      {}    );
     return handleResponse(response);
   } catch (error) {
     return handleAxiosError(error, "failed");
@@ -112,9 +106,16 @@ export const invoicedforLoad = async (loadId: string): Promise<ApiResponse> => {
   try {
     const response = await axiosApi.post<ApiResponse>(
       "/dispatch/invoiced/" + loadId,
-      {},
-      { responseType: "blob" }
-    );
+      {}    );
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "failed");
+  }
+};
+
+export const exportAccountSummary = async (data: any): Promise<ApiResponse> => {
+  try {
+    const response = await axiosApi.post<ApiResponse>("/dispatch/accounting-summary", data);
     return handleResponse(response);
   } catch (error) {
     return handleAxiosError(error, "failed");
@@ -127,15 +128,6 @@ export const exportLoads = async (data: any): Promise<ApiResponse> => {
       "/dispatch/accounting-export",
       data,  { responseType: "blob" }
     );
-    return handleResponse(response);
-  } catch (error) {
-    return handleAxiosError(error, "failed");
-  }
-};
-
-export const exportAccountSummary = async (data: any): Promise<ApiResponse> => {
-  try {
-    const response = await axiosApi.post<ApiResponse>("/dispatch/accounting-summary", data, { responseType: "blob" });
     return handleResponse(response);
   } catch (error) {
     return handleAxiosError(error, "failed");

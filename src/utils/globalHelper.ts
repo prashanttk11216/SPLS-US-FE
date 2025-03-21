@@ -97,3 +97,22 @@ export const validateLocation = (value: any): boolean | string => {
     ? true 
     : VALIDATION_MESSAGES.locationInvalid;
 };
+
+
+export const  printContent = (content: string) => {
+  const iframe = document.createElement("iframe");
+  iframe.style.display = "none"; // Hide the iframe
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentDocument;
+  if (doc) {
+    doc.open();
+    doc.write(content);
+    doc.close();
+  }
+
+  iframe.onload = () => {
+    iframe.contentWindow?.print();
+    setTimeout(() => document.body.removeChild(iframe), 1000);
+  };
+}

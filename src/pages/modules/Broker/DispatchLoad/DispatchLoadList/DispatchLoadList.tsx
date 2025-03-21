@@ -21,7 +21,7 @@ import { useForm } from "react-hook-form";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
 import { Equipment } from "../../../../../enums/Equipment";
-import { downloadFile, getEnumValue } from "../../../../../utils/globalHelper";
+import { downloadFile, getEnumValue, printContent } from "../../../../../utils/globalHelper";
 import FileUploadModal from "../../../../../components/common/FileUploadModal/FileUploadModal";
 import Pagination from "../../../../../components/common/Pagination/Pagination";
 import usePagination from "../../../../../hooks/usePagination";
@@ -339,10 +339,13 @@ const DispatchLoadList: React.FC = () => {
 
   const printRateAndConfirmation = async (row: Record<string, any>) => {
     try {
-      const result: any = await createData("LoadConfirmation", row._id);
-      if (result.size) {
-        const blob = new Blob([result], { type: "application/pdf" });
-        downloadFile(blob, `Load_Confirmation_${row.loadNumber}.pdf`);
+      const result = await createData("LoadConfirmation", row._id);
+      if (result.success) {
+        console.log(result);
+        
+        // const blob = new Blob([result], { type: "application/pdf" });
+        // downloadFile(blob, `Load_Confirmation_${row.loadNumber}.pdf`);
+        printContent(result.data.file);
         toast.success("Downloaded Successfully.");
       } else {
         toast.error("No matching loads found.");
