@@ -14,6 +14,7 @@ import {
   deleteLoad,
   getloads,
   invoicedforLoad,
+  mergeDocuments,
   refreshAgeforLoad,
   updateLoadStatus,
 } from "../../../../../services/dispatch/dispatchServices";
@@ -25,7 +26,7 @@ import { useForm } from "react-hook-form";
 import DateInput from "../../../../../components/common/DateInput/DateInput";
 import SelectField from "../../../../../components/common/SelectField/SelectField";
 import { Equipment } from "../../../../../enums/Equipment";
-import { downloadFile, getEnumValue, printContent } from "../../../../../utils/globalHelper";
+import { getEnumValue, printContent } from "../../../../../utils/globalHelper";
 import usePagination from "../../../../../hooks/usePagination";
 import ConfirmationModal from "../../../../../components/common/ConfirmationModal/ConfirmationModal";
 import { SortOption } from "../../../../../types/GeneralTypes";
@@ -129,12 +130,13 @@ const AccountingDispatchLoadList: React.FC = () => {
     setIsDetailsModalOpen(true);
   };
 
-  const { getData, loading, error } = useFetchData<any>({
+  const { getData, updateData, loading, error } = useFetchData<any>({
     getAll: {
       load: getloads,
     },
     update: {
       load: updateLoadStatus,
+      document: mergeDocuments
     },
     remove: {
       load: deleteLoad,
@@ -219,6 +221,9 @@ const AccountingDispatchLoadList: React.FC = () => {
     if (activeTab == DispatchLoadStatus.Completed) {
       actions.push("Print Invoice");
     }
+    if(activeTab == DispatchLoadStatus.Invoiced){
+      actions.push("Merge Documents");
+    }
     actions.push("Upload Documents");
     return actions;
   };
@@ -241,6 +246,10 @@ const AccountingDispatchLoadList: React.FC = () => {
       case "Upload Documents":
         // Implement document upload logic
         uploadDocuments(row);
+        break;
+
+      case "Merge Documents":
+        handleMergeDocuments(row);
         break;
       default:
         toast.info(`Action "${action}" is not yet implemented.`);
@@ -343,6 +352,16 @@ const AccountingDispatchLoadList: React.FC = () => {
     setIsUploadModalOpen(true);
     setDispatchDetails(row);
   };
+
+  const handleMergeDocuments = async (row: Record<string, any>) => {
+    const result = await updateData("document", row._id, {});
+    if(result.success){
+      toast.success(result.message);
+      fetchLoads();
+    }else {
+      toast.error(result.message);
+    }
+  }
 
   return (
     <div className="customers-list-wrapper">

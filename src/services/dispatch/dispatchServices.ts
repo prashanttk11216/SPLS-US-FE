@@ -145,3 +145,12 @@ export const downloadReport = async (data: any): Promise<ApiResponse> => {
     return handleAxiosError(error, "failed");
   }
 };
+
+export const mergeDocuments = async (loadId: string): Promise<ApiResponse> => {
+  try {
+    const response = await axiosApi.put(`/dispatch/merge-documents/${loadId}`);
+    return handleResponse(response);
+  } catch (error) {
+    return handleAxiosError(error, "Failed to delete Load");
+  }
+};
